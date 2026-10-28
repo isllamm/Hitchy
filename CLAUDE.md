@@ -7,7 +7,7 @@ Full spec: docs/BUILD_PLAN.md. Read its sections 1–10 before any task.
 Decisions: docs/adr/ (0002 = pinned versions and open points, 0003 = where the repo differs from the plan).
 
 ## Status
-Phase 0 skeleton: folders, docs and CI only. The backend, Android and admin web projects arrive in P1-B01, P2-A01 and P5-W01. Until then the commands below do not run, and each CI workflow skips its jobs.
+The backend scaffold exists (P1-B01): backend/functions builds, lints and tests on the emulators. The Android and admin web projects arrive in P2-A01 and P5-W01; until then their commands do not run, and their CI workflows skip their jobs.
 
 ## Layout
 - backend/ — Firebase: functions (TypeScript), rules, indexes, seed data
@@ -18,7 +18,7 @@ Phase 0 skeleton: folders, docs and CI only. The backend, Android and admin web 
 ## Commands
 Backend (in backend/functions):
 - npm ci · npm run lint · npm run typecheck · npm run build
-- npm test            (all tests on the emulators, project demo-hitchy)
+- npm test            (all tests on the emulators, project demo-hitchy; run npm run build first, the Functions emulator loads lib/)
 - npm run test:unit   (fast, no emulator)
 - npm run emulators · npm run seed
 - One file: npx vitest run test/unit/domain/pricing.test.ts   (add -t "<test name>" for one test)
@@ -31,6 +31,7 @@ Admin web (in admin-web/):
 
 ## Architecture
 Backend (backend/functions/src):
+- ES modules: relative imports end in `.js`. ESLint config is eslint.config.mjs (flat config).
 - A callable is one line: `export const bookSeat = makeCallable("bookSeat", BookSeatInput, bookSeatCore)`. makeCallable checks, in order: signed in → App Check (when config/limits.appCheckEnforced) → admin claim (admin functions) → users/{uid} exists → not suspended → zod input. Tests call the exported `…Core(input, ctx)` directly.
 - Business errors: `fail("RIDE_FULL")` becomes an HttpsError with `details.reason`. Appendix D is the one list of reasons; it feeds lib/errors.ts, contract/errors.md and the Android strings `error_<reason_lowercase>`.
 - domain/ is pure logic with no Firebase imports. repos/ does all Firestore reads and writes. schemas/ imports nothing from Firebase, because admin-web imports it through `@schemas/*`.
@@ -47,7 +48,7 @@ Android (android/):
 
 Contract: backend/functions/src/schemas/ is the source of truth; contract/ mirrors it for the iOS app.
 
-Local data: the emulators use project demo-hitchy, which never touches real cloud resources. `npm run seed` adds the test users from BUILD_PLAN 7.6 (OTP code 123456). The Android emulator reaches the Firebase emulators at 10.0.2.2.
+Local data: the emulators use project demo-hitchy, which never touches real cloud resources. `npm run seed` adds the test users from BUILD_PLAN 7.6 (OTP code 123456). The Android emulator reaches the Firebase emulators at 10.0.2.2. The Hosting emulator is on 5002, not 5000 (macOS AirPlay uses 5000).
 
 ## Working on a task
 Task IDs are P<n>-B/A/W/H<nn> (B backend, A Android, W admin web, H human). One task per branch `feat/<task-id>-short-name`; the pull request title starts with the task ID.

@@ -1,5 +1,6 @@
 # Admin web CI/CD (docs/BUILD_PLAN.md, task P5-W01).
 # The jobs are skipped until admin-web/package.json exists (task P5-W01).
+# Deploy jobs skip their steps until their environment has the Phase 0 secrets (P0-H09).
 name: admin-web
 
 on:
@@ -69,26 +70,47 @@ jobs:
       id-token: write # Workload Identity Federation
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      - id: secrets
+        name: Deploy secrets exist
+        env:
+          GCP_WIF_PROVIDER: ${{ secrets.GCP_WIF_PROVIDER }}
+          GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+        run: |
+          missing=""
+          for name in GCP_WIF_PROVIDER GCP_SERVICE_ACCOUNT; do
+            [ -n "${!name}" ] || missing="$missing $name"
+          done
+          if [ -z "$missing" ]; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Deploy skipped until the dev environment has these secrets (Phase 0):$missing"
+          fi
+      - if: steps.secrets.outputs.ok == 'true'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: backend/functions/.nvmrc
           cache: npm
           cache-dependency-path: |
             admin-web/package-lock.json
             backend/functions/package-lock.json
-      - name: Build (dev)
+      - if: steps.secrets.outputs.ok == 'true'
+        name: Build (dev)
         working-directory: admin-web
         run: |
           npm ci
           npm run build:dev
       # firebase-tools comes from backend/functions; firebase.json (hosting target "admin") is in backend/.
-      - run: npm ci
+      - if: steps.secrets.outputs.ok == 'true'
+        run: npm ci
         working-directory: backend/functions
-      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+      - if: steps.secrets.outputs.ok == 'true'
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
         with:
           workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-      - run: npx firebase-tools deploy --only hosting:admin --project hitchy-dev --non-interactive
+      - if: steps.secrets.outputs.ok == 'true'
+        run: npx firebase-tools deploy --only hosting:admin --project hitchy-dev --non-interactive
         working-directory: backend/functions
 
   deploy-prod:
@@ -104,23 +126,44 @@ jobs:
       id-token: write # Workload Identity Federation
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      - id: secrets
+        name: Deploy secrets exist
+        env:
+          GCP_WIF_PROVIDER: ${{ secrets.GCP_WIF_PROVIDER }}
+          GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+        run: |
+          missing=""
+          for name in GCP_WIF_PROVIDER GCP_SERVICE_ACCOUNT; do
+            [ -n "${!name}" ] || missing="$missing $name"
+          done
+          if [ -z "$missing" ]; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Deploy skipped until the prod environment has these secrets (Phase 0):$missing"
+          fi
+      - if: steps.secrets.outputs.ok == 'true'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: backend/functions/.nvmrc
           cache: npm
           cache-dependency-path: |
             admin-web/package-lock.json
             backend/functions/package-lock.json
-      - name: Build (prod)
+      - if: steps.secrets.outputs.ok == 'true'
+        name: Build (prod)
         working-directory: admin-web
         run: |
           npm ci
           npm run build:prod
-      - run: npm ci
+      - if: steps.secrets.outputs.ok == 'true'
+        run: npm ci
         working-directory: backend/functions
-      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+      - if: steps.secrets.outputs.ok == 'true'
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
         with:
           workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-      - run: npx firebase-tools deploy --only hosting:admin --project hitchy-prod --non-interactive
+      - if: steps.secrets.outputs.ok == 'true'
+        run: npx firebase-tools deploy --only hosting:admin --project hitchy-prod --non-interactive
         working-directory: backend/functions

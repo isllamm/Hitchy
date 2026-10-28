@@ -1,0 +1,6 @@
+{
+  "projects": {
+    "dev": "hitchy-dev",
+    "prod": "hitchy-prod"
+  }
+}

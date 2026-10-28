@@ -2,7 +2,7 @@
 
 - **Status:** accepted
 - **Date:** 2026-10-28
-- **Source:** setup of the repo skeleton (P0-A01), CLAUDE.md and the CI/CD workflows
+- **Source:** setup of the repo skeleton (P0-A01), CLAUDE.md and the CI/CD workflows; rows 12 to 18 from the backend scaffold (P1-B01, 2026-10-29)
 
 ## Context
 
@@ -23,6 +23,13 @@ The repo was set up from [docs/BUILD_PLAN.md](../BUILD_PLAN.md) on 2026-10-28. A
 | 9 | `admin-web/` is in CODEOWNERS (Islam) and Dependabot (weekly npm). Dependabot commits use Conventional Commit prefixes such as `chore(android)`. | P0-A01 lists only `/android`, `/backend/functions` and GitHub Actions | The admin web came later in the plan (Phase 5) and needs the same review and updates. The prefixes keep rule 10. |
 | 10 | `.gitignore` also ignores `.kotlin/`, `admin-web/dist/`, `coverage/`, `playwright-report/` and `test-results/`. | The list in P0-A01 | These are build and test outputs of tools in section 4.4. |
 | 11 | No `ios.yml` for now. | Listed in 4.1, with no spec | The iOS teammate owns it. |
+| 12 | ESLint uses `eslint.config.mjs` (flat config) in the backend, and later in the admin web. | `.eslintrc.cjs` (4.2, 4.5) | ESLint 10 no longer reads `.eslintrc` files (ADR 0002). |
+| 13 | The Hosting emulator runs on port 5002. | Port 5000 (P1-B01) | macOS AirPlay Receiver holds port 5000. No app or admin code uses the Hosting emulator port. |
+| 14 | `firestore.rules` and `storage.rules` deny everything, and `firestore.indexes.json` is empty, until P1-B05 to P1-B07. | Not in the P1-B01 file list | `firebase.json` points to these files and the Storage emulator needs a rules file. Deny-all is the safe start. |
+| 15 | Functions code is ES modules (`"type": "module"`, NodeNext); relative imports end in `.js`. One `tsconfig.json` covers `src` and `test`, so the entry point builds to `lib/src/index.js`. | No module system given | Node 24 and every tool in 4.4 support ES modules. One tsconfig keeps `build` = `tsc` and `typecheck` = `tsc --noEmit` as specified, and type-checks the tests too. |
+| 16 | `backend/functions` has `.npmrc` with `save-exact=true` and a `.prettierignore` (`lib/`, `coverage/`, `package-lock.json`). | Not in the P1-B01 file list | `save-exact` keeps later installs pinned (4.4); `prettier --check .` must skip build output and the lock file. |
+| 17 | npm's install scripts stay off for esbuild, re2, protobufjs, @firebase/util and google-logging-utils. | Not covered | npm 11 asks before running them. Build, lint and the emulator tests pass without them; approve one only when a task needs it. |
+| 18 | Each deploy and App Distribution job first checks that its environment has the secrets it needs. If any is missing, it skips its other steps and leaves a notice that names them. | Deploy on every push to `main` and on tags | Until Phase 0 is done (P0-H05, P0-H06, P0-H09), a merge would otherwise end in a failed deploy. Deploys start by themselves once the secrets are added. |
 
 ## Consequences
 

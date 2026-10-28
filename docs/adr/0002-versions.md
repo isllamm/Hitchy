@@ -1,6 +1,6 @@
 # 0002 · Versions
 
-- **Status:** proposed. It becomes accepted when P1-B01 and P2-A01 build with these versions.
+- **Status:** backend versions accepted (P1-B01 built and tested with them on 2026-10-29). Android and admin web versions stay proposed until P2-A01 and P5-W01 build with them.
 - **Date:** 2026-10-28
 - **Source:** [docs/BUILD_PLAN.md](../BUILD_PLAN.md), section 4.4 and tasks P1-B01, P2-A01
 
@@ -14,8 +14,9 @@ These are the newest stable releases on 2026-10-28, checked against each other's
 
 | Need | Package | Version | Note |
 | --- | --- | --- | --- |
-| Runtime | Node.js | 24.22.2 in `.nvmrc`, `24` in `engines`, `nodejs24` in `firebase.json` | Newest LTS that Cloud Functions supports (GA until 2028-04-30). Node 26 became LTS today but is only in preview on Cloud Functions, and firebase-tools does not list it yet. |
+| Runtime | Node.js | 24.22.1 in `.nvmrc`, `24` in `engines`, `nodejs24` in `firebase.json` | Newest LTS that Cloud Functions supports (GA until 2028-04-30). Node 26 became LTS on 2026-10-28 but is only in preview on Cloud Functions, and firebase-tools does not list it yet. 24.22.1 is what Homebrew installs; 24.22.2 is one patch newer. |
 | Language | typescript | 6.0.3 | 7.0.2 is newer, but typescript-eslint 8.72.1 supports TypeScript below 6.1 only. |
+| Language | @types/node | 24.19.2 | Not in 4.4: types for the Node 24 runtime. |
 | Firebase | firebase-functions | 7.4.0 | |
 | Firebase | firebase-admin | 14.5.0 | Fits firebase-functions 7.4.0. |
 | Validation | zod | 4.6.7 | Same version in the admin web. |
@@ -69,7 +70,7 @@ Kotlin libraries built with an older Kotlin work with Kotlin 2.4. The P2-A01 bui
 
 | Need | Package | Version | Note |
 | --- | --- | --- | --- |
-| Runtime | Node.js | 24.22.2 | CI uses the backend's `.nvmrc`. |
+| Runtime | Node.js | 24.22.1 | CI uses the backend's `.nvmrc`. |
 | App | react, react-dom | 19.3.1 | With @types/react and @types/react-dom 19.3.0. |
 | App | typescript | 6.0.3 | Same reason as the backend. |
 | App | vite | 8.3.5 | |
@@ -101,7 +102,7 @@ Each action is pinned to the commit of its release, with the version in a commen
 
 ## Open points
 
-1. **ESLint config format.** ESLint 10 reads only `eslint.config.*` (flat config); it no longer includes the old `.eslintrc` system. The plan names `.eslintrc.cjs` in sections 4.2 and 4.5. Proposed: use `eslint.config.mjs` instead. Decide before P1-B01.
+1. **ESLint config format (decided 2026-10-29).** ESLint 10 reads only `eslint.config.*` (flat config); it no longer includes the old `.eslintrc` system. The plan names `.eslintrc.cjs` in sections 4.2 and 4.5; the project uses `eslint.config.mjs` instead, in the backend (P1-B01) and later in the admin web (P5-W01).
 2. **detekt.** 1.23.8 is the newest stable, but it was built for Kotlin 2.0. detekt 2.0 (for Kotlin 2.x) is still alpha (2.0.0-alpha.6). With Kotlin 2.4, P2-A12 may need to force detekt's own Kotlin version, or wait for detekt 2.0. Decide in P2-A12.
 3. **Firebase BoM.** 35.1.0 is a new major, while GitLive 2.7.0 was built with 34.18.0. P2-A05 checks that GitLive works with 35.1.0; if not, use 34.18.0.
 

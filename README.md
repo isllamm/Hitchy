@@ -22,11 +22,34 @@ Section 4 of the build plan shows the full tree. Empty folders hold a `.gitkeep`
 
 ## Status
 
-Phase 0: repo skeleton only. Code comes task by task, starting with P1-B01 (backend), P2-A01 (Android) and P5-W01 (admin web).
+Phase 1: the backend scaffold is in place (P1-B01). Code comes task by task; the Android and admin web projects start with P2-A01 and P5-W01.
 
 ## Run locally
 
 Each task that adds a project also adds its commands here.
+
+### Backend (`backend/functions`)
+
+Needs Node 24 (exact version in `.nvmrc`) and Java 21 for the Firebase emulators.
+
+```bash
+cd backend/functions
+npm ci
+npm run build
+npm test
+```
+
+| Command | What it does |
+| --- | --- |
+| `npm run build` | Compiles TypeScript to `lib/` |
+| `npm run typecheck` | Type-checks without writing files |
+| `npm run lint` | ESLint, then the Prettier check |
+| `npm run test:unit` | Unit tests, no emulator |
+| `npm test` | All tests on the emulators (project `demo-hitchy`). Build first: the Functions emulator loads `lib/` |
+| `npm run emulators` | Starts the emulators; the UI is at http://localhost:4000 |
+| `npm run seed` | Loads the seed data into the emulators (from P1-B08) |
+
+Emulator ports: Auth 9099, Firestore 8080, Functions 5001, Storage 9199, Hosting 5002 (macOS uses 5000), UI 4000. The project ID `demo-hitchy` never touches real cloud resources.
 
 ## CI/CD
 
@@ -36,7 +59,7 @@ Each task that adds a project also adds its commands here.
 | `android.yml` | Pull requests and pushes to `main` that touch `android/` or `contract/`; tags `android-v*` | `./gradlew check assembleDevDebug`. Sends `devRelease` to App Distribution group `team` from `main`, and `prodRelease` to group `pilot` from a tag |
 | `admin-web.yml` | Pull requests and pushes to `main` that touch `admin-web/` or `backend/functions/src/schemas/`; tags `admin-v*` | Lint, typecheck, test and build. Deploys the `admin` Hosting site to `hitchy-dev` from `main` and to `hitchy-prod` from a tag |
 
-Each workflow skips its jobs until its project exists (`backend/functions/package.json`, `android/gradlew`, `admin-web/package.json`). Deploys also need the `dev` and `prod` GitHub environments and the secrets from Phase 0 (P0-H01, P0-H05, P0-H06, P0-H09). Prod deploys wait for approval in the `prod` environment.
+Each workflow skips its jobs until its project exists (`backend/functions/package.json`, `android/gradlew`, `admin-web/package.json`). Deploys also need the `dev` and `prod` GitHub environments and the secrets from Phase 0 (P0-H01, P0-H05, P0-H06, P0-H09). Until those secrets exist, each deploy job skips its steps and leaves a notice that names the missing secrets. Prod deploys wait for approval in the `prod` environment.
 
 ## Working on a task
 

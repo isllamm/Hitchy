@@ -1,5 +1,6 @@
 # Backend CI/CD (docs/BUILD_PLAN.md, task P1-B11).
 # The jobs are skipped until backend/functions/package.json exists (task P1-B01).
+# Deploy jobs skip their steps until their environment has the Phase 0 secrets (P0-H09).
 name: backend
 
 on:
@@ -77,18 +78,38 @@ jobs:
         working-directory: backend/functions
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      - id: secrets
+        name: Deploy secrets exist
+        env:
+          GCP_WIF_PROVIDER: ${{ secrets.GCP_WIF_PROVIDER }}
+          GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+        run: |
+          missing=""
+          for name in GCP_WIF_PROVIDER GCP_SERVICE_ACCOUNT; do
+            [ -n "${!name}" ] || missing="$missing $name"
+          done
+          if [ -z "$missing" ]; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Deploy skipped until the dev environment has these secrets (Phase 0):$missing"
+          fi
+      - if: steps.secrets.outputs.ok == 'true'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: backend/functions/.nvmrc
           cache: npm
           cache-dependency-path: backend/functions/package-lock.json
-      - run: npm ci
-      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+      - if: steps.secrets.outputs.ok == 'true'
+        run: npm ci
+      - if: steps.secrets.outputs.ok == 'true'
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
         with:
           workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
       # npx uses the firebase-tools version pinned in backend/functions; it finds ../firebase.json.
-      - run: npx firebase-tools deploy --only functions,firestore,storage --project hitchy-dev --non-interactive
+      - if: steps.secrets.outputs.ok == 'true'
+        run: npx firebase-tools deploy --only functions,firestore,storage --project hitchy-dev --non-interactive
 
   deploy-prod:
     needs: test
@@ -106,14 +127,34 @@ jobs:
         working-directory: backend/functions
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      - id: secrets
+        name: Deploy secrets exist
+        env:
+          GCP_WIF_PROVIDER: ${{ secrets.GCP_WIF_PROVIDER }}
+          GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+        run: |
+          missing=""
+          for name in GCP_WIF_PROVIDER GCP_SERVICE_ACCOUNT; do
+            [ -n "${!name}" ] || missing="$missing $name"
+          done
+          if [ -z "$missing" ]; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Deploy skipped until the prod environment has these secrets (Phase 0):$missing"
+          fi
+      - if: steps.secrets.outputs.ok == 'true'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: backend/functions/.nvmrc
           cache: npm
           cache-dependency-path: backend/functions/package-lock.json
-      - run: npm ci
-      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+      - if: steps.secrets.outputs.ok == 'true'
+        run: npm ci
+      - if: steps.secrets.outputs.ok == 'true'
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
         with:
           workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-      - run: npx firebase-tools deploy --only functions,firestore,storage --project hitchy-prod --non-interactive
+      - if: steps.secrets.outputs.ok == 'true'
+        run: npx firebase-tools deploy --only functions,firestore,storage --project hitchy-prod --non-interactive
