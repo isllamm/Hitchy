@@ -2,7 +2,7 @@
 
 - **Status:** accepted
 - **Date:** 2026-10-28
-- **Source:** setup of the repo skeleton (P0-A01), CLAUDE.md and the CI/CD workflows; rows 12 to 17 from the backend scaffold (P1-B01, 2026-10-29)
+- **Source:** setup of the repo skeleton (P0-A01), CLAUDE.md and the CI/CD workflows; rows 12 to 18 from the backend scaffold (P1-B01, 2026-10-29)
 
 ## Context
 
@@ -29,6 +29,7 @@ The repo was set up from [docs/BUILD_PLAN.md](../BUILD_PLAN.md) on 2026-10-28. A
 | 15 | Functions code is ES modules (`"type": "module"`, NodeNext); relative imports end in `.js`. One `tsconfig.json` covers `src` and `test`, so the entry point builds to `lib/src/index.js`. | No module system given | Node 24 and every tool in 4.4 support ES modules. One tsconfig keeps `build` = `tsc` and `typecheck` = `tsc --noEmit` as specified, and type-checks the tests too. |
 | 16 | `backend/functions` has `.npmrc` with `save-exact=true` and a `.prettierignore` (`lib/`, `coverage/`, `package-lock.json`). | Not in the P1-B01 file list | `save-exact` keeps later installs pinned (4.4); `prettier --check .` must skip build output and the lock file. |
 | 17 | npm's install scripts stay off for esbuild, re2, protobufjs, @firebase/util and google-logging-utils. | Not covered | npm 11 asks before running them. Build, lint and the emulator tests pass without them; approve one only when a task needs it. |
+| 18 | Each deploy and App Distribution job first checks that its environment has the secrets it needs. If any is missing, it skips its other steps and leaves a notice that names them. | Deploy on every push to `main` and on tags | Until Phase 0 is done (P0-H05, P0-H06, P0-H09), a merge would otherwise end in a failed deploy. Deploys start by themselves once the secrets are added. |
 
 ## Consequences
 
