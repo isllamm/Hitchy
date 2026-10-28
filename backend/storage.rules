@@ -1,0 +1,10 @@
+rules_version = '2';
+
+// Placeholder until P1-B06 writes the rules from BUILD_PLAN section 9.3: deny everything.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
