@@ -1,0 +1,35 @@
+# Hitchy (docs/BUILD_PLAN.md, task P0-A01)
+
+# Secrets and machine-specific files
+local.properties
+*.jks
+*.keystore
+google-services.json
+GoogleService-Info.plist
+.env*
+
+# Node
+node_modules/
+backend/functions/lib/
+
+# Firebase
+.firebase/
+*-debug.log
+
+# IDE: ignore .idea but keep the shared code style
+.idea/*
+!.idea/codeStyles/
+
+# Gradle
+build/
+.gradle/
+
+# macOS
+.DS_Store
+
+# Output of other tools from section 4.4
+.kotlin/
+admin-web/dist/
+coverage/
+playwright-report/
+test-results/

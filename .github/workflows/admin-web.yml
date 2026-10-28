@@ -1,0 +1,126 @@
+# Admin web CI/CD (docs/BUILD_PLAN.md, task P5-W01).
+# The jobs are skipped until admin-web/package.json exists (task P5-W01).
+name: admin-web
+
+on:
+  pull_request:
+    paths:
+      - "admin-web/**"
+      - "backend/functions/src/schemas/**"
+      - ".github/workflows/admin-web.yml"
+  push:
+    branches: [main]
+    tags: ["admin-v*"]
+    paths:
+      - "admin-web/**"
+      - "backend/functions/src/schemas/**"
+      - ".github/workflows/admin-web.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  ready:
+    name: Admin web code exists
+    runs-on: ubuntu-latest
+    outputs:
+      ok: ${{ steps.check.outputs.ok }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - id: check
+        run: |
+          if [ -f admin-web/package.json ]; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No admin-web/package.json yet (task P5-W01). Skipping the other jobs."
+          fi
+
+  check:
+    needs: ready
+    if: needs.ready.outputs.ok == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: admin-web
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: backend/functions/.nvmrc # one Node version for the whole repo
+          cache: npm
+          cache-dependency-path: admin-web/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build:prod
+
+  deploy-dev:
+    needs: check
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: dev
+    concurrency:
+      group: admin-deploy-dev
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write # Workload Identity Federation
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: backend/functions/.nvmrc
+          cache: npm
+          cache-dependency-path: |
+            admin-web/package-lock.json
+            backend/functions/package-lock.json
+      - name: Build (dev)
+        working-directory: admin-web
+        run: |
+          npm ci
+          npm run build:dev
+      # firebase-tools comes from backend/functions; firebase.json (hosting target "admin") is in backend/.
+      - run: npm ci
+        working-directory: backend/functions
+      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+      - run: npx firebase-tools deploy --only hosting:admin --project hitchy-dev --non-interactive
+        working-directory: backend/functions
+
+  deploy-prod:
+    needs: check
+    if: startsWith(github.ref, 'refs/tags/admin-v')
+    runs-on: ubuntu-latest
+    environment: prod # needs Islam's approval
+    concurrency:
+      group: admin-deploy-prod
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write # Workload Identity Federation
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: backend/functions/.nvmrc
+          cache: npm
+          cache-dependency-path: |
+            admin-web/package-lock.json
+            backend/functions/package-lock.json
+      - name: Build (prod)
+        working-directory: admin-web
+        run: |
+          npm ci
+          npm run build:prod
+      - run: npm ci
+        working-directory: backend/functions
+      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+      - run: npx firebase-tools deploy --only hosting:admin --project hitchy-prod --non-interactive
+        working-directory: backend/functions

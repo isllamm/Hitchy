@@ -1,0 +1,183 @@
+# Android CI/CD (docs/BUILD_PLAN.md, task P2-A14).
+# The jobs are skipped until android/gradlew exists (task P2-A01).
+name: android
+
+on:
+  pull_request:
+    paths:
+      - "android/**"
+      - "contract/**"
+      - ".github/workflows/android.yml"
+  push:
+    branches: [main]
+    tags: ["android-v*"]
+    paths:
+      - "android/**"
+      - "contract/**"
+      - ".github/workflows/android.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  ready:
+    name: Android code exists
+    runs-on: ubuntu-latest
+    outputs:
+      ok: ${{ steps.check.outputs.ok }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - id: check
+        run: |
+          if [ -f android/gradlew ]; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No android/gradlew yet (task P2-A01). Skipping the other jobs."
+          fi
+
+  check:
+    needs: ready
+    if: needs.ready.outputs.ok == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: android
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+        with:
+          cache-provider: basic # open-source cache; the default "enhanced" one is proprietary
+      # check also builds the prod variants (unit tests), so both files are needed.
+      - name: google-services.json (dev and prod)
+        env:
+          GOOGLE_SERVICES_DEV: ${{ secrets.GOOGLE_SERVICES_DEV }}
+          GOOGLE_SERVICES_PROD: ${{ secrets.GOOGLE_SERVICES_PROD }}
+        run: |
+          echo "$GOOGLE_SERVICES_DEV" | base64 --decode > app/src/dev/google-services.json
+          echo "$GOOGLE_SERVICES_PROD" | base64 --decode > app/src/prod/google-services.json
+      - run: ./gradlew check assembleDevDebug
+
+  distribute-dev:
+    needs: check
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: dev
+    concurrency:
+      group: android-distribute-dev
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write # Workload Identity Federation
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+        with:
+          cache-provider: basic
+      - name: google-services.json (dev)
+        env:
+          GOOGLE_SERVICES_DEV: ${{ secrets.GOOGLE_SERVICES_DEV }}
+        run: echo "$GOOGLE_SERVICES_DEV" | base64 --decode > android/app/src/dev/google-services.json
+      - name: Release key
+        env:
+          ANDROID_KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+        run: |
+          echo "$ANDROID_KEYSTORE_B64" | base64 --decode > "$RUNNER_TEMP/release.jks"
+          echo "HITCHY_KEYSTORE_PATH=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
+      - name: Build devRelease
+        working-directory: android
+        env:
+          HITCHY_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          HITCHY_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          HITCHY_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: ./gradlew assembleDevRelease -Phitchy.versionCode=${{ github.run_number }}
+      # firebase-tools comes from backend/functions (pinned there).
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: backend/functions/.nvmrc
+          cache: npm
+          cache-dependency-path: backend/functions/package-lock.json
+      - run: npm ci
+        working-directory: backend/functions
+      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+      - name: Upload to App Distribution (group team)
+        working-directory: backend/functions
+        env:
+          FIREBASE_ANDROID_APP_ID: ${{ secrets.FIREBASE_ANDROID_APP_ID }}
+        run: >-
+          npx firebase-tools appdistribution:distribute
+          "$GITHUB_WORKSPACE/android/app/build/outputs/apk/dev/release/app-dev-release.apk"
+          --app "$FIREBASE_ANDROID_APP_ID" --groups team
+
+  distribute-prod:
+    needs: check
+    if: startsWith(github.ref, 'refs/tags/android-v')
+    runs-on: ubuntu-latest
+    environment: prod # needs Islam's approval
+    concurrency:
+      group: android-distribute-prod
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write # Workload Identity Federation
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+        with:
+          cache-provider: basic
+      - name: google-services.json (prod)
+        env:
+          GOOGLE_SERVICES_PROD: ${{ secrets.GOOGLE_SERVICES_PROD }}
+        run: echo "$GOOGLE_SERVICES_PROD" | base64 --decode > android/app/src/prod/google-services.json
+      - name: Release key
+        env:
+          ANDROID_KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+        run: |
+          echo "$ANDROID_KEYSTORE_B64" | base64 --decode > "$RUNNER_TEMP/release.jks"
+          echo "HITCHY_KEYSTORE_PATH=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
+      # versionName comes from the tag: android-v1.2.0 -> 1.2.0.
+      - name: Build prodRelease
+        working-directory: android
+        env:
+          HITCHY_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          HITCHY_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          HITCHY_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: >-
+          ./gradlew assembleProdRelease
+          -Phitchy.versionCode=${{ github.run_number }}
+          -Phitchy.versionName="${GITHUB_REF_NAME#android-v}"
+      # firebase-tools comes from backend/functions (pinned there).
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: backend/functions/.nvmrc
+          cache: npm
+          cache-dependency-path: backend/functions/package-lock.json
+      - run: npm ci
+        working-directory: backend/functions
+      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+      - name: Upload to App Distribution (group pilot)
+        working-directory: backend/functions
+        env:
+          FIREBASE_ANDROID_APP_ID: ${{ secrets.FIREBASE_ANDROID_APP_ID }}
+        run: >-
+          npx firebase-tools appdistribution:distribute
+          "$GITHUB_WORKSPACE/android/app/build/outputs/apk/prod/release/app-prod-release.apk"
+          --app "$FIREBASE_ANDROID_APP_ID" --groups pilot

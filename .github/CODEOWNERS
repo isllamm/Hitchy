@@ -1,0 +1,10 @@
+# Code owners (docs/BUILD_PLAN.md, task P0-A01).
+# TODO(HUMAN): add the iOS teammate's GitHub username to the /contract/ line
+# and uncomment the /ios/ line.
+# GitHub accepts one code owner's approval; contract changes still need both (see contract/README.md).
+
+/contract/   @isllamm
+/backend/    @isllamm
+/android/    @isllamm
+/admin-web/  @isllamm
+# /ios/      @ios-teammate
