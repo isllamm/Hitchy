@@ -116,6 +116,7 @@ List files changed, test results, and any [HUMAN] or [DECISION] items.
 | 2026-10-29 | P2-A08 Screen pattern: MviViewModel, AppError.message(), SampleScreen and test | PR #25 |
 | 2026-10-29 | P2-A09 Strings and language: AppLanguage, LanguageSwitcher, default Arabic, 71 error strings, ErrorCatalogTest | PR #26 |
 | 2026-10-29 | P2-A10 Platform interfaces: 7 core platform interfaces, fakes, Android implementations, DI wiring | PR #27 |
+| 2026-10-29 | P2-A11 Debug screen: DEV-only route, versionName in AppConfig, live pricing, anon emulator auth, BoM messaging/config | PR #29 |
 
 Deploy jobs skip until each GitHub environment has its Phase 0 secrets (ADR 0003 row 18).
 
