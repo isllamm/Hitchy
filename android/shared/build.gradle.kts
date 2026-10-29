@@ -29,6 +29,8 @@ kotlin {
             implementation(libs.firebase.appcheck.playintegrity)
             implementation(libs.firebase.appcheck.debug)
             implementation(libs.firebase.crashlytics)
+            implementation(libs.firebase.messaging)
+            implementation(libs.firebase.config)
             implementation(libs.androidx.appcompat)
             implementation(libs.play.services.location)
             implementation(libs.koin.android)

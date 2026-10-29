@@ -17,7 +17,8 @@ class KoinModuleTest {
         val testAppConfig = AppConfig(
             env = Env.DEV,
             functionsRegion = "europe-west1",
-            useEmulator = true
+            useEmulator = true,
+            versionName = "1.0.0-dev"
         )
 
         val allModules = module {

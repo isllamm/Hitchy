@@ -15,13 +15,39 @@
     <!-- Settings Placeholder -->
     <string name="settings_title">الإعدادات</string>
     <string name="settings_language_label">اللغة</string>
+    <string name="settings_version">الإصدار %1$s</string>
     <string name="language_arabic">العربية</string>
     <string name="language_english">English</string>
 
-    <!-- Sample Screen -->
-    <string name="sample_title">شاشة تجريبية</string>
-    <string name="sample_button_load">تحميل البيانات</string>
-    <string name="sample_loaded_prefix">تم التحميل: %1$s</string>
+    <!-- Debug Screen -->
+    <string name="debug_title">قائمة تصحيح الأخطاء</string>
+    <string name="debug_refresh">تحديث</string>
+    <string name="debug_section_build">البناء والبيئة</string>
+    <string name="debug_label_uid">معرف المستخدم (UID)</string>
+    <string name="debug_not_signed_in">غير مسجل الدخول</string>
+    <string name="debug_sign_in_anon">تسجيل الدخول كمجهول (المحاكي)</string>
+    <string name="debug_sign_out">تسجيل الخروج</string>
+    <string name="debug_sign_in_required">يتطلب تسجيل الدخول</string>
+    <string name="debug_label_env">البيئة</string>
+    <string name="debug_label_region">منطقة الدوال</string>
+    <string name="debug_label_emulator">استخدام المحاكي</string>
+    <string name="debug_label_version">الإصدار</string>
+    <string name="debug_section_firebase">خدمات Firebase</string>
+    <string name="debug_label_fcm">رمز FCM</string>
+    <string name="debug_label_app_check">App Check</string>
+    <string name="debug_label_remote_config">Remote Config</string>
+    <string name="debug_section_pricing">إعدادات التسعير (مباشر)</string>
+    <string name="debug_pricing_loading">جارٍ تحميل إعدادات التسعير...</string>
+    <string name="debug_pricing_sign_in_required">سجّل الدخول لعرض إعدادات التسعير المباشرة</string>
+    <string name="debug_fuel_price">سعر الوقود</string>
+    <string name="debug_car_consumption">استهلاك السيارة</string>
+    <string name="debug_scooter_consumption">استهلاك السكوتر</string>
+    <string name="debug_running_cost">تكلفة التشغيل</string>
+    <string name="debug_traffic_factors">عوامل الازدحام</string>
+    <string name="debug_margin_cap">الحد الأقصى للهامش</string>
+    <string name="debug_max_seats">الحد الأقصى للمقاعد</string>
+    <string name="debug_disabled">معطّل</string>
+    <string name="debug_test_crash">اختبار الانهيار</string>
 
     <!-- Error Catalog (contract/errors.md) -->
     <string name="error_unauthenticated">سجّل دخولك تاني من فضلك.</string>

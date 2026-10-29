@@ -15,13 +15,39 @@
     <!-- Settings Placeholder -->
     <string name="settings_title">Settings</string>
     <string name="settings_language_label">Language</string>
+    <string name="settings_version">Version %1$s</string>
     <string name="language_arabic">العربية</string>
     <string name="language_english">English</string>
 
-    <!-- Sample Screen -->
-    <string name="sample_title">Sample Screen</string>
-    <string name="sample_button_load">Load Data</string>
-    <string name="sample_loaded_prefix">Loaded: %1$s</string>
+    <!-- Debug Screen -->
+    <string name="debug_title">Debug Menu</string>
+    <string name="debug_refresh">Refresh</string>
+    <string name="debug_section_build">Build &amp; Environment</string>
+    <string name="debug_label_uid">UID</string>
+    <string name="debug_not_signed_in">Not signed in</string>
+    <string name="debug_sign_in_anon">Sign in anonymously (Emulator)</string>
+    <string name="debug_sign_out">Sign out</string>
+    <string name="debug_sign_in_required">Sign-in required</string>
+    <string name="debug_label_env">Environment</string>
+    <string name="debug_label_region">Functions Region</string>
+    <string name="debug_label_emulator">Use Emulator</string>
+    <string name="debug_label_version">Version</string>
+    <string name="debug_section_firebase">Firebase Services</string>
+    <string name="debug_label_fcm">FCM Token</string>
+    <string name="debug_label_app_check">App Check</string>
+    <string name="debug_label_remote_config">Remote Config</string>
+    <string name="debug_section_pricing">Pricing Config (Live)</string>
+    <string name="debug_pricing_loading">Loading pricing config...</string>
+    <string name="debug_pricing_sign_in_required">Sign in to view live pricing config</string>
+    <string name="debug_fuel_price">Fuel Price</string>
+    <string name="debug_car_consumption">Car Consumption</string>
+    <string name="debug_scooter_consumption">Scooter Consumption</string>
+    <string name="debug_running_cost">Running Cost</string>
+    <string name="debug_traffic_factors">Traffic Factors</string>
+    <string name="debug_margin_cap">Margin Cap</string>
+    <string name="debug_max_seats">Max Seats</string>
+    <string name="debug_disabled">Disabled</string>
+    <string name="debug_test_crash">Test Crash</string>
 
     <!-- Error Catalog (contract/errors.md) -->
     <string name="error_unauthenticated">Please sign in again.</string>
