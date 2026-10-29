@@ -4,6 +4,13 @@ import android.app.Application
 import com.hitchy.core.data.FirebaseModule
 import com.hitchy.core.model.AppConfig
 import com.hitchy.core.model.Env
+import com.hitchy.di.appModule
+import com.hitchy.di.coreModule
+import com.hitchy.di.featureModules
+import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidLogger
+import org.koin.core.context.startKoin
+import org.koin.core.logger.Level
 
 class HitchyApplication : Application() {
     override fun onCreate() {
@@ -16,5 +23,16 @@ class HitchyApplication : Application() {
         )
 
         FirebaseModule.init(this, appConfig)
+
+        startKoin {
+            androidLogger(if (appConfig.env == Env.DEV) Level.DEBUG else Level.ERROR)
+            androidContext(this@HitchyApplication)
+            modules(
+                listOf(
+                    appModule(appConfig),
+                    coreModule
+                ) + featureModules
+            )
+        }
     }
 }

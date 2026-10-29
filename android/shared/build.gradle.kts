@@ -11,6 +11,10 @@ kotlin {
             implementation(libs.gitlive.firebase.firestore)
             implementation(libs.gitlive.firebase.functions)
             implementation(libs.gitlive.firebase.storage)
+            implementation(project.dependencies.platform(libs.koin.bom.get()))
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
+            implementation(libs.koin.compose.viewmodel)
         }
         androidMain.dependencies {
             implementation(project.dependencies.platform(libs.firebase.android.bom.get()))
@@ -22,6 +26,8 @@ kotlin {
             implementation(libs.firebase.appcheck.playintegrity)
             implementation(libs.firebase.appcheck.debug)
             implementation(libs.firebase.crashlytics)
+            implementation(libs.koin.android)
+            implementation(libs.androidx.datastore.preferences)
         }
         commonTest.dependencies {
             implementation(libs.kotlinx.coroutines.test)

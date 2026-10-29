@@ -14,6 +14,8 @@ plugins {
 val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
 configure<KotlinMultiplatformExtension> {
+    jvmToolchain(17)
+
     android {
         namespace = "com.hitchy.${project.name}"
         compileSdk = 37

@@ -1,6 +1,6 @@
 # 0002 · Versions
 
-- **Status:** backend versions accepted (P1-B01 on 2026-10-29). Android P2-A01 scaffold, P2-A02 convention plugins, P2-A04 core utilities, and P2-A05 Firebase wiring built with pinned versions (AGP 9.5.0, Gradle 9.8.2, Kotlin 2.4.21, Compose Multiplatform 1.12.2, compileSdk 37, targetSdk 36, minSdk 26, serialization 1.12.0, kotlinx-datetime 0.8.0, GitLive 2.7.0, Firebase BoM 34.18.0, Google Services plugin 4.5.0, Crashlytics plugin 3.0.8, Coroutines 1.11.0). Other Android and admin web versions stay proposed until their tasks build with them.
+- **Status:** backend versions accepted (P1-B01 on 2026-10-29). Android P2-A01 scaffold, P2-A02 convention plugins, P2-A04 core utilities, P2-A05 Firebase wiring, and P2-A06 Koin dependency injection built with pinned versions (AGP 9.5.0, Gradle 9.8.2, Kotlin 2.4.21, Compose Multiplatform 1.12.2, compileSdk 37, targetSdk 36, minSdk 26, serialization 1.12.0, kotlinx-datetime 0.8.0, GitLive 2.7.0, Firebase BoM 34.18.0, Google Services plugin 4.5.0, Crashlytics plugin 3.0.8, Coroutines 1.11.0, Koin BOM 4.2.2, DataStore Preferences 1.3.0). Other Android and admin web versions stay proposed until their tasks build with them.
 - **Date:** 2026-10-28
 - **Source:** [docs/BUILD_PLAN.md](../BUILD_PLAN.md), section 4.4 and tasks P1-B01, P2-A01
 
@@ -57,6 +57,7 @@ These are the newest stable releases on 2026-10-28, checked against each other's
 | Location | play-services-location | 21.4.0 | |
 | Android | androidx.appcompat | 1.8.0 | Not in 4.4: `MainActivity` is an `AppCompatActivity` (P2-A09). |
 | Android | androidx.activity:activity-compose | 1.13.0 | Not in 4.4: `setContent` in `MainActivity`. |
+| Tests | koin-test | 4.2.2 (from Koin BOM) | Not in 4.4: JVM verification test (module.verify()) in app/src/test. |
 | Tests | Turbine | 1.2.1 | |
 | Tests | Konsist | 0.18.1 | |
 | Tests | Roborazzi | 1.77.0 | After Figma (Phase 3). |

@@ -1,6 +1,7 @@
 package com.hitchy.core.data
 
 import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.functions.FirebaseFunctions
 import dev.gitlive.firebase.functions.functions
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.serializer
@@ -20,8 +21,10 @@ suspend inline fun <reified I : Any, reified O : Any> FunctionsClient.call(
 ): AppResult<O> = call(name, input, serializer<I>(), serializer<O>())
 
 class GitLiveFunctionsClient(
-    private val region: String
+    private val functions: FirebaseFunctions
 ) : FunctionsClient {
+
+    constructor(region: String) : this(Firebase.functions(region = region))
 
     override suspend fun <I : Any, O : Any> call(
         name: String,
@@ -30,7 +33,6 @@ class GitLiveFunctionsClient(
         outputSerializer: KSerializer<O>
     ): AppResult<O> {
         return try {
-            val functions = Firebase.functions(region = region)
             val callable = functions.httpsCallable(name)
             val result = callable(inputSerializer, input)
             val data = result.data(outputSerializer)
