@@ -46,3 +46,9 @@ kotlin {
         }
     }
 }
+
+val fixturesDir = rootProject.file("../contract/fixtures")
+tasks.withType<Test>().configureEach {
+    inputs.dir(fixturesDir).withPropertyName("contractFixturesDir")
+    systemProperty("hitchy.contract.fixturesDir", fixturesDir.absolutePath)
+}
