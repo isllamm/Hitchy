@@ -4,6 +4,7 @@ import {
   CAIRO,
   cairoDateTime,
   dateKey,
+  hhmmToMinutes,
   minuteOfDay,
   startOfCairoDay,
   startOfCairoWeek,
@@ -116,5 +117,30 @@ describe("Cairo time", () => {
       expect(start.getTime()).toBeLessThanOrEqual(day);
       expect(day - start.getTime()).toBeLessThan(7 * DAY + HOUR);
     }
+  });
+
+  describe("hhmmToMinutes", () => {
+    it("converts 00:00 to 0", () => {
+      expect(hhmmToMinutes("00:00")).toBe(0);
+    });
+
+    it("converts 23:59 to 1439", () => {
+      expect(hhmmToMinutes("23:59")).toBe(1439);
+    });
+
+    it("converts 07:30 to 450", () => {
+      expect(hhmmToMinutes("07:30")).toBe(450);
+    });
+
+    it("throws on 24:00", () => {
+      expect(() => hhmmToMinutes("24:00")).toThrow(RangeError);
+    });
+
+    it("throws on invalid format or values", () => {
+      expect(() => hhmmToMinutes("12:60")).toThrow(RangeError);
+      expect(() => hhmmToMinutes("-1:00")).toThrow(Error);
+      expect(() => hhmmToMinutes("invalid")).toThrow(Error);
+      expect(() => hhmmToMinutes("7:30")).toThrow(Error);
+    });
   });
 });

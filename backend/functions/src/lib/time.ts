@@ -4,6 +4,18 @@ import type { DateKey, HHmm } from "../schemas/docs.js";
 
 export const CAIRO = "Africa/Cairo";
 
+// Minutes since midnight from "HH:mm", 0 … 1439. Throws if invalid or out of range.
+export function hhmmToMinutes(time: HHmm): number {
+  const match = /^(\d{2}):(\d{2})$/.exec(time);
+  if (!match) throw new Error(`Invalid time format, expected "HH:mm": ${time}`);
+  const hours = Number(match[1]);
+  const minutes = Number(match[2]);
+  if (hours < 0 || hours >= 24 || minutes < 0 || minutes >= 60) {
+    throw new RangeError(`Time out of range: ${time}`);
+  }
+  return hours * 60 + minutes;
+}
+
 export function toCairo(date: Date): DateTime {
   return DateTime.fromJSDate(date, { zone: CAIRO });
 }
