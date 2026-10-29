@@ -17,6 +17,7 @@ androidxDatastore = "1.3.0"
 navigationCompose = "2.10.0"
 androidxLifecycle = "2.11.0"
 turbine = "1.2.1"
+playServicesLocation = "21.4.0"
 
 [libraries]
 androidx-lifecycle-viewmodel-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "androidxLifecycle" }
@@ -61,6 +62,9 @@ koin-test = { module = "io.insert-koin:koin-test" }
 
 # DataStore Preferences
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "androidxDatastore" }
+
+# Location
+play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -5,10 +5,22 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import com.hitchy.core.model.AppConfig
-import com.hitchy.core.platform.AppSettings
+import com.hitchy.core.platform.ActivityProvider
+import com.hitchy.core.platform.Analytics
+import com.hitchy.core.platform.AndroidActivityProvider
+import com.hitchy.core.platform.AndroidDialer
+import com.hitchy.core.platform.AndroidImageCompressor
 import com.hitchy.core.platform.AndroidLanguageSwitcher
+import com.hitchy.core.platform.AndroidLocationProvider
+import com.hitchy.core.platform.AndroidSharer
+import com.hitchy.core.platform.AppSettings
 import com.hitchy.core.platform.DataStoreAppSettings
+import com.hitchy.core.platform.Dialer
+import com.hitchy.core.platform.ImageCompressor
 import com.hitchy.core.platform.LanguageSwitcher
+import com.hitchy.core.platform.LocationProvider
+import com.hitchy.core.platform.NoOpAnalytics
+import com.hitchy.core.platform.Sharer
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.dsl.module
@@ -20,4 +32,18 @@ fun appModule(appConfig: AppConfig): Module = module {
     single<DataStore<Preferences>> { androidContext().hitchyDataStore }
     single<AppSettings> { DataStoreAppSettings(get()) }
     single<LanguageSwitcher> { AndroidLanguageSwitcher() }
+
+    single { AndroidActivityProvider() }
+    single<ActivityProvider> { get<AndroidActivityProvider>() }
+
+    single<LocationProvider> { AndroidLocationProvider(androidContext()) }
+    single<ImageCompressor> { AndroidImageCompressor() }
+    single<Sharer> { AndroidSharer(androidContext(), getOrNull()) }
+    single<Dialer> { AndroidDialer(androidContext(), getOrNull()) }
+
+    // TODO(P14-A01): Firebase Analytics and real event logging
+    single<Analytics> { NoOpAnalytics() }
+
+    // TODO(P4-A01): PhoneAuth binding
+    // TODO(P8-A02): TripTracker binding
 }
