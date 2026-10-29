@@ -2184,8 +2184,8 @@ When a shared cloud dev is needed, in this order: Blaze with the P0-H02 alerts a
 
 ### P1-B07 · Indexes
 
-- **Files:** `backend/firestore.indexes.json` (section 10).
-- **Done when:** `firebase deploy --only firestore:indexes --project demo-hitchy --dry-run` style validation passes (or the emulator loads it without errors).
+- **Files:** `backend/firestore.indexes.json` (section 10), `backend/functions/test/unit/indexes.test.ts`.
+- **Done when:** unit tests validate `firestore.indexes.json`: valid JSON, required index and override structure, at least 2 fields per composite index, valid orders/arrayConfigs, no duplicate indexes, and all section 10 definitions present (the Firestore emulator does not enforce composite indexes, so the unit test is the verification).
 
 ### P1-B08 · Seed data
 

@@ -2,7 +2,7 @@
 
 - **Status:** accepted
 - **Date:** 2026-10-28
-- **Source:** setup of the repo skeleton (P0-A01), CLAUDE.md and the CI/CD workflows; rows 12 to 18 from the backend scaffold (P1-B01, 2026-10-29); rows 19 to 22 from the shared backend library (P1-B02, 2026-10-29); rows 23 to 25 from the schemas (P1-B03, 2026-10-29); rows 27 to 30 from pricing and geo (P1-B04, 2026-10-29); rows 31 to 34 from Firestore rules (P1-B05, 2026-10-29); row 35 from Storage rules (P1-B06, 2026-10-29)
+- **Source:** setup of the repo skeleton (P0-A01), CLAUDE.md and the CI/CD workflows; rows 12 to 18 from the backend scaffold (P1-B01, 2026-10-29); rows 19 to 22 from the shared backend library (P1-B02, 2026-10-29); rows 23 to 25 from the schemas (P1-B03, 2026-10-29); rows 27 to 30 from pricing and geo (P1-B04, 2026-10-29); rows 31 to 34 from Firestore rules (P1-B05, 2026-10-29); row 35 from Storage rules (P1-B06, 2026-10-29); row 36 from Indexes (P1-B07, 2026-10-29)
 
 ## Context
 
@@ -47,6 +47,7 @@ The repo was set up from [docs/BUILD_PLAN.md](../BUILD_PLAN.md) on 2026-10-28. A
 | 33 | Vitest runs rules tests in a dedicated project with `fileParallelism: false` because tests share a single Firestore emulator instance. | P1-B05: rules tests in `test/rules/` | Prevents test pollution from parallel state clears on the shared emulator. Unit tests remain parallel. |
 | 34 | Saved places and notification inbox rules are implemented and tested in P1-B05 as part of the full matrix. | P7-B06: "Saved places and the inbox in the rules" | Complete matrix coverage early; P7-B06 will only add its own feature-specific tests. |
 | 35 | Storage rules enforce `request.resource.size > 0` on KYC documents and avatars in addition to the upper size bounds (5 MB and 2 MB). | `request.resource.size < 5 * 1024 * 1024` and `request.resource.size < 2 * 1024 * 1024` (9.3) | Rejects empty 0-byte file uploads before they consume storage or trigger unnecessary downstream document reviews. |
+| 36 | `firestore.indexes.json` is verified by automated unit tests (`test/unit/indexes.test.ts`) checking valid JSON, query scopes, non-duplication, and Section 10 definitions. | P1-B07: `firebase deploy --dry-run` or emulator loading | The Firestore emulator does not enforce or track composite indexes, and `firebase deploy --dry-run` requires online credentials unavailable offline and in PR CI. |
 
 ## Consequences
 
