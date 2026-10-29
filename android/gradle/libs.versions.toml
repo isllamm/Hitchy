@@ -18,6 +18,11 @@ navigationCompose = "2.10.0"
 androidxLifecycle = "2.11.0"
 turbine = "1.2.1"
 playServicesLocation = "21.4.0"
+detekt = "1.23.8"
+spotless = "8.10.4"
+ktlint = "1.8.0"
+leakcanary = "2.14"
+konsist = "0.18.1"
 
 [libraries]
 androidx-lifecycle-viewmodel-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "androidxLifecycle" }
@@ -68,6 +73,10 @@ androidx-datastore-preferences = { module = "androidx.datastore:datastore-prefer
 # Location
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
 
+# Code Quality & Debugging
+leakcanary-android = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }
+konsist = { module = "com.lemonappdev:konsist", version.ref = "konsist" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-kmp-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
@@ -77,3 +86,5 @@ compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "composeMu
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 google-services = { id = "com.google.gms.google-services", version.ref = "googleServicesPlugin" }
 firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlyticsPlugin" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }

@@ -28,7 +28,7 @@ class HitchyApplication : Application() {
             env = if (BuildConfig.ENV == "prod") Env.PROD else Env.DEV,
             functionsRegion = BuildConfig.FUNCTIONS_REGION,
             useEmulator = BuildConfig.USE_EMULATOR,
-            versionName = BuildConfig.VERSION_NAME
+            versionName = BuildConfig.VERSION_NAME,
         )
 
         FirebaseModule.init(this, appConfig)
@@ -39,8 +39,8 @@ class HitchyApplication : Application() {
             modules(
                 listOf(
                     appModule(appConfig),
-                    coreModule
-                ) + featureModules
+                    coreModule,
+                ) + featureModules,
             )
         }
 

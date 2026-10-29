@@ -12,18 +12,17 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 class AndroidDebugInfo(
-    private val context: Context,
     private val appConfig: AppConfig,
 ) : DebugInfo {
 
-    override suspend fun getFcmToken(): String? {
-        return try {
-            FirebaseMessaging.getInstance().token.awaitTask()
-        } catch (e: Exception) {
-            "Error: ${e.message ?: "Failed to get token"}"
-        }
+    @Suppress("TooGenericExceptionCaught")
+    override suspend fun getFcmToken(): String? = try {
+        FirebaseMessaging.getInstance().token.awaitTask()
+    } catch (e: Exception) {
+        "Error: ${e.message ?: "Failed to get token"}"
     }
 
+    @Suppress("TooGenericExceptionCaught")
     override suspend fun getAppCheckStatus(): String {
         if (appConfig.useEmulator) {
             return "not installed (emulator)"
@@ -71,9 +70,8 @@ class AndroidDebugInfo(
         }
     }
 
-    override fun triggerTestCrash() {
-        throw RuntimeException("Test crash from Hitchy debug screen")
-    }
+    @Suppress("TooGenericExceptionThrown")
+    override fun triggerTestCrash(): Unit = throw RuntimeException("Test crash from Hitchy debug screen")
 
     private suspend fun <T> Task<T>.awaitTask(): T = suspendCancellableCoroutine { cont ->
         addOnSuccessListener { res -> cont.resume(res) }

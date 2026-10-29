@@ -43,7 +43,7 @@ class DebugViewModel(
         functionsRegion = appConfig.functionsRegion,
         useEmulator = appConfig.useEmulator,
         versionName = appConfig.versionName,
-    )
+    ),
 ) {
 
     init {
@@ -94,6 +94,7 @@ class DebugViewModel(
         }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     private fun signInAnonymously() {
         viewModelScope.launch {
             try {
@@ -104,6 +105,7 @@ class DebugViewModel(
         }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     private fun signOut() {
         viewModelScope.launch {
             try {

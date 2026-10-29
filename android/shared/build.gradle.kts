@@ -1,5 +1,6 @@
 plugins {
     id("hitchy.kmp.library")
+    id("hitchy.quality")
 }
 
 kotlin {
@@ -39,6 +40,9 @@ kotlin {
         commonTest.dependencies {
             implementation(libs.kotlinx.coroutines.test)
             implementation(libs.turbine)
+        }
+        getByName("androidHostTest").dependencies {
+            implementation(libs.konsist)
         }
     }
 }

@@ -6,7 +6,7 @@ import androidx.core.net.toUri
 
 class AndroidDialer(
     private val context: Context,
-    private val activityProvider: ActivityProvider? = null
+    private val activityProvider: ActivityProvider? = null,
 ) : Dialer {
 
     override fun dial(number: String) {

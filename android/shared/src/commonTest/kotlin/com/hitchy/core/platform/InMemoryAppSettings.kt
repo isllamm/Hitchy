@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class InMemoryAppSettings(
     initialRole: Role? = null,
-    val initialInstallId: String = "test-install-id-1234"
+    val initialInstallId: String = "test-install-id-1234",
 ) : AppSettings {
 
     private val _lastRole = MutableStateFlow(initialRole)

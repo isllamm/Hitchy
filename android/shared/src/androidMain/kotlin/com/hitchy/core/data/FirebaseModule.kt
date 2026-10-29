@@ -55,10 +55,11 @@ object FirebaseModule {
                 val appCheck = FirebaseAppCheck.getInstance()
                 when (config.env) {
                     Env.PROD -> appCheck.installAppCheckProviderFactory(
-                        PlayIntegrityAppCheckProviderFactory.getInstance()
+                        PlayIntegrityAppCheckProviderFactory.getInstance(),
                     )
+
                     Env.DEV -> appCheck.installAppCheckProviderFactory(
-                        DebugAppCheckProviderFactory.getInstance()
+                        DebugAppCheckProviderFactory.getInstance(),
                     )
                 }
             }

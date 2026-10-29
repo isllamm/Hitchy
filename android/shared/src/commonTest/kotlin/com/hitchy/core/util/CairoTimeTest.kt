@@ -1,5 +1,7 @@
 package com.hitchy.core.util
 
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.offsetIn
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -11,8 +13,6 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
-import kotlinx.datetime.DayOfWeek
-import kotlinx.datetime.offsetIn
 
 @OptIn(ExperimentalTime::class)
 class CairoTimeTest {
@@ -20,14 +20,13 @@ class CairoTimeTest {
     private data class OffsetChange(
         val at: Instant,
         val from: Int, // minutes east of UTC
-        val to: Int
+        val to: Int,
     )
 
     // Finds when Cairo's UTC offset changes in a year, from time zone data,
     // so the summer time dates are never hard-coded.
     private fun offsetChanges(year: Int): List<OffsetChange> {
-        fun offsetMinutesAt(instant: Instant): Int =
-            instant.offsetIn(CairoTimeZone).totalSeconds / 60
+        fun offsetMinutesAt(instant: Instant): Int = instant.offsetIn(CairoTimeZone).totalSeconds / 60
 
         val found = mutableListOf<OffsetChange>()
         val start = Instant.parse("$year-01-01T00:00:00Z")
@@ -53,7 +52,7 @@ class CairoTimeTest {
 
     private fun change(kind: String): Instant {
         val c = changes2026.firstOrNull { if (kind == "start") it.to > it.from else it.to < it.from }
-            ?: throw IllegalStateException("No summer time $kind found in 2026")
+            ?: error("No summer time $kind found in 2026")
         return c.at
     }
 

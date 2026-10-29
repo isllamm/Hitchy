@@ -48,7 +48,7 @@ data class SearchResults(
     val fromPointId: String? = null,
     val date: String,
     val time: String,
-    val seats: Int
+    val seats: Int,
 )
 
 @Serializable

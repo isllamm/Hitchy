@@ -9,7 +9,7 @@ Rider designs: docs/design/rider-flow.md (screen index and flow map of the full 
 Plan v1.1 (BUILD_PLAN 2.1) changed the product after the design review: owners accept each booking (a request holds its seats), one booking can hold several seats, chat and calls after acceptance, payment confirmation, an inbox. The app's text says "Owner"; code and data say `host`.
 
 ## Status
-Phase 2 (Android foundation) is in progress. Done: P2-A01 project and modules (app + shared, Gradle 9.8.2, AGP 9.5.0, Kotlin 2.4.21, Compose Multiplatform 1.12.2), P2-A02 convention plugins (hitchy.android.application and hitchy.kmp.library in build-logic/convention), P2-A03 flavors, signing, build config, P2-A04 core utilities, P2-A05 Firebase wiring, P2-A06 Koin dependency injection, P2-A07 Navigation and deep links, P2-A08 Screen pattern, P2-A09 Strings and language, P2-A10 Platform interfaces, P2-A11 Debug screen. Next: P2-A12 Code quality. The admin web project arrives in P5-W01; until then its CI workflow skips its jobs.
+Phase 2 (Android foundation) is in progress. Done: P2-A01 project and modules (app + shared, Gradle 9.8.2, AGP 9.5.0, Kotlin 2.4.21, Compose Multiplatform 1.12.2), P2-A02 convention plugins (hitchy.android.application and hitchy.kmp.library in build-logic/convention), P2-A03 flavors, signing, build config, P2-A04 core utilities, P2-A05 Firebase wiring, P2-A06 Koin dependency injection, P2-A07 Navigation and deep links, P2-A08 Screen pattern, P2-A09 Strings and language, P2-A10 Platform interfaces, P2-A11 Debug screen, P2-A12 Code quality. Next: P2-A13 Contract DTO tests. The admin web project arrives in P5-W01; until then its CI workflow skips its jobs.
 
 ## Layout
 - backend/ — Firebase: functions (TypeScript), rules, indexes, seed data
@@ -127,7 +127,6 @@ Deploy jobs skip until each GitHub environment has its Phase 0 secrets (ADR 0003
 - [HUMAN] Both projects are on Blaze and set up to cost 0 USD (2026-10-29, BUILD_PLAN Phase 0 "Keeping both projects at 0 USD"): Storage bucket in us-central1 (free tier), no real text messages until launch (SMS region policy allows no region), and only the free map (BUILD_PLAN 5.10). Still to do in hitchy-dev: budget alerts, auto-stop, Storage bucket, P0-H15, then the `dev` environment secrets (CI starts deploying when they exist), then P0-H14. Before launch: check that ID photos may be stored in the US under Egypt's data protection law.
 - [HUMAN] The iOS teammate's GitHub username in .github/CODEOWNERS.
 - [DECISION-01] Functions region is the default `europe-west1`. [DECISION-16] `ADMIN_URL` in backend/functions/src/lib/app.ts is "TODO-HUMAN" until P5-W01 creates the admin sites.
-- To check later: detekt 1.23.8 with Kotlin 2.4 (P2-A12).
 - A user whose activeRole differs from the notification's audience (e.g. booking_requested while in rider mode) gets the wrong screen; to fix in the notification-tap task.
 
 ## Local setup (Islam's Mac)

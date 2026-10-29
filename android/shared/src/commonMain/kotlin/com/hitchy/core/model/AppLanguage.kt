@@ -9,5 +9,5 @@ enum class AppLanguage(val code: String) {
     ARABIC("ar"),
 
     @SerialName("en")
-    ENGLISH("en")
+    ENGLISH("en"),
 }

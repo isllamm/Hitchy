@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.mapNotNull
 import java.util.UUID
 
 class DataStoreAppSettings(
-    private val dataStore: DataStore<Preferences>
+    private val dataStore: DataStore<Preferences>,
 ) : AppSettings {
 
     private object PreferencesKeys {

@@ -16,6 +16,7 @@ class FakeDebugInfo(
 
     override suspend fun getRemoteConfigValues(): Map<String, String> = remoteConfigValues
 
+    @Suppress("TooGenericExceptionThrown")
     override fun triggerTestCrash() {
         testCrashTriggered = true
         throw RuntimeException("Fake crash")

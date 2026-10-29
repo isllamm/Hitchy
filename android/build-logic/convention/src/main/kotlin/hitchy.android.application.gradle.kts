@@ -15,42 +15,43 @@ plugins {
 val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
 val prodGoogleServices = file("src/prod/google-services.json")
-val isProdPlaceholder = if (!prodGoogleServices.exists() || prodGoogleServices.length() < 10) {
-    prodGoogleServices.parentFile.mkdirs()
-    prodGoogleServices.writeText(
-        """
-        {
-          "project_info": {
-            "project_number": "000000000000",
-            "project_id": "demo-hitchy",
-            "storage_bucket": "demo-hitchy.appspot.com"
-          },
-          "client": [
+val isProdPlaceholder =
+    if (!prodGoogleServices.exists() || prodGoogleServices.length() < 10) {
+        prodGoogleServices.parentFile.mkdirs()
+        prodGoogleServices.writeText(
+            """
             {
-              "client_info": {
-                "mobilesdk_app_id": "1:000000000000:android:0000000000000000000000",
-                "android_client_info": {
-                  "package_name": "com.hitchy.app"
-                }
+              "project_info": {
+                "project_number": "000000000000",
+                "project_id": "demo-hitchy",
+                "storage_bucket": "demo-hitchy.appspot.com"
               },
-              "oauth_client": [],
-              "api_key": [
+              "client": [
                 {
-                  "current_key": "AIzaSyDummyPlaceholderKeyForLocalBuildsOnly"
+                  "client_info": {
+                    "mobilesdk_app_id": "1:000000000000:android:0000000000000000000000",
+                    "android_client_info": {
+                      "package_name": "com.hitchy.app"
+                    }
+                  },
+                  "oauth_client": [],
+                  "api_key": [
+                    {
+                      "current_key": "AIzaSyDummyPlaceholderKeyForLocalBuildsOnly"
+                    }
+                  ],
+                  "services": {}
                 }
               ],
-              "services": {}
+              "configuration_version": "1"
             }
-          ],
-          "configuration_version": "1"
-        }
-        """.trimIndent()
-    )
-    logger.warn("WARNING: app/src/prod/google-services.json missing; generated demo-hitchy placeholder.")
-    true
-} else {
-    prodGoogleServices.readText().contains("demo-hitchy")
-}
+            """.trimIndent(),
+        )
+        logger.warn("WARNING: app/src/prod/google-services.json missing; generated demo-hitchy placeholder.")
+        true
+    } else {
+        prodGoogleServices.readText().contains("demo-hitchy")
+    }
 
 val devGoogleServices = file("src/dev/google-services.json")
 if (!devGoogleServices.exists() || devGoogleServices.length() < 10) {
@@ -82,7 +83,7 @@ if (!devGoogleServices.exists() || devGoogleServices.length() < 10) {
           ],
           "configuration_version": "1"
         }
-        """.trimIndent()
+        """.trimIndent(),
     )
     logger.warn("WARNING: app/src/dev/google-services.json missing; generated demo-hitchy placeholder.")
 }
@@ -112,10 +113,11 @@ configure<ApplicationExtension> {
     val keyPassword = System.getenv("HITCHY_KEY_PASSWORD")
     val isCi = System.getenv("CI")?.toBoolean() == true
 
-    val hasKeystoreVars = !keystorePath.isNullOrBlank() &&
-        !keystorePassword.isNullOrBlank() &&
-        !keyAlias.isNullOrBlank() &&
-        !keyPassword.isNullOrBlank()
+    val hasKeystoreVars =
+        !keystorePath.isNullOrBlank() &&
+            !keystorePassword.isNullOrBlank() &&
+            !keyAlias.isNullOrBlank() &&
+            !keyPassword.isNullOrBlank()
 
     if (hasKeystoreVars) {
         signingConfigs.create("release") {
@@ -133,13 +135,13 @@ configure<ApplicationExtension> {
             val isReleaseBuild = allTasks.any { it.name.contains("Release", ignoreCase = true) }
             if (isReleaseBuild && !hasKeystoreVars) {
                 throw org.gradle.api.GradleException(
-                    "Missing release keystore environment variables (HITCHY_KEYSTORE_PATH, HITCHY_KEYSTORE_PASSWORD, HITCHY_KEY_ALIAS, HITCHY_KEY_PASSWORD) in CI environment."
+                    "Missing release keystore environment variables (HITCHY_KEYSTORE_PATH, HITCHY_KEYSTORE_PASSWORD, HITCHY_KEY_ALIAS, HITCHY_KEY_PASSWORD) in CI environment.",
                 )
             }
             val isProdRelease = allTasks.any { it.name.contains("ProdRelease", ignoreCase = true) }
             if (isProdRelease && isProdPlaceholder) {
                 throw org.gradle.api.GradleException(
-                    "Cannot build prodRelease with placeholder google-services.json in CI. Please provide GOOGLE_SERVICES_PROD secret."
+                    "Cannot build prodRelease with placeholder google-services.json in CI. Please provide GOOGLE_SERVICES_PROD secret.",
                 )
             }
         }
@@ -151,13 +153,14 @@ configure<ApplicationExtension> {
             isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
-            signingConfig = if (hasKeystoreVars) {
-                signingConfigs.getByName("release")
-            } else {
-                signingConfigs.getByName("debug")
-            }
+            signingConfig =
+                if (hasKeystoreVars) {
+                    signingConfigs.getByName("release")
+                } else {
+                    signingConfigs.getByName("debug")
+                }
         }
         debug {
         }
@@ -187,6 +190,11 @@ configure<ApplicationExtension> {
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+
+    lint {
+        baseline = file("lint-baseline.xml")
+        abortOnError = true
     }
 }
 

@@ -46,7 +46,7 @@ fun appModule(appConfig: AppConfig): Module = module {
     // TODO(P14-A01): Firebase Analytics and real event logging
     single<Analytics> { NoOpAnalytics() }
 
-    single<DebugInfo> { AndroidDebugInfo(androidContext(), get()) }
+    single<DebugInfo> { AndroidDebugInfo(get()) }
 
     // TODO(P4-A01): PhoneAuth binding
     // TODO(P8-A02): TripTracker binding

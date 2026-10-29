@@ -18,7 +18,7 @@ class KoinModuleTest {
             env = Env.DEV,
             functionsRegion = "europe-west1",
             useEmulator = true,
-            versionName = "1.0.0-dev"
+            versionName = "1.0.0-dev",
         )
 
         val allModules = module {
@@ -32,7 +32,7 @@ class KoinModuleTest {
                 Application::class,
                 Env::class,
                 Boolean::class,
-            )
+            ),
         )
     }
 }

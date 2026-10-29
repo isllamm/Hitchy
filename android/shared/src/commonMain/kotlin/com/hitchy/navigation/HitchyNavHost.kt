@@ -41,12 +41,12 @@ fun HitchyNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     startDestination: Any = Welcome,
-    appConfig: AppConfig = koinInject()
+    appConfig: AppConfig = koinInject(),
 ) {
     NavHost(
         navController = navController,
         startDestination = startDestination,
-        modifier = modifier
+        modifier = modifier,
     ) {
         composable<Welcome> { PlaceholderScreen("Welcome") }
         composable<PhoneEntry> { PlaceholderScreen("PhoneEntry") }
@@ -55,7 +55,7 @@ fun HitchyNavHost(
         composable<Home> { PlaceholderScreen("Home") }
         composable<Settings> {
             SettingsPlaceholderScreen(
-                onNavigateToDebug = { navController.navigate(Debug) }
+                onNavigateToDebug = { navController.navigate(Debug) },
             )
         }
         composable<HostApplication> { PlaceholderScreen("HostApplication") }
@@ -88,7 +88,7 @@ fun HitchyNavHost(
         if (appConfig.env == Env.DEV) {
             composable<Debug> {
                 DebugScreen(
-                    onBack = { navController.popBackStack() }
+                    onBack = { navController.popBackStack() },
                 )
             }
         }
@@ -105,11 +105,11 @@ fun HitchyNavHost(
 @Composable
 fun PlaceholderScreen(
     name: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Box(
         modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Text(text = stringResource(Res.string.placeholder_screen, name))
     }
@@ -121,33 +121,33 @@ fun SettingsPlaceholderScreen(
     modifier: Modifier = Modifier,
     languageSwitcher: LanguageSwitcher = koinInject(),
     appConfig: AppConfig = koinInject(),
-    onNavigateToDebug: () -> Unit = {}
+    onNavigateToDebug: () -> Unit = {},
 ) {
     Column(
         modifier = modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         Text(
             text = stringResource(Res.string.settings_title),
-            style = MaterialTheme.typography.headlineMedium
+            style = MaterialTheme.typography.headlineMedium,
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = stringResource(Res.string.settings_language_label),
-            style = MaterialTheme.typography.titleMedium
+            style = MaterialTheme.typography.titleMedium,
         )
         Spacer(modifier = Modifier.height(16.dp))
         Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Button(
-                onClick = { languageSwitcher.setLanguage(AppLanguage.ARABIC) }
+                onClick = { languageSwitcher.setLanguage(AppLanguage.ARABIC) },
             ) {
                 Text(text = stringResource(Res.string.language_arabic))
             }
             Button(
-                onClick = { languageSwitcher.setLanguage(AppLanguage.ENGLISH) }
+                onClick = { languageSwitcher.setLanguage(AppLanguage.ENGLISH) },
             ) {
                 Text(text = stringResource(Res.string.language_english))
             }
@@ -163,8 +163,8 @@ fun SettingsPlaceholderScreen(
                         onNavigateToDebug()
                     }
                 },
-                onClick = {}
-            )
+                onClick = {},
+            ),
         )
     }
 }

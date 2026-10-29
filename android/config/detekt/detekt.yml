@@ -1,0 +1,24 @@
+build:
+  maxIssues: 0
+
+naming:
+  FunctionNaming:
+    ignoreAnnotated: ['Composable', 'Test']
+
+empty-blocks:
+  EmptyFunctionBlock:
+    ignoreOverridden: true
+
+complexity:
+  LongMethod:
+    ignoreAnnotated: ['Composable', 'Test']
+
+style:
+  MagicNumber:
+    ignoreNumbers: ['-1', '0', '1', '2', '7']
+    ignorePropertyDeclaration: true
+    ignoreCompanionObjectPropertyDeclaration: true
+    ignoreAnnotation: true
+    ignoreEnums: true
+  ReturnCount:
+    max: 5
