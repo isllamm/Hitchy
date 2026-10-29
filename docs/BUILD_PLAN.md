@@ -2082,7 +2082,7 @@ The criminal record can be uploaded at any time, so an approved host can ask for
 
 ## Phase 0 — Accounts, GitHub, Firebase
 
-**Exit:** both Firebase projects on Blaze with budget alerts, the repo protected, and a first pull request passing CI.
+**Exit:** both Firebase projects on Blaze with budget alerts, the auto-stop in `hitchy-dev`, the repo protected, and a first pull request passing CI.
 
 ### Human tasks
 
@@ -2100,6 +2100,8 @@ The criminal record can be uploaded at any time, so an approved host can ask for
 | P0-H10 | Accounts | Google Play Console `[DECISION-03]`, Apple Developer, a domain, and a support email. |
 | P0-H11 | iOS config | Register the iOS apps: bundle ID `com.hitchy.app.dev` in `hitchy-dev` and `com.hitchy.app` in `hitchy-prod` (confirmed by the iOS teammate, 2026-10-29). Send each `GoogleService-Info.plist` to the iOS teammate privately. |
 | P0-H12 | TTL policy | Firestore TTL policies on `expireAt` for the `idempotency`, `notifications` and `messages` collection groups, in both projects. |
+| P0-H13 | Dev auto-stop | In `hitchy-dev` only: send the budget's notifications to a Pub/Sub topic and set up the function from Google's guide "Disable billing usage with notifications" (Cloud Billing docs), so billing turns off when spending passes 50 USD. Notifications come with a delay, so spending can go a little over before it stops. This stops every service in the project, even the free ones, and data can be lost if billing stays off; `hitchy-dev` holds only test data. To start again, link the billing account again. Not in `hitchy-prod`: it would take the live app down, so prod relies on the P0-H02 alerts. |
+| P0-H14 | Build cleanup | After the first deploy from CI to each project: every functions deploy leaves a build copy in Artifact Registry, and these copies cost storage. From `backend/functions`, run `npx firebase-tools functions:artifacts:setpolicy --project <project> --location <functions region>` once per project (`[DECISION-01]`, default `europe-west1`). It keeps 1 day of old builds and deploys nothing. |
 
 ### P0-A01 · Repo skeleton
 
