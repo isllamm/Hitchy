@@ -1,0 +1,40 @@
+{
+  "rides": [
+    {
+      "rideId": "ride-test-1",
+      "departAt": "2026-11-02T05:30:00.000Z",
+      "arriveAt": "2026-11-02T06:35:00.000Z",
+      "fromZone": "fifth_settlement",
+      "toZone": "smart_village",
+      "fromPointId": "p1",
+      "toPointId": "p2",
+      "fromPointName": {
+        "ar": "نقطة تجريبية 1",
+        "en": "Test point 1"
+      },
+      "toPointName": {
+        "ar": "نقطة تجريبية 2",
+        "en": "Test point 2"
+      },
+      "pricePerSeat": 56,
+      "fairPrice": true,
+      "seatsLeft": 2,
+      "walkM": 250,
+      "bestMatch": true,
+      "womenOnly": false,
+      "vehicleType": "car",
+      "fixed": false,
+      "host": {
+        "uid": "host-test-uid",
+        "firstName": "Test Host",
+        "photoPath": "avatars/host-test-uid.jpg",
+        "rating": 4.9,
+        "ratingCount": 18,
+        "trips": 24,
+        "verified": true,
+        "tier": "silver",
+        "sameCompany": true
+      }
+    }
+  ]
+}

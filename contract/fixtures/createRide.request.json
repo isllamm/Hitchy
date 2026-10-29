@@ -1,0 +1,13 @@
+{
+  "vehicleId": "vehicle-host-1",
+  "fromZone": "fifth_settlement",
+  "fromPointId": "p1",
+  "toZone": "smart_village",
+  "toPointId": "p2",
+  "direction": "to_work",
+  "departAt": "2026-11-02T05:30:00.000Z",
+  "seats": 3,
+  "pricePerSeat": 56,
+  "womenOnly": false,
+  "requestId": "a0000000-0000-4000-8000-000000000001"
+}

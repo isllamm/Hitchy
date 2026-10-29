@@ -2,12 +2,12 @@
 
 The data and API contract between the backend and the apps. The iOS app is built from this folder only, never from Android code.
 
-| File | What is in it |
-| --- | --- |
-| `firestore.md` | Every path and field: its type and who writes it |
-| `functions.md` | Every function: input, output and errors |
-| `errors.md` | Every error reason, with its English and Arabic message |
-| `fixtures/` | `<function>.request.json` and `<function>.response.json` for every function |
+| File           | What is in it                                                               |
+| -------------- | --------------------------------------------------------------------------- |
+| `firestore.md` | Every path and field: its type and who writes it                            |
+| `functions.md` | Every function: input, output and errors                                    |
+| `errors.md`    | Every error reason, with its English and Arabic message                     |
+| `fixtures/`    | `<function>.request.json` and `<function>.response.json` for every function |
 
 The source of truth is `backend/functions/src/schemas/` (build plan sections 6 to 8 and Appendix D). These files mirror it. They arrive with task P1-B10.
 

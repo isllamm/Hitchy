@@ -1,0 +1,13 @@
+{
+  "firstName": "Test",
+  "lastName": "Rider",
+  "gender": "male",
+  "companyId": "test_company_a",
+  "companyOther": null,
+  "workHours": {
+    "start": "08:30",
+    "end": "17:00"
+  },
+  "language": "en",
+  "referralCode": null
+}

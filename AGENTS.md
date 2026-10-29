@@ -8,7 +8,7 @@ Decisions: docs/adr/ (0001 = architecture, 0002 = pinned versions and open point
 Plan v1.1 (BUILD_PLAN 2.1) changed the product after the design review: owners accept each booking (a request holds its seats), one booking can hold several seats, chat and calls after acceptance, payment confirmation, an inbox. The app's text says "Owner"; code and data say `host`.
 
 ## Status
-Phase 1 (backend foundation) is in progress. Done: the backend scaffold (P1-B01), the shared library in backend/functions/src/lib (P1-B02), the schemas in backend/functions/src/schemas (P1-B03), pricing and geo (P1-B04), the Firestore security rules (P1-B05), the Storage rules in backend/storage.rules (P1-B06), the composite indexes in backend/firestore.indexes.json (P1-B07), seed data in backend/seed (P1-B08), and the admin script in backend/scripts/set-admin.ts (P1-B09). Next: P1-B10 (Contract v1 in contract/). The Android and admin web projects arrive in P2-A01 and P5-W01; until then their commands do not run, and their CI workflows skip their jobs.
+Phase 1 (backend foundation) is in progress. Done: the backend scaffold (P1-B01), the shared library in backend/functions/src/lib (P1-B02), the schemas in backend/functions/src/schemas (P1-B03), pricing and geo (P1-B04), the Firestore security rules (P1-B05), the Storage rules in backend/storage.rules (P1-B06), the composite indexes in backend/firestore.indexes.json (P1-B07), seed data in backend/seed (P1-B08), the admin script in backend/scripts/set-admin.ts (P1-B09), and Contract v1 in contract/ (P1-B10). Next: P1-B11 (Backend CI in .github/workflows/backend.yml). The Android and admin web projects arrive in P2-A01 and P5-W01; until then their commands do not run, and their CI workflows skip their jobs.
 
 ## Layout
 - backend/ — Firebase: functions (TypeScript), rules, indexes, seed data
@@ -103,6 +103,7 @@ List files changed, test results, and any [HUMAN] or [DECISION] items.
 | 2026-10-29 | P1-B07 composite indexes and index verification tests, 374 tests | PR #13 |
 | 2026-10-29 | P1-B08 seed data in backend/seed and integration tests, 379 tests | PR #14 |
 | 2026-10-29 | P1-B09 admin script in backend/scripts/set-admin.ts, 391 tests | PR #15 |
+| 2026-10-29 | P1-B10 Contract v1: firestore.md, functions.md, errors.md, 60 fixtures, 454 tests | PR #16 |
 
 Deploy jobs skip until each GitHub environment has its Phase 0 secrets (ADR 0003 row 18).
 

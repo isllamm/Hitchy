@@ -1,0 +1,10 @@
+{
+  "min": 45,
+  "recommended": 56,
+  "max": 75,
+  "trafficLevel": "peak",
+  "distanceKm": 55,
+  "fuelCostEgp": 115,
+  "tripCostEgp": 225,
+  "configVersion": 1
+}

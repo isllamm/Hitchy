@@ -1,0 +1,6 @@
+{
+  "rideId": "ride-test-1",
+  "lat": 30.01234,
+  "lng": 31.45678,
+  "accuracyM": 10
+}

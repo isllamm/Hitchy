@@ -372,7 +372,7 @@ Rules for the admin web:
 
 ### 5.1 Time
 
-- Instants are Firestore `Timestamp` (UTC) in documents and ISO-8601 UTC strings (`"2026-11-02T05:30:00Z"`) in function inputs and outputs.
+- Instants are Firestore `Timestamp` (UTC) in documents and ISO-8601 UTC strings in functions: outputs are always `toISOString()` with milliseconds (`"2026-11-02T05:30:00.000Z"`); inputs accept with or without milliseconds.
 - The business time zone is `Africa/Cairo` (Egypt uses summer time). Never hard-code +2 or +3.
 - `dateKey` = the Cairo calendar date, `"YYYY-MM-DD"`. Times of day are `"HH:mm"` in Cairo time.
 - Backend: `lib/time.ts` with luxon (`toCairo(date)`, `dateKey(date)`, `minuteOfDay(date)`, `cairoDateTime(dateKey, "HH:mm")`, `startOfCairoDay`, `startOfCairoWeek` (Sunday)).
@@ -971,7 +971,7 @@ Every function below is the exact spec. Inputs go in `schemas/inputs.ts` (zod), 
   4. Profile required (all except `completeProfile` and admin functions): `users/{uid}` exists → else `PROFILE_REQUIRED`. Admin dashboard accounts have no profile (ADR 0003).
   5. Not suspended (all except read-only, safety, account and admin functions) → else `SUSPENDED`.
   6. Input parses with zod → else `INVALID_INPUT` (with the failing field paths in `extra`). Input objects are strict (an unknown field fails), and text is trimmed before its length is checked (ADR 0003).
-- Instants in inputs and outputs are ISO-8601 UTC strings.
+- Instants in inputs and outputs are ISO-8601 UTC strings: outputs are always `toISOString()` with milliseconds (`"2026-11-02T05:30:00.000Z"`); inputs accept with or without milliseconds.
 - Each handler exports a pure-ish core for tests: `export async function requestSeatsCore(input, ctx)`. The callable is one line: `export const requestSeats = makeCallable("requestSeats", RequestSeatsInput, requestSeatsCore)`.
 - Notifications are sent after the transaction commits, never inside it.
 
