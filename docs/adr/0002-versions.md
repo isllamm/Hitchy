@@ -56,6 +56,8 @@ These are the newest stable releases on 2026-10-28, checked against each other's
 | Settings | DataStore Preferences | 1.3.0 | |
 | Logs | Kermit | 2.2.0 | |
 | Location | play-services-location | 21.4.0 | |
+| Maps | com.google.android.gms:play-services-maps | 20.1.0 | Proposed 2026-10-29; P7-A02 builds with it. Used without a map ID (plan 5.10). |
+| Maps | com.google.maps.android:maps-compose | 9.0.1 | Proposed 2026-10-29; built with Kotlin 2.4.20. P7-A02 builds with it. |
 | Android | androidx.appcompat | 1.8.0 | Not in 4.4: `MainActivity` is an `AppCompatActivity` (P2-A09). |
 | Android | androidx.activity:activity-compose | 1.13.0 | Not in 4.4: `setContent` in `MainActivity`. |
 | Tests | koin-test | 4.2.2 (from Koin BOM) | Not in 4.4: JVM verification test (module.verify()) in app/src/test. |

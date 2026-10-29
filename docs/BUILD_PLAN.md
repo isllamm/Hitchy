@@ -331,6 +331,7 @@ Pin every version in `gradle/libs.versions.toml` or `package.json`. In `P1-B01` 
 | Android | Async, JSON, time | kotlinx.coroutines, kotlinx.serialization, kotlinx-datetime |
 | Android | Images, settings, logs | Coil 3, DataStore Preferences, Kermit |
 | Android | Location | Google Play services Location (Fused Location Provider) |
+| Android | Maps | Maps SDK for Android (`play-services-maps`) and `maps-compose`, without a map ID (5.10) |
 | Android | Tests | kotlin.test, kotlinx-coroutines-test, Turbine, Konsist, Roborazzi (after Figma) |
 | Android | Quality | detekt, Spotless + ktlint, Android Lint, LeakCanary (`dev` debug only) |
 | Admin web | App | React, TypeScript (strict), Vite, React Router |
@@ -439,6 +440,14 @@ The server checks matching values in `config/limits` too, so a flag cannot be by
 - Branches `feat/<id>-short-name`, e.g. `feat/P7-B02-book-seat`.
 - Conventional Commits with scope `backend`, `android`, `admin`, `contract`, `ci`, `docs`.
 - Pull request title starts with the task ID.
+
+### 5.10 Maps (free use only)
+
+- Only the Maps SDK for Android map (`play-services-maps` with `maps-compose`), loaded without a map ID: Google bills that map at 0 USD. Map IDs (cloud styling), Directions, Routes, Places, Geocoding and Street View are paid, so the app never uses them (decided 2026-10-29).
+- Route lines are a straight line from the pickup point to the drop-off point, like the straight-line ETA in Appendix F row 26. Places come from our own `points`, never from a Google search.
+- `maps-compose` is Android only. The map is an `expect` composable in `core/ui` with its `actual` in `androidMain`, like the pickers in P2-A10.
+- The key comes from `MAPS_API_KEY` in `android/local.properties` (git-ignored) or the CI environment variable, and reaches `com.google.android.geo.API_KEY` in the manifest through a manifest placeholder. A missing key gives an empty value: the build still passes and the map shows no tiles. Key restrictions: P0-H08.
+- P7-A02, the first screen with a map, adds the libraries with the versions from ADR 0002.
 
 ---
 
@@ -2082,20 +2091,20 @@ The criminal record can be uploaded at any time, so an approved host can ask for
 
 ## Phase 0 — Accounts, GitHub, Firebase
 
-**Exit:** `hitchy-prod` on Blaze with budget alerts, `hitchy-dev` set up on the free plan (see "`hitchy-dev` on the free plan" below the table), the repo protected, and a first pull request passing CI.
+**Exit:** both projects on Blaze with budget alerts and set up to cost 0 USD (see "Keeping both projects at 0 USD" below the table), the repo protected, and a first pull request passing CI.
 
 ### Human tasks
 
 | ID | Task | Details |
 | --- | --- | --- |
 | P0-H01 | GitHub repo | Private repo `hitchy`. Protect `main`: pull request, 1 approval, required checks, no force push, squash merge only. Turn on secret scanning and push protection. Create Environments `dev` and `prod` (prod needs Islam's approval). |
-| P0-H02 | Firebase projects | `hitchy-dev` and `hitchy-prod`. `hitchy-prod` on Blaze; `hitchy-dev` stays on the free Spark plan for now (note below the table). Budget alerts at 10, 25 and 50 USD to Islam's email, on each project once it is on Blaze. |
-| P0-H03 | Region `[DECISION-01]` | Create Firestore (Native mode) and the default Storage bucket in the chosen region, in both projects. Firestore's location can never change. |
-| P0-H04 | Phone sign-in | Turn on the Phone provider. In `hitchy-dev`, add test numbers `+201000000001` … `+201000000009` with code `123456`. Set the SMS region policy to allow Egypt only. |
+| P0-H02 | Firebase projects | `hitchy-dev` and `hitchy-prod`, both on Blaze (`hitchy-dev` moved from Spark on 2026-10-29). Budget alerts at 1, 10, 25 and 50 USD to Islam's email, on each project. Both projects should cost 0 USD (note below the table), so the 1 USD alert shows the first charge. |
+| P0-H03 | Region `[DECISION-01]` | Create Firestore (Native mode) in the chosen region, in both projects. Create the default Storage bucket in `us-central1`, in both projects: only `us-central1`, `us-east1` and `us-west1` have Cloud Storage's always-free tier, and other regions bill from the first byte. Neither location can change later. |
+| P0-H04 | Phone sign-in | Turn on the Phone provider. In `hitchy-dev`, add test numbers `+201000000001` … `+201000000009` with code `123456`. In both projects, leave the SMS region policy with no region allowed, so no real text message is sent: each one costs money (about 0.01 to 0.06 USD), and test numbers do not need one. Check once that a test number still signs in. At launch, set `hitchy-prod` to allow Egypt only; `hitchy-dev` stays blocked. |
 | P0-H05 | Android apps `[DECISION-02]` | `com.hitchy.app.dev` in `hitchy-dev`, `com.hitchy.app` in `hitchy-prod`. Add SHA-1 and SHA-256 of the debug and release keys. Save each `google-services.json` base64-encoded as GitHub secrets `GOOGLE_SERVICES_DEV` and `GOOGLE_SERVICES_PROD`. |
 | P0-H06 | Release key | Create the release keystore. GitHub secrets: `ANDROID_KEYSTORE_B64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`. Keep a backup in a password manager. |
 | P0-H07 | App Check | Register Play Integrity (Android) and App Attest (iOS) in both projects. Enforcement stays off until Phase 14. |
-| P0-H08 | API keys | In Google Cloud console, restrict the Android key to the package names and SHA-1s, and the iOS key to the bundle IDs (`com.hitchy.app.dev`, `com.hitchy.app`). |
+| P0-H08 | API keys | In Google Cloud console, restrict the Android key to the package names and SHA-1s, and the iOS key to the bundle IDs (`com.hitchy.app.dev`, `com.hitchy.app`). Maps key, one per project: application restriction "Android apps" (`com.hitchy.app.dev` with the team's debug SHA-1s in `hitchy-dev`; `com.hitchy.app` with the release and Play app signing SHA-1s in `hitchy-prod`), API restriction "Maps SDK for Android" only. Never commit it: locally it goes in `android/local.properties` as `MAPS_API_KEY`; CI reads the environment secret `MAPS_API_KEY` in `dev` and `prod` (section 5.10). |
 | P0-H09 | CI access | Workload Identity Federation from GitHub Actions to each project, with a deploy service account that can deploy functions, rules, indexes, hosting and App Distribution. Environment secrets: `GCP_WIF_PROVIDER`, `GCP_SERVICE_ACCOUNT`, `FIREBASE_ANDROID_APP_ID`. |
 | P0-H10 | Accounts | Google Play Console `[DECISION-03]`, Apple Developer, a domain, and a support email. |
 | P0-H11 | iOS config | Register the iOS apps: bundle ID `com.hitchy.app.dev` in `hitchy-dev` and `com.hitchy.app` in `hitchy-prod` (confirmed by the iOS teammate, 2026-10-29). Send each `GoogleService-Info.plist` to the iOS teammate privately. |
@@ -2104,13 +2113,18 @@ The criminal record can be uploaded at any time, so an approved host can ask for
 | P0-H14 | Build cleanup | After the first deploy from CI to each project: every functions deploy leaves a build copy in Artifact Registry, and these copies cost storage. From `backend/functions`, run `npx firebase-tools functions:artifacts:setpolicy --project <project> --location <functions region>` once per project (`[DECISION-01]`, default `europe-west1`). It keeps 1 day of old builds and deploys nothing. |
 | P0-H15 | Storage reads Firestore | `storage.rules` reads `kyc/{uid}` in Firestore (section 9.3), so the Storage service account needs the "Firebase Rules Firestore Service Agent" role (`roles/firebaserules.firestoreServiceAgent`). Firebase asks for it the first time rules that use `firestore.get()` or `firestore.exists()` are published from the console or the CLI. CI deploys with nobody to answer, so do it by hand before the first deploy from CI, in both projects: Firebase console → Storage → Rules, paste `backend/storage.rules`, Publish, and accept the prompt. Check in Google Cloud console → IAM (with Google-provided role grants shown) that the account ending in `@gcp-sa-firebasestorage.iam.gserviceaccount.com` has the role. Without it, every KYC upload fails. Each check is one Firestore read and is billed, even when the rule refuses the upload. |
 
-**`hitchy-dev` on the free plan (decided 2026-10-29).** `hitchy-dev` was created on the free Spark plan, with Firestore in `europe-west1`, Phone sign-in with test numbers, and the dev Android and iOS apps registered. It stays on Spark until we need a shared cloud dev: the first time someone tests on a real phone against a cloud backend, for example team builds from App Distribution (P2-A14) or the iOS teammate testing without the emulators. Until then:
+**Keeping both projects at 0 USD (decided 2026-10-29).** `hitchy-dev` moved from Spark to Blaze on 2026-10-29. Blaze keeps the free quotas, and both projects stay inside them:
 
-- All work runs on the emulators (project `demo-hitchy`), Storage included.
-- Spark has no Cloud Functions, no Storage bucket and no real text messages. So `hitchy-dev` has no Storage bucket yet (P0-H03), and sign-in there uses only the test numbers.
-- Do not add the `dev` environment secrets (P0-H09: `GCP_WIF_PROVIDER`, `GCP_SERVICE_ACCOUNT`, `FIREBASE_ANDROID_APP_ID`). With them, CI starts deploying functions and Storage rules to `hitchy-dev` (`backend.yml`), which fails on Spark. `GOOGLE_SERVICES_DEV` (P0-H05) only builds the app and can be added any time.
+- Free within the quotas: Firestore, Cloud Functions, Auth with test numbers, Hosting, Cloud Messaging, Crashlytics, App Check, Remote Config, and the map without a map ID (section 5.10).
+- Storage: the bucket is in `us-central1` for the always-free tier (P0-H03). Firestore and Functions stay in `europe-west1`. Keep files small (P2-A10 compresses photos to 1600 px JPEG) so storage and downloads stay inside the free limits.
+- `[HUMAN]` ID document photos are then stored in the United States. Before launch, check that this is allowed under Egypt's Personal Data Protection Law (Law 151 of 2020).
+- No real text messages until launch (P0-H04). Real users cannot sign in to `hitchy-prod` until Islam allows Egypt in its SMS region policy; from then each sign-in text costs money.
+- Maps: only the free map, no paid Google Maps APIs (section 5.10).
+- Cloud Scheduler gives 3 free jobs per billing account. `closeStaleRides` is one job per project, so two in total.
+- Old function builds: P0-H14 keeps them inside Artifact Registry's free 0.5 GB.
+- The P0-H02 alert at 1 USD shows the first charge; the P0-H13 auto-stop turns `hitchy-dev` off at 50 USD.
 
-When a shared cloud dev is needed, in this order: Blaze with the P0-H02 alerts and the P0-H13 auto-stop; the Storage bucket (P0-H03); P0-H15; the `dev` environment secrets (P0-H09); then P0-H14 after the first deploy.
+Steps left in `hitchy-dev`, in this order: the P0-H02 alerts and the P0-H13 auto-stop; the Storage bucket (P0-H03); P0-H15; the `dev` environment secrets (P0-H09), after which CI starts deploying to `hitchy-dev`; then P0-H14 after the first deploy.
 
 ### P0-A01 · Repo skeleton
 
