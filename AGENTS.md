@@ -8,7 +8,7 @@ Decisions: docs/adr/ (0001 = architecture, 0002 = pinned versions and open point
 Plan v1.1 (BUILD_PLAN 2.1) changed the product after the design review: owners accept each booking (a request holds its seats), one booking can hold several seats, chat and calls after acceptance, payment confirmation, an inbox. The app's text says "Owner"; code and data say `host`.
 
 ## Status
-Phase 1 (backend foundation) is in progress. Done: the backend scaffold (P1-B01), the shared library in backend/functions/src/lib (P1-B02), the schemas in backend/functions/src/schemas (P1-B03), pricing and geo (P1-B04), and the Firestore security rules (P1-B05). Next: P1-B06 (Storage rules in backend/storage.rules). The Android and admin web projects arrive in P2-A01 and P5-W01; until then their commands do not run, and their CI workflows skip their jobs.
+Phase 1 (backend foundation) is in progress. Done: the backend scaffold (P1-B01), the shared library in backend/functions/src/lib (P1-B02), the schemas in backend/functions/src/schemas (P1-B03), pricing and geo (P1-B04), the Firestore security rules (P1-B05), and the Storage rules in backend/storage.rules (P1-B06). Next: P1-B07 (Indexes in backend/firestore.indexes.json). The Android and admin web projects arrive in P2-A01 and P5-W01; until then their commands do not run, and their CI workflows skip their jobs.
 
 ## Layout
 - backend/ — Firebase: functions (TypeScript), rules, indexes, seed data
@@ -99,12 +99,14 @@ List files changed, test results, and any [HUMAN] or [DECISION] items.
 | 2026-10-29 | P1-B03 schemas: io.ts outputs and 32 strict zod inputs, 231 tests | PR #4 |
 | 2026-10-29 | P1-B04 pricing and geo domain logic, 257 tests | PR #6 |
 | 2026-10-29 | P1-B05 Firestore security rules matrix, 344 tests | PR #7 |
+| 2026-10-29 | P1-B06 Storage security rules and KYC cross-service checks, 368 tests | PR #8 |
 
 Deploy jobs skip until each GitHub environment has its Phase 0 secrets (ADR 0003 row 18).
 
 ## Open items
 - [HUMAN] The GitHub repo isllamm/Hitchy is public; the plan (P0-H01) says private.
 - [HUMAN] Phase 0: Firebase projects hitchy-dev and hitchy-prod, region, phone sign-in, Android apps, release key, App Check, CI access (Workload Identity) and secrets, TTL policies on idempotency, notifications and messages (P0-H01 to P0-H12).
+- [HUMAN] Storage rules cross-service permission: Firebase Storage service agent requires permission to read Firestore documents in hitchy-dev and hitchy-prod before the first deploy.
 - [HUMAN] The iOS teammate's GitHub username in .github/CODEOWNERS.
 - [DECISION-01] Functions region is the default `europe-west1`. [DECISION-16] `ADMIN_URL` in backend/functions/src/lib/app.ts is "TODO-HUMAN" until P5-W01 creates the admin sites.
 - To check later: detekt 1.23.8 with Kotlin 2.4 (P2-A12); Firebase BoM 35 with GitLive 2.7.0 (P2-A05).

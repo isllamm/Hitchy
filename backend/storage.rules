@@ -1,10 +1,37 @@
 rules_version = '2';
 
-// Placeholder until P1-B06 writes the rules from BUILD_PLAN section 9.3: deny everything.
+// Storage rules from BUILD_PLAN section 9.3.
+// Cross-service reads into Firestore check the host KYC status.
+// Notice: in production (hitchy-dev, hitchy-prod), the Firebase Storage service agent
+// requires permissions to read Firestore documents.
 service firebase.storage {
   match /b/{bucket}/o {
-    match /{allPaths=**} {
-      allow read, write: if false;
+    function signedIn() { return request.auth != null; }
+    function isAdmin() { return signedIn() && request.auth.token.admin == true; }
+    function isUser(uid) { return signedIn() && request.auth.uid == uid; }
+    function kycOpen(uid) {
+      return !firestore.exists(/databases/(default)/documents/kyc/$(uid))
+        || firestore.get(/databases/(default)/documents/kyc/$(uid)).data.status in ['none', 'rejected'];
+    }
+
+    match /kyc/{uid}/{file} {
+      allow read: if isAdmin();
+      allow create, update: if isUser(uid)
+        && file in ['id_front.jpg', 'id_back.jpg', 'driving_license.jpg',
+                    'vehicle_license.jpg', 'criminal_record.jpg']
+        && request.resource.contentType == 'image/jpeg'
+        && request.resource.size > 0
+        && request.resource.size < 5 * 1024 * 1024
+        && (kycOpen(uid) || file == 'criminal_record.jpg');
+      allow delete: if false;
+    }
+
+    match /avatars/{fileName} {
+      allow read: if signedIn();
+      allow create, update: if signedIn() && fileName == request.auth.uid + '.jpg'
+        && request.resource.contentType == 'image/jpeg'
+        && request.resource.size > 0
+        && request.resource.size < 2 * 1024 * 1024;
     }
   }
 }
