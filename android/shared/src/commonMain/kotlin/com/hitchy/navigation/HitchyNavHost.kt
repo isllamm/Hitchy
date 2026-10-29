@@ -1,18 +1,34 @@
 package com.hitchy.navigation
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.hitchy.core.model.AppLanguage
+import com.hitchy.core.platform.LanguageSwitcher
 import hitchy.shared.generated.resources.Res
+import hitchy.shared.generated.resources.language_arabic
+import hitchy.shared.generated.resources.language_english
 import hitchy.shared.generated.resources.placeholder_screen
+import hitchy.shared.generated.resources.settings_language_label
+import hitchy.shared.generated.resources.settings_title
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
 
 @Composable
 fun HitchyNavHost(
@@ -30,7 +46,7 @@ fun HitchyNavHost(
         composable<OtpVerify> { PlaceholderScreen("OtpVerify") }
         composable<ProfileSetup> { PlaceholderScreen("ProfileSetup") }
         composable<Home> { PlaceholderScreen("Home") }
-        composable<Settings> { PlaceholderScreen("Settings") }
+        composable<Settings> { SettingsPlaceholderScreen() }
         composable<HostApplication> { PlaceholderScreen("HostApplication") }
         composable<HostStatus> { PlaceholderScreen("HostStatus") }
         composable<AddVehicle> { PlaceholderScreen("AddVehicle") }
@@ -79,5 +95,42 @@ fun PlaceholderScreen(
         contentAlignment = Alignment.Center
     ) {
         Text(text = stringResource(Res.string.placeholder_screen, name))
+    }
+}
+
+@Composable
+fun SettingsPlaceholderScreen(
+    modifier: Modifier = Modifier,
+    languageSwitcher: LanguageSwitcher = koinInject()
+) {
+    Column(
+        modifier = modifier.fillMaxSize().padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = stringResource(Res.string.settings_title),
+            style = MaterialTheme.typography.headlineMedium
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = stringResource(Res.string.settings_language_label),
+            style = MaterialTheme.typography.titleMedium
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Button(
+                onClick = { languageSwitcher.setLanguage(AppLanguage.ARABIC) }
+            ) {
+                Text(text = stringResource(Res.string.language_arabic))
+            }
+            Button(
+                onClick = { languageSwitcher.setLanguage(AppLanguage.ENGLISH) }
+            ) {
+                Text(text = stringResource(Res.string.language_english))
+            }
+        }
     }
 }

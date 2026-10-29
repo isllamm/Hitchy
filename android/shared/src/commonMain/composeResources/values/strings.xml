@@ -3,10 +3,96 @@
     <string name="hello_hitchy">Hello Hitchy</string>
     <string name="format_egp">EGP %1$s</string>
     <string name="placeholder_screen">%1$s</string>
-    <string name="error_network">No internet connection.</string>
-    <string name="error_unauthenticated">Please sign in again.</string>
-    <string name="error_internal">Something went wrong. Try again.</string>
+
+    <!-- Common Actions -->
+    <string name="action_ok">OK</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_retry">Retry</string>
+    <string name="action_save">Save</string>
+    <string name="action_next">Next</string>
+    <string name="action_back">Back</string>
+
+    <!-- Settings Placeholder -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_language_label">Language</string>
+    <string name="language_arabic">العربية</string>
+    <string name="language_english">English</string>
+
+    <!-- Sample Screen -->
     <string name="sample_title">Sample Screen</string>
     <string name="sample_button_load">Load Data</string>
     <string name="sample_loaded_prefix">Loaded: %1$s</string>
+
+    <!-- Error Catalog (contract/errors.md) -->
+    <string name="error_unauthenticated">Please sign in again.</string>
+    <string name="error_permission_denied">You can\'t do this.</string>
+    <string name="error_invalid_input">Some information is missing or wrong.</string>
+    <string name="error_profile_required">Complete your profile first.</string>
+    <string name="error_suspended">Your account is paused. Contact support.</string>
+    <string name="error_not_found">We couldn\'t find this.</string>
+    <string name="error_feature_disabled">This isn\'t available yet.</string>
+    <string name="error_internal">Something went wrong. Try again.</string>
+    <string name="error_phone_required">Sign in with your phone number first.</string>
+    <string name="error_gender_locked">Gender can\'t be changed. Contact support.</string>
+    <string name="error_host_not_approved">Your owner account isn\'t approved yet.</string>
+    <string name="error_vehicle_limit">You can add up to 2 vehicles.</string>
+    <string name="error_scooter_disabled">Scooters aren\'t available yet.</string>
+    <string name="error_kyc_already_submitted">Your documents are under review.</string>
+    <string name="error_kyc_missing_files">Some documents are missing.</string>
+    <string name="error_kyc_not_submitted">There are no documents to review.</string>
+    <string name="error_vehicle_not_approved">This vehicle isn\'t approved yet.</string>
+    <string name="error_route_not_supported">This route isn\'t available yet.</string>
+    <string name="error_seats_invalid">Choose a valid number of seats.</string>
+    <string name="error_depart_too_soon">Departure must be at least 30 minutes from now.</string>
+    <string name="error_depart_too_far">You can post up to 7 days ahead.</string>
+    <string name="error_price_out_of_range">The price is outside the allowed range.</string>
+    <string name="error_women_only_host">Only women owners can offer Women-only rides.</string>
+    <string name="error_daily_ride_limit">You can post one ride each way per day.</string>
+    <string name="error_ride_time_conflict">You have another ride close to this time.</string>
+    <string name="error_no_credits">Buy a trip package to post rides.</string>
+    <string name="error_ride_has_started">This ride has already started.</string>
+    <string name="error_ride_not_open">This ride isn\'t available anymore.</string>
+    <string name="error_ride_full">There aren\'t enough seats left.</string>
+    <string name="error_own_ride">You can\'t book your own ride.</string>
+    <string name="error_already_booked">You already have a booking or request on this ride.</string>
+    <string name="error_unpaid_fee">Pay your late fee before booking.</string>
+    <string name="error_women_only">This ride is for women only.</string>
+    <string name="error_time_conflict">You have another booking close to this time.</string>
+    <string name="error_too_late_to_book">Booking closes 15 minutes before departure.</string>
+    <string name="error_booking_not_found">We couldn\'t find your booking.</string>
+    <string name="error_host_not_late">You can report after 10 minutes past departure.</string>
+    <string name="error_start_window_closed">Rides can only be started within 30 minutes of departure.</string>
+    <string name="error_ride_not_started">The ride hasn\'t started yet.</string>
+    <string name="error_check_in_closed">Check-in is available when the owner is near.</string>
+    <string name="error_not_on_ride">You aren\'t booked on this ride.</string>
+    <string name="error_grace_not_over">Please wait for the 5-minute grace period.</string>
+    <string name="error_rider_was_on_time">The rider checked in on time.</string>
+    <string name="error_fee_exists">A fee was already applied.</string>
+    <string name="error_fee_not_found">We couldn\'t find this fee.</string>
+    <string name="error_fee_not_disputable">This fee can\'t be disputed now.</string>
+    <string name="error_rating_not_allowed">You can rate after the trip ends.</string>
+    <string name="error_rating_exists">You already rated this trip.</string>
+    <string name="error_rating_window_closed">Ratings close 7 days after the trip.</string>
+    <string name="error_package_not_found">This package isn\'t available.</string>
+    <string name="error_too_many_pending">You have orders waiting for confirmation.</string>
+    <string name="error_order_not_pending">This order was already handled.</string>
+    <string name="error_not_enough_points">You need 300 points.</string>
+    <string name="error_ai_daily_limit">You\'ve used today\'s assistant messages. Use search.</string>
+    <string name="error_ai_unavailable">The assistant isn\'t available now. Use search.</string>
+    <string name="error_invite_invalid">This invite code isn\'t valid.</string>
+    <string name="error_fixed_ride_full">This Fixed Ride is full.</string>
+    <string name="error_fixed_ride_exists">You already have a Fixed Ride this way.</string>
+    <string name="error_skip_too_late">Skips close at 8 PM the day before.</string>
+    <string name="error_cannot_report_self">You can\'t report yourself.</string>
+    <string name="error_active_trip_soon">Cancel your trips in the next 24 hours first.</string>
+    <string name="error_request_not_pending">This request was already answered.</string>
+    <string name="error_request_expired">This request has expired.</string>
+    <string name="error_chat_closed">Chat for this ride is closed.</string>
+    <string name="error_contact_not_allowed">You can call only after a booking is accepted.</string>
+    <string name="error_payment_already_confirmed">This payment was already confirmed.</string>
+    <string name="error_otp_invalid">The code is wrong.</string>
+    <string name="error_otp_expired">The code expired. Send a new one.</string>
+    <string name="error_too_many_attempts">Too many tries. Try again later.</string>
+    <string name="error_sms_quota">We can\'t send codes right now. Try later.</string>
+    <string name="error_network">No internet connection.</string>
 </resources>

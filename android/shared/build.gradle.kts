@@ -29,6 +29,7 @@ kotlin {
             implementation(libs.firebase.appcheck.playintegrity)
             implementation(libs.firebase.appcheck.debug)
             implementation(libs.firebase.crashlytics)
+            implementation(libs.androidx.appcompat)
             implementation(libs.koin.android)
             implementation(libs.androidx.datastore.preferences)
         }

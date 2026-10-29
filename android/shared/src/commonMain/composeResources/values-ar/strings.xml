@@ -3,10 +3,96 @@
     <string name="hello_hitchy">أهلاً هيتشي</string>
     <string name="format_egp">%1$s جنيه</string>
     <string name="placeholder_screen">%1$s</string>
-    <string name="error_network">مفيش اتصال بالإنترنت.</string>
-    <string name="error_unauthenticated">سجّل دخولك تاني من فضلك.</string>
-    <string name="error_internal">حصلت مشكلة، جرّب تاني.</string>
+
+    <!-- Common Actions -->
+    <string name="action_ok">تمام</string>
+    <string name="action_cancel">إلغاء</string>
+    <string name="action_retry">جرّب تاني</string>
+    <string name="action_save">حفظ</string>
+    <string name="action_next">التالي</string>
+    <string name="action_back">رجوع</string>
+
+    <!-- Settings Placeholder -->
+    <string name="settings_title">الإعدادات</string>
+    <string name="settings_language_label">اللغة</string>
+    <string name="language_arabic">العربية</string>
+    <string name="language_english">English</string>
+
+    <!-- Sample Screen -->
     <string name="sample_title">شاشة تجريبية</string>
     <string name="sample_button_load">تحميل البيانات</string>
     <string name="sample_loaded_prefix">تم التحميل: %1$s</string>
+
+    <!-- Error Catalog (contract/errors.md) -->
+    <string name="error_unauthenticated">سجّل دخولك تاني من فضلك.</string>
+    <string name="error_permission_denied">مش مسموحلك تعمل كده.</string>
+    <string name="error_invalid_input">فيه بيانات ناقصة أو غلط.</string>
+    <string name="error_profile_required">كمّل بياناتك الأول.</string>
+    <string name="error_suspended">حسابك موقوف مؤقتاً، كلّم الدعم.</string>
+    <string name="error_not_found">مش لاقيين الحاجة دي.</string>
+    <string name="error_feature_disabled">الميزة دي لسه مش متاحة.</string>
+    <string name="error_internal">حصلت مشكلة، جرّب تاني.</string>
+    <string name="error_phone_required">سجّل برقم موبايلك الأول.</string>
+    <string name="error_gender_locked">النوع مينفعش يتغير، كلّم الدعم.</string>
+    <string name="error_host_not_approved">حسابك كصاحب عربية لسه متوافقش عليه.</string>
+    <string name="error_vehicle_limit">تقدر تضيف عربيتين بس.</string>
+    <string name="error_scooter_disabled">السكوتر لسه مش متاح.</string>
+    <string name="error_kyc_already_submitted">ورقك بيتراجع دلوقتي.</string>
+    <string name="error_kyc_missing_files">فيه ورق ناقص.</string>
+    <string name="error_kyc_not_submitted">مفيش ورق للمراجعة.</string>
+    <string name="error_vehicle_not_approved">العربية دي لسه متوافقش عليها.</string>
+    <string name="error_route_not_supported">الطريق ده لسه مش متاح.</string>
+    <string name="error_seats_invalid">اختار عدد كراسي مناسب.</string>
+    <string name="error_depart_too_soon">ميعاد الخروج لازم يكون بعد نص ساعة على الأقل.</string>
+    <string name="error_depart_too_far">تقدر تنزّل مشوار لحد 7 أيام قدام.</string>
+    <string name="error_price_out_of_range">السعر برّه الحدود المسموحة.</string>
+    <string name="error_women_only_host">مشاوير \"ستات بس\" لصاحبات العربيات بس.</string>
+    <string name="error_daily_ride_limit">تقدر تنزّل مشوار رايح وواحد جاي في اليوم.</string>
+    <string name="error_ride_time_conflict">عندك مشوار تاني قريب من الميعاد ده.</string>
+    <string name="error_no_credits">اشتري باكدج رحلات عشان تنزّل مشاوير.</string>
+    <string name="error_ride_has_started">المشوار بدأ خلاص.</string>
+    <string name="error_ride_not_open">المشوار ده مبقاش متاح.</string>
+    <string name="error_ride_full">مفيش كراسي كفاية فاضلة.</string>
+    <string name="error_own_ride">مينفعش تحجز في مشوارك.</string>
+    <string name="error_already_booked">عندك حجز أو طلب في المشوار ده بالفعل.</string>
+    <string name="error_unpaid_fee">ادفع غرامة التأخير الأول.</string>
+    <string name="error_women_only">المشوار ده للستات بس.</string>
+    <string name="error_time_conflict">عندك حجز تاني قريب من الميعاد ده.</string>
+    <string name="error_too_late_to_book">الحجز بيقفل قبل الميعاد بربع ساعة.</string>
+    <string name="error_booking_not_found">مش لاقيين حجزك.</string>
+    <string name="error_host_not_late">تقدر تبلّغ بعد ميعاد الخروج بـ 10 دقايق.</string>
+    <string name="error_start_window_closed">المشوار بيتبدأ في خلال نص ساعة من ميعاده بس.</string>
+    <string name="error_ride_not_started">المشوار لسه مابدأش.</string>
+    <string name="error_check_in_closed">تقدر تسجل وصول لما صاحب العربية يقرّب.</string>
+    <string name="error_not_on_ride">إنت مش حاجز في المشوار ده.</string>
+    <string name="error_grace_not_over">استنى مهلة الـ 5 دقايق من فضلك.</string>
+    <string name="error_rider_was_on_time">الراكب وصل في ميعاده.</string>
+    <string name="error_fee_exists">الغرامة دي اتسجلت بالفعل.</string>
+    <string name="error_fee_not_found">مش لاقيين الغرامة دي.</string>
+    <string name="error_fee_not_disputable">مينفعش تعترض على الغرامة دي دلوقتي.</string>
+    <string name="error_rating_not_allowed">تقدر تقيّم بعد ما المشوار يخلص.</string>
+    <string name="error_rating_exists">إنت قيّمت المشوار ده قبل كده.</string>
+    <string name="error_rating_window_closed">التقييم بيقفل بعد المشوار بـ 7 أيام.</string>
+    <string name="error_package_not_found">الباكدج ده مش متاح.</string>
+    <string name="error_too_many_pending">عندك طلبات لسه مستنية تأكيد.</string>
+    <string name="error_order_not_pending">الطلب ده اتعامل معاه خلاص.</string>
+    <string name="error_not_enough_points">محتاج 300 نقطة.</string>
+    <string name="error_ai_daily_limit">خلصت رسايل المساعد النهارده، استخدم البحث.</string>
+    <string name="error_ai_unavailable">المساعد مش متاح دلوقتي، استخدم البحث.</string>
+    <string name="error_invite_invalid">كود الدعوة ده مش صحيح.</string>
+    <string name="error_fixed_ride_full">المشوار الثابت ده مليان.</string>
+    <string name="error_fixed_ride_exists">عندك مشوار ثابت في نفس الاتجاه.</string>
+    <string name="error_skip_too_late">الإلغاء بيقفل الساعة 8 بالليل اليوم اللي قبله.</string>
+    <string name="error_cannot_report_self">مينفعش تبلّغ عن نفسك.</string>
+    <string name="error_active_trip_soon">ألغي مشاويرك اللي في الـ 24 ساعة الجاية الأول.</string>
+    <string name="error_request_not_pending">الطلب ده اترد عليه خلاص.</string>
+    <string name="error_request_expired">الطلب ده وقته خلص.</string>
+    <string name="error_chat_closed">الشات بتاع المشوار ده اتقفل.</string>
+    <string name="error_contact_not_allowed">تقدر تتصل بس بعد ما الحجز يتقبل.</string>
+    <string name="error_payment_already_confirmed">الدفع ده اتأكد قبل كده.</string>
+    <string name="error_otp_invalid">الكود غلط.</string>
+    <string name="error_otp_expired">الكود انتهى، ابعت كود جديد.</string>
+    <string name="error_too_many_attempts">محاولات كتير، جرّب بعد شوية.</string>
+    <string name="error_sms_quota">مش قادرين نبعت كود دلوقتي، جرّب بعد شوية.</string>
+    <string name="error_network">مفيش اتصال بالإنترنت.</string>
 </resources>
