@@ -7,6 +7,7 @@ import {
   type RulesTestEnvironment,
 } from "@firebase/rules-unit-testing";
 import { doc, setDoc, Timestamp, type DocumentData, type Firestore } from "firebase/firestore";
+import type { FirebaseStorage } from "firebase/storage";
 
 export const PROJECT_ID = "demo-hitchy";
 
@@ -26,9 +27,25 @@ export function firestoreRulesEnv(): Promise<RulesTestEnvironment> {
   });
 }
 
+export function storageRulesEnv(): Promise<RulesTestEnvironment> {
+  return initializeTestEnvironment({
+    projectId: PROJECT_ID,
+    storage: {
+      rules: readFileSync(new URL("../../../storage.rules", import.meta.url), "utf8"),
+    },
+    firestore: {
+      rules: readFileSync(new URL("../../../firestore.rules", import.meta.url), "utf8"),
+    },
+  });
+}
+
 // The context's Firestore works with the modular API; its type is the compat one.
 function fs(ctx: RulesTestContext): Firestore {
   return ctx.firestore() as unknown as Firestore;
+}
+
+function st(ctx: RulesTestContext): FirebaseStorage {
+  return ctx.storage();
 }
 
 export function anon(env: RulesTestEnvironment): Firestore {
@@ -41,6 +58,18 @@ export function asUser(env: RulesTestEnvironment, uid: string): Firestore {
 
 export function asAdmin(env: RulesTestEnvironment): Firestore {
   return fs(env.authenticatedContext(ADMIN, { admin: true }));
+}
+
+export function storageAnon(env: RulesTestEnvironment): FirebaseStorage {
+  return st(env.unauthenticatedContext());
+}
+
+export function storageAsUser(env: RulesTestEnvironment, uid: string): FirebaseStorage {
+  return st(env.authenticatedContext(uid));
+}
+
+export function storageAsAdmin(env: RulesTestEnvironment): FirebaseStorage {
+  return st(env.authenticatedContext(ADMIN, { admin: true }));
 }
 
 // Writes documents with the rules off, as the functions (Admin SDK) would.
