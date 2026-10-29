@@ -1,6 +1,6 @@
 # 0002 · Versions
 
-- **Status:** backend versions accepted (P1-B01 on 2026-10-29). Android P2-A01 scaffold built with pinned versions (AGP 9.5.0, Gradle 9.8.2, Kotlin 2.4.21, Compose Multiplatform 1.12.2, compileSdk 37, targetSdk 36, minSdk 26). Other Android and admin web versions stay proposed until their tasks build with them.
+- **Status:** backend versions accepted (P1-B01 on 2026-10-29). Android P2-A01 scaffold and P2-A02 convention plugins built with pinned versions (AGP 9.5.0, Gradle 9.8.2, Kotlin 2.4.21, Compose Multiplatform 1.12.2, compileSdk 37, targetSdk 36, minSdk 26, serialization 1.12.0). Other Android and admin web versions stay proposed until their tasks build with them.
 - **Date:** 2026-10-28
 - **Source:** [docs/BUILD_PLAN.md](../BUILD_PLAN.md), section 4.4 and tasks P1-B01, P2-A01
 

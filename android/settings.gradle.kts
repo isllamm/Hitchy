@@ -1,6 +1,7 @@
 rootProject.name = "hitchy"
 
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         google {
             mavenContent {
