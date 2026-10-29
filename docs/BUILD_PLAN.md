@@ -2082,14 +2082,14 @@ The criminal record can be uploaded at any time, so an approved host can ask for
 
 ## Phase 0 — Accounts, GitHub, Firebase
 
-**Exit:** both Firebase projects on Blaze with budget alerts, the auto-stop in `hitchy-dev`, the repo protected, and a first pull request passing CI.
+**Exit:** `hitchy-prod` on Blaze with budget alerts, `hitchy-dev` set up on the free plan (see "`hitchy-dev` on the free plan" below the table), the repo protected, and a first pull request passing CI.
 
 ### Human tasks
 
 | ID | Task | Details |
 | --- | --- | --- |
 | P0-H01 | GitHub repo | Private repo `hitchy`. Protect `main`: pull request, 1 approval, required checks, no force push, squash merge only. Turn on secret scanning and push protection. Create Environments `dev` and `prod` (prod needs Islam's approval). |
-| P0-H02 | Firebase projects | `hitchy-dev` and `hitchy-prod`, both on Blaze. Budget alerts at 10, 25 and 50 USD to Islam's email. |
+| P0-H02 | Firebase projects | `hitchy-dev` and `hitchy-prod`. `hitchy-prod` on Blaze; `hitchy-dev` stays on the free Spark plan for now (note below the table). Budget alerts at 10, 25 and 50 USD to Islam's email, on each project once it is on Blaze. |
 | P0-H03 | Region `[DECISION-01]` | Create Firestore (Native mode) and the default Storage bucket in the chosen region, in both projects. Firestore's location can never change. |
 | P0-H04 | Phone sign-in | Turn on the Phone provider. In `hitchy-dev`, add test numbers `+201000000001` … `+201000000009` with code `123456`. Set the SMS region policy to allow Egypt only. |
 | P0-H05 | Android apps `[DECISION-02]` | `com.hitchy.app.dev` in `hitchy-dev`, `com.hitchy.app` in `hitchy-prod`. Add SHA-1 and SHA-256 of the debug and release keys. Save each `google-services.json` base64-encoded as GitHub secrets `GOOGLE_SERVICES_DEV` and `GOOGLE_SERVICES_PROD`. |
@@ -2103,6 +2103,14 @@ The criminal record can be uploaded at any time, so an approved host can ask for
 | P0-H13 | Dev auto-stop | In `hitchy-dev` only: send the budget's notifications to a Pub/Sub topic and set up the function from Google's guide "Disable billing usage with notifications" (Cloud Billing docs), so billing turns off when spending passes 50 USD. Notifications come with a delay, so spending can go a little over before it stops. This stops every service in the project, even the free ones, and data can be lost if billing stays off; `hitchy-dev` holds only test data. To start again, link the billing account again. Not in `hitchy-prod`: it would take the live app down, so prod relies on the P0-H02 alerts. |
 | P0-H14 | Build cleanup | After the first deploy from CI to each project: every functions deploy leaves a build copy in Artifact Registry, and these copies cost storage. From `backend/functions`, run `npx firebase-tools functions:artifacts:setpolicy --project <project> --location <functions region>` once per project (`[DECISION-01]`, default `europe-west1`). It keeps 1 day of old builds and deploys nothing. |
 | P0-H15 | Storage reads Firestore | `storage.rules` reads `kyc/{uid}` in Firestore (section 9.3), so the Storage service account needs the "Firebase Rules Firestore Service Agent" role (`roles/firebaserules.firestoreServiceAgent`). Firebase asks for it the first time rules that use `firestore.get()` or `firestore.exists()` are published from the console or the CLI. CI deploys with nobody to answer, so do it by hand before the first deploy from CI, in both projects: Firebase console → Storage → Rules, paste `backend/storage.rules`, Publish, and accept the prompt. Check in Google Cloud console → IAM (with Google-provided role grants shown) that the account ending in `@gcp-sa-firebasestorage.iam.gserviceaccount.com` has the role. Without it, every KYC upload fails. Each check is one Firestore read and is billed, even when the rule refuses the upload. |
+
+**`hitchy-dev` on the free plan (decided 2026-10-29).** `hitchy-dev` was created on the free Spark plan, with Firestore in `europe-west1`, Phone sign-in with test numbers, and the dev Android and iOS apps registered. It stays on Spark until we need a shared cloud dev: the first time someone tests on a real phone against a cloud backend, for example team builds from App Distribution (P2-A14) or the iOS teammate testing without the emulators. Until then:
+
+- All work runs on the emulators (project `demo-hitchy`), Storage included.
+- Spark has no Cloud Functions, no Storage bucket and no real text messages. So `hitchy-dev` has no Storage bucket yet (P0-H03), and sign-in there uses only the test numbers.
+- Do not add the `dev` environment secrets (P0-H09: `GCP_WIF_PROVIDER`, `GCP_SERVICE_ACCOUNT`, `FIREBASE_ANDROID_APP_ID`). With them, CI starts deploying functions and Storage rules to `hitchy-dev` (`backend.yml`), which fails on Spark. `GOOGLE_SERVICES_DEV` (P0-H05) only builds the app and can be added any time.
+
+When a shared cloud dev is needed, in this order: Blaze with the P0-H02 alerts and the P0-H13 auto-stop; the Storage bucket (P0-H03); P0-H15; the `dev` environment secrets (P0-H09); then P0-H14 after the first deploy.
 
 ### P0-A01 · Repo skeleton
 
