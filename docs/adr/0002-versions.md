@@ -1,6 +1,6 @@
 # 0002 · Versions
 
-- **Status:** backend versions accepted (P1-B01 on 2026-10-29). Android P2-A01 scaffold, P2-A02 convention plugins, and P2-A04 core utilities built with pinned versions (AGP 9.5.0, Gradle 9.8.2, Kotlin 2.4.21, Compose Multiplatform 1.12.2, compileSdk 37, targetSdk 36, minSdk 26, serialization 1.12.0, kotlinx-datetime 0.8.0). Other Android and admin web versions stay proposed until their tasks build with them.
+- **Status:** backend versions accepted (P1-B01 on 2026-10-29). Android P2-A01 scaffold, P2-A02 convention plugins, P2-A04 core utilities, and P2-A05 Firebase wiring built with pinned versions (AGP 9.5.0, Gradle 9.8.2, Kotlin 2.4.21, Compose Multiplatform 1.12.2, compileSdk 37, targetSdk 36, minSdk 26, serialization 1.12.0, kotlinx-datetime 0.8.0, GitLive 2.7.0, Firebase BoM 34.18.0, Google Services plugin 4.5.0, Crashlytics plugin 3.0.8, Coroutines 1.11.0). Other Android and admin web versions stay proposed until their tasks build with them.
 - **Date:** 2026-10-28
 - **Source:** [docs/BUILD_PLAN.md](../BUILD_PLAN.md), section 4.4 and tasks P1-B01, P2-A01
 
@@ -45,7 +45,7 @@ These are the newest stable releases on 2026-10-28, checked against each other's
 | Navigation | org.jetbrains.androidx.navigation:navigation-compose | 2.10.0 | |
 | DI | Koin BOM | 4.2.2 | koin-core, koin-compose, koin-compose-viewmodel, koin-android. |
 | Firebase in `commonMain` | GitLive firebase-kotlin-sdk | 2.7.0 | firebase-auth, -firestore, -functions, -storage. Built with Kotlin 2.2.21 and Firebase BoM 34.18.0. |
-| Firebase in `androidMain` and `app` | Firebase Android BoM | 35.1.0 | See open point 3. |
+| Firebase in `androidMain` and `app` | Firebase Android BoM | 34.18.0 | GitLive 2.7.0 was built with 34.18.0. See open point 3. |
 | Firebase setup | Google services Gradle plugin | 4.5.0 | Not in 4.4: reads `google-services.json`. |
 | Firebase setup | Crashlytics Gradle plugin | 3.0.8 | Not in 4.4: needed for Crashlytics. |
 | Async | kotlinx-coroutines (core and test) | 1.11.0 | |
@@ -105,7 +105,7 @@ Each action is pinned to the commit of its release, with the version in a commen
 
 1. **ESLint config format (decided 2026-10-29).** ESLint 10 reads only `eslint.config.*` (flat config); it no longer includes the old `.eslintrc` system. The plan names `.eslintrc.cjs` in sections 4.2 and 4.5; the project uses `eslint.config.mjs` instead, in the backend (P1-B01) and later in the admin web (P5-W01).
 2. **detekt.** 1.23.8 is the newest stable, but it was built for Kotlin 2.0. detekt 2.0 (for Kotlin 2.x) is still alpha (2.0.0-alpha.6). With Kotlin 2.4, P2-A12 may need to force detekt's own Kotlin version, or wait for detekt 2.0. Decide in P2-A12.
-3. **Firebase BoM.** 35.1.0 is a new major, while GitLive 2.7.0 was built with 34.18.0. P2-A05 checks that GitLive works with 35.1.0; if not, use 34.18.0.
+3. **Firebase BoM (decided in P2-A05).** GitLive 2.7.0 was built and tested against Firebase BoM 34.18.0; BoM 35.x has major breaking changes. P2-A05 pins BoM 34.18.0 and will re-evaluate BoM 35 when GitLive releases a compatible update.
 
 ## How to change a version
 
