@@ -14,8 +14,10 @@ googleServicesPlugin = "4.5.0"
 crashlyticsPlugin = "3.0.8"
 koinBom = "4.2.2"
 androidxDatastore = "1.3.0"
+navigationCompose = "2.10.0"
 
 [libraries]
+androidx-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidxAppCompat" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidxActivityCompose" }
 compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "composeMaterial3" }
