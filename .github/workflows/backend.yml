@@ -1,5 +1,4 @@
 # Backend CI/CD (docs/BUILD_PLAN.md, task P1-B11).
-# The jobs are skipped until backend/functions/package.json exists (task P1-B01).
 # Deploy jobs skip their steps until their environment has the Phase 0 secrets (P0-H09).
 name: backend
 
@@ -22,25 +21,7 @@ permissions:
   contents: read
 
 jobs:
-  ready:
-    name: Backend code exists
-    runs-on: ubuntu-latest
-    outputs:
-      ok: ${{ steps.check.outputs.ok }}
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - id: check
-        run: |
-          if [ -f backend/functions/package.json ]; then
-            echo "ok=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "ok=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::No backend/functions/package.json yet (task P1-B01). Skipping the other jobs."
-          fi
-
   test:
-    needs: ready
-    if: needs.ready.outputs.ok == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
