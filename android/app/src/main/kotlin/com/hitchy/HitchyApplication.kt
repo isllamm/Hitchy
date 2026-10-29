@@ -1,6 +1,8 @@
 package com.hitchy
 
 import android.app.Application
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import com.hitchy.core.data.FirebaseModule
 import com.hitchy.core.model.AppConfig
 import com.hitchy.core.model.Env
@@ -15,6 +17,11 @@ import org.koin.core.logger.Level
 class HitchyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
+
+        // TODO(DECISION-04): default language Arabic
+        if (AppCompatDelegate.getApplicationLocales().isEmpty) {
+            AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("ar"))
+        }
 
         val appConfig = AppConfig(
             env = if (BuildConfig.ENV == "prod") Env.PROD else Env.DEV,

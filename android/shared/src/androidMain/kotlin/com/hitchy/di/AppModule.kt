@@ -6,7 +6,9 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import com.hitchy.core.model.AppConfig
 import com.hitchy.core.platform.AppSettings
+import com.hitchy.core.platform.AndroidLanguageSwitcher
 import com.hitchy.core.platform.DataStoreAppSettings
+import com.hitchy.core.platform.LanguageSwitcher
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.dsl.module
@@ -17,4 +19,5 @@ fun appModule(appConfig: AppConfig): Module = module {
     single<AppConfig> { appConfig }
     single<DataStore<Preferences>> { androidContext().hitchyDataStore }
     single<AppSettings> { DataStoreAppSettings(get()) }
+    single<LanguageSwitcher> { AndroidLanguageSwitcher() }
 }
