@@ -1,10 +1,214 @@
 rules_version = '2';
 
-// Placeholder until P1-B05 writes the rules from BUILD_PLAN section 9: deny everything.
+// Firestore rules from BUILD_PLAN section 9.
+// Functions write all business data with the Admin SDK, which skips these rules.
+// Clients may write only four things: their basic profile fields, their device
+// tokens, trip presence, and readAt on their own inbox items.
+// Anything not matched below is denied.
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if false;
+    function signedIn() { return request.auth != null; }
+    function isAdmin() { return signedIn() && request.auth.token.admin == true; }
+    function isUser(uid) { return signedIn() && request.auth.uid == uid; }
+    function ride(rideId) { return get(/databases/$(database)/documents/rides/$(rideId)); }
+    // A request is not enough: the plate and the pickup coordinates are shown only after acceptance.
+    function hasAcceptedBooking(rideId) {
+      let b = /databases/$(database)/documents/rides/$(rideId)/bookings/$(request.auth.uid);
+      return exists(b) && get(b).data.status in ['booked', 'boarded', 'completed'];
     }
+    function isRideHost(rideId) { return signedIn() && ride(rideId).data.hostId == request.auth.uid; }
+    function onRide(rideId) { return isRideHost(rideId) || hasAcceptedBooking(rideId); }
+
+    // "HH:mm", the same pattern as hhmm in schemas/inputs.ts.
+    function isHHmm(v) { return v is string && v.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$'); }
+
+    // One saved place: a fixed point, no free coordinates.
+    function validPlace(p) {
+      return p is map
+        && p.keys().hasOnly(['label', 'zoneId', 'pointId'])
+        && p.label in ['home', 'work', 'other']
+        && p.zoneId is string && p.zoneId.size() > 0 && p.zoneId.size() <= 128
+        && p.pointId is string && p.pointId.size() > 0 && p.pointId.size() <= 128;
+    }
+
+    function validProfile(d) {
+      return d.firstName is string && d.firstName.size() > 0 && d.firstName.size() <= 40
+        && d.lastName is string && d.lastName.size() > 0 && d.lastName.size() <= 40
+        && (d.companyId == null || exists(/databases/$(database)/documents/companies/$(d.companyId)))
+        && (d.companyOther == null || (d.companyOther is string && d.companyOther.size() <= 60))
+        && (d.workHours == null || (isHHmm(d.workHours.start) && isHHmm(d.workHours.end)))
+        && d.language in ['ar', 'en']
+        && (d.photoPath == null || d.photoPath == 'avatars/' + request.auth.uid + '.jpg')
+        && (d.emergencyContact == null
+            || (d.emergencyContact.name is string && d.emergencyContact.phone is string))
+        // 5 must match config/limits.maxSavedPlaces. Changing that config needs a rules change.
+        // Rules have no loops, so each of the 5 places is checked on its own.
+        && d.savedPlaces is list && d.savedPlaces.size() <= 5
+        && (d.savedPlaces.size() <= 0 || validPlace(d.savedPlaces[0]))
+        && (d.savedPlaces.size() <= 1 || validPlace(d.savedPlaces[1]))
+        && (d.savedPlaces.size() <= 2 || validPlace(d.savedPlaces[2]))
+        && (d.savedPlaces.size() <= 3 || validPlace(d.savedPlaces[3]))
+        && (d.savedPlaces.size() <= 4 || validPlace(d.savedPlaces[4]))
+        && d.updatedAt == request.time;
+    }
+    function validDevice(d) {
+      return d.keys().hasOnly(['fcmToken', 'platform', 'appVersion', 'language', 'updatedAt'])
+        && d.fcmToken is string && d.fcmToken.size() < 4096
+        && d.platform in ['android', 'ios', 'web'] && d.appVersion is string
+        && d.language in ['ar', 'en'] && d.updatedAt == request.time;
+    }
+    function validPresence(d) {
+      return d.keys().hasOnly(['last', 'samples', 'updatedAt'])
+        && d.last.lat is number && d.last.lng is number && d.last.accuracyM is number
+        && d.last.at is timestamp
+        && d.samples is list && d.samples.size() <= 200
+        && d.updatedAt == request.time;
+    }
+
+    // ---- Users ----
+
+    match /users/{uid} {
+      allow get: if isUser(uid) || isAdmin();
+      allow list: if isAdmin();
+      // Same list as OWNER_WRITABLE_USER_FIELDS in schemas/docs.ts.
+      allow update: if isUser(uid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+             'firstName', 'lastName', 'companyId', 'companyOther', 'workHours',
+             'language', 'photoPath', 'emergencyContact', 'savedPlaces', 'updatedAt'])
+        && validProfile(request.resource.data);
+      match /devices/{deviceId} {
+        allow read, delete: if isUser(uid);
+        allow create, update: if isUser(uid) && validDevice(request.resource.data);
+      }
+      // The inbox. Deleted by TTL, not by the app.
+      match /notifications/{id} {
+        allow read: if isUser(uid);
+        allow update: if isUser(uid)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['readAt'])
+          && request.resource.data.readAt == request.time;
+      }
+      match /{sub}/{id} {
+        allow read: if (isUser(uid) || isAdmin()) && sub in ['vehicles', 'ledger', 'points'];
+      }
+    }
+
+    // Public card, written by syncPublicProfile.
+    match /profiles/{uid} {
+      allow read: if signedIn();
+    }
+
+    match /kyc/{uid} {
+      allow get: if isUser(uid) || isAdmin();
+      allow list: if isAdmin();
+    }
+
+    // ---- Reference data ----
+
+    match /companies/{id} {
+      allow read: if signedIn();
+    }
+    match /zones/{zoneId} {
+      allow read: if signedIn();
+      match /points/{pointId} {
+        allow read: if signedIn();
+      }
+    }
+    match /routes/{id} {
+      allow read: if signedIn();
+    }
+
+    // config/admins is never read from a client, not even by admins.
+    match /config/{name} {
+      allow get: if signedIn() && name != 'admins';
+    }
+
+    // ---- Rides ----
+
+    match /rides/{rideId} {
+      allow get: if isAdmin() || (signedIn()
+        && (resource.data.hostId == request.auth.uid || hasAcceptedBooking(rideId)));
+      // The host's query must filter hostId == uid.
+      allow list: if isAdmin() || (signedIn() && resource.data.hostId == request.auth.uid);
+      match /bookings/{riderUid} {
+        allow get: if isAdmin() || isUser(riderUid) || isRideHost(rideId);
+        allow list: if isAdmin() || isRideHost(rideId);
+      }
+      // The host reads every presence doc of the ride. A rider reads their own doc,
+      // and the host's doc once their booking is accepted.
+      match /presence/{uid} {
+        allow read: if isAdmin() || isRideHost(rideId) || isUser(uid)
+          || (hasAcceptedBooking(rideId) && uid == ride(rideId).data.hostId);
+        allow create, update: if isUser(uid) && onRide(rideId)
+          && ride(rideId).data.status == 'started'
+          && validPresence(request.resource.data);
+      }
+      // Written by sendChatMessage. Admins do not read chats.
+      match /chats/{riderUid}/messages/{messageId} {
+        allow read: if isRideHost(rideId) || isUser(riderUid);
+      }
+    }
+
+    // A rider's own bookings across rides: the query must filter riderUid == uid.
+    match /{path=**}/bookings/{riderUid} {
+      allow list: if signedIn() && resource.data.riderUid == request.auth.uid;
+    }
+
+    match /{path=**}/vehicles/{vehicleId} {
+      allow list: if isAdmin();
+    }
+
+    // ---- Money and ratings ----
+
+    // Queries must filter riderUid == uid or hostId == uid.
+    match /fees/{id} {
+      allow read: if isAdmin() || (signedIn()
+        && (resource.data.riderUid == request.auth.uid || resource.data.hostId == request.auth.uid));
+    }
+
+    // Queries must filter fromUid == uid.
+    match /ratings/{id} {
+      allow read: if isAdmin() || (signedIn() && resource.data.fromUid == request.auth.uid);
+    }
+
+    // Queries must filter hostId == uid.
+    match /packageOrders/{id} {
+      allow read: if isAdmin() || (signedIn() && resource.data.hostId == request.auth.uid);
+    }
+
+    // ---- Fixed rides ----
+
+    // Queries must filter hostId == uid, or riderUids array-contains uid.
+    match /fixedRides/{fixedRideId} {
+      allow read: if isAdmin() || (signedIn()
+        && (resource.data.hostId == request.auth.uid || request.auth.uid in resource.data.riderUids));
+      // Access follows the parent fixed ride, not the skip doc.
+      match /skips/{dateKey} {
+        allow read: if isAdmin() || (signedIn() && fixedRideMember(fixedRideId));
+      }
+    }
+    function fixedRideMember(fixedRideId) {
+      let f = get(/databases/$(database)/documents/fixedRides/$(fixedRideId)).data;
+      return f.hostId == request.auth.uid || request.auth.uid in f.riderUids;
+    }
+
+    // ---- Safety, admin, metrics ----
+
+    match /reports/{id} {
+      allow read: if isAdmin();
+    }
+    match /safetyEvents/{id} {
+      allow read: if isAdmin();
+    }
+    match /adminActions/{id} {
+      allow read: if isAdmin();
+    }
+
+    // metrics/impact is public to signed-in users; the weekly docs are admin only.
+    match /metrics/{id} {
+      allow get: if isAdmin() || (signedIn() && id == 'impact');
+      allow list: if isAdmin();
+    }
+
+    // codes, idempotency, aiUsage, aiBudget and anything else: no match, so no access.
   }
 }

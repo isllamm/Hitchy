@@ -8,7 +8,7 @@ Decisions: docs/adr/ (0001 = architecture, 0002 = pinned versions and open point
 Plan v1.1 (BUILD_PLAN 2.1) changed the product after the design review: owners accept each booking (a request holds its seats), one booking can hold several seats, chat and calls after acceptance, payment confirmation, an inbox. The app's text says "Owner"; code and data say `host`.
 
 ## Status
-Phase 1 (backend foundation) is in progress. Done: the backend scaffold (P1-B01), the shared library in backend/functions/src/lib (P1-B02) and the schemas in backend/functions/src/schemas (P1-B03). Next: P1-B04 (domain/pricing.ts and domain/geo.ts with the golden price table). The Android and admin web projects arrive in P2-A01 and P5-W01; until then their commands do not run, and their CI workflows skip their jobs.
+Phase 1 (backend foundation) is in progress. Done: the backend scaffold (P1-B01), the shared library in backend/functions/src/lib (P1-B02), the schemas in backend/functions/src/schemas (P1-B03), pricing and geo (P1-B04), and the Firestore security rules (P1-B05). Next: P1-B06 (Storage rules in backend/storage.rules). The Android and admin web projects arrive in P2-A01 and P5-W01; until then their commands do not run, and their CI workflows skip their jobs.
 
 ## Layout
 - backend/ — Firebase: functions (TypeScript), rules, indexes, seed data
@@ -97,6 +97,8 @@ List files changed, test results, and any [HUMAN] or [DECISION] items.
 | 2026-10-29 | Build plan v1.1 from the review of 46 app designs: 14 product decisions (plan 2.1, ADR 0004), screen map and designer fix list (plan 3.8), open decisions 21–27 | PR #2 |
 | 2026-10-29 | P1-B02 shared library (src/lib) and all document and config types | PR #3 |
 | 2026-10-29 | P1-B03 schemas: io.ts outputs and 32 strict zod inputs, 231 tests | PR #4 |
+| 2026-10-29 | P1-B04 pricing and geo domain logic, 257 tests | PR #6 |
+| 2026-10-29 | P1-B05 Firestore security rules matrix, 344 tests | PR #7 |
 
 Deploy jobs skip until each GitHub environment has its Phase 0 secrets (ADR 0003 row 18).
 

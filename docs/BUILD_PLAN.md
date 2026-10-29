@@ -1863,7 +1863,7 @@ Rules allow reads that the apps need and only four kinds of client writes: the o
 | `rides/{rideId}/bookings/{riderUid}` | that rider, the host, admin | the host, admin | — | — |
 | collection group `bookings` | — | rider (query must filter `riderUid == uid`) | — | — |
 | collection group `vehicles` | — | admin | — | — |
-| `rides/{rideId}/presence/{uid}` | people on the ride (host or accepted booking), admin | people on the ride, admin | owner, on the ride, ride `started`, valid fields | — |
+| `rides/{rideId}/presence/{uid}` | host, own doc, host doc (accepted rider), admin | host, admin | owner, on the ride, ride `started`, valid fields | — |
 | `rides/{rideId}/chats/{riderUid}/messages/{id}` | the host, that rider | the host, that rider | — (`sendChatMessage`) | — (TTL) |
 | `fees/{id}` | that rider, that host, admin | same, with a matching filter | — | — |
 | `ratings/{id}` | author, admin | author (filter `fromUid == uid`), admin | — | — |
@@ -1953,7 +1953,8 @@ service cloud.firestore {
         allow list: if isAdmin() || isRideHost(rideId);
       }
       match /presence/{uid} {
-        allow read: if isAdmin() || onRide(rideId);
+        allow read: if isAdmin() || isRideHost(rideId) || isUser(uid)
+          || (hasAcceptedBooking(rideId) && uid == ride(rideId).data.hostId);
         allow create, update: if isUser(uid) && onRide(rideId)
           && ride(rideId).data.status == 'started'
           && validPresence(request.resource.data);

@@ -2,7 +2,7 @@
 
 - **Status:** accepted
 - **Date:** 2026-10-28
-- **Source:** setup of the repo skeleton (P0-A01), CLAUDE.md and the CI/CD workflows; rows 12 to 18 from the backend scaffold (P1-B01, 2026-10-29); rows 19 to 22 from the shared backend library (P1-B02, 2026-10-29); rows 23 to 25 from the schemas (P1-B03, 2026-10-29); rows 27 to 30 from pricing and geo (P1-B04, 2026-10-29)
+- **Source:** setup of the repo skeleton (P0-A01), CLAUDE.md and the CI/CD workflows; rows 12 to 18 from the backend scaffold (P1-B01, 2026-10-29); rows 19 to 22 from the shared backend library (P1-B02, 2026-10-29); rows 23 to 25 from the schemas (P1-B03, 2026-10-29); rows 27 to 30 from pricing and geo (P1-B04, 2026-10-29); rows 31 to 34 from Firestore rules (P1-B05, 2026-10-29)
 
 ## Context
 
@@ -42,6 +42,10 @@ The repo was set up from [docs/BUILD_PLAN.md](../BUILD_PLAN.md) on 2026-10-28. A
 | 28 | `quote(...)` defensively throws an `Error` if the vehicle type has `null` in `PricingConfig` (e.g. scooter). | "caller checks null first" (8.5) | Prevents silent `NaN` calculations in domain logic if called directly or without prior check. |
 | 29 | `trafficLevelAt(...)` throws a `RangeError` if `minuteOfDayCairo` is not an integer between 0 and 1439. | `trafficLevelAt(minuteOfDayCairo: number, c: PricingConfig): TrafficLevel` (8.5) | Fails fast on invalid inputs instead of silently defaulting or wrapping. |
 | 30 | `hhmmToMinutes(time: HHmm): number` is implemented and exported in `src/lib/time.ts` with strict format and range checks ("00:00" to "23:59"). | Not covered | Reusable across time-handling domain functions and callable validators. |
+| 31 | `firestore.rules` hard-codes the limit of 5 saved places and checks each index 0..4 explicitly. Changing `config/limits.maxSavedPlaces` also requires updating `firestore.rules`. | 9.2: `d.savedPlaces.size() <= 5` | Rules have no loops to iterate list items dynamically; avoids an extra Firestore read on profile updates. |
+| 32 | Trip presence read access (`rides/{rideId}/presence/{uid}`): the host reads all presence docs of their ride; a rider reads only their own doc and the host's doc (with an accepted booking); admins read all. | 9.1: "people on the ride (host or accepted booking)" | Protects rider privacy so riders do not track each other's live location. |
+| 33 | Vitest runs rules tests in a dedicated project with `fileParallelism: false` because tests share a single Firestore emulator instance. | P1-B05: rules tests in `test/rules/` | Prevents test pollution from parallel state clears on the shared emulator. Unit tests remain parallel. |
+| 34 | Saved places and notification inbox rules are implemented and tested in P1-B05 as part of the full matrix. | P7-B06: "Saved places and the inbox in the rules" | Complete matrix coverage early; P7-B06 will only add its own feature-specific tests. |
 
 ## Consequences
 
