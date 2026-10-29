@@ -1,0 +1,83 @@
+package com.hitchy.navigation
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import hitchy.shared.generated.resources.Res
+import hitchy.shared.generated.resources.placeholder_screen
+import org.jetbrains.compose.resources.stringResource
+
+@Composable
+fun HitchyNavHost(
+    modifier: Modifier = Modifier,
+    navController: NavHostController = rememberNavController(),
+    startDestination: Any = Welcome
+) {
+    NavHost(
+        navController = navController,
+        startDestination = startDestination,
+        modifier = modifier
+    ) {
+        composable<Welcome> { PlaceholderScreen("Welcome") }
+        composable<PhoneEntry> { PlaceholderScreen("PhoneEntry") }
+        composable<OtpVerify> { PlaceholderScreen("OtpVerify") }
+        composable<ProfileSetup> { PlaceholderScreen("ProfileSetup") }
+        composable<Home> { PlaceholderScreen("Home") }
+        composable<Settings> { PlaceholderScreen("Settings") }
+        composable<HostApplication> { PlaceholderScreen("HostApplication") }
+        composable<HostStatus> { PlaceholderScreen("HostStatus") }
+        composable<AddVehicle> { PlaceholderScreen("AddVehicle") }
+        composable<PostRide> { PlaceholderScreen("PostRide") }
+        composable<MyRides> { PlaceholderScreen("MyRides") }
+        composable<HostRideDetails> { PlaceholderScreen("HostRideDetails") }
+        composable<Search> { PlaceholderScreen("Search") }
+        composable<SearchResults> { PlaceholderScreen("SearchResults") }
+        composable<RiderRideDetails> { PlaceholderScreen("RiderRideDetails") }
+        composable<MyTrips> { PlaceholderScreen("MyTrips") }
+        composable<HostTrip> { PlaceholderScreen("HostTrip") }
+        composable<RiderTrip> { PlaceholderScreen("RiderTrip") }
+        composable<RateTrip> { PlaceholderScreen("RateTrip") }
+        composable<Fees> { PlaceholderScreen("Fees") }
+        composable<Packages> { PlaceholderScreen("Packages") }
+        composable<PaymentInstructions> { PlaceholderScreen("PaymentInstructions") }
+        composable<CreditHistory> { PlaceholderScreen("CreditHistory") }
+        composable<Rewards> { PlaceholderScreen("Rewards") }
+        composable<Invite> { PlaceholderScreen("Invite") }
+        composable<Assistant> { PlaceholderScreen("Assistant") }
+        composable<FixedRides> { PlaceholderScreen("FixedRides") }
+        composable<CreateFixedRide> { PlaceholderScreen("CreateFixedRide") }
+        composable<FixedRideDetails> { PlaceholderScreen("FixedRideDetails") }
+        composable<JoinFixedRide> { PlaceholderScreen("JoinFixedRide") }
+        composable<BackupOptions> { PlaceholderScreen("BackupOptions") }
+        composable<EmergencyContact> { PlaceholderScreen("EmergencyContact") }
+        composable<DeleteAccount> { PlaceholderScreen("DeleteAccount") }
+        composable<Debug> { PlaceholderScreen("Debug") }
+        composable<Onboarding> { PlaceholderScreen("Onboarding") }
+        composable<RoutePicker> { PlaceholderScreen("RoutePicker") }
+        composable<MapPointPicker> { PlaceholderScreen("MapPointPicker") }
+        composable<Notifications> { PlaceholderScreen("Notifications") }
+        composable<Chat> { PlaceholderScreen("Chat") }
+        composable<Receipt> { PlaceholderScreen("Receipt") }
+        composable<Shop> { PlaceholderScreen("Shop") }
+    }
+}
+
+@Composable
+fun PlaceholderScreen(
+    name: String,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(text = stringResource(Res.string.placeholder_screen, name))
+    }
+}
