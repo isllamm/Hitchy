@@ -1,9 +1,10 @@
 # Hitchy — End-to-End Build Plan (Android + Firebase backend)
 
 > **For:** Claude Code and the Hitchy team
-> **Version:** 1.0 · **Date:** 2026-10-27 · **Owner:** Islam
+> **Version:** 1.1 · **Date:** 2026-10-29 · **Owner:** Islam
 > **Scope:** the Android app (Kotlin + Compose Multiplatform), the admin web dashboard (React + TypeScript) and the Firebase backend. The iOS app is built separately in Swift by the iOS teammate, using only `contract/`.
-> **Based on:** Hitchy Feasibility Study v10 and the "Hitchy — Android & Backend Build Plan" doc.
+> **Based on:** Hitchy Feasibility Study v10, the "Hitchy — Android & Backend Build Plan" doc, and the app designs reviewed on 2026-10-29.
+> **Changes in 1.1:** the design review decisions in [2.1](#21-design-review-v11) (owner accepts bookings, several seats per booking, chat and calls, payment confirmation, fixed points with the designs' picker, one picked time, "Owner" wording, Shop tab, notification inbox) and the screen map in [3.8](#38-app-designs-screen-map-and-fix-list).
 
 ---
 
@@ -11,7 +12,7 @@
 
 0. [How to use this file](#0-how-to-use-this-file)
 1. [Rules for the agent](#1-rules-for-the-agent)
-2. [Product rules](#2-product-rules)
+2. [Product rules](#2-product-rules) · [2.1 Design review (v1.1)](#21-design-review-v11)
 3. [Architecture](#3-architecture)
 4. [Repo layout](#4-repo-layout)
 5. [Conventions](#5-conventions)
@@ -57,8 +58,8 @@
 
 | Prefix | Meaning | Example |
 | --- | --- | --- |
-| `P<n>-B<nn>` | Backend task in phase n | `P7-B02` = `bookSeat` |
-| `P<n>-A<nn>` | Android task in phase n | `P7-A03` = booking sheet |
+| `P<n>-B<nn>` | Backend task in phase n | `P7-B02` = `requestSeats` |
+| `P<n>-A<nn>` | Android task in phase n | `P7-A03` = request sheet |
 | `P<n>-W<nn>` | Admin web task in phase n | `P5-W05` = host review page |
 | `P<n>-H<nn>` | Human task (console, accounts, money) | `P0-H02` = create Firebase projects |
 
@@ -98,7 +99,7 @@ These rules are not negotiable. Every pull request is checked against them.
 7. **Text in resources.** Every user-facing string lives in resources, in English and Arabic. No hard-coded text in code.
 8. **No surprise dependencies.** Use only the libraries in [4.4](#44-libraries). Anything else needs a one-line reason in the pull request.
 9. **No invented design.** Use only the Phase 3 tokens and components. Do not invent colors, fonts or styles. Follow `[FIGMA]` for screens not designed yet.
-10. **Small commits.** Conventional Commits with scope: `feat(backend): bookSeat`, `test(android): otp viewmodel`.
+10. **Small commits.** Conventional Commits with scope: `feat(backend): requestSeats`, `test(android): otp viewmodel`.
 11. **Ask instead of guessing.** If the spec does not cover a case, stop and ask. Do not invent business rules.
 
 ---
@@ -114,22 +115,51 @@ Hitchy matches commuters in Greater Cairo who drive to work with colleagues goin
 | R3 | A trip uses 1 credit only if at least 1 rider boarded | — | `finishRide` |
 | R4 | First month free | 30 days from host approval | `approveHost`, `finishRide`, `createRide` |
 | R5 | Max seats | car 3, scooter 1 | `addVehicle`, `createRide` |
-| R6 | Seat price range | min / recommended / max formula, [Pricing formula](#pricing-formula) | `quotePrice`, `createRide` |
+| R6 | Seat price range | min / recommended / max formula, [Pricing formula](#pricing-formula); the rider pays price × seats to the host directly and sees a receipt | `quotePrice`, `createRide` |
 | R7 | Max rides per host per day | 2, one each direction | `createRide`, `generateFixedRides` |
-| R8 | Women-only rides | only women hosts create them; only women riders see and book them | `createRide`, `searchRides`, `bookSeat` |
-| R9 | Rider late fee | 10 EGP after 5 minutes grace, paid to the host directly; unpaid fee blocks booking | `reportLate`, `bookSeat` |
+| R8 | Women-only rides | only women hosts create them; only women riders see and request them; a rider asking for several seats confirms every passenger is a woman `[DECISION-24]` | `createRide`, `searchRides`, `requestSeats` |
+| R9 | Rider late fee | 10 EGP per booking after 5 minutes grace, paid to the host directly; an unpaid fee blocks new requests `[DECISION-24]` | `reportLate`, `requestSeats` |
 | R10 | Host late | more than 10 minutes late → rider cancels free | `cancelBooking` |
 | R11 | Verified badge | optional criminal record → badge, booking priority, higher ranking | `setVerified`, `domain/ranking.ts` |
-| R12 | One account per phone, two roles | host mode only when `host.status == "approved"` | `switchRole`, host functions |
+| R12 | One account per phone, two roles | host mode only when `host.status == "approved"`; the Welcome screen's "I have a vehicle / I need a ride" only picks the starting path | `switchRole`, host functions |
 | R13 | Same company badge | shown without the company name | `searchRides` |
 | R14 | AI assistant | real rides only, daily limit, 1,000 EGP monthly budget | `askAssistant` |
 | R15 | Hitchy Rewards | points, tiers, redemption, 6-month expiry | Phase 10 |
 | R16 | Points need proof | host and rider phones traveled together (GPS) | `onRideFinished` |
 | R17 | Fixed Ride | weekly plan turned into daily rides | Phase 12 |
-| R18 | Phone numbers stay hidden | no function ever returns another user's phone | all |
+| R18 | Phone numbers stay private | only `getContactPhone` returns another user's phone, and only between a host and a rider with an accepted booking, from acceptance until the ride ends `[DECISION-22]` | `getContactPhone`, all |
 | R19 | No wallet | seat price and late fees are paid between people | — |
+| R20 | The host accepts each booking | a request holds its seats until the host accepts or declines, or the request expires `[DECISION-21]` | `requestSeats`, `respondToRequest`, `expireRequest` |
+| R21 | Several seats per booking | one booking holds 1 … seats left; price, cancel and late fee apply per booking | `requestSeats` |
+| R22 | Payment proof | after the trip the host marks each rider as paid; a record only, no money passes through Hitchy | `confirmSeatPayment` |
+| R23 | Chat and calls | only between the host and riders with an accepted booking `[DECISION-22]` `[DECISION-23]` | `sendChatMessage`, `getContactPhone` |
 
 **Pilot:** route Fifth Settlement / Rehab ↔ Smart Village, peak hours 07:00–10:00 and 16:00–19:00 Cairo time.
+
+**Words:** the app's text calls the host **Owner** (Arabic صاحب العربية) and never "driver" `[DECISION-20]`. Code, data and this plan keep the name `host`. In the data and security tables, "owner" still means the account that owns a document.
+
+### 2.1 Design review (v1.1)
+
+On 2026-10-29 the finished app designs (46 PNG exports: onboarding, sign-in, home, route picker, search, ride details, my rides, tracking, rating, receipt, notifications, shop) were checked against this plan. Islam decided every conflict, and the rest of the plan follows these decisions. The screen map and the fix list for the designer are in [3.8](#38-app-designs-screen-map-and-fix-list).
+
+| # | Topic | Decision | Where it changes the plan |
+| --- | --- | --- | --- |
+| 1 | Booking | The host accepts each booking. A request holds the seats until the host answers or it expires (R20) | `requestSeats`, `respondToRequest`, `expireRequest` (8.6), booking statuses (6.5), rules (9) |
+| 2 | Rider fee | Riders pay Hitchy nothing (R1 unchanged). The design's "Pay the Hitchy fee" line goes | 3.8 fix list |
+| 3 | Price | The host's price per seat (R6). The rider sees price × seats and a receipt "paid directly to the owner" | RideCard (8.2), receipt (P8-A10) |
+| 4 | Payment proof | The host marks each rider as paid after the trip (R22) | `confirmSeatPayment` (8.7) |
+| 5 | Places | Fixed points inside zones, picked with the designs' search, saved, recent and map picker. Only points appear, never free addresses or pins. "300 m walk" is the distance from the rider's chosen point to the ride's pickup point | `searchRides` (8.6), `savedPlaces` (6.2), P7-A02 |
+| 6 | Time | The rider picks one time; search covers 1 hour before and after it `[DECISION-25]`. Arrival = departure + the route's usual minutes | `searchRides` (8.6), RideCard (8.2) |
+| 7 | Seats | One booking can hold several seats, up to the seats left (R21) | `BookingDoc.seats` (6.5), `requestSeats` (8.6) |
+| 8 | Contact | Chat and calls between the host and riders with an accepted booking (R18, R23) | `sendChatMessage`, `getContactPhone` (8.7), `[DECISION-22]`, `[DECISION-23]` |
+| 9 | Bottom tabs | Home, Rides, Shop, Profile. Shop holds Rewards (rider) and Packages (host) | `[DECISION-18]`, P4-A04, Phases 9 and 10 |
+| 10 | Word | The app says "Owner"; code and data keep `host` | `[DECISION-20]`, 8.15, Appendix D |
+| 11 | Trip steps | The designs' steps on plan data: Owner on the way → Arrived → In ride → Completed | 3.6, P8-A04 |
+| 12 | Rating | The designs' tags plus the plan's negative tags; no free comment | `RATING_TAGS` (6.6), P8-A06 |
+| 13 | Search filters | The designs' sort and filters plus Verified only and Women-only | `searchRides` (8.6), P7-A02 |
+| 14 | Role | The Welcome choice only picks the starting path; one account, two roles (R12) | P4-A04 |
+
+The designs' Notifications screen needs a history, so every push is also stored in an inbox for 30 days (`users/{uid}/notifications`, 6.2) `[DECISION-27]`.
 
 ---
 
@@ -278,7 +308,7 @@ android/
       └─ androidMain/kotlin/com/hitchy/platform/   Android implementations
 ```
 
-Features under `feature/`: `auth`, `profile`, `host`, `rides`, `booking`, `trip`, `packages`, `rewards`, `assistant`, `fixed`, `safety`, `debug`.
+Features under `feature/`: `auth`, `profile`, `host`, `rides`, `booking`, `trip`, `packages`, `rewards`, `assistant`, `fixed`, `safety`, `debug`, and from v1.1 `places` (route picker, saved places), `chat` and `inbox` (notification history).
 
 ### 4.4 Libraries
 
@@ -384,11 +414,11 @@ Callables that create things take `requestId` (a UUID the app makes once per use
 
 - Kotlin package root `com.hitchy`. Firestore collections plural camelCase, fields camelCase, enum values lowercase snake (`"cancelled_by_host"`).
 - String resource keys snake_case with a feature prefix: `booking_confirm_title`.
-- Function names camelCase verbs: `bookSeat`, `finishRide`.
+- Function names camelCase verbs: `requestSeats`, `finishRide`.
 
 ### 5.7 Logging and privacy
 
-- Backend: `logger.info("bookSeat.ok", { uid, rideId })`. Structured, event-style names.
+- Backend: `logger.info("requestSeats.ok", { uid, rideId })`. Structured, event-style names.
 - Android: Kermit with one tag per feature.
 - Never log or send to analytics: phone numbers, names, ID numbers, plates, coordinates, chat text.
 
@@ -458,6 +488,8 @@ export interface UserDoc extends Base {
   language: Language;
   photoPath: string | null;              // "avatars/{uid}.jpg"
   emergencyContact: { name: string; phone: string } | null;
+  savedPlaces: Array<{ label: "home" | "work" | "other"; zoneId: string; pointId: string }>;
+                                         // max maxSavedPlaces; fixed points only (v1.1)
   activeRole: Role;                      // written only by switchRole
   referralCode: string;
   referredBy: string | null;             // uid of the inviter
@@ -490,7 +522,7 @@ export interface UserDoc extends Base {
 // Fields the owner may write directly (rules check this list):
 export const OWNER_WRITABLE_USER_FIELDS = [
   "firstName", "lastName", "companyId", "companyOther", "workHours",
-  "language", "photoPath", "emergencyContact", "updatedAt",
+  "language", "photoPath", "emergencyContact", "savedPlaces", "updatedAt",
 ] as const;
 
 // profiles/{uid} — public card. Read: any signed-in user. Written by syncPublicProfile.
@@ -499,6 +531,7 @@ export interface ProfileDoc {
   firstName: string;
   photoPath: string | null;
   hostRating: { avg: number | null; count: number };
+  hostTrips: number;                     // host.tripsCompleted, for "★ 4.9 · 128 rides"
   riderRating: { avg: number | null; count: number };
   verified: boolean;
   hostTier: Tier;
@@ -513,6 +546,18 @@ export interface DeviceDoc {
   appVersion: string;
   language: Language;
   updatedAt: Timestamp;
+}
+
+// users/{uid}/notifications/{id} — the inbox (v1.1). Written by lib/notify.ts with every push.
+// Read: owner. The owner may set only readAt. Deleted by a TTL policy on expireAt [DECISION-27].
+export interface NotificationDoc {
+  type: string;                          // a type from section 8.15
+  title: LocalizedName;                  // both languages, so a language switch still reads well
+  body: LocalizedName;
+  deepLink: string;
+  createdAt: Timestamp;
+  readAt: Timestamp | null;
+  expireAt: Timestamp;                   // createdAt + notificationRetentionDays
 }
 
 // users/{uid}/vehicles/{vehicleId} — written by functions.
@@ -603,14 +648,14 @@ export interface RideDoc extends Base {
   departAt: Timestamp;
   dateKey: DateKey;
   seatsTotal: number;
-  seatsLeft: number;
+  seatsLeft: number;                     // seats not held by a requested or accepted booking
   pricePerSeat: number;
   priceRange: { min: number; recommended: number; max: number; trafficLevel: TrafficLevel;
                 distanceKm: number; configVersion: number };
   womenOnly: boolean;
   status: RideStatus;
   fixedRideId: string | null;
-  bookingsCount: number;                 // active bookings, for "first booking" logic
+  bookingsCount: number;                 // accepted bookings, for "first booking" logic
   creditConsumed: boolean;
   postProcessed: boolean;                // set by onRideFinished
   autoFinished: boolean;
@@ -620,8 +665,9 @@ export interface RideDoc extends Base {
   cancelReason: "sick" | "car_problem" | "plans_changed" | "other" | "not_started" | "suspended" | null;
 }
 
-export type BookingStatus = "booked" | "boarded" | "completed"
-  | "cancelled_by_rider" | "cancelled_by_host" | "no_show";
+export type BookingStatus = "requested" | "booked" | "boarded" | "completed"
+  | "declined" | "expired" | "cancelled_by_rider" | "cancelled_by_host" | "no_show";
+// "requested" waits for the host; "booked" means the host accepted (R20).
 
 // rides/{rideId}/bookings/{riderUid}. Read: that rider, the host, admin. Written by functions.
 export interface BookingDoc extends Base {
@@ -630,16 +676,22 @@ export interface BookingDoc extends Base {
   hostId: string;
   departAt: Timestamp;                   // copy, for the rider's trips query
   status: BookingStatus;
-  price: number;
+  seats: number;                         // 1 … seatsLeft at request time (R21)
+  price: number;                         // per seat, copied at request time
+  total: number;                         // price × seats, paid to the host directly
+  expiresAt: Timestamp;                  // request deadline [DECISION-21]
+  respondedAt: Timestamp | null;         // when the host accepted or declined
   checkedInAt: Timestamp | null;
   checkInDistanceM: number | null;
   boardedAt: Timestamp | null;
   lateFeeId: string | null;
+  paymentConfirmedAt: Timestamp | null;  // the host confirmed the rider paid (R22)
   verifiedTogether: boolean;
   rewarded: boolean;
   lateCancel: boolean;
   cancelledAt: Timestamp | null;
-  cancelReason: "host_late" | "plans_changed" | "other" | "ride_cancelled" | "not_started" | null;
+  cancelReason: "host_late" | "plans_changed" | "found_another_ride" | "other"
+              | "ride_cancelled" | "not_started" | null;
 }
 
 // rides/{rideId}/presence/{uid}. Written by the owner while the ride is started.
@@ -647,6 +699,15 @@ export interface PresenceDoc {
   last: { lat: number; lng: number; accuracyM: number; at: Timestamp };
   samples: Array<{ lat: number; lng: number; at: Timestamp }>; // max 200
   updatedAt: Timestamp;
+}
+
+// rides/{rideId}/chats/{riderUid}/messages/{messageId} (v1.1, R23).
+// Read: the host and that rider (not admins). Written by sendChatMessage.
+export interface ChatMessageDoc {
+  fromUid: string;
+  text: string;                          // 1–500 characters; never logged
+  createdAt: Timestamp;
+  expireAt: Timestamp;                   // TTL: ride departAt + chatRetentionDays [DECISION-23]
 }
 ```
 
@@ -675,7 +736,7 @@ export interface RatingDoc {
   createdAt: Timestamp;
 }
 export const RATING_TAGS = {
-  host:  ["on_time", "safe_driving", "clean_car", "friendly", "late", "unsafe_driving", "rude"],
+  host:  ["on_time", "safe_driving", "clean_car", "friendly", "followed_route", "late", "unsafe_driving", "rude"],
   rider: ["on_time", "polite", "easy_pickup", "late", "rude"],
 } as const;
 
@@ -826,6 +887,14 @@ All numbers live in `config/*` documents. Functions read them through `lib/confi
   "lowRatingThreshold": 2,
   "maxVehiclesPerHost": 2,
   "searchMaxResults": 20,
+  "searchWindowMinutes": 60,
+  "requestTtlMinutes": 30,
+  "arrivedDistanceM": 300,
+  "etaSpeedKmh": 25,
+  "chatOpenHoursAfterRide": 24,
+  "chatRetentionDays": 30,
+  "notificationRetentionDays": 30,
+  "maxSavedPlaces": 5,
   "aiDailyMessages": 20,
   "aiMonthlyBudgetEgp": 1000,
   "aiEgpPer1kInputTokens": 0,
@@ -842,7 +911,7 @@ All numbers live in `config/*` documents. Functions read them through `lib/confi
 }
 ```
 
-`freeCancelMinutes` is `[DECISION-08]`, `noShowMinutes` is `[DECISION-09]`, `fixedSkipCutoff` is `[DECISION-13]`, `kycPhotoRetentionDays` is `[DECISION-14]`. Set the AI token prices once the provider is chosen `[DECISION-12]`.
+`freeCancelMinutes` is `[DECISION-08]`, `noShowMinutes` is `[DECISION-09]`, `fixedSkipCutoff` is `[DECISION-13]`, `kycPhotoRetentionDays` is `[DECISION-14]`. Set the AI token prices once the provider is chosen `[DECISION-12]`. From v1.1: `requestTtlMinutes` is `[DECISION-21]`, `chatOpenHoursAfterRide` and `chatRetentionDays` are `[DECISION-23]`, `searchWindowMinutes` is `[DECISION-25]`, `arrivedDistanceM` and `etaSpeedKmh` are `[DECISION-26]`, `notificationRetentionDays` is `[DECISION-27]`.
 
 ### 7.4 `config/rewards`
 
@@ -903,7 +972,7 @@ Every function below is the exact spec. Inputs go in `schemas/inputs.ts` (zod), 
   5. Not suspended (all except read-only, safety and account functions) → else `SUSPENDED`.
   6. Input parses with zod → else `INVALID_INPUT` (with the failing field paths in `extra`).
 - Instants in inputs and outputs are ISO-8601 UTC strings.
-- Each handler exports a pure-ish core for tests: `export async function bookSeatCore(input, ctx)`. The callable is one line: `export const bookSeat = makeCallable("bookSeat", BookSeatInput, bookSeatCore)`.
+- Each handler exports a pure-ish core for tests: `export async function requestSeatsCore(input, ctx)`. The callable is one line: `export const requestSeats = makeCallable("requestSeats", RequestSeatsInput, requestSeatsCore)`.
 - Notifications are sent after the transaction commits, never inside it.
 
 ```ts
@@ -943,24 +1012,28 @@ export interface CallCtx { uid: string; phone: string | null; isAdmin: boolean; 
 export interface RideCard {
   rideId: string;
   departAt: string;                        // ISO UTC
+  arriveAt: string;                        // departAt + route usualMinutes (v1.1)
   fromZone: string; toZone: string;
   fromPointId: string; toPointId: string;
   fromPointName: LocalizedName; toPointName: LocalizedName;
   pricePerSeat: number;
   fairPrice: boolean;                      // pricePerSeat <= priceRange.recommended
   seatsLeft: number;
+  walkM: number | null;                    // rider's chosen point → this pickup point (v1.1)
+  bestMatch: boolean;                      // first card under "recommended" sort (v1.1)
   womenOnly: boolean;
   vehicleType: VehicleType;
   fixed: boolean;                          // part of a Fixed Ride
   host: {
     uid: string; firstName: string; photoPath: string | null;
     rating: number | null; ratingCount: number;
+    trips: number;                         // profiles.hostTrips (v1.1)
     verified: boolean; tier: Tier;
     sameCompany: boolean;                  // never the company name
   };
 }
 
-export interface RideView extends RideCard {  // only for the host and booked riders
+export interface RideView extends RideCard {  // only for the host and riders with an accepted booking
   status: RideStatus;
   fromPoint: GeoPointLite;
   vehicle: { make: string; model: string; color: string; plate: string };
@@ -1169,7 +1242,7 @@ output: { cancelledBookings: number }
 ```
 
 1. `ride.hostId == uid` → else `NOT_FOUND`. Status `open | full` → `started`: `RIDE_HAS_STARTED`; anything else: `RIDE_NOT_OPEN`.
-2. One transaction: ride `cancelled` with `cancelledAt`, `cancelReason`; every `booked` booking → `cancelled_by_host` with `cancelReason: "ride_cancelled"`; when `bookingsCount > 0` and `now >= departAt - hostLateCancelMinutes`: `host.lateCancels += 1`.
+2. One transaction: ride `cancelled` with `cancelledAt`, `cancelReason`; every `requested` or `booked` booking → `cancelled_by_host` with `cancelReason: "ride_cancelled"`; when `bookingsCount > 0` and `now >= departAt - hostLateCancelMinutes`: `host.lateCancels += 1`.
 3. Notifications come from `onBookingChanged`. Phase 12 adds the backup flow for each affected rider.
 
 ### 8.6 Search and booking (Phase 7)
@@ -1177,34 +1250,37 @@ output: { cancelledBookings: number }
 #### `searchRides` · callable · rider
 
 ```ts
-input:  { fromZone: string; toZone: string; date: DateKey; timeFrom: HHmm; timeTo: HHmm;
-          verifiedOnly: boolean; womenOnly: boolean }   // timeFrom < timeTo, window <= 6 hours
+input:  { fromZone: string; toZone: string; fromPointId: string | null; date: DateKey; time: HHmm;
+          seats: number /*1–3*/; sort: "recommended" | "earliest" | "cheapest";
+          timeBand: "any" | "before" | "first_hour" | "after"; maxPrice: number | null;
+          minRating: 4.5 | 4.8 | null; verifiedOnly: boolean; womenOnly: boolean }
 output: { rides: RideCard[] }
 ```
 
-All logic sits in `searchRidesCore(callerUid, input)`; the assistant and the backup flow reuse it.
+All logic sits in `searchRidesCore(callerUid, input)`; the assistant and the backup flow reuse it. The rider picks fixed points; the app sends their zones, the pickup point (for `walkM`) and one time (v1.1, 2.1 #5 and #6).
 
-1. Query `rides` where `fromZone ==`, `toZone ==`, `status == "open"`, `departAt` between the Cairo window start and end, ordered by `departAt`, limit 100.
-2. Drop: the caller's own rides; hosts in `caller.blockedUids` or who blocked the caller; suspended hosts; Women-only rides when the caller is not a woman; non-Women-only rides when `input.womenOnly`; non-Verified hosts when `input.verifiedOnly`.
-3. Build `RideCard`s from `profiles`; `sameCompany = caller.companyId != null && caller.companyId == ride.hostCompanyId`.
-4. Rank with `domain/ranking.ts` and return the top `searchMaxResults`.
+1. Query `rides` where `fromZone ==`, `toZone ==`, `status == "open"`, `departAt` between `time − searchWindowMinutes` and `time + searchWindowMinutes` (Cairo) `[DECISION-25]`, ordered by `departAt`, limit 100.
+2. Drop: the caller's own rides; hosts in `caller.blockedUids` or who blocked the caller; suspended hosts; Women-only rides when the caller is not a woman; non-Women-only rides when `input.womenOnly`; non-Verified hosts when `input.verifiedOnly`; rides with `seatsLeft < seats`; rides outside `timeBand` (`before` = earlier than `time`, `first_hour` = `time` up to `time + 60 min`, `after` = later); `pricePerSeat > maxPrice`; hosts below `minRating` or with fewer than 3 ratings when `minRating` is set.
+3. Build `RideCard`s from `profiles`: `sameCompany = caller.companyId != null && caller.companyId == ride.hostCompanyId`; `walkM` = distance from `fromPointId` to the ride's pickup point (`null` without `fromPointId`); `arriveAt = departAt + route.usualMinutes`; `host.trips = hostTrips`.
+4. Sort: `recommended` ranks with `domain/ranking.ts`; `earliest` by `departAt`; `cheapest` by `pricePerSeat`, then `departAt`. Return the top `searchMaxResults`; `bestMatch` is true only for the first card under `recommended`.
 
 Ranking (starting weights; keep them as constants so they can be tuned):
 
 ```text
 score = 40 × timeFit + 20 × sameCompany + 15 × ratingScore + 10 × verified + tierBonus + 5 × reliability
-timeFit     = max(0, 1 − |departAt − middle of the window| / 120 minutes)
+timeFit     = max(0, 1 − |departAt − the picked time| / 120 minutes)
 ratingScore = ratingCount < 3 ? 0.5 : clamp((avg − 3) / 2, 0, 1)
 tierBonus   = bronze 0, silver 5, gold 10
 reliability = 1 − min(1, (host.lateCancels + host.hostLateCount) / max(5, host.tripsCompleted))
 ties        → earlier departAt first
 ```
 
-#### `bookSeat` · callable · rider
+#### `requestSeats` · callable · rider (v1.1; replaces `bookSeat`)
 
 ```ts
-input:  { rideId: string; requestId: string /*uuid*/ }
-output: { booking: { rideId: string; status: "booked"; price: number }; ride: RideView }
+input:  { rideId: string; seats: number /*1–3*/; requestId: string /*uuid*/ }
+output: { booking: { rideId: string; status: "requested"; seats: number; price: number; total: number;
+                     expiresAt: string }; ride: RideCard }
 ```
 
 Checks in this order, inside one transaction (idempotent by `requestId`):
@@ -1213,26 +1289,42 @@ Checks in this order, inside one transaction (idempotent by `requestId`):
 2. `departAt - now > bookingCutoffMinutes` → else `TOO_LATE_TO_BOOK`.
 3. `ride.hostId != uid` → else `OWN_RIDE`.
 4. Blocked either way → `RIDE_NOT_OPEN` (do not reveal the block).
-5. `seatsLeft > 0` → else `RIDE_FULL`.
-6. No booking doc, or the existing one is cancelled → else `ALREADY_BOOKED`.
+5. `seatsLeft >= seats` → else `RIDE_FULL`.
+6. No booking doc, or the existing one is `declined`, `expired` or cancelled → else `ALREADY_BOOKED`.
 7. `user.rider.unpaidFees == 0` → else `UNPAID_FEE`.
-8. `!ride.womenOnly || user.gender == "female"` → else `WOMEN_ONLY`.
-9. No other `booked | boarded` booking of the caller within `rideGapMinutes` (collection group query) → else `TIME_CONFLICT`.
+8. `!ride.womenOnly || user.gender == "female"` → else `WOMEN_ONLY`. With `seats > 1` on a Women-only ride the app first asks the rider to confirm every passenger is a woman `[DECISION-24]`.
+9. No other `requested | booked | boarded` booking of the caller within `rideGapMinutes` (collection group query) → else `TIME_CONFLICT`.
 
-Writes: booking `{ status: "booked", price: ride.pricePerSeat, departAt, hostId, riderUid, … }`; `seatsLeft -= 1` (`status: "full"` at 0); `bookingsCount += 1`.
-After commit: when `bookingsCount` became 1, enqueue `rideReminder` with task id `reminder-{rideId}` at `departAt - 30 minutes` (ignore "already exists").
+Writes: booking `{ status: "requested", seats, price: ride.pricePerSeat, total: price × seats, expiresAt, respondedAt: null, paymentConfirmedAt: null, departAt, hostId, riderUid, … }` with `expiresAt = min(now + requestTtlMinutes, departAt − bookingCutoffMinutes)` `[DECISION-21]`; `seatsLeft -= seats` (`status: "full"` at 0). The seats stay held until the host answers or the request expires.
+After commit: enqueue `expireRequest` with task id `expire-{rideId}-{riderUid}-{requestedAt ms}` at `expiresAt`. The host's notification comes from `onBookingChanged`.
+
+#### `respondToRequest` · callable · host
+
+```ts
+input:  { rideId: string; riderUid: string; accept: boolean }
+output: { status: "booked" | "declined" }
+```
+
+1. `ride.hostId == uid` → else `NOT_FOUND`; ride `open | full` → else `RIDE_NOT_OPEN`.
+2. Booking `status == "requested"` → else `REQUEST_NOT_PENDING`; `now < expiresAt` → else `REQUEST_EXPIRED`.
+3. One transaction. Accept: booking `booked`, `respondedAt`; `bookingsCount += 1`. Decline: booking `declined`, `respondedAt`; `seatsLeft += seats`, `full → open`.
+4. After commit, on accept: when `bookingsCount` became 1, enqueue `rideReminder` with task id `reminder-{rideId}` at `departAt - 30 minutes` (ignore "already exists"). Notifications come from `onBookingChanged`.
+
+#### `expireRequest` · task queue
+
+`{ rideId, riderUid }` → when the booking is still `requested` and `now >= expiresAt`: booking `expired`, `seatsLeft += seats`, `full → open` (one transaction). `closeStaleRides` also expires missed requests.
 
 #### `cancelBooking` · callable · rider
 
 ```ts
-input:  { rideId: string; reason: "host_late" | "plans_changed" | "other" }
+input:  { rideId: string; reason: "host_late" | "plans_changed" | "found_another_ride" | "other" }
 output: { lateCancel: boolean }
 ```
 
-1. Booking with `status == "booked"` → else `BOOKING_NOT_FOUND`.
+1. Booking with `status == "requested"` or `"booked"` → else `BOOKING_NOT_FOUND`. Cancelling a `requested` booking is always free and skips steps 2 and 3.
 2. `reason == "host_late"`: `now >= departAt + hostLateMinutes` and the host's `presence.last` is missing or farther than `hostLateDistanceM` from the pickup point → else `HOST_NOT_LATE`.
 3. Any other reason: ride status `open | full` → else `RIDE_HAS_STARTED`.
-4. One transaction: booking `cancelled_by_rider` with `cancelReason`; `lateCancel = reason != "host_late" && now >= departAt - freeCancelMinutes` `[DECISION-08]`; `seatsLeft += 1`, `full → open`, `bookingsCount -= 1`; `host_late` → `host.hostLateCount += 1`; `lateCancel` → `rider.lateCancels += 1`.
+4. One transaction: booking `cancelled_by_rider` with `cancelReason`; `lateCancel = status was "booked" && reason != "host_late" && now >= departAt - freeCancelMinutes` `[DECISION-08]`; `seatsLeft += seats`, `full → open`; `bookingsCount -= 1` when it was `booked`; `host_late` → `host.hostLateCount += 1`; `lateCancel` → `rider.lateCancels += 1`.
 5. Phase 12: `host_late` starts the backup flow for this rider.
 
 #### `onBookingChanged` · trigger · `rides/{rideId}/bookings/{riderUid}` written
@@ -1241,9 +1333,12 @@ The only place that sends booking notifications:
 
 | Change | Notify |
 | --- | --- |
-| created as `booked` | host: `new_booking` |
-| `booked → cancelled_by_rider` | host: `booking_cancelled` |
-| `booked → cancelled_by_host` | rider: `ride_cancelled` |
+| created as `requested` | host: `booking_requested` |
+| `requested → booked` | rider: `booking_accepted` |
+| `requested → declined` | rider: `booking_declined` |
+| `requested → expired` | rider: `request_expired` |
+| `requested → cancelled_by_rider` or `booked → cancelled_by_rider` | host: `booking_cancelled` |
+| `requested → cancelled_by_host` or `booked → cancelled_by_host` | rider: `ride_cancelled` |
 
 #### `rideReminder` · task queue
 
@@ -1277,7 +1372,7 @@ input:  { rideId: string; riderUid: string }
 output: {}
 ```
 
-Caller is the host, or the caller is `riderUid` → else `NOT_ON_RIDE`; ride `started` → else `RIDE_NOT_STARTED`; booking `booked` → else `BOOKING_NOT_FOUND`. Writes `status: "boarded"`, `boardedAt`.
+Caller is the host, or the caller is `riderUid` → else `NOT_ON_RIDE`; ride `started` → else `RIDE_NOT_STARTED`; booking `booked` → else `BOOKING_NOT_FOUND`. Writes `status: "boarded"`, `boardedAt`. All seats of a booking board together.
 
 #### `reportLate` · callable · host
 
@@ -1290,7 +1385,7 @@ output: { feeId: string }
 2. Rider on time: `checkedInAt <= departAt + lateGraceMinutes` and `checkInDistanceM <= checkInRadiusM` → `RIDER_WAS_ON_TIME`.
 3. `late`: `now >= departAt + lateGraceMinutes` → else `GRACE_NOT_OVER`.
 4. `no_show` `[DECISION-09]`: booking still `booked` and `now >= departAt + noShowMinutes` → else `GRACE_NOT_OVER`; booking → `no_show`.
-5. One transaction: create `FeeDoc` (`amount: lateFeeEgp`, `reason: kind`, `status: "unpaid"`, evidence); `booking.lateFeeId`; `rider.unpaidFees += 1`.
+5. One transaction: create `FeeDoc` (`amount: lateFeeEgp`, `reason: kind`, `status: "unpaid"`, evidence); `booking.lateFeeId`; `rider.unpaidFees += 1`. One fee per booking, whatever its seats `[DECISION-24]`.
 6. After commit: rider gets `fee_created`.
 
 #### `disputeFee` · callable · rider
@@ -1320,16 +1415,32 @@ output: {}
 
 `fee.hostId == uid` and status `unpaid | disputed` → else `FEE_NOT_FOUND`. Writes `paid`, `rider.unpaidFees -= 1`. Rider gets `fee_paid`.
 
-#### `sendQuickMessage` · callable · host or rider
+#### `confirmSeatPayment` · callable · host (v1.1, R22)
 
 ```ts
-input:  { rideId: string;
-          messageId: "at_pickup" | "on_my_way" | "running_5_late" | "running_10_late" | "leaving_now" | "cant_find_you";
-          toUid: string | null }
+input:  { rideId: string; riderUid: string }
 output: {}
 ```
 
-Caller is the host or has a `booked | boarded` booking → else `NOT_ON_RIDE`; ride `open | full | started` → else `RIDE_NOT_OPEN`. A rider always messages the host; the host messages one rider (`toUid`) or all booked riders. No free text, so nothing to moderate `[DECISION-10]`. Sends `quick_<messageId>`.
+`ride.hostId == uid` → else `NOT_FOUND`; booking `boarded | completed` → else `BOOKING_NOT_FOUND`; `paymentConfirmedAt == null` → else `PAYMENT_ALREADY_CONFIRMED`. Writes `paymentConfirmedAt`. After commit: the rider gets `payment_confirmed`, which opens the receipt. A record only: no money passes through Hitchy, and an unconfirmed payment blocks nothing.
+
+#### `sendChatMessage` · callable · host or rider (v1.1; replaces `sendQuickMessage`)
+
+```ts
+input:  { rideId: string; riderUid: string; text: string /*1–500*/; requestId: string /*uuid*/ }
+output: { messageId: string }
+```
+
+The caller is the ride's host or `riderUid` → else `NOT_ON_RIDE`. The rider's booking is `booked | boarded | completed`, the ride is not `cancelled | expired`, and `now <= (finishedAt ?? departAt) + chatOpenHoursAfterRide` → else `CHAT_CLOSED` `[DECISION-23]`. Writes `rides/{rideId}/chats/{riderUid}/messages/{id}` with `expireAt = departAt + chatRetentionDays` (idempotent by `requestId`). After commit: the other person gets `chat_message`, which says "New message from {name}" and never carries the text. The chat screen offers the old quick messages ("I'm at the pickup point", "Running 5 minutes late", …) as one-tap chips that send normal messages. Never log the text.
+
+#### `getContactPhone` · callable · host or rider (v1.1, R18)
+
+```ts
+input:  { rideId: string; otherUid: string }
+output: { phone: string }                 // E.164
+```
+
+The caller and `otherUid` are the ride's host and a rider whose booking is `booked | boarded`, and the ride is `open | full | started` → else `CONTACT_NOT_ALLOWED` `[DECISION-22]`. Returns the other person's `users.phone`; the app opens the dialer (`ACTION_DIAL`, no call permission). Log only `{ uid, rideId }`.
 
 #### Presence (direct client writes)
 
@@ -1364,7 +1475,8 @@ Skip when `postProcessed` is true. Each step is safe to repeat:
 #### `closeStaleRides` · scheduled · every 30 minutes
 
 1. `started` rides with `departAt <= now - staleRideHours` → `finishRideCore` with `autoFinished: true`.
-2. `open | full` rides with `departAt <= now - expireNotStartedHours` → `expired`; `booked` bookings → `cancelled_by_host` with `cancelReason: "not_started"`; when `bookingsCount > 0`: `host.lateCancels += 1`.
+2. `open | full` rides with `departAt <= now - expireNotStartedHours` → `expired`; `booked` bookings → `cancelled_by_host` with `cancelReason: "not_started"`; `requested` bookings → `expired`; when `bookingsCount > 0`: `host.lateCancels += 1`.
+3. `requested` bookings past `expiresAt` (collection group) → `expired`, seats back. This catches missed `expireRequest` tasks.
 
 #### `submitRating` · callable
 
@@ -1452,7 +1564,7 @@ output: { reply: string; rides: RideCard[] /*≤3*/; usedSearch: boolean; remain
 2. `aiUsage/{uid}_{yyyymmdd}.count < aiDailyMessages` → else `AI_DAILY_LIMIT`.
 3. `aiBudget/{yyyymm}.estimatedEgp < aiMonthlyBudgetEgp` → else `AI_UNAVAILABLE`.
 4. `llm.chat(...)` with the system prompt below, the history and the message, tool `search_rides`, at most 2 tool calls, 20 s timeout. Any provider error or timeout → `AI_UNAVAILABLE`.
-5. The tool validates its arguments with the `searchRides` zod schema and runs `searchRidesCore(uid, args)` as the caller, so Women-only, blocks and Same company still apply. It returns at most 5 cards to the model.
+5. The tool validates its arguments with the `searchRides` zod schema and runs `searchRidesCore(uid, args)` as the caller, so Women-only, blocks and Same company still apply. Missing fields take the defaults: `seats: 1`, `sort: "recommended"`, `timeBand: "any"`, no price or rating limit, `fromPointId: null`. It returns at most 5 cards to the model.
 6. `rides` in the output = the top 3 cards from the last tool result (never IDs written by the model).
 7. After the call: `aiUsage.count += 1`; `aiBudget.estimatedEgp += tokens × config prices`.
 8. Log only token counts, tool call count and result count. Never the message text.
@@ -1484,12 +1596,12 @@ Tool definition:
       "fromZone": { "type": "string", "enum": ["<zone ids from Firestore>"] },
       "toZone":   { "type": "string", "enum": ["<zone ids from Firestore>"] },
       "date":     { "type": "string", "description": "Cairo date YYYY-MM-DD" },
-      "timeFrom": { "type": "string", "description": "HH:mm, Cairo time" },
-      "timeTo":   { "type": "string", "description": "HH:mm, Cairo time" },
+      "time":     { "type": "string", "description": "HH:mm, Cairo time; the search covers an hour before and after it" },
+      "seats":    { "type": "integer", "minimum": 1, "maximum": 3 },
       "verifiedOnly": { "type": "boolean" },
       "womenOnly":    { "type": "boolean" }
     },
-    "required": ["fromZone", "toZone", "date", "timeFrom", "timeTo"]
+    "required": ["fromZone", "toZone", "date", "time"]
   }
 }
 ```
@@ -1502,7 +1614,7 @@ Reply in Egyptian Arabic, or in English if the user writes in English. Use at mo
 Your only job is to help the rider find a seat in a real ride posted on Hitchy.
 Always use the search_rides tool to find rides. Never invent rides, times, prices or people.
 If the pickup zone, the destination zone or the time is missing, ask one short question.
-If the user gives one time ("at 8"), search from 30 minutes before to 30 minutes after it.
+If the user gives one time ("at 8"), pass it as the time; the search covers an hour before and after it.
 Zones: {zone id = Arabic name / English name, one per line}.
 Today in Cairo: {weekday, YYYY-MM-DD}, now {HH:mm}.
 Rider's usual work zone: {zone or "unknown"}; usual hours: {start–end or "unknown"}.
@@ -1569,7 +1681,7 @@ For each `active` Fixed Ride scheduled tomorrow with `startDate <= tomorrow` and
 2. Re-quote. When `pricePerSeat` is outside the new range, use `recommended` and notify the host `fixed_price_adjusted`.
 3. Check the host's daily limit and time conflicts; on conflict skip the day and notify `fixed_day_conflict`.
 4. Credits: inside the free month, or `credits.fixed >= 1` → else skip and notify `fixed_no_credits`.
-5. Create the ride with `fixedRideId` and a `booked` booking for each member who did not skip, is not suspended and has no unpaid fee (those get `fixed_skipped_unpaid_fee`). `seatsLeft = seats - bookings`; free seats show in normal search.
+5. Create the ride with `fixedRideId` and a `booked` booking (`seats: 1`, already accepted by joining) for each member who did not skip, is not suspended and has no unpaid fee (those get `fixed_skipped_unpaid_fee`). `seatsLeft = seats - bookings`; free seats show in normal search.
 
 #### Backup flow
 
@@ -1624,7 +1736,7 @@ input:  { uid: string; suspended: boolean; note: string | null }
 output: {}
 ```
 
-Writes `suspended`. When suspending: cancel the user's `open | full` rides (`cancelReason: "suspended"`) and `booked` bookings with the normal cores. Audit.
+Writes `suspended`. When suspending: cancel the user's `open | full` rides (`cancelReason: "suspended"`) and `requested` or `booked` bookings with the normal cores. Audit.
 
 #### `closeReport` / `handleSafetyEvent` · callable · admin
 
@@ -1642,7 +1754,7 @@ output: {}
 3. Leave or end the user's Fixed Rides.
 4. Delete Storage `kyc/{uid}/` and `avatars/{uid}.jpg`.
 5. Replace the UID with `"deleted"` in `ratings` (`fromUid`, `toUid`), `fees`, `packageOrders`, bookings (`riderUid`) and rides (`hostId`, and empty the plate).
-6. Delete `codes` owned by the user, `kyc/{uid}`, `profiles/{uid}`, `aiUsage` docs; `recursiveDelete(users/{uid})`.
+6. Delete `codes` owned by the user, `kyc/{uid}`, `profiles/{uid}`, `aiUsage` docs and the user's chat messages; `recursiveDelete(users/{uid})` (this also removes the inbox).
 7. `getAuth().deleteUser(uid)` last.
 
 Each step is safe to repeat, so a failed run can be retried.
@@ -1653,8 +1765,8 @@ Each step is safe to repeat, so a failed run can be retried.
 
 ### 8.13 Metrics (Phase 14)
 
-- **Impact** (in `onRideFinished`), per completed booking:
-  `liters = distanceKm × litersPer100Km.car / 100 × trafficFactor[trafficLevel] × shareOfSeatsReplacingSoloTrip`;
+- **Impact** (in `onRideFinished`), per completed booking, counting its seats:
+  `liters = distanceKm × litersPer100Km.car / 100 × trafficFactor[trafficLevel] × shareOfSeatsReplacingSoloTrip × seats`;
   `co2Kg = liters × co2KgPerLiter`; `egpSaved = liters × fuelPriceEgpPerLiter`.
   Increment `metrics/impact` (`tripsCompleted`, `litersSaved`, `co2Kg`, `egpSaved`).
 - **`weeklyMetrics`** · scheduled · Sunday 06:00: riders with a completed booking 4 weeks ago (the cohort) and how many of them had a completed booking last week. Writes `metrics/{isoWeek}` with `cohortSize`, `retained`, `rate`.
@@ -1669,6 +1781,7 @@ All schedules use `timeZone: "Africa/Cairo"`.
 | `onBookingChanged` | Firestore trigger | `rides/{rideId}/bookings/{riderUid}` written | 7 |
 | `onRideFinished` | Firestore trigger | `rides/{rideId}` status becomes `finished` | 8 |
 | `rideReminder` | Task queue | 30 minutes before departure | 7 |
+| `expireRequest` | Task queue | at a request's deadline | 7 |
 | `backupAlert` | Task queue | after a cancellation | 12 |
 | `closeStaleRides` | Scheduled | every 30 minutes | 8 |
 | `computeTiers` | Scheduled | daily 02:00 | 10 |
@@ -1681,7 +1794,7 @@ All schedules use `timeZone: "Africa/Cairo"`.
 
 ### 8.15 Notifications
 
-`lib/notify.ts` sends to every device token of a user (`users/{uid}/devices`) and deletes tokens FCM reports as unregistered. The text uses the device's `language`. Every message carries `data: { type, deepLink }` so the app can route a tap.
+`lib/notify.ts` sends to every device token of a user (`users/{uid}/devices`) and deletes tokens FCM reports as unregistered. The text uses the device's `language`. Every message carries `data: { type, deepLink }` so the app can route a tap. From v1.1 it also writes each message to the user's inbox (`users/{uid}/notifications`, both languages) `[DECISION-27]`; admin alerts are not stored. Text that riders read says "owner", not "host" `[DECISION-20]`.
 
 | Type | To | Android channel | Deep link | English | Arabic |
 | --- | --- | --- | --- | --- | --- |
@@ -1690,25 +1803,25 @@ All schedules use `timeZone: "Africa/Cairo"`.
 | `host_rejected` | user | account | `hitchy://host/status` | Some documents need fixing | فيه ورق محتاج يتعدل |
 | `vehicle_reviewed` | user | account | `hitchy://host/status` | Your vehicle was reviewed | عربيتك اتراجعت |
 | `verified_granted` | user | account | `hitchy://profile` | You're now Verified | بقيت Verified |
+| `account_ready` | user, after the first `completeProfile` | account | `hitchy://home` | Your Hitchy account is ready | حسابك على Hitchy جاهز |
 | `verify_request` | admins | admin | `{admin}/hosts` | A host asked for Verified | صاحب عربية طالب علامة Verified |
-| `new_booking` | host | bookings | `hitchy://ride/{rideId}` | {name} booked a seat | {name} حجز كرسي |
-| `booking_cancelled` | host | bookings | `hitchy://ride/{rideId}` | {name} cancelled their seat | {name} لغى الحجز |
+| `booking_requested` | host | bookings | `hitchy://ride/{rideId}` | {name} asked for {seats} seat(s) | {name} طلب يحجز {seats} كرسي |
+| `booking_accepted` | rider | bookings | `hitchy://trip/{rideId}` | {name} accepted your request. Your seat is confirmed | {name} وافق على طلبك، كرسيك اتأكد |
+| `booking_declined` | rider | bookings | `hitchy://search` | {name} couldn't take your request | {name} مقدرش ياخد طلبك |
+| `request_expired` | rider | bookings | `hitchy://search` | Your request wasn't answered in time | طلبك متردش عليه في الوقت |
+| `booking_cancelled` | host | bookings | `hitchy://ride/{rideId}` | {name} cancelled their booking | {name} لغى الحجز |
 | `ride_cancelled` | rider | bookings | `hitchy://trips` | Your ride was cancelled | مشوارك اتلغى |
 | `ride_reminder` | host, riders | trips | `hitchy://trip/{rideId}` | Your ride leaves in 30 minutes | مشوارك هيتحرك كمان نص ساعة |
-| `ride_started` | riders | trips | `hitchy://trip/{rideId}` | Your host is on the way | صاحب العربية في الطريق |
+| `ride_started` | riders | trips | `hitchy://trip/{rideId}` | Your owner is on the way | صاحب العربية في الطريق |
 | `rider_at_pickup` | host | trips | `hitchy://trip/{rideId}` | {name} is at the pickup point | {name} وصل مكان الركوب |
 | `fee_created` | rider | account | `hitchy://fees` | A 10 EGP late fee was recorded | اتسجلت عليك غرامة تأخير 10 جنيه |
 | `fee_paid` | rider | account | `hitchy://fees` | Your late fee is marked as paid | الغرامة اتسجلت إنها اتدفعت |
 | `fee_resolved` | rider, host | account | `hitchy://fees` | The fee dispute was resolved | الاعتراض على الغرامة اتحسم |
 | `fee_disputed` | admins | admin | `{admin}/disputes` | A fee was disputed | فيه اعتراض على غرامة |
-| `quick_at_pickup` | other side | trips | `hitchy://trip/{rideId}` | I'm at the pickup point | أنا في مكان الركوب |
-| `quick_on_my_way` | other side | trips | `hitchy://trip/{rideId}` | I'm on my way | أنا في الطريق |
-| `quick_running_5_late` | other side | trips | `hitchy://trip/{rideId}` | Running 5 minutes late | هتأخر 5 دقايق |
-| `quick_running_10_late` | other side | trips | `hitchy://trip/{rideId}` | Running 10 minutes late | هتأخر 10 دقايق |
-| `quick_leaving_now` | other side | trips | `hitchy://trip/{rideId}` | Leaving now | أنا ماشي دلوقتي |
-| `quick_cant_find_you` | other side | trips | `hitchy://trip/{rideId}` | I can't find you | مش لاقيك |
+| `chat_message` | other side | trips | `hitchy://chat/{rideId}/{riderUid}` | New message from {name} | رسالة جديدة من {name} |
 | `rate_trip` | rider | trips | `hitchy://rate/{rideId}` | How was your ride? | المشوار كان عامل إزاي؟ |
 | `rate_riders` | host | trips | `hitchy://rate/{rideId}` | Rate your riders | قيّم الركاب |
+| `payment_confirmed` | rider | account | `hitchy://receipt/{rideId}` | {name} confirmed your payment | {name} أكد إنك دفعت |
 | `low_balance` | host | account | `hitchy://packages` | You have 2 trips left | فاضلك رحلتين |
 | `free_month_ending` | host | account | `hitchy://packages` | Your free month ends soon | الشهر المجاني قرب يخلص |
 | `package_confirmed` | host | account | `hitchy://packages` | Your package is active | الباكدج اتفعّل |
@@ -1722,7 +1835,7 @@ All schedules use `timeZone: "Africa/Cairo"`.
 | `sos` | admins | admin | `{admin}/sos` | SOS from a ride | طلب استغاثة من مشوار |
 | `new_report` | admins | admin | `{admin}/reports` | New user report | فيه بلاغ جديد |
 
-`{name}` is the other person's first name. Review the Arabic copy before release.
+`{name}` is the other person's first name and `{seats}` the number of seats. The quick phrases from v1.0 (`quick_*`) are now chat chips, so they have no notification types of their own. Review the Arabic copy before release.
 
 `{admin}` is the admin dashboard URL (`ADMIN_URL` in `lib/app.ts`). `sendToAdmins` sends to the web push tokens of `config/admins.uids` and to the phones of `config/admins.notifyUids` (in English). On the phone, a link starting with `https://` opens in the browser.
 
@@ -1730,7 +1843,7 @@ All schedules use `timeZone: "Africa/Cairo"`.
 
 ## 9. Security rules
 
-Rules allow reads that the apps need and only three kinds of client writes: the owner's basic profile fields, the owner's device tokens, and trip presence. Everything else is written by functions (the Admin SDK skips rules). Admin tools also use the Admin SDK or admin-only reads.
+Rules allow reads that the apps need and only four kinds of client writes: the owner's basic profile fields (including saved places), the owner's device tokens, trip presence, and the `readAt` mark on the owner's inbox items. Everything else is written by functions (the Admin SDK skips rules). Admin tools also use the Admin SDK or admin-only reads.
 
 ### 9.1 Firestore matrix
 
@@ -1741,15 +1854,17 @@ Rules allow reads that the apps need and only three kinds of client writes: the 
 | `users/{uid}/vehicles/{id}` | owner, admin | owner, admin | — | — |
 | `users/{uid}/ledger/{id}` | owner, admin | owner, admin | — | — |
 | `users/{uid}/points/{id}` | owner, admin | owner, admin | — | — |
+| `users/{uid}/notifications/{id}` | owner | owner | owner update only: `readAt == request.time` | — (TTL) |
 | `profiles/{uid}` | signed-in | signed-in | — | — |
 | `kyc/{uid}` | owner, admin | admin | — | — |
 | `companies`, `zones`, `zones/*/points`, `routes` | signed-in | signed-in | — | — |
 | `config/{name}` | signed-in, except `admins` | — | — | — |
-| `rides/{rideId}` | host, rider with a booking doc, admin | host (query must filter `hostId == uid`), admin | — | — |
+| `rides/{rideId}` | host, rider with an accepted booking (`booked`, `boarded`, `completed`), admin | host (query must filter `hostId == uid`), admin | — | — |
 | `rides/{rideId}/bookings/{riderUid}` | that rider, the host, admin | the host, admin | — | — |
 | collection group `bookings` | — | rider (query must filter `riderUid == uid`) | — | — |
 | collection group `vehicles` | — | admin | — | — |
-| `rides/{rideId}/presence/{uid}` | people on the ride, admin | people on the ride, admin | owner, on the ride, ride `started`, valid fields | — |
+| `rides/{rideId}/presence/{uid}` | people on the ride (host or accepted booking), admin | people on the ride, admin | owner, on the ride, ride `started`, valid fields | — |
+| `rides/{rideId}/chats/{riderUid}/messages/{id}` | the host, that rider | the host, that rider | — (`sendChatMessage`) | — (TTL) |
 | `fees/{id}` | that rider, that host, admin | same, with a matching filter | — | — |
 | `ratings/{id}` | author, admin | author (filter `fromUid == uid`), admin | — | — |
 | `packageOrders/{id}` | owner host, admin | same, with a matching filter | — | — |
@@ -1771,11 +1886,13 @@ service cloud.firestore {
     function isAdmin() { return signedIn() && request.auth.token.admin == true; }
     function isUser(uid) { return signedIn() && request.auth.uid == uid; }
     function ride(rideId) { return get(/databases/$(database)/documents/rides/$(rideId)); }
-    function hasBooking(rideId) {
-      return exists(/databases/$(database)/documents/rides/$(rideId)/bookings/$(request.auth.uid));
+    // A request is not enough: the plate and the pickup coordinates are shown only after acceptance.
+    function hasAcceptedBooking(rideId) {
+      let b = /databases/$(database)/documents/rides/$(rideId)/bookings/$(request.auth.uid);
+      return exists(b) && get(b).data.status in ['booked', 'boarded', 'completed'];
     }
     function isRideHost(rideId) { return signedIn() && ride(rideId).data.hostId == request.auth.uid; }
-    function onRide(rideId) { return isRideHost(rideId) || hasBooking(rideId); }
+    function onRide(rideId) { return isRideHost(rideId) || hasAcceptedBooking(rideId); }
 
     function validProfile(d) {
       return d.firstName is string && d.firstName.size() > 0 && d.firstName.size() <= 40
@@ -1787,6 +1904,7 @@ service cloud.firestore {
         && (d.photoPath == null || d.photoPath == 'avatars/' + request.auth.uid + '.jpg')
         && (d.emergencyContact == null
             || (d.emergencyContact.name is string && d.emergencyContact.phone is string))
+        && d.savedPlaces is list && d.savedPlaces.size() <= 5
         && d.updatedAt == request.time;
     }
     function validDevice(d) {
@@ -1809,11 +1927,17 @@ service cloud.firestore {
       allow update: if isUser(uid)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
              'firstName', 'lastName', 'companyId', 'companyOther', 'workHours',
-             'language', 'photoPath', 'emergencyContact', 'updatedAt'])
+             'language', 'photoPath', 'emergencyContact', 'savedPlaces', 'updatedAt'])
         && validProfile(request.resource.data);
       match /devices/{deviceId} {
         allow read, delete: if isUser(uid);
         allow create, update: if isUser(uid) && validDevice(request.resource.data);
+      }
+      match /notifications/{id} {
+        allow read: if isUser(uid);
+        allow update: if isUser(uid)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['readAt'])
+          && request.resource.data.readAt == request.time;
       }
       match /{sub}/{id} {
         allow read: if (isUser(uid) || isAdmin()) && sub in ['vehicles', 'ledger', 'points'];
@@ -1822,7 +1946,7 @@ service cloud.firestore {
 
     match /rides/{rideId} {
       allow get: if isAdmin() || (signedIn()
-        && (resource.data.hostId == request.auth.uid || hasBooking(rideId)));
+        && (resource.data.hostId == request.auth.uid || hasAcceptedBooking(rideId)));
       allow list: if isAdmin() || (signedIn() && resource.data.hostId == request.auth.uid);
       match /bookings/{riderUid} {
         allow get: if isAdmin() || isUser(riderUid) || isRideHost(rideId);
@@ -1833,6 +1957,9 @@ service cloud.firestore {
         allow create, update: if isUser(uid) && onRide(rideId)
           && ride(rideId).data.status == 'started'
           && validPresence(request.resource.data);
+      }
+      match /chats/{riderUid}/messages/{messageId} {
+        allow read: if isRideHost(rideId) || isUser(riderUid);
       }
     }
 
@@ -1913,6 +2040,8 @@ The criminal record can be uploaded at any time, so an approved host can ask for
       { "fieldPath": "departAt", "order": "ASCENDING" } ] },
     { "collectionGroup": "bookings", "queryScope": "COLLECTION_GROUP", "fields": [
       { "fieldPath": "status", "order": "ASCENDING" }, { "fieldPath": "departAt", "order": "ASCENDING" } ] },
+    { "collectionGroup": "bookings", "queryScope": "COLLECTION_GROUP", "fields": [
+      { "fieldPath": "status", "order": "ASCENDING" }, { "fieldPath": "expiresAt", "order": "ASCENDING" } ] },
     { "collectionGroup": "kyc", "queryScope": "COLLECTION", "fields": [
       { "fieldPath": "status", "order": "ASCENDING" }, { "fieldPath": "submittedAt", "order": "ASCENDING" } ] },
     { "collectionGroup": "packageOrders", "queryScope": "COLLECTION", "fields": [
@@ -1969,7 +2098,7 @@ The criminal record can be uploaded at any time, so an approved host can ask for
 | P0-H09 | CI access | Workload Identity Federation from GitHub Actions to each project, with a deploy service account that can deploy functions, rules, indexes, hosting and App Distribution. Environment secrets: `GCP_WIF_PROVIDER`, `GCP_SERVICE_ACCOUNT`, `FIREBASE_ANDROID_APP_ID`. |
 | P0-H10 | Accounts | Google Play Console `[DECISION-03]`, Apple Developer, a domain, and a support email. |
 | P0-H11 | iOS config | Register the iOS app in both projects and send the config files to the iOS teammate privately. |
-| P0-H12 | TTL policy | Firestore TTL policy on `idempotency.expireAt` in both projects. |
+| P0-H12 | TTL policy | Firestore TTL policies on `expireAt` for the `idempotency`, `notifications` and `messages` collection groups, in both projects. |
 
 ### P0-A01 · Repo skeleton
 
@@ -2163,8 +2292,8 @@ object PhoneNumber {
 @Serializable data object MyRides
 @Serializable data class HostRideDetails(val rideId: String)
 @Serializable data object Search
-@Serializable data class SearchResults(val fromZone: String, val toZone: String, val date: String,
-    val timeFrom: String, val timeTo: String, val verifiedOnly: Boolean, val womenOnly: Boolean)
+@Serializable data class SearchResults(val fromZone: String, val toZone: String, val fromPointId: String?,
+    val date: String, val time: String, val seats: Int)   // sort and filters live in the screen state (v1.1)
 @Serializable data class RiderRideDetails(val rideId: String)
 @Serializable data object MyTrips
 @Serializable data class HostTrip(val rideId: String)
@@ -2185,9 +2314,17 @@ object PhoneNumber {
 @Serializable data object EmergencyContact
 @Serializable data object DeleteAccount
 @Serializable data object Debug
+// Added in v1.1 (designs):
+@Serializable data object Onboarding
+@Serializable data class RoutePicker(val field: String)       // "from" or "to"
+@Serializable data class MapPointPicker(val field: String)    // fixed points only
+@Serializable data object Notifications                       // inbox
+@Serializable data class Chat(val rideId: String, val riderUid: String)
+@Serializable data class Receipt(val rideId: String)
+@Serializable data object Shop                                // Rewards (rider) or Packages (host)
 ```
 
-  Deep links (scheme `hitchy://`): `ride/{rideId}` → host or rider ride details by role · `trip/{rideId}` → host or rider trip · `rate/{rideId}` · `trips` · `fees` · `packages` · `rewards` · `profile` · `host/status` · `fixed/{id}` · `backup/{rideId}`. Links starting with `https://` (admin alerts) open in the browser.
+  Deep links (scheme `hitchy://`): `ride/{rideId}` → host or rider ride details by role · `trip/{rideId}` → host or rider trip · `rate/{rideId}` · `trips` · `fees` · `packages` · `rewards` · `profile` · `host/status` · `fixed/{id}` · `backup/{rideId}`, and from v1.1 `search` · `receipt/{rideId}` · `chat/{rideId}/{riderUid}` · `notifications` · `home` · `shop`. Links starting with `https://` (admin alerts) open in the browser.
 - **Done when:** `DeepLinks.parse()` has a test per link, including bad input returning `null`.
 
 ### P2-A08 · Screen pattern
@@ -2280,6 +2417,8 @@ interface AppSettings {                    // DataStore
 **Source:** Figma file "Hitchy 🚙", key `M2XGt24CJooYzujBLKqLZL`. Frames: Brand `14:82` · Colors `14:83` · Typography `14:84` · Spacing and layout `14:85` · Inputs and controls `14:86` · Navigation and icons `14:87` · Feedback and status `14:88` · Ride components `14:89`.
 
 The values below were copied from Figma on 2026-10-28. Before each task, open the frame through the Figma connection (screenshot and design context) to read exact sizes. If Figma and this section differ, stop and ask.
+
+From v1.1 the finished app screens (PNG exports, reviewed 2026-10-29) are the source for screen layouts. They use these same tokens; their green, amber, red and blue chips and banners are the semantic sets in 3.1. [3.8](#38-app-designs-screen-map-and-fix-list) maps each design to its screen and task and lists what the designs still need to change.
 
 **Exit:** `HitchyTheme` and every component in 3.5 exist in `core/ui`, each with previews and Roborazzi screenshots in English and Arabic, and the gallery screen shows them all.
 
@@ -2376,31 +2515,33 @@ All in `core/ui/components/`, named `Hitchy<Component>`, built only from the tok
 | `RouteTimeline` | 14:89 | Time + pickup + drop-off | Ride details, cards |
 | `SeatIndicator` | 14:89 | Dots + "Full", "1 seat left", "2 seats left", "3 seats left" (never 4) | Ride cards |
 | `DepartureRow` | 14:89 | Clock + time, "Departure · Tomorrow · 07:30 AM" | Ride details |
-| `PriceTag` | 14:89 | "EGP 45 / seat" large, "EGP 45 per seat" small | Cards, booking sheet |
+| `PriceTag` | 14:89 | "EGP 45 / seat" large, "EGP 45 per seat" small | Cards, request sheet |
 | `RecurringTag` | 14:89 | "Daily ride · Sun – Thu", days from data | Fixed Ride |
 | `TripStepper` | 14:89 | 4 steps, done, current, upcoming | Rider trip screen |
 | `HostRow` | 14:89 | Avatar, name, rating, Verified badge | Ride details |
 | `RideCard` | 14:89 | Status chip, date and time, route, host avatar and name, car "model · color", price | Search results, My trips, My rides |
 
-Not in Figma yet. Build them from the tokens, mark them "needs design review" in the gallery, and list them for the designer: 6-box OTP field, price slider with the recommended mark and "Fair price" label, Women-only badge, Same company badge, tier badges (Bronze, Silver, Gold), tappable rating stars, bottom sheet, empty state, error state, late fee card, SOS button, document upload tile, credits and points balance card, assistant chat bubbles, splash screen, small monochrome notification icon.
+Now designed in the app screens (v1.1, see 3.8): 6-box OTP field, tappable rating stars and tag chips, bottom sheet, empty state, error state, splash screen, onboarding page, role card, route picker rows, date sheet, time wheel sheet, passengers stepper, sort and filter sheet, ride result card, seat dots, price summary, action tiles (Message, Call, Share trip, Report, Emergency), tracking sheet with ETA and "Live" chip, receipt card, notification row.
+
+Still not designed. Build them from the tokens, mark them "needs design review" in the gallery, and list them for the designer: price slider with the recommended mark and "Fair price" label, Women-only badge, Same company badge, tier badges (Bronze, Silver, Gold), late fee card, SOS sheet, document upload tile, credits and points balance card, assistant chat bubbles, chat screen and bubbles, owner request card (Accept / Decline with its deadline), Shop page content, small monochrome notification icon.
 
 ### 3.6 Figma vs product rules
 
-These conflict with the plan. Until they are fixed in Figma or decided, the code does what the last column says.
+These conflict with the plan. Until they are fixed in Figma or decided, the code does what the last column says. Rows 3, 4, 6 and 11 were decided in v1.1 ([2.1](#21-design-review-v11)).
 
 | # | Figma shows | Product rule | Code does |
 | --- | --- | --- | --- |
 | 1 | Seat indicator up to 4 seats | Max 3 seats per car, 1 per scooter (R5) | Up to 3 |
 | 2 | "Daily ride · Mon – Fri" | Egypt's work week is Sunday to Thursday | Days from the Fixed Ride data, Sun – Thu by default |
-| 3 | Stepper Requested → Confirmed → On the way → Completed | Booking is instant; there is no request or approval | Booked → Host on the way (ride started) → On board → Completed |
-| 4 | Status chips Upcoming, Confirmed, Pending, Completed, Cancelled, In progress | Booking and ride statuses in section 6.5 | Upcoming = `booked` on an `open`/`full` ride (purple); In progress = ride `started` (warning); Completed = `completed` (neutral); Cancelled = `cancelled_*` or `expired` (error); No show = error chip "No show". Pending is used for host verification and package orders only. |
+| 3 | Stepper Requested → Confirmed → On the way → Completed (Figma); Owner on the way → Arrived → In ride → Completed (app screens) | Decided in v1.1 (2.1 #1, #11): bookings are requests the host accepts | Requested and Confirmed are status chips. The trip stepper is Owner on the way (ride `started`) → Arrived (host within `arrivedDistanceM` of the pickup) → In ride (booking `boarded`) → Completed |
+| 4 | Status chips | Decided in v1.1 | Requested = `requested` (purple); Confirmed = `booked` before the ride starts (info); In progress = ride `started` (warning); Completed = `completed` (success); Cancelled = `cancelled_*` or an `expired` ride (error); Declined, Expired and No show = error chips with those labels. Tabs: Upcoming (Requested, Confirmed, In progress), Completed, Cancelled. Pending stays for host verification and package orders. |
 | 5 | Route with a stop in the middle | One pickup and one drop-off per ride | Two points only; middle stops `[LATER]` |
-| 6 | Bottom nav Home, Rides, Shop, Profile | No shop in the pilot | Home, Rides, Rewards (rider) or Packages (host), Profile `[DECISION-18]` |
+| 6 | Bottom nav Home, Rides, Shop, Profile | Decided in v1.1 (2.1 #9) | Home, Rides, Shop, Profile; Shop holds Rewards (rider) or Packages (host) `[DECISION-18]` |
 | 7 | Google button and an "Email or phone number" field with a password eye | The app signs in with phone OTP only | `PhoneField` only. Google sign-in exists only on the admin web. |
 | 8 | Pin color token named `color/brand` | — | Code name `pin`; rename to `color/brand/pin` in Figma |
 | 9 | Side padding 16 px in the table, "20 px" on the sample | — | 16 dp |
 | 10 | Touch target 44 × 44 | Android minimum 48 dp | 48 dp `[DECISION-19]` |
-| 11 | Copy uses "driver", "ride request", "payment failed" | Hitchy is not a taxi: car owners share their own commute; no requests; no in-app payments | English copy says "host"; Arabic says "صاحب العربية" `[DECISION-20]`. Figma texts are placeholders. |
+| 11 | Copy uses "driver", "Owner", "ride request", "payment failed" | Decided in v1.1 (2.1 #1, #10): car owners share their own commute; requests exist; no in-app payments | English says "Owner", never "driver"; Arabic says "صاحب العربية" `[DECISION-20]`. "Request" is right now. Never "payment failed". Figma texts are placeholders. |
 
 ### 3.7 Tasks
 
@@ -2433,11 +2574,60 @@ These conflict with the plan. Until they are fixed in Figma or decided, the code
 #### P3-W01 · Admin web theme
 - **Spec:** Mantine theme with a custom `primary` palette built around `#7C3AED`, font Cairo, default radius 12 px, page background `#F8F9FC`, text `#1E1B4B`. No other design work for the admin.
 
+### 3.8 App designs: screen map and fix list
+
+The design exports (46 PNG files, 393 × 852 frames at 2×, English and LTR only) were reviewed on 2026-10-29. Islam keeps the files; the Figma file stays the source for exact sizes. Each screen below follows its design plus the fix list. Screens not listed keep `[FIGMA]`.
+
+| Design file | Screen (route) | Task |
+| --- | --- | --- |
+| 01 —splash | Splash (system splash with the logo) | P3-A06, P4-A04 |
+| onboarding 10, 9, 8 (pages 1, 2, 3) | Onboarding | P4-A04 |
+| Welcome Screen | Welcome (start path and language) | P4-A04 |
+| Sign in, Invalid number | PhoneEntry | P4-A04 |
+| Verification code, Wrong code | OtpVerify | P4-A04 |
+| home, Home · Trip details filled, Home · Validation — destination missing | Home, rider ("Plan your ride") | P7-A02 |
+| Route · Pickup active / search, Route · Destination active / search (-1 empty, -2 error), 5 · Combined route picker | RoutePicker | P7-A02 |
+| Destination · Choose on map | MapPointPicker (point pins only) | P7-A02 |
+| Trip · Select date, Trip · Select departure time | Date and time sheets on Home | P7-A02 |
+| Search · Finding rides, Search · Available rides, Search · No rides found, Ride Result Card | SearchResults | P7-A02 |
+| Search · Filters & sort | Sort & filter sheet | P7-A02 |
+| Ride details | RiderRideDetails before booking, and the request sheet | P7-A03 |
+| My Rides, Rides Screen, My rides · Past | MyTrips (Rides tab: Upcoming, Completed, Cancelled) | P7-A04 |
+| Upcoming ride details, Cancel booking, Booking cancelled | RiderRideDetails after booking, cancel sheet | P7-A04 |
+| Notifications, Notifications · Empty | Notifications (inbox) | P7-A05 |
+| Tracking · On the way (-1 Arrived, -2 In ride) | RiderTrip | P8-A04 |
+| Upcoming ride details-1 (a completed ride) | RiderRideDetails, completed | P8-A04 |
+| Rate Owner · Empty, Rate Owner · Selected, Rating thank you | RateTrip (rider rates the owner) | P8-A06 |
+| Fuel Share Receipt | Receipt | P8-A10 |
+| shop | Shop (empty state; holds Rewards or Packages) | P9-A01, P10-A01 |
+| Toggle | `HitchySwitch` | P3-A04 |
+
+Not designed yet, so still `[FIGMA]`: ProfileSetup, Settings, Profile, every owner screen (Become an owner, HostApplication, HostStatus, AddVehicle, PostRide, MyRides as owner, HostRideDetails with requests, HostTrip, rating riders, Packages, CreditHistory), Fees, Rewards, Invite, Assistant, the Fixed Ride screens, BackupOptions, Chat, EmergencyContact, the SOS sheet, DeleteAccount, Debug, and every Arabic (RTL) version.
+
+**Fix list for the designer.** The code already follows these; the designs should catch up:
+
+1. Words: "Owner" in English everywhere, never "driver" ("Verified driver" → "Verified").
+2. Remove "Pay the Hitchy fee to lock it in": riders pay Hitchy nothing. Show "Pay the owner directly by cash or InstaPay" on the request sheet and the receipt.
+3. Places are fixed points only: no free addresses ("Street 9, Maadi"), no free map pin; the map shows point pins to tap. Sample places should come from the pilot zones (Fifth Settlement, Rehab, Smart Village).
+4. Date sheet: days after today + 7 are disabled; the "For today…" note shows only for today.
+5. Ride cards and details: first name only ("Omar", not "Omar Hassan"), a photo or matching initials, and the plan's badges (Fair price, Women-only, tier, Same company, Fixed Ride, vehicle type).
+6. Ride details: the plate shows after the owner accepts; the button says "Request ride · EGP {total}"; add the late fee rule (10 EGP after 5 minutes) and the Women-only passenger check when seats > 1.
+7. Cancel sheet: reasons Change of plans, Found another ride, Other, plus "Owner is late" when allowed; drop "Owner changed the time" (owners can't change a ride's time); say whether the cancel is free or late (60 minutes).
+8. Rider trip screen: add "I'm on my way", "I'm at the pickup point" and "I'm in the car"; Emergency opens the SOS sheet (police 122, ambulance 123, emergency contact).
+9. Rating: tags On time, Safe driving, Clean car, Friendly, Followed the route, Late, Unsafe driving, Rude; no comment box; "Submit rating" turns on once stars are picked; the thank-you screen ends with "Done", not "Track ride".
+10. Receipt: distance, price per seat, seats, total, "Paid directly to the owner", and "Payment confirmed by {name}" once confirmed. No fuel-share split.
+11. Notifications: the texts in 8.15. No "Booking request sent" line; add accepted, declined, expired, payment confirmed and chat.
+12. Filters: add "Verified only" and "Women-only" (shown to women only); move "Ride reminders" to Settings.
+13. Sign-in note: "Your number is shared only with your owner or riders after a booking is accepted."
+14. Welcome: add the language choice (Arabic or English).
+15. Fix the word breaks on onboarding ("co mmute", "wit h"), show disabled states for Continue, Verify and Submit, and use Android system bars instead of iOS ones.
+16. Make every screen in Arabic (RTL) too.
+
 ---
 
 ## Phase 4 — Sign-in, profile, roles
 
-**Exit:** on the emulator, a test number signs in, fills the profile, lands on the rider home, and switching to host shows "Become a host" because the host is not approved.
+**Exit:** on the emulator, a test number signs in, fills the profile, lands on the rider home, and switching to host shows "Become an owner" because the host is not approved.
 
 ### Backend
 
@@ -2479,15 +2669,16 @@ interface ProfileRepository {
 - **Spec:** `RootViewModel` combines `authState` and `observeMe()` into `Loading | SignedOut | NeedsProfile | Ready(activeRole)`. The NavHost start destination follows it; signing out clears the back stack.
 - **Done when:** a unit test covers all four states and the switch between them.
 
-#### P4-A04 · Screens `[FIGMA]`
+#### P4-A04 · Screens (designed: Onboarding, Welcome, PhoneEntry, OtpVerify, see 3.8; the rest `[FIGMA]`)
 
 | Screen | State | Actions | Notes |
 | --- | --- | --- | --- |
-| Welcome | language | `PickLanguage`, `Continue` | First run only |
-| PhoneEntry | `input`, `normalized`, `isValid`, `loading`, `error` | `InputChanged`, `Submit` | `PhoneNumber.normalize`; button enabled only when valid |
-| OtpVerify | `code`, `secondsToResend`, `loading`, `error` | `CodeChanged`, `Resend` | Auto-submit at 6 digits; `verificationId` in `SavedStateHandle` |
+| Onboarding | `page` | `Next`, `Skip` | First run only; 3 pages (designs onboarding 10 → 9 → 8) |
+| Welcome | `language`, `startPath` (`ride` or `vehicle`) | `PickLanguage`, `PickPath`, `Continue` | First run only (design "Welcome Screen"). The path only decides what opens after ProfileSetup: `vehicle` opens HostApplication (R12) |
+| PhoneEntry | `input`, `normalized`, `isValid`, `loading`, `error` | `InputChanged`, `Submit` | `PhoneNumber.normalize`; button enabled only when valid (designs "Sign in", "Invalid number") |
+| OtpVerify | `code`, `secondsToResend`, `loading`, `error` | `CodeChanged`, `Resend`, `ChangeNumber` | Auto-submit at 6 digits; `verificationId` in `SavedStateHandle` (designs "Verification code", "Wrong code") |
 | ProfileSetup | names, `gender`, `companyQuery`, `companies`, `companyId`, `companyOther`, `workStart`, `workEnd`, `language`, `referralCode`, `submitting`, `error`, `canSubmit` | field changes, `Submit` | Gender note: "can't be changed later" |
-| Home (shell) | `activeRole`, `hostStatus` | `SwitchRole` | Rider tabs: Search, My trips, Rewards, Profile. Host tabs: My rides, Post, Packages, Profile. Not-approved host → "Become a host" card |
+| Home (shell) | `activeRole`, `hostStatus` | `SwitchRole` | Tabs for both roles: Home, Rides, Shop, Profile `[DECISION-18]`. Rider Home is "Plan your ride" (design "home", built in P7-A02); owner Home `[FIGMA]` shows today's rides, open requests and Post ride. Shop holds Rewards (rider) or Packages (owner). A not-approved owner sees a "Become an owner" card |
 | Settings | language, notification permission, version | `ChangeLanguage`, `SignOut`, `OpenDebug` | Debug opens with a long press on the version in `dev` |
 
 #### P4-A05 · Device tokens
@@ -2497,7 +2688,7 @@ interface ProfileRepository {
 #### P4-A06 · Tests
 - ViewModel tests for PhoneEntry, OtpVerify (with a fake `PhoneAuth`: code sent, resend timer, each error) and ProfileSetup (validation, submit, error mapping).
 
-**E2E check:** emulators + seed → sign in with `+201000000007` / `123456` → profile → rider home → switch to host → "Become a host".
+**E2E check:** emulators + seed → sign in with `+201000000007` / `123456` → profile → rider home → switch to host → "Become an owner".
 
 ---
 
@@ -2642,7 +2833,7 @@ interface RidesRepository {
 
 #### P6-A03 · My rides and host ride details `[FIGMA]`
 - My rides: upcoming and past.
-- Details: time, points, price, status, booked riders (first name, photo, rating), Cancel (reason dialog). Start trip comes in Phase 8.
+- Details: time, points, price, status, booked riders (first name, photo, rating, seats), Cancel (reason dialog). Requests with Accept / Decline come in Phase 7 (P7-A07); Start trip comes in Phase 8.
 
 #### P6-A04 · Tests
 - Post-ride ViewModel: debounce, slider limits, Women-only visibility, `requestId` reused on retry, every error reason shows its message.
@@ -2659,26 +2850,31 @@ interface RidesRepository {
 
 ## Phase 7 — Search, booking, notifications
 
-**Exit:** two riders race for the last seat and exactly one wins; the host gets a notification; cancelling frees the seat; Women-only rides never reach men.
+**Exit:** two riders race for the last seat and exactly one request holds it; the host accepts it from the notification; declined, expired and cancelled requests free their seats; Women-only rides never reach men; the inbox lists every notification.
 
 ### Backend
 
 #### P7-B01 · `searchRides` and ranking
-- **Done when:** unit tests for `ranking.ts` (each factor moves the order as expected, ties by time); integration tests for every filter in 8.6 step 2; results never contain phone numbers or plates.
+- **Done when:** unit tests for `ranking.ts` (each factor moves the order as expected, ties by time); integration tests for every filter in 8.6 step 2, each sort, `seats`, `walkM` and `bestMatch`; results never contain phone numbers or plates.
 
-#### P7-B02 · `bookSeat`
-- **Done when:** one test per check (9); two parallel calls for the last seat produce exactly one booking (`Promise.all` against the emulator); the same `requestId` twice books once; the reminder task is enqueued once.
+#### P7-B02 · `requestSeats`, `respondToRequest`, `expireRequest`
+- **Spec:** 8.6 (v1.1 replaces `bookSeat`).
+- **Done when:** one test per `requestSeats` check (9); two parallel requests for the last seat leave exactly one `requested` booking (`Promise.all` against the emulator); the same `requestId` twice requests once; seats are held while `requested`; accept moves to `booked` and enqueues the reminder once; decline and expiry return the seats and `full → open`; a late answer gets `REQUEST_EXPIRED`; an answered request gets `REQUEST_NOT_PENDING`.
 
 #### P7-B03 · `cancelBooking`
-- **Done when:** seat returns and `full → open`; late cancel is flagged only inside `freeCancelMinutes`; `host_late` works only after `hostLateMinutes` with the host far from the pickup point.
+- **Done when:** all the booking's seats return and `full → open`; cancelling a request is always free; late cancel is flagged only for accepted bookings inside `freeCancelMinutes`; `host_late` works only after `hostLateMinutes` with the host far from the pickup point.
 
 #### P7-B04 · `onBookingChanged` and `lib/notify.ts`
-- **Spec:** send **data-only** FCM messages with Android priority high: `{ type, title, body, deepLink, channel }`, text already localized for the device. The app builds the notification itself, so taps always follow the deep link.
+- **Spec:** send **data-only** FCM messages with Android priority high: `{ type, title, body, deepLink, channel }`, text already localized for the device. The app builds the notification itself, so taps always follow the deep link. Every non-admin message is also written to `users/{uid}/notifications` with both languages and `expireAt` (v1.1, `[DECISION-27]`).
 - **Done when:** tests with a fake messaging client check who gets what for each change, and that unregistered tokens are deleted.
 
 #### P7-B05 · `rideReminder`
-- **Spec:** `onTaskDispatched` with `retryConfig.maxAttempts: 3`. Enqueued from `bookSeat` with `getFunctions().taskQueue("locations/{REGION}/functions/rideReminder").enqueue({ rideId }, { scheduleTime, id: "reminder-{rideId}" })`.
+- **Spec:** `onTaskDispatched` with `retryConfig.maxAttempts: 3`. Enqueued from `respondToRequest` on the ride's first accept, with `getFunctions().taskQueue("locations/{REGION}/functions/rideReminder").enqueue({ rideId }, { scheduleTime, id: "reminder-{rideId}" })`.
 - **Done when:** a test calls the task handler directly and checks the notifications; cancelled rides send nothing.
+
+#### P7-B06 · Saved places and the inbox in the rules
+- **Spec:** `savedPlaces` in `OWNER_WRITABLE_USER_FIELDS` (6.2) and the inbox rules (9.1, 9.2); `completeProfile` creates `savedPlaces: []`.
+- **Done when:** rules tests: the owner can save up to `maxSavedPlaces` places and can set only `readAt` on their own inbox items; nobody else can read either.
 
 ### Android
 
@@ -2687,40 +2883,62 @@ interface RidesRepository {
 ```kotlin
 interface BookingRepository {
     suspend fun search(input: SearchInput): AppResult<List<RideCard>>
-    suspend fun book(rideId: String, requestId: String): AppResult<BookResult>
+    suspend fun request(rideId: String, seats: Int, requestId: String): AppResult<RequestResult>
+    suspend fun respond(rideId: String, riderUid: String, accept: Boolean): AppResult<BookingStatus>  // host
     suspend fun cancel(rideId: String, reason: CancelBookingReason): AppResult<Boolean>   // lateCancel
     fun observeMyTrips(): Flow<List<Booking>>     // collection group bookings, riderUid == uid, newest 50
     fun observeBooking(rideId: String): Flow<Booking?>
 }
+interface SavedPlacesRepository {                 // feature/places
+    fun observe(): Flow<List<SavedPlace>>         // users/{uid}.savedPlaces
+    suspend fun save(places: List<SavedPlace>): AppResult<Unit>
+    fun recent(): Flow<List<PointRef>>            // last points used, kept on the device (DataStore)
+}
+interface InboxRepository {                       // feature/inbox
+    fun observe(): Flow<List<InboxItem>>          // users/{uid}/notifications, newest first
+    suspend fun markRead(ids: List<String>): AppResult<Unit>
+}
 ```
 
-#### P7-A02 · Search `[FIGMA]`
-- **State:** `fromZone`, `toZone`, `date` (today, tomorrow, or a picked day up to 7 days ahead), `window` (Morning 07:00–10:00, Evening 16:00–19:00, or custom), `verifiedOnly`, `womenOnly` (shown to women only), `results`, `loading`, `error`.
-- **Behavior:** zones pre-filled from the last search; swap button; pull to refresh; empty state with "Try another time" and "Ask the assistant" (Phase 11, hidden while `assistantEnabled` is false).
+#### P7-A02 · Home and search (designed, see 3.8)
+- **Home "Plan your ride":** map on top, a sheet with From, To, Date, Departure time, Passengers (1 … 3) and "Search rides". Search with no destination shows the red banner and marks To (design "Home · Validation").
+- **RoutePicker:** From and To on one screen with a swap button. Search matches point names in both languages and lists only active points (name plus zone); "Use current location" picks the nearest point (asks for location permission first); Saved places (Home, Work, other) and Recent; "No places found" and "Couldn't load suggestions" states. "Choose on map" opens MapPointPicker, which shows the zone's point pins only; tap a pin, then Confirm.
+- **Date and time sheets:** Today and Tomorrow chips plus a calendar up to `maxDaysAhead`; a time wheel in 15-minute steps. Times before now are disabled for today.
+- **State:** `fromPoint`, `toPoint`, `date`, `time`, `seats`, `sort`, `timeBand`, `maxPrice`, `minRating`, `verifiedOnly`, `womenOnly` (shown to women only), `results`, `loading`, `error`.
+- **Results:** "Finding rides" loading, then "Available rides" with a route summary, "N rides match your trip · Prices are per seat" and the ride cards (time → arrival, seat dots, "N seats left", pickup · walk, drop-off, owner first name, rating · trips, badges, price per seat, "Best match" on the first under Recommended), or "No rides found" with "Change date or time", "Edit pickup or destination" and "Search again".
+- **Sort & filter sheet:** Recommended, Earliest, Cheapest; Any time, Before {time}, {time}–{time + 1 h}, After; max price slider; owner rating Any, 4.5+, 4.8+; Verified only; Women-only; Reset and Show results.
+- Points and dates pre-fill from the last search. "Ask the assistant" on the empty state stays hidden while `assistantEnabled` is false (Phase 11).
 
-#### P7-A03 · Ride details and booking sheet `[FIGMA]`
-- Details: host card (first name, photo, rating and count, Verified, tier, Same company), time, pickup and drop names, "Open in Maps" for the pickup point (coordinates from `zones/{fromZone}/points/{fromPointId}`, opened with a `geo:` intent).
-- Booking sheet: price, "Pay the host directly by cash or InstaPay", the late fee rule with values from `config/limits`, Confirm. The `requestId` is made when the sheet opens and reused on retry.
-- After booking: car make, model, color and plate, pickup point, time, then My trips. `RIDE_FULL` → close the sheet, refresh the list, show the message.
+#### P7-A03 · Ride details and the request (designed, see 3.8)
+- Details (design "Ride details"): map with the route, owner card (first name, photo or initials, rating · trips, Verified, tier, Same company; car make, model, year and color, plate only after acceptance), pickup and drop-off with the walk distance, date, time → arrival, seats left with the passengers stepper (1 … seats left), price per seat × seats = total, "Open in Maps" for the pickup point (coordinates from `zones/{fromZone}/points/{fromPointId}`, opened with a `geo:` intent).
+- The button "Request ride · EGP {total}" opens a short confirm: "Pay the owner directly by cash or InstaPay", the late fee rule with values from `config/limits`, and for Women-only rides with seats > 1 "Everyone on this booking is a woman" `[DECISION-24]`. The `requestId` is made when the sheet opens and reused on retry.
+- After the request: status "Requested" with the time left to answer (`expiresAt`), Cancel request. When accepted: car make, model, color and plate, pickup point, time. `RIDE_FULL` → close the sheet, refresh the list, show the message.
 
-#### P7-A04 · My trips `[FIGMA]`
-- Upcoming and past bookings. Cancel dialog says whether the cancel is free (`now < departAt - freeCancelMinutes`). "Host is late" appears only after `departAt + hostLateMinutes`.
+#### P7-A04 · Rides tab and booking details (designed, see 3.8)
+- Rides tab "My rides" with tabs Upcoming (Requested, Confirmed, In progress), Completed, Cancelled (Cancelled, Declined, Expired, No show). Cards: status chip, date and time, pickup and drop-off, owner first name and photo, car model and color, total.
+- Upcoming ride details (design "Upcoming ride details"): status, route, owner card with Message (opens Chat) and Call (`getContactPhone`, then the dialer) once accepted, vehicle and plate, seats, total, "Track ride" (enabled once the ride starts), "Cancel booking".
+- Cancel sheet: reasons Change of plans, Found another ride, Other, and "Owner is late" only after `departAt + hostLateMinutes`; it says whether the cancel is free (`now < departAt - freeCancelMinutes`, always free for a request). Then "Booking cancelled" with "Find another ride".
 
 #### P7-A05 · Notifications
 - **Spec:** create channels at start (`bookings`, `trips`, `account`, `admin`) with names in both languages. `HitchyMessagingService.onMessageReceived` builds the notification from the data payload with a `PendingIntent` to `MainActivity` carrying the deep link; `MainActivity` passes it to `DeepLinks.parse`.
-- Ask for the notification permission after the first booking or the first posted ride, not at first launch.
-- **Done when:** a data message from the emulator (or a test push) opens the right screen.
+- Ask for the notification permission after the first request or the first posted ride, not at first launch.
+- Inbox screen (designs "Notifications", "Notifications · Empty"): bell on Home with an unread count; Today and Earlier; unread rows tinted with a dot; "Mark all as read"; tap follows the deep link; empty state "You're all caught up" with "Plan a ride".
+- **Done when:** a data message from the emulator (or a test push) opens the right screen, and it shows in the inbox in both languages.
 
 #### P7-A06 · Tests
-- Search ViewModel (filters, empty state), booking sheet ViewModel (`requestId` reuse, `RIDE_FULL`), My trips cancel rules, notification deep-link routing.
+- Search ViewModel (points only, filters, sort, seats, empty state), request sheet ViewModel (`requestId` reuse, `RIDE_FULL`, Women-only check), Rides tab cancel rules, inbox mark-read, notification deep-link routing.
 
-**E2E check:** `rider@test` books; `rider-w@test` sees and books a Women-only ride that `rider@test` never sees; the host gets `new_booking`; the rider cancels and the seat comes back.
+#### P7-A07 · Owner: requests `[FIGMA]`
+- On HostRideDetails (and the owner Home): each request with the rider's first name, photo, rating, seats, total and the time left; Accept and Decline call `respondToRequest`. `booking_requested` opens this list.
+- **Done when:** a ViewModel test covers accept, decline, `REQUEST_EXPIRED` and `REQUEST_NOT_PENDING`.
+
+**E2E check:** `rider@test` requests 2 seats and the host accepts; `rider-w@test` sees and requests a Women-only ride that `rider@test` never sees; the host gets `booking_requested`, the rider `booking_accepted`; the rider cancels and both seats come back; a request left unanswered expires.
 
 ---
 
 ## Phase 8 — Trip day
 
-**Exit:** two devices run a full trip (start, check-in, boarding, finish, both ratings); a late report creates a fee that blocks the rider's next booking until the host marks it paid; after the free month one credit is used per trip with riders.
+**Exit:** two devices run a full trip (start, check-in, boarding, finish, payment confirmed, both ratings) and can chat and call; a late report creates a fee that blocks the rider's next request until the host marks it paid; after the free month one credit is used per trip with riders.
 
 ### Backend
 
@@ -2730,9 +2948,10 @@ interface BookingRepository {
 | P8-B02 | `checkIn` | server time and distance stored; closed after `noShowMinutes` |
 | P8-B03 | `markBoarded` | host for anyone, rider for self only; ride must be started |
 | P8-B04 | `reportLate`, `disputeFee`, `resolveFee`, `markFeePaid` | grace, on-time check, one fee per booking, `unpaidFees` counter always right, disputed fee still blocks booking |
-| P8-B05 | `sendQuickMessage` | only people on the ride; host to one or all |
+| P8-B05 | `sendChatMessage`, `getContactPhone` | only the host and riders with an accepted booking; chat closes `chatOpenHoursAfterRide` after the ride; the text is never logged and the push never carries it; a phone only while the ride is open, full or started |
 | P8-B06 | `finishRide`, `onRideFinished`, `closeStaleRides`, `domain/together.ts` | exactly one credit even if called twice; none in the free month or without boarded riders; `verifiedTogether` true for matching sample sets and false for far ones; `postProcessed` prevents double work; stale and expired rides closed |
 | P8-B07 | `submitRating` | allowed pairs only; once per pair; 7-day window; averages correct; low ratings create a report |
+| P8-B08 | `confirmSeatPayment` | host only; `boarded` or `completed` bookings; once per booking (`PAYMENT_ALREADY_CONFIRMED`); the rider gets `payment_confirmed` |
 
 Rewards and impact steps in `onRideFinished` are empty functions until Phases 10 and 14.
 
@@ -2747,7 +2966,8 @@ interface TripRepository {
     suspend fun markBoarded(rideId: String, riderUid: String): AppResult<Unit>
     suspend fun reportLate(rideId: String, riderUid: String, kind: LateKind): AppResult<String>
     suspend fun finish(rideId: String): AppResult<FinishResult>
-    suspend fun sendQuickMessage(rideId: String, messageId: QuickMessage, toUid: String?): AppResult<Unit>
+    suspend fun confirmPayment(rideId: String, riderUid: String): AppResult<Unit>       // host
+    suspend fun contactPhone(rideId: String, otherUid: String): AppResult<String>
     fun observePresence(rideId: String, uid: String): Flow<Presence?>
     suspend fun writePresence(rideId: String, last: Sample, samples: List<Sample>)   // whole doc, max 200 samples
 }
@@ -2758,6 +2978,10 @@ interface FeesRepository {
     suspend fun markPaid(feeId: String): AppResult<Unit>
 }
 interface RatingsRepository { suspend fun submit(input: RatingInput): AppResult<Unit> }
+interface ChatRepository {                        // feature/chat
+    fun observe(rideId: String, riderUid: String): Flow<List<ChatMessage>>
+    suspend fun send(rideId: String, riderUid: String, text: String, requestId: String): AppResult<String>
+}
 ```
 
 #### P8-A02 · Trip location service (`app` module)
@@ -2767,24 +2991,33 @@ interface RatingsRepository { suspend fun submit(input: RatingInput): AppResult<
 
 #### P8-A03 · Host trip screen `[FIGMA]`
 - **State:** ride, countdown, `canStart`, riders with status (`booked`, `checked in`, `boarded`, `late`, `no show`), host location sharing on or off.
-- **Actions:** Start trip (asks for location permission with a short reason first), Boarded (per rider), Rider late, No show (after `noShowMinutes`), quick messages, Finish (confirm dialog). Share trip and SOS buttons come in Phase 13.
+- **Actions:** Start trip (asks for location permission with a short reason first), Boarded (per rider), Rider late, No show (after `noShowMinutes`), Chat and Call (per rider), Finish (confirm dialog), then Mark paid per rider (`confirmSeatPayment`). Share trip and SOS buttons come in Phase 13.
 
-#### P8-A04 · Rider trip screen `[FIGMA]`
-- **State:** host and car card with plate, countdown, the host's distance from the pickup point (from host presence), own status.
-- **Actions:** "I'm on my way" (starts the tracker), "I'm at the pickup point" (`checkIn` with the current location), "I'm in the car" (`markBoarded` for self), quick messages, Cancel (free "host is late" option when allowed).
+#### P8-A04 · Rider trip screen (designed, see 3.8)
+- **Layout (designs "Tracking · On the way", -1, -2):** map with the route, the owner's car from host presence and the drop-off pin; a sheet with the status ("On the way", "Arrived", "In ride"), the ETA, a "Live" chip, the stepper Owner on the way → Arrived → In ride → Completed, the owner and car card with plate, and tiles Share trip, Report, Emergency.
+- **State:** ride, own booking, host presence, countdown, step. Arrived = the host is within `arrivedDistanceM` of the pickup point; ETA "Arrives in N min" = straight-line distance at `etaSpeedKmh`, "N min to destination" = route minutes left after boarding `[DECISION-26]`.
+- **Actions:** "I'm on my way" (starts the tracker), "I'm at the pickup point" (`checkIn` with the current location), "I'm in the car" (`markBoarded` for self), Chat and Call, Cancel (free "Owner is late" option when allowed). Share trip and Emergency (SOS) are built in Phase 13.
+- After the ride: the completed details (design "Upcoming ride details-1") with the stepper done, "Payment confirmed by {name}" once confirmed, "Rate your owner" and "Book again" (opens Search with the same points and time).
 
 #### P8-A05 · Fees `[FIGMA]`
-- Rider: unpaid and disputed fees, "Pay the host directly", Dispute (text up to 300 characters). A banner on Search and the booking sheet while a fee is unpaid.
+- Rider: unpaid and disputed fees, "Pay the owner directly", Dispute (text up to 300 characters). A banner on Search and the request sheet while a fee is unpaid.
 - Host: fees to confirm with "Mark as paid".
 
-#### P8-A06 · Rating `[FIGMA]`
-- Stars and tag chips from `RATING_TAGS` for the role being rated; Skip; the host gets one card per completed rider.
+#### P8-A06 · Rating (rider side designed, see 3.8)
+- Rider rates the owner (designs "Rate Owner · Empty / Selected", "Rating thank you"): owner photo, name and car, stars, tag chips from `RATING_TAGS.host`, "Report a problem" (`reportUser`), "Submit rating" enabled once stars are picked; no comment box. The thank-you screen ends with "Done".
+- Owner rates riders `[FIGMA]`: one card per completed rider with `RATING_TAGS.rider`; Skip.
 
 #### P8-W01 · Disputes page (admin web)
 - `/disputes`: fees with `status == "disputed"`, oldest first, with the ride time, check-in time and distance, report time, the rider's text, and both users' fee history. Keep or Waive with a note → `resolveFee`. The dashboard adds the disputes count.
 
 #### P8-A08 · Tests
-- Host and rider trip ViewModels (button availability by time and status), presence trimming to 200, fee banner logic, rating validation.
+- Host and rider trip ViewModels (button availability by time and status, Arrived and ETA), presence trimming to 200, fee banner logic, rating validation, chat send and closed state, payment confirmation.
+
+#### P8-A09 · Chat `[FIGMA]`
+- One thread per booking (`rides/{rideId}/chats/{riderUid}/messages`), newest at the bottom; the old quick messages as one-tap chips above the input (500 characters); Call in the top bar; "Chat closed" once `CHAT_CLOSED`. `chat_message` opens it.
+
+#### P8-A10 · Receipt (designed, see 3.8)
+- Design "Fuel Share Receipt", with the plan's numbers: route distance, price per seat, seats, total, "Paid directly to the owner", and "Payment confirmed by {name}" when `paymentConfirmedAt` is set. `payment_confirmed` opens it.
 
 **E2E check:** see Appendix C, steps 10–19.
 
@@ -2812,7 +3045,7 @@ interface PackagesRepository {
 }
 ```
 
-- **P9-A01 Packages screen `[FIGMA]`:** both balances, "Free until {date}" banner, package cards, Buy → PaymentInstructions (amount, InstaPay address and reference with copy buttons, "I've sent it" → back to the list with the order pending), orders with status, Credit history.
+- **P9-A01 Packages screen `[FIGMA]`, in the Shop tab for owners:** both balances, "Free until {date}" banner, package cards, Buy → PaymentInstructions (amount, InstaPay address and reference with copy buttons, "I've sent it" → back to the list with the order pending), orders with status, Credit history.
 - **P9-A02:** `NO_CREDITS` on Post ride shows "Buy a package" with a button to Packages.
 - **P9-W01 Orders page (admin web):** `/orders`: pending orders oldest first (reference, amount, package, host first name, created time) with a reference search box; Confirm or Reject with a note → `confirmPackageOrder`. The dashboard adds the pending orders count.
 
@@ -2843,7 +3076,7 @@ interface RewardsRepository {
 }
 ```
 
-- **P10-A01 Rewards screen `[FIGMA]`:** balance, tier per role and the next tier's rule (trips and rating), how to earn (values from `config/rewards`), history with expiry dates, Redeem for hosts (enabled from 300).
+- **P10-A01 Rewards screen `[FIGMA]`, in the Shop tab for riders:** balance, tier per role and the next tier's rule (trips and rating), how to earn (values from `config/rewards`), history with expiry dates, Redeem for hosts (enabled from 300).
 - **P10-A02 Invite `[FIGMA]`:** referral code with the share sheet. No Firebase Dynamic Links (shut down). The code is typed at sign-up.
 - **P10-A03:** tier badges on ride cards and profiles. Everything hidden while `rewardsEnabled` is false.
 
@@ -2869,7 +3102,7 @@ interface AssistantRepository {
 }
 ```
 
-- **P11-A01 Assistant screen `[FIGMA]`:** messages, input (500 characters), 3 suggestion chips, typing indicator, ride cards with Book (opens the Phase 7 booking sheet), "Search instead" on `AI_DAILY_LIMIT` and `AI_UNAVAILABLE`. The ViewModel keeps the chat in `SavedStateHandle` and sends the last 6 turns. Hidden while `assistantEnabled` is false.
+- **P11-A01 Assistant screen `[FIGMA]`:** messages, input (500 characters), 3 suggestion chips, typing indicator, ride cards with Request (opens the Phase 7 request sheet), "Search instead" on `AI_DAILY_LIMIT` and `AI_UNAVAILABLE`. The ViewModel keeps the chat in `SavedStateHandle` and sends the last 6 turns. Hidden while `assistantEnabled` is false.
 
 **E2E:** Appendix C step 23.
 
@@ -2900,7 +3133,7 @@ interface FixedRepository {
 }
 ```
 
-- **P12-A01 Screens `[FIGMA]`:** Fixed rides list; Create (Post ride form + weekdays + start date); Details (next 2 weeks with skips, members, invite code with share, pause, end, skip a day, leave); Join with code; Backup options (ride cards + booking sheet). Hidden while `fixedRideEnabled` is false.
+- **P12-A01 Screens `[FIGMA]`:** Fixed rides list; Create (Post ride form + weekdays + start date); Details (next 2 weeks with skips, members, invite code with share, pause, end, skip a day, leave); Join with code; Backup options (ride cards + request sheet). Hidden while `fixedRideEnabled` is false.
 
 **E2E:** Appendix C steps 24–25.
 
@@ -3032,30 +3265,30 @@ List files changed, test results, and any [HUMAN] or [DECISION] items.
 | # | Step | Expected |
 | --- | --- | --- |
 | 1 | A signs in with +201000000007 and fills the profile | Rider home; `users`, `profiles`, `kyc` docs exist |
-| 2 | A (`host-new@test`): Become a host, 4 photos, car, submit | Status "pending"; admin notified |
+| 2 | A (`host-new@test`): Become an owner, 4 photos, car, submit | Status "pending"; admin notified |
 | 3 | Admin approves in the dashboard (Google sign-in) | A gets `host_approved`; status shows "Free until" |
 | 4 | `host@test` posts Fifth Settlement → Smart Village, tomorrow 08:00, 3 seats, 56 EGP | Ride in My rides; "Fair price" shown |
 | 5 | Same host tries 70 EGP, then a third ride that day | `PRICE_OUT_OF_RANGE`, then `DAILY_RIDE_LIMIT` |
 | 6 | B (`rider@test`) searches tomorrow morning | The ride shows with host card and price |
-| 7 | B books | Sheet shows "pay the host directly" and the late fee; then car and plate; host gets `new_booking` |
+| 7 | B requests 2 seats; the host accepts | Sheet shows "pay the owner directly", the late fee and the total; host gets `booking_requested`; after Accept, B gets `booking_accepted` and sees car and plate |
 | 8 | `host-w@test` posts a Women-only ride; `rider-w@test` searches | Visible to `rider-w@test`, never to `rider@test` |
-| 9 | B cancels (free) and books again | Seat count goes up, then down |
-| 10 | Host posts a ride leaving in 35 minutes; B books it | Booked |
+| 9 | B cancels (free) and requests again; the host declines; B requests once more and nobody answers | Seats go up, down, up, down, then up when the request expires; B gets `booking_declined`, then `request_expired` |
+| 10 | Host posts a ride leaving in 35 minutes; B requests it; the host accepts | Confirmed |
 | 11 | Host taps Start trip | Allowed; B gets `ride_started`; host shows "Trip in progress" |
 | 12 | B taps "I'm on my way" | B's location sharing starts |
 | 13 | B taps "I'm at the pickup point" | Host gets `rider_at_pickup` |
 | 14 | Host taps Boarded for B | B shows "on board" |
-| 15 | Host sends "Leaving now" | B gets the quick message |
-| 16 | Host taps Finish | Ride finished; both trackers stop |
+| 15 | Host sends "Leaving now" in the chat; B taps Call | B gets `chat_message`; the dialer opens with the host's number |
+| 16 | Host taps Finish, then marks B as paid | Ride finished; both trackers stop; B gets `payment_confirmed` and the receipt shows it |
 | 17 | Both rate 5 stars | Ratings show on profiles |
-| 18 | New ride: B does not check in; 5 minutes after departure the host reports late | B gets `fee_created`; B's next booking → `UNPAID_FEE` |
+| 18 | New ride: B does not check in; 5 minutes after departure the host reports late | B gets `fee_created`; B's next request → `UNPAID_FEE` |
 | 19 | Host marks the fee paid (or B disputes and admin waives) | B can book again |
 | 20 | Set the host's `freeUntil` in the past (emulator UI), finish a trip with a boarded rider | `credits.regular` −1 and a ledger entry |
 | 21 | Host requests the 10-trip package; admin confirms | Balance +10; `package_confirmed` |
 | 22 | `rewardsEnabled: true`; finish a verified trip | Both +10 points; host redeems 300 → +3 credits |
-| 23 | `assistantEnabled: true`; B asks "عايز أروح القرية الذكية بكرة الساعة 8" | Short Arabic reply and up to 3 real ride cards; Book works |
+| 23 | `assistantEnabled: true`; B asks "عايز أروح القرية الذكية بكرة الساعة 8" | Short Arabic reply and up to 3 real ride cards; Request works |
 | 24 | `fixedRideEnabled: true`; host creates a Sunday–Thursday 08:00 Fixed Ride; B joins with the code; run `generateFixedRides` | Tomorrow's ride exists with B booked; a skip before 20:00 removes B for that day |
-| 25 | Host cancels a booked ride | B gets `backup_options`; the options screen books another ride |
+| 25 | Host cancels a booked ride | B gets `backup_options`; the options screen requests another ride |
 | 26 | B on a trip taps SOS | Dialer with 122; admins get `sos`; Share trip opens the share sheet |
 | 27 | B blocks the host | The host's rides disappear from B's search |
 | 28 | B deletes the account (no trips in the next 24 hours) | Fresh OTP, signed out; B's personal docs and files are gone in the emulator UI |
@@ -3080,7 +3313,7 @@ List files changed, test results, and any [HUMAN] or [DECISION] items.
 | `INTERNAL` | internal | Something went wrong. Try again. | حصلت مشكلة، جرّب تاني. |
 | `PHONE_REQUIRED` | failed-precondition | Sign in with your phone number first. | سجّل برقم موبايلك الأول. |
 | `GENDER_LOCKED` | failed-precondition | Gender can't be changed. Contact support. | النوع مينفعش يتغير، كلّم الدعم. |
-| `HOST_NOT_APPROVED` | failed-precondition | Your host account isn't approved yet. | حسابك كصاحب عربية لسه متوافقش عليه. |
+| `HOST_NOT_APPROVED` | failed-precondition | Your owner account isn't approved yet. | حسابك كصاحب عربية لسه متوافقش عليه. |
 | `VEHICLE_LIMIT` | failed-precondition | You can add up to 2 vehicles. | تقدر تضيف عربيتين بس. |
 | `SCOOTER_DISABLED` | failed-precondition | Scooters aren't available yet. | السكوتر لسه مش متاح. |
 | `KYC_ALREADY_SUBMITTED` | failed-precondition | Your documents are under review. | ورقك بيتراجع دلوقتي. |
@@ -3092,21 +3325,21 @@ List files changed, test results, and any [HUMAN] or [DECISION] items.
 | `DEPART_TOO_SOON` | failed-precondition | Departure must be at least 30 minutes from now. | ميعاد الخروج لازم يكون بعد نص ساعة على الأقل. |
 | `DEPART_TOO_FAR` | failed-precondition | You can post up to 7 days ahead. | تقدر تنزّل مشوار لحد 7 أيام قدام. |
 | `PRICE_OUT_OF_RANGE` | invalid-argument | The price is outside the allowed range. | السعر برّه الحدود المسموحة. |
-| `WOMEN_ONLY_HOST` | permission-denied | Only women hosts can offer Women-only rides. | مشاوير "ستات بس" لصاحبات العربيات بس. |
+| `WOMEN_ONLY_HOST` | permission-denied | Only women owners can offer Women-only rides. | مشاوير "ستات بس" لصاحبات العربيات بس. |
 | `DAILY_RIDE_LIMIT` | failed-precondition | You can post one ride each way per day. | تقدر تنزّل مشوار رايح وواحد جاي في اليوم. |
 | `RIDE_TIME_CONFLICT` | failed-precondition | You have another ride close to this time. | عندك مشوار تاني قريب من الميعاد ده. |
 | `NO_CREDITS` | failed-precondition | Buy a trip package to post rides. | اشتري باكدج رحلات عشان تنزّل مشاوير. |
 | `RIDE_HAS_STARTED` | failed-precondition | This ride has already started. | المشوار بدأ خلاص. |
 | `RIDE_NOT_OPEN` | failed-precondition | This ride isn't available anymore. | المشوار ده مبقاش متاح. |
-| `RIDE_FULL` | failed-precondition | The last seat was just taken. | آخر كرسي لسه اتحجز. |
+| `RIDE_FULL` | failed-precondition | There aren't enough seats left. | مفيش كراسي كفاية فاضلة. |
 | `OWN_RIDE` | failed-precondition | You can't book your own ride. | مينفعش تحجز في مشوارك. |
-| `ALREADY_BOOKED` | already-exists | You already booked this ride. | إنت حاجز في المشوار ده بالفعل. |
+| `ALREADY_BOOKED` | already-exists | You already have a booking or request on this ride. | عندك حجز أو طلب في المشوار ده بالفعل. |
 | `UNPAID_FEE` | failed-precondition | Pay your late fee before booking. | ادفع غرامة التأخير الأول. |
 | `WOMEN_ONLY` | permission-denied | This ride is for women only. | المشوار ده للستات بس. |
 | `TIME_CONFLICT` | failed-precondition | You have another booking close to this time. | عندك حجز تاني قريب من الميعاد ده. |
 | `TOO_LATE_TO_BOOK` | failed-precondition | Booking closes 15 minutes before departure. | الحجز بيقفل قبل الميعاد بربع ساعة. |
 | `BOOKING_NOT_FOUND` | not-found | We couldn't find your booking. | مش لاقيين حجزك. |
-| `HOST_NOT_LATE` | failed-precondition | The host isn't late yet. | صاحب العربية لسه متأخرش. |
+| `HOST_NOT_LATE` | failed-precondition | The owner isn't late yet. | صاحب العربية لسه متأخرش. |
 | `START_WINDOW_CLOSED` | failed-precondition | You can start up to 30 minutes before or after departure. | تقدر تبدأ قبل الميعاد أو بعده بنص ساعة. |
 | `RIDE_NOT_STARTED` | failed-precondition | Start the trip first. | ابدأ المشوار الأول. |
 | `CHECK_IN_CLOSED` | failed-precondition | Check-in for this ride is closed. | تسجيل الوصول للمشوار ده قفل. |
@@ -3131,6 +3364,11 @@ List files changed, test results, and any [HUMAN] or [DECISION] items.
 | `SKIP_TOO_LATE` | failed-precondition | Skips close at 8 PM the day before. | الإلغاء بيقفل الساعة 8 بالليل اليوم اللي قبله. |
 | `CANNOT_REPORT_SELF` | invalid-argument | You can't report yourself. | مينفعش تبلّغ عن نفسك. |
 | `ACTIVE_TRIP_SOON` | failed-precondition | Cancel your trips in the next 24 hours first. | ألغي مشاويرك اللي في الـ 24 ساعة الجاية الأول. |
+| `REQUEST_NOT_PENDING` | failed-precondition | This request was already answered. | الطلب ده اترد عليه خلاص. |
+| `REQUEST_EXPIRED` | failed-precondition | This request has expired. | الطلب ده وقته خلص. |
+| `CHAT_CLOSED` | failed-precondition | Chat for this ride is closed. | الشات بتاع المشوار ده اتقفل. |
+| `CONTACT_NOT_ALLOWED` | permission-denied | You can call only after a booking is accepted. | تقدر تتصل بس بعد ما الحجز يتقبل. |
+| `PAYMENT_ALREADY_CONFIRMED` | already-exists | This payment was already confirmed. | الدفع ده اتأكد قبل كده. |
 | `OTP_INVALID` (app only) | — | The code is wrong. | الكود غلط. |
 | `OTP_EXPIRED` (app only) | — | The code expired. Send a new one. | الكود انتهى، ابعت كود جديد. |
 | `TOO_MANY_ATTEMPTS` (app only) | — | Too many tries. Try again later. | محاولات كتير، جرّب بعد شوية. |
@@ -3148,9 +3386,13 @@ No personal data in any parameter.
 | `sign_up_completed` | `completeProfile` succeeds the first time | `language` |
 | `host_application_submitted` | submit succeeds | — |
 | `ride_posted` | `createRide` succeeds | `seats`, `direction`, `traffic_level`, `fair_price` |
-| `search_done` | results shown | `result_count`, `window`, `verified_only`, `women_only` |
-| `seat_booked` | `bookSeat` succeeds | `fair_price`, `same_company`, `verified` |
+| `search_done` | results shown | `result_count`, `sort`, `seats`, `verified_only`, `women_only` |
+| `booking_requested` | `requestSeats` succeeds | `seats`, `fair_price`, `same_company`, `verified` |
+| `request_answered` | `respondToRequest` succeeds | `accepted` |
 | `booking_cancelled` | `cancelBooking` succeeds | `reason`, `late` |
+| `chat_message_sent` | `sendChatMessage` succeeds | — |
+| `call_tapped` | Call opens the dialer | — |
+| `payment_confirmed` | `confirmSeatPayment` succeeds | — |
 | `trip_started` | `startRide` succeeds | — |
 | `trip_finished` | `finishRide` succeeds | `riders_completed` |
 | `late_reported` | `reportLate` succeeds | `kind` |
@@ -3180,7 +3422,7 @@ Until Islam decides, the agent uses the default and leaves `TODO(DECISION-NN)` w
 | 07 | Scooter numbers and helmet rule | Scooters disabled (`null` config) | Phase 6 |
 | 08 | Late rider cancel | Free until 60 minutes before departure | Phase 7 |
 | 09 | Rider no-show | 10 EGP fee after 15 minutes | Phase 8 |
-| 10 | Rider and host contact | Quick messages only; phones hidden | Phase 8 |
+| 10 | Rider and host contact | Decided in v1.1: chat and calls between the host and riders with an accepted booking (R23); details in 22 and 23 | Phase 8 |
 | 11 | Package credits expiry | No expiry | Phase 9 |
 | 12 | AI model provider | `LlmClient` with a fake in tests; assistant stays disabled until a provider is chosen | Phase 11 |
 | 13 | Fixed Ride free skip cutoff | 20:00 the evening before | Phase 12 |
@@ -3188,6 +3430,13 @@ Until Islam decides, the agent uses the default and leaves `TODO(DECISION-NN)` w
 | 15 | Company registration and e-receipts | Not code; ask an accountant before charging | Before month 2 |
 | 16 | Admin dashboard address | The `admin` Hosting site's default `web.app` URL until a subdomain is set | Phase 5 |
 | 17 | Admin dashboard language | English only | Phase 5 |
-| 18 | Bottom navigation tabs | Home, Rides, Rewards (rider) or Packages (host), Profile; no Shop | Phase 3 |
+| 18 | Bottom navigation tabs | Decided in v1.1: Home, Rides, Shop, Profile; Shop holds Rewards (rider) or Packages (host) | Phase 3 |
 | 19 | Minimum touch target | 48 dp on Android | Phase 3 |
-| 20 | English word for the car owner | "host" (not "driver"), so Hitchy never sounds like a paid driver service | Phase 3 |
+| 20 | English word for the car owner | Decided in v1.1: "Owner" in the app's text, never "driver"; code and data keep `host` | Phase 3 |
+| 21 | Request deadline | The host has 30 minutes to answer, and never past 15 minutes before departure; the seats are held meanwhile | Phase 7 |
+| 22 | Phone sharing | Numbers only between the host and riders with an accepted booking, from acceptance until the ride ends; calls through the phone's dialer (no masked numbers) | Phase 8 |
+| 23 | Chat | Open from acceptance until 24 hours after the ride; kept 30 days; pushes say "New message from {name}" without the text; only the two people can read it (not admins) | Phase 8 |
+| 24 | Several seats | One late or no-show fee per booking (10 EGP), not per seat; on Women-only rides the rider confirms every passenger is a woman | Phase 7 |
+| 25 | Search window | The picked time ± 60 minutes; the time chips split it into before, the first hour after, and later | Phase 7 |
+| 26 | Arrived and ETA | "Arrived" when the host is within 300 m of the pickup point; ETA = straight-line distance at 25 km/h | Phase 8 |
+| 27 | Notification inbox | Every push except admin alerts is also stored for 30 days (Firestore TTL) | Phase 7 |
