@@ -3,4 +3,10 @@
     <string name="hello_hitchy">أهلاً هيتشي</string>
     <string name="format_egp">%1$s جنيه</string>
     <string name="placeholder_screen">%1$s</string>
+    <string name="error_network">مفيش اتصال بالإنترنت.</string>
+    <string name="error_unauthenticated">سجّل دخولك تاني من فضلك.</string>
+    <string name="error_internal">حصلت مشكلة، جرّب تاني.</string>
+    <string name="sample_title">شاشة تجريبية</string>
+    <string name="sample_button_load">تحميل البيانات</string>
+    <string name="sample_loaded_prefix">تم التحميل: %1$s</string>
 </resources>

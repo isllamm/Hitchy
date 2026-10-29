@@ -3,4 +3,10 @@
     <string name="hello_hitchy">Hello Hitchy</string>
     <string name="format_egp">EGP %1$s</string>
     <string name="placeholder_screen">%1$s</string>
+    <string name="error_network">No internet connection.</string>
+    <string name="error_unauthenticated">Please sign in again.</string>
+    <string name="error_internal">Something went wrong. Try again.</string>
+    <string name="sample_title">Sample Screen</string>
+    <string name="sample_button_load">Load Data</string>
+    <string name="sample_loaded_prefix">Loaded: %1$s</string>
 </resources>
