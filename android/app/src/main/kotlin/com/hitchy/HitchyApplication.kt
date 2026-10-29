@@ -27,7 +27,8 @@ class HitchyApplication : Application() {
         val appConfig = AppConfig(
             env = if (BuildConfig.ENV == "prod") Env.PROD else Env.DEV,
             functionsRegion = BuildConfig.FUNCTIONS_REGION,
-            useEmulator = BuildConfig.USE_EMULATOR
+            useEmulator = BuildConfig.USE_EMULATOR,
+            versionName = BuildConfig.VERSION_NAME
         )
 
         FirebaseModule.init(this, appConfig)

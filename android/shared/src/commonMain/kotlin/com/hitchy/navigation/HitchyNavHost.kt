@@ -1,5 +1,7 @@
 package com.hitchy.navigation
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,14 +21,18 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.hitchy.core.model.AppConfig
 import com.hitchy.core.model.AppLanguage
+import com.hitchy.core.model.Env
 import com.hitchy.core.platform.LanguageSwitcher
+import com.hitchy.feature.debug.ui.DebugScreen
 import hitchy.shared.generated.resources.Res
 import hitchy.shared.generated.resources.language_arabic
 import hitchy.shared.generated.resources.language_english
 import hitchy.shared.generated.resources.placeholder_screen
 import hitchy.shared.generated.resources.settings_language_label
 import hitchy.shared.generated.resources.settings_title
+import hitchy.shared.generated.resources.settings_version
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
@@ -34,7 +40,8 @@ import org.koin.compose.koinInject
 fun HitchyNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
-    startDestination: Any = Welcome
+    startDestination: Any = Welcome,
+    appConfig: AppConfig = koinInject()
 ) {
     NavHost(
         navController = navController,
@@ -46,7 +53,11 @@ fun HitchyNavHost(
         composable<OtpVerify> { PlaceholderScreen("OtpVerify") }
         composable<ProfileSetup> { PlaceholderScreen("ProfileSetup") }
         composable<Home> { PlaceholderScreen("Home") }
-        composable<Settings> { SettingsPlaceholderScreen() }
+        composable<Settings> {
+            SettingsPlaceholderScreen(
+                onNavigateToDebug = { navController.navigate(Debug) }
+            )
+        }
         composable<HostApplication> { PlaceholderScreen("HostApplication") }
         composable<HostStatus> { PlaceholderScreen("HostStatus") }
         composable<AddVehicle> { PlaceholderScreen("AddVehicle") }
@@ -74,7 +85,13 @@ fun HitchyNavHost(
         composable<BackupOptions> { PlaceholderScreen("BackupOptions") }
         composable<EmergencyContact> { PlaceholderScreen("EmergencyContact") }
         composable<DeleteAccount> { PlaceholderScreen("DeleteAccount") }
-        composable<Debug> { PlaceholderScreen("Debug") }
+        if (appConfig.env == Env.DEV) {
+            composable<Debug> {
+                DebugScreen(
+                    onBack = { navController.popBackStack() }
+                )
+            }
+        }
         composable<Onboarding> { PlaceholderScreen("Onboarding") }
         composable<RoutePicker> { PlaceholderScreen("RoutePicker") }
         composable<MapPointPicker> { PlaceholderScreen("MapPointPicker") }
@@ -98,10 +115,13 @@ fun PlaceholderScreen(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SettingsPlaceholderScreen(
     modifier: Modifier = Modifier,
-    languageSwitcher: LanguageSwitcher = koinInject()
+    languageSwitcher: LanguageSwitcher = koinInject(),
+    appConfig: AppConfig = koinInject(),
+    onNavigateToDebug: () -> Unit = {}
 ) {
     Column(
         modifier = modifier.fillMaxSize().padding(16.dp),
@@ -132,5 +152,19 @@ fun SettingsPlaceholderScreen(
                 Text(text = stringResource(Res.string.language_english))
             }
         }
+        Spacer(modifier = Modifier.height(32.dp))
+        Text(
+            text = stringResource(Res.string.settings_version, appConfig.versionName),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.combinedClickable(
+                onLongClick = {
+                    if (appConfig.env == Env.DEV) {
+                        onNavigateToDebug()
+                    }
+                },
+                onClick = {}
+            )
+        )
     }
 }

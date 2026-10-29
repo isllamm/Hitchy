@@ -9,4 +9,5 @@ data class AppConfig(
     val env: Env,
     val functionsRegion: String,
     val useEmulator: Boolean,
+    val versionName: String,
 )

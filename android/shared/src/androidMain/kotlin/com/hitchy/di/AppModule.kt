@@ -21,6 +21,8 @@ import com.hitchy.core.platform.LanguageSwitcher
 import com.hitchy.core.platform.LocationProvider
 import com.hitchy.core.platform.NoOpAnalytics
 import com.hitchy.core.platform.Sharer
+import com.hitchy.feature.debug.data.AndroidDebugInfo
+import com.hitchy.feature.debug.domain.DebugInfo
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.dsl.module
@@ -43,6 +45,8 @@ fun appModule(appConfig: AppConfig): Module = module {
 
     // TODO(P14-A01): Firebase Analytics and real event logging
     single<Analytics> { NoOpAnalytics() }
+
+    single<DebugInfo> { AndroidDebugInfo(androidContext(), get()) }
 
     // TODO(P4-A01): PhoneAuth binding
     // TODO(P8-A02): TripTracker binding
