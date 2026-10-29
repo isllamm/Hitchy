@@ -19,33 +19,31 @@ class DebugRepositoryImpl(
     private val firestore: FirebaseFirestore = Firebase.firestore,
 ) : DebugRepository {
 
-    override fun observeCurrentUid(): Flow<String?> =
-        auth.authStateChanged.map { it?.uid }
+    override fun observeCurrentUid(): Flow<String?> = auth.authStateChanged.map { it?.uid }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override fun observePricingConfig(): Flow<PricingConfig?> =
-        auth.authStateChanged.flatMapLatest { user ->
-            if (user == null) {
-                flowOf(null)
-            } else {
-                firestore
-                    .collection("config")
-                    .document("pricing")
-                    .snapshots
-                    .map { snapshot ->
-                        if (snapshot.exists) {
-                            try {
-                                snapshot.data<PricingConfig>()
-                            } catch (_: Exception) {
-                                null
-                            }
-                        } else {
+    override fun observePricingConfig(): Flow<PricingConfig?> = auth.authStateChanged.flatMapLatest { user ->
+        if (user == null) {
+            flowOf(null)
+        } else {
+            firestore
+                .collection("config")
+                .document("pricing")
+                .snapshots
+                .map { snapshot ->
+                    if (snapshot.exists) {
+                        try {
+                            snapshot.data<PricingConfig>()
+                        } catch (_: Exception) {
                             null
                         }
+                    } else {
+                        null
                     }
-                    .catch { emit(null) }
-            }
+                }
+                .catch { emit(null) }
         }
+    }
 
     override suspend fun signInAnonymously() {
         auth.signInAnonymously()

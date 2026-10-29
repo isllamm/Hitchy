@@ -58,11 +58,11 @@ class PhoneNumberTest {
 
     @Test
     fun rejectsInvalidLengths() {
-        assertNull(PhoneNumber.normalize("0101234567"))      // 10 digits
-        assertNull(PhoneNumber.normalize("010123456789"))    // 12 digits
-        assertNull(PhoneNumber.normalize("+20101234567"))    // short E164
-        assertNull(PhoneNumber.normalize("+2010123456789"))  // long E164
-        assertNull(PhoneNumber.normalize("0020101234567"))   // short 0020
+        assertNull(PhoneNumber.normalize("0101234567")) // 10 digits
+        assertNull(PhoneNumber.normalize("010123456789")) // 12 digits
+        assertNull(PhoneNumber.normalize("+20101234567")) // short E164
+        assertNull(PhoneNumber.normalize("+2010123456789")) // long E164
+        assertNull(PhoneNumber.normalize("0020101234567")) // short 0020
     }
 
     @Test

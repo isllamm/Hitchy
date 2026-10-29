@@ -9,5 +9,5 @@ enum class Role {
     RIDER,
 
     @SerialName("host")
-    HOST
+    HOST,
 }

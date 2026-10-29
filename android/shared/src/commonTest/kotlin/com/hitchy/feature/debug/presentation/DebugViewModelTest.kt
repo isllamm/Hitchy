@@ -33,7 +33,7 @@ class DebugViewModelTest {
         env = Env.DEV,
         functionsRegion = "europe-west1",
         useEmulator = true,
-        versionName = "1.0.0-dev"
+        versionName = "1.0.0-dev",
     )
 
     @BeforeTest
@@ -99,7 +99,7 @@ class DebugViewModelTest {
             runningCostEgpPerKm = VehicleRunningCost(car = 0.75, scooter = null),
             trafficFactor = mapOf("offPeak" to 1.0, "normal" to 1.15, "peak" to 1.3),
             marginCap = 0.2,
-            maxSeats = VehicleSeats(car = 3, scooter = 1)
+            maxSeats = VehicleSeats(car = 3, scooter = 1),
         )
         repo.pricingFlow.value = sampleConfig
         advanceUntilIdle()

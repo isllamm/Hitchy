@@ -5,8 +5,8 @@ import com.hitchy.core.data.GitLiveFunctionsClient
 import com.hitchy.core.model.AppConfig
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.functions.functions
-import kotlin.time.Clock
 import org.koin.dsl.module
+import kotlin.time.Clock
 
 val coreModule = module {
     single<Clock> { Clock.System }

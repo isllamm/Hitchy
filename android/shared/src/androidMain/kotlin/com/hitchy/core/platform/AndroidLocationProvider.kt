@@ -14,7 +14,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
 class AndroidLocationProvider(
-    private val context: Context
+    private val context: Context,
 ) : LocationProvider {
 
     private val fusedLocationClient by lazy {
@@ -24,12 +24,12 @@ class AndroidLocationProvider(
     override fun hasPermission(): Boolean {
         val fineGranted = ContextCompat.checkSelfPermission(
             context,
-            Manifest.permission.ACCESS_FINE_LOCATION
+            Manifest.permission.ACCESS_FINE_LOCATION,
         ) == PackageManager.PERMISSION_GRANTED
 
         val coarseGranted = ContextCompat.checkSelfPermission(
             context,
-            Manifest.permission.ACCESS_COARSE_LOCATION
+            Manifest.permission.ACCESS_COARSE_LOCATION,
         ) == PackageManager.PERMISSION_GRANTED
 
         return fineGranted || coarseGranted
@@ -52,7 +52,7 @@ class AndroidLocationProvider(
                             fusedLocationClient.lastLocation
                                 .addOnSuccessListener { lastLoc: Location? ->
                                     continuation.resume(
-                                        lastLoc?.let { GeoPoint(lat = it.latitude, lng = it.longitude) }
+                                        lastLoc?.let { GeoPoint(lat = it.latitude, lng = it.longitude) },
                                     )
                                 }
                                 .addOnFailureListener {

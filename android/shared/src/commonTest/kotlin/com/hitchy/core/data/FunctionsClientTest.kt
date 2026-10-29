@@ -16,17 +16,15 @@ private data class TestRequest(val query: String)
 private data class TestResponse(val result: String)
 
 private class FakeFunctionsClient(
-    var resultProvider: (String, Any) -> AppResult<Any>
+    var resultProvider: (String, Any) -> AppResult<Any>,
 ) : FunctionsClient {
     @Suppress("UNCHECKED_CAST")
     override suspend fun <I : Any, O : Any> call(
         name: String,
         input: I,
         inputSerializer: KSerializer<I>,
-        outputSerializer: KSerializer<O>
-    ): AppResult<O> {
-        return resultProvider(name, input) as AppResult<O>
-    }
+        outputSerializer: KSerializer<O>,
+    ): AppResult<O> = resultProvider(name, input) as AppResult<O>
 }
 
 class FunctionsClientTest {
@@ -65,15 +63,15 @@ class FunctionsClientTest {
         // By message
         assertEquals(
             AppError.Network,
-            mapFunctionsError(message = "Failed to connect to 10.0.2.2:5001")
+            mapFunctionsError(message = "Failed to connect to 10.0.2.2:5001"),
         )
         assertEquals(
             AppError.Network,
-            mapFunctionsError(message = "java.net.ConnectException: Connection refused")
+            mapFunctionsError(message = "java.net.ConnectException: Connection refused"),
         )
         assertEquals(
             AppError.Network,
-            mapFunctionsError(message = "Unable to resolve host \"example.com\"")
+            mapFunctionsError(message = "Unable to resolve host \"example.com\""),
         )
     }
 
@@ -100,14 +98,14 @@ class FunctionsClientTest {
     @Test
     fun mapFunctionsErrorMapsReasonWithExtra() {
         val fromMap = mapFunctionsError(
-            details = mapOf("reason" to "PRICE_OUT_OF_RANGE", "extra" to "too high")
+            details = mapOf("reason" to "PRICE_OUT_OF_RANGE", "extra" to "too high"),
         )
         assertIs<AppError.Reason>(fromMap)
         assertEquals("PRICE_OUT_OF_RANGE", fromMap.code)
         assertEquals("too high", fromMap.extra)
 
         val fromJsonString = mapFunctionsError(
-            details = """{"reason":"PRICE_OUT_OF_RANGE","extra":"too high"}"""
+            details = """{"reason":"PRICE_OUT_OF_RANGE","extra":"too high"}""",
         )
         assertIs<AppError.Reason>(fromJsonString)
         assertEquals("PRICE_OUT_OF_RANGE", fromJsonString.code)

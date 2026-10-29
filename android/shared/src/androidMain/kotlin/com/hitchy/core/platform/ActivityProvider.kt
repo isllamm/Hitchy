@@ -9,7 +9,9 @@ interface ActivityProvider {
     val currentActivity: Activity?
 }
 
-class AndroidActivityProvider : ActivityProvider, Application.ActivityLifecycleCallbacks {
+class AndroidActivityProvider :
+    ActivityProvider,
+    Application.ActivityLifecycleCallbacks {
     private var activityRef: WeakReference<Activity>? = null
 
     override val currentActivity: Activity?

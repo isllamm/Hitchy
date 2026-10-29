@@ -69,7 +69,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun DebugScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: DebugViewModel = koinViewModel()
+    viewModel: DebugViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
 
@@ -86,18 +86,18 @@ fun DebugScreen(
                 actions = {
                     Button(
                         onClick = { viewModel.onAction(DebugAction.Refresh) },
-                        contentPadding = ButtonDefaults.TextButtonContentPadding
+                        contentPadding = ButtonDefaults.TextButtonContentPadding,
                     ) {
                         Text(text = stringResource(Res.string.debug_refresh))
                     }
-                }
+                },
             )
-        }
+        },
     ) { innerPadding ->
         DebugContent(
             state = state,
             onAction = viewModel::onAction,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding),
         )
     }
 }
@@ -106,7 +106,7 @@ fun DebugScreen(
 fun DebugContent(
     state: DebugState,
     onAction: (DebugAction) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val scrollState = rememberScrollState()
 
@@ -115,7 +115,7 @@ fun DebugContent(
             .fillMaxSize()
             .verticalScroll(scrollState)
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         // Section 1: Build & Environment
         DebugCard(title = stringResource(Res.string.debug_section_build)) {
@@ -125,7 +125,7 @@ fun DebugContent(
             DebugRow(label = stringResource(Res.string.debug_label_version), value = state.versionName)
             DebugRow(
                 label = stringResource(Res.string.debug_label_uid),
-                value = state.uid ?: stringResource(Res.string.debug_not_signed_in)
+                value = state.uid ?: stringResource(Res.string.debug_not_signed_in),
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -134,7 +134,7 @@ fun DebugContent(
                 if (state.useEmulator) {
                     Button(
                         onClick = { onAction(DebugAction.SignInAnonymously) },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     ) {
                         Text(text = stringResource(Res.string.debug_sign_in_anon))
                     }
@@ -142,13 +142,13 @@ fun DebugContent(
                     Text(
                         text = stringResource(Res.string.debug_sign_in_required),
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error
+                        color = MaterialTheme.colorScheme.error,
                     )
                 }
             } else {
                 OutlinedButton(
                     onClick = { onAction(DebugAction.SignOut) },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     Text(text = stringResource(Res.string.debug_sign_out))
                 }
@@ -163,7 +163,7 @@ fun DebugContent(
             Text(
                 text = stringResource(Res.string.debug_label_remote_config),
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
             )
             if (state.remoteConfigValues.isEmpty()) {
                 Text(text = "Loading...", style = MaterialTheme.typography.bodySmall)
@@ -180,19 +180,19 @@ fun DebugContent(
                 Text(
                     text = stringResource(Res.string.debug_pricing_sign_in_required),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.error
+                    color = MaterialTheme.colorScheme.error,
                 )
             } else if (state.isPricingLoading && state.pricingConfig == null) {
                 Text(
                     text = stringResource(Res.string.debug_pricing_loading),
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
                 )
             } else if (state.pricingConfig != null) {
                 PricingRows(config = state.pricingConfig)
             } else {
                 Text(
                     text = "No pricing config found",
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
                 )
             }
         }
@@ -202,9 +202,9 @@ fun DebugContent(
             onClick = { onAction(DebugAction.TestCrash) },
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.error,
-                contentColor = MaterialTheme.colorScheme.onError
+                contentColor = MaterialTheme.colorScheme.onError,
             ),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             Text(text = stringResource(Res.string.debug_test_crash))
         }
@@ -215,54 +215,54 @@ fun DebugContent(
 private fun PricingRows(config: PricingConfig) {
     DebugRow(
         label = stringResource(Res.string.debug_fuel_price),
-        value = "${config.fuelPriceEgpPerLiter} EGP"
+        value = "${config.fuelPriceEgpPerLiter} EGP",
     )
     DebugRow(
         label = stringResource(Res.string.debug_car_consumption),
-        value = "${config.litersPer100Km.car} L/100km"
+        value = "${config.litersPer100Km.car} L/100km",
     )
     val scooterLiters = config.litersPer100Km.scooter?.let { "$it L/100km" }
         ?: stringResource(Res.string.debug_disabled)
     DebugRow(
         label = stringResource(Res.string.debug_scooter_consumption),
-        value = scooterLiters
+        value = scooterLiters,
     )
     DebugRow(
         label = stringResource(Res.string.debug_running_cost),
-        value = "${config.runningCostEgpPerKm.car} EGP/km"
+        value = "${config.runningCostEgpPerKm.car} EGP/km",
     )
     val trafficStr = config.trafficFactor.entries.joinToString(", ") { "${it.key}:${it.value}" }
     DebugRow(
         label = stringResource(Res.string.debug_traffic_factors),
-        value = trafficStr
+        value = trafficStr,
     )
     DebugRow(
         label = stringResource(Res.string.debug_margin_cap),
-        value = "${(config.marginCap * 100).toInt()}%"
+        value = "${(config.marginCap * 100).toInt()}%",
     )
     DebugRow(
         label = stringResource(Res.string.debug_max_seats),
-        value = "Car ${config.maxSeats.car}, Scooter ${config.maxSeats.scooter}"
+        value = "Car ${config.maxSeats.car}, Scooter ${config.maxSeats.scooter}",
     )
 }
 
 @Composable
 private fun DebugCard(
     title: String,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
             )
             content()
         }
@@ -272,23 +272,23 @@ private fun DebugCard(
 @Composable
 private fun DebugRow(
     label: String,
-    value: String
+    value: String,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         )
         Text(
             text = value,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }

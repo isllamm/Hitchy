@@ -5,7 +5,7 @@ import android.content.Intent
 
 class AndroidSharer(
     private val context: Context,
-    private val activityProvider: ActivityProvider? = null
+    private val activityProvider: ActivityProvider? = null,
 ) : Sharer {
 
     override fun shareText(text: String) {

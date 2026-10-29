@@ -40,5 +40,5 @@ val featureModules = listOf(
     debugModule,
     placesModule,
     chatModule,
-    inboxModule
+    inboxModule,
 )
