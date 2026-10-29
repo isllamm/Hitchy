@@ -1,0 +1,14 @@
+[
+  {
+    "id": "test_company_a",
+    "name": { "ar": "شركة تجريبية أ", "en": "Test Company A" },
+    "zoneId": "smart_village",
+    "active": true
+  },
+  {
+    "id": "test_company_b",
+    "name": { "ar": "شركة تجريبية ب", "en": "Test Company B" },
+    "zoneId": "fifth_settlement",
+    "active": true
+  }
+]

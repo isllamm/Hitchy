@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "items": [
+    { "id": "p10", "trips": 10, "priceEgp": 99, "bucket": "regular" },
+    { "id": "p20", "trips": 20, "priceEgp": 179, "bucket": "regular" },
+    { "id": "p30", "trips": 30, "priceEgp": 249, "bucket": "regular" },
+    { "id": "fixed40", "trips": 40, "priceEgp": 249, "bucket": "fixed" }
+  ],
+  "freeMonthDays": 30,
+  "instapayAddress": "TODO-HUMAN",
+  "maxPendingOrders": 3,
+  "lowBalanceAlert": 2
+}

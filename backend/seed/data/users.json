@@ -1,0 +1,87 @@
+[
+  {
+    "uid": "rider-test-uid",
+    "email": "rider@test",
+    "phone": "+201000000001",
+    "firstName": "Rider",
+    "lastName": "Test",
+    "gender": "male",
+    "activeRole": "rider",
+    "language": "ar"
+  },
+  {
+    "uid": "rider-w-test-uid",
+    "email": "rider-w@test",
+    "phone": "+201000000002",
+    "firstName": "RiderW",
+    "lastName": "Test",
+    "gender": "female",
+    "activeRole": "rider",
+    "language": "ar"
+  },
+  {
+    "uid": "host-test-uid",
+    "email": "host@test",
+    "phone": "+201000000003",
+    "firstName": "Host",
+    "lastName": "Test",
+    "gender": "male",
+    "activeRole": "host",
+    "language": "ar",
+    "hostApproved": true,
+    "vehicle": {
+      "id": "vehicle-host-1",
+      "type": "car",
+      "make": "Toyota",
+      "model": "Corolla",
+      "year": 2022,
+      "color": "Silver",
+      "plate": "س ص ع 123",
+      "maxSeats": 3,
+      "status": "approved"
+    }
+  },
+  {
+    "uid": "host-w-test-uid",
+    "email": "host-w@test",
+    "phone": "+201000000004",
+    "firstName": "HostW",
+    "lastName": "Test",
+    "gender": "female",
+    "activeRole": "host",
+    "language": "ar",
+    "hostApproved": true,
+    "vehicle": {
+      "id": "vehicle-host-w-1",
+      "type": "car",
+      "make": "Hyundai",
+      "model": "Elantra",
+      "year": 2021,
+      "color": "White",
+      "plate": "أ ب ج 456",
+      "maxSeats": 3,
+      "status": "approved"
+    }
+  },
+  {
+    "uid": "admin-test-uid",
+    "email": "admin@test",
+    "phone": "+201000000005",
+    "firstName": "Admin",
+    "lastName": "Test",
+    "gender": "male",
+    "activeRole": "rider",
+    "language": "en",
+    "isAdmin": true
+  },
+  {
+    "uid": "host-new-test-uid",
+    "email": "host-new@test",
+    "phone": "+201000000006",
+    "firstName": "HostNew",
+    "lastName": "Test",
+    "gender": "male",
+    "activeRole": "rider",
+    "language": "ar"
+  }
+]

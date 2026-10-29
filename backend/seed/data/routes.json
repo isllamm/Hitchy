@@ -1,0 +1,14 @@
+[
+  {
+    "fromZone": "fifth_settlement",
+    "toZone": "smart_village",
+    "distanceKm": 55,
+    "usualMinutes": 65
+  },
+  {
+    "fromZone": "smart_village",
+    "toZone": "fifth_settlement",
+    "distanceKm": 55,
+    "usualMinutes": 65
+  }
+]
