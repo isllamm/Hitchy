@@ -7,9 +7,17 @@ export default defineConfig({
       {
         extends: true,
         test: {
-          name: "default",
-          include: ["test/**/*.test.ts"],
-          exclude: ["test/rules/**"],
+          name: "unit",
+          include: ["test/unit/**/*.test.ts"],
+        },
+      },
+      {
+        // Integration tests share the emulator database, so their files run one at a time.
+        extends: true,
+        test: {
+          name: "integration",
+          include: ["test/integration/**/*.test.ts"],
+          fileParallelism: false,
         },
       },
       {

@@ -13,7 +13,8 @@
     "test:unit": "vitest run test/unit",
     "test": "firebase emulators:exec --project demo-hitchy \"vitest run\"",
     "emulators": "firebase emulators:start --project demo-hitchy",
-    "seed": "tsx ../seed/seed.ts"
+    "seed": "tsx ../seed/seed.ts",
+    "set-admin": "tsx ../scripts/set-admin.ts"
   },
   "dependencies": {
     "firebase-admin": "14.5.0",
