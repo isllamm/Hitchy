@@ -970,7 +970,7 @@ Every function below is the exact spec. Inputs go in `schemas/inputs.ts` (zod), 
   3. Admin functions: `request.auth.token.admin === true` → else `PERMISSION_DENIED`.
   4. Profile required (all except `completeProfile` and admin functions): `users/{uid}` exists → else `PROFILE_REQUIRED`. Admin dashboard accounts have no profile (ADR 0003).
   5. Not suspended (all except read-only, safety, account and admin functions) → else `SUSPENDED`.
-  6. Input parses with zod → else `INVALID_INPUT` (with the failing field paths in `extra`).
+  6. Input parses with zod → else `INVALID_INPUT` (with the failing field paths in `extra`). Input objects are strict (an unknown field fails), and text is trimmed before its length is checked (ADR 0003).
 - Instants in inputs and outputs are ISO-8601 UTC strings.
 - Each handler exports a pure-ish core for tests: `export async function requestSeatsCore(input, ctx)`. The callable is one line: `export const requestSeats = makeCallable("requestSeats", RequestSeatsInput, requestSeatsCore)`.
 - Notifications are sent after the transaction commits, never inside it.
@@ -2149,7 +2149,7 @@ The criminal record can be uploaded at any time, so an approved host can ask for
 
 ### P1-B03 · Schemas
 
-- **Files:** `src/schemas/docs.ts` (all of section 6; written in P1-B02, this task checks it), `src/schemas/io.ts` (8.2), `src/schemas/inputs.ts` (inputs of Phases 4 to 8; later phases add theirs).
+- **Files:** `src/schemas/docs.ts` (all of section 6; written in P1-B02, this task checks it), `src/schemas/io.ts` (8.2 and the outputs of Phases 4 to 8), `src/schemas/inputs.ts` (inputs of Phases 4 to 8; later phases add theirs).
 - **Done when:** types compile; each zod schema has a unit test with one valid and one invalid example.
 
 ### P1-B04 · Pricing and geo

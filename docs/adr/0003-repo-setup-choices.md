@@ -2,7 +2,7 @@
 
 - **Status:** accepted
 - **Date:** 2026-10-28
-- **Source:** setup of the repo skeleton (P0-A01), CLAUDE.md and the CI/CD workflows; rows 12 to 18 from the backend scaffold (P1-B01, 2026-10-29); rows 19 to 22 from the shared backend library (P1-B02, 2026-10-29)
+- **Source:** setup of the repo skeleton (P0-A01), CLAUDE.md and the CI/CD workflows; rows 12 to 18 from the backend scaffold (P1-B01, 2026-10-29); rows 19 to 22 from the shared backend library (P1-B02, 2026-10-29); rows 23 to 25 from the schemas (P1-B03, 2026-10-29)
 
 ## Context
 
@@ -34,6 +34,9 @@ The repo was set up from [docs/BUILD_PLAN.md](../BUILD_PLAN.md) on 2026-10-28. A
 | 20 | `schemas/config.ts` holds plain TypeScript types for the five config docs from P1-B02. | P5-B05 adds `schemas/config.ts` with zod | `getConfig` must be typed now. P5-B05 adds the zod schemas in the same file and derives the types from them. |
 | 21 | `ADMIN_URL` is a map from project to URL, `"TODO-HUMAN"` for now `[DECISION-16]`. | `ADMIN_URL` in `lib/app.ts` | The admin Hosting sites only exist after P5-W01; admin alerts start in Phase 5. |
 | 22 | Admin functions skip the profile and suspended checks in `makeCallable`. | 8.1: every function except `completeProfile` needs a profile | Dashboard accounts sign in with Google and have no `users/{uid}`. Section 8.1 now says so. |
+| 23 | `schemas/io.ts` holds 8.2 plus the output type of every Phase 4–8 callable. | P1-B03 lists io.ts as "8.2" | Section 4.2 says io.ts holds all outputs, section 8 specifies them, and P1-B10's contract test needs them. |
+| 24 | Callable input objects are strict: an unknown field is `INVALID_INPUT`. | Not covered | Catches app bugs and typos early; the contract changes before the apps, so apps never send fields the server doesn't know. |
+| 25 | Text inputs are trimmed before their length is checked; chat text keeps its inner lines and spaces. | Not covered | A name of only spaces must fail the 1-character minimum, and stored values stay clean. |
 
 ## Consequences
 
