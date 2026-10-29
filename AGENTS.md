@@ -8,7 +8,7 @@ Decisions: docs/adr/ (0001 = architecture, 0002 = pinned versions and open point
 Plan v1.1 (BUILD_PLAN 2.1) changed the product after the design review: owners accept each booking (a request holds its seats), one booking can hold several seats, chat and calls after acceptance, payment confirmation, an inbox. The app's text says "Owner"; code and data say `host`.
 
 ## Status
-Phase 2 (Android foundation) is in progress. Done: P2-A01 project and modules (app + shared, Gradle 9.8.2, AGP 9.5.0, Kotlin 2.4.21, Compose Multiplatform 1.12.2). Next: P2-A02 convention plugins in build-logic/convention. The admin web project arrives in P5-W01; until then its CI workflow skips its jobs.
+Phase 2 (Android foundation) is in progress. Done: P2-A01 project and modules (app + shared, Gradle 9.8.2, AGP 9.5.0, Kotlin 2.4.21, Compose Multiplatform 1.12.2), P2-A02 convention plugins (hitchy.android.application and hitchy.kmp.library in build-logic/convention). Next: P2-A03 flavors, signing, build config. The admin web project arrives in P5-W01; until then its CI workflow skips its jobs.
 
 ## Layout
 - backend/ — Firebase: functions (TypeScript), rules, indexes, seed data
@@ -106,6 +106,7 @@ List files changed, test results, and any [HUMAN] or [DECISION] items.
 | 2026-10-29 | P1-B10 Contract v1: firestore.md, functions.md, errors.md, 60 fixtures, 454 tests | PR #16 |
 | 2026-10-29 | P1-B11 Backend CI in .github/workflows/backend.yml | PR #17 |
 | 2026-10-29 | P2-A01 Android project and modules (app + shared, CMP "Hello Hitchy") | PR #18 |
+| 2026-10-29 | P2-A02 Convention plugins in build-logic/convention | PR #19 |
 
 Deploy jobs skip until each GitHub environment has its Phase 0 secrets (ADR 0003 row 18).
 
