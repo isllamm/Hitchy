@@ -119,6 +119,7 @@ List files changed, test results, and any [HUMAN] or [DECISION] items.
 | 2026-10-29 | P2-A10 Platform interfaces: 7 core platform interfaces, fakes, Android implementations, DI wiring | PR #27 |
 | 2026-10-29 | P2-A11 Debug screen: DEV-only route, versionName in AppConfig, live pricing, anon emulator auth, BoM messaging/config | PR #29 |
 | 2026-10-30 | P2-A12 Code quality: hitchy.quality convention plugin, detekt 1.23.8, Spotless 8.10.4, ktlint 1.8.0, Lint baselines, LeakCanary 2.14, 4 Konsist architecture tests | PR #30 |
+| 2026-10-30 | P2-A13 Contract DTO tests: 30 callable DTOs, encodeDefaults = false, ContractDtoTest 60 fixtures | PR #33 |
 
 Deploy jobs skip until each GitHub environment has its Phase 0 secrets (ADR 0003 row 18).
 
