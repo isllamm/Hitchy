@@ -8,9 +8,84 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinBaseExtension
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.plugin.compose")
+    id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
 }
 
 val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
+
+val prodGoogleServices = file("src/prod/google-services.json")
+val isProdPlaceholder = if (!prodGoogleServices.exists() || prodGoogleServices.length() < 10) {
+    prodGoogleServices.parentFile.mkdirs()
+    prodGoogleServices.writeText(
+        """
+        {
+          "project_info": {
+            "project_number": "000000000000",
+            "project_id": "demo-hitchy",
+            "storage_bucket": "demo-hitchy.appspot.com"
+          },
+          "client": [
+            {
+              "client_info": {
+                "mobilesdk_app_id": "1:000000000000:android:0000000000000000000000",
+                "android_client_info": {
+                  "package_name": "com.hitchy.app"
+                }
+              },
+              "oauth_client": [],
+              "api_key": [
+                {
+                  "current_key": "AIzaSyDummyPlaceholderKeyForLocalBuildsOnly"
+                }
+              ],
+              "services": {}
+            }
+          ],
+          "configuration_version": "1"
+        }
+        """.trimIndent()
+    )
+    logger.warn("WARNING: app/src/prod/google-services.json missing; generated demo-hitchy placeholder.")
+    true
+} else {
+    prodGoogleServices.readText().contains("demo-hitchy")
+}
+
+val devGoogleServices = file("src/dev/google-services.json")
+if (!devGoogleServices.exists() || devGoogleServices.length() < 10) {
+    devGoogleServices.parentFile.mkdirs()
+    devGoogleServices.writeText(
+        """
+        {
+          "project_info": {
+            "project_number": "000000000000",
+            "project_id": "demo-hitchy",
+            "storage_bucket": "demo-hitchy.appspot.com"
+          },
+          "client": [
+            {
+              "client_info": {
+                "mobilesdk_app_id": "1:000000000000:android:0000000000000000000000",
+                "android_client_info": {
+                  "package_name": "com.hitchy.app.dev"
+                }
+              },
+              "oauth_client": [],
+              "api_key": [
+                {
+                  "current_key": "AIzaSyDummyPlaceholderKeyForLocalBuildsOnly"
+                }
+              ],
+              "services": {}
+            }
+          ],
+          "configuration_version": "1"
+        }
+        """.trimIndent()
+    )
+    logger.warn("WARNING: app/src/dev/google-services.json missing; generated demo-hitchy placeholder.")
+}
 
 val versionCodeProp = providers.gradleProperty("hitchy.versionCode").orNull?.toIntOrNull() ?: 1
 val versionNameProp = providers.gradleProperty("hitchy.versionName").orNull ?: "0.1.0"
@@ -20,7 +95,7 @@ configure<ApplicationExtension> {
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.hitchy"
+        applicationId = "com.hitchy.app"
         minSdk = 26
         targetSdk = 36
         versionCode = versionCodeProp
@@ -49,17 +124,25 @@ configure<ApplicationExtension> {
             this.keyAlias = keyAlias
             this.keyPassword = keyPassword
         }
-    } else if (isCi) {
+    } else if (!isCi) {
+        logger.warn("WARNING: Release keystore environment variables unset; falling back to debug signing key for local build.")
+    }
+
+    if (isCi) {
         gradle.taskGraph.whenReady {
             val isReleaseBuild = allTasks.any { it.name.contains("Release", ignoreCase = true) }
-            if (isReleaseBuild) {
+            if (isReleaseBuild && !hasKeystoreVars) {
                 throw org.gradle.api.GradleException(
                     "Missing release keystore environment variables (HITCHY_KEYSTORE_PATH, HITCHY_KEYSTORE_PASSWORD, HITCHY_KEY_ALIAS, HITCHY_KEY_PASSWORD) in CI environment."
                 )
             }
+            val isProdRelease = allTasks.any { it.name.contains("ProdRelease", ignoreCase = true) }
+            if (isProdRelease && isProdPlaceholder) {
+                throw org.gradle.api.GradleException(
+                    "Cannot build prodRelease with placeholder google-services.json in CI. Please provide GOOGLE_SERVICES_PROD secret."
+                )
+            }
         }
-    } else {
-        logger.warn("WARNING: Release keystore environment variables unset; falling back to debug signing key for local build.")
     }
 
     buildTypes {
@@ -77,7 +160,6 @@ configure<ApplicationExtension> {
             }
         }
         debug {
-            applicationIdSuffix = ".debug"
         }
     }
 

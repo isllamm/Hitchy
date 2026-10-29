@@ -8,7 +8,7 @@ Decisions: docs/adr/ (0001 = architecture, 0002 = pinned versions and open point
 Plan v1.1 (BUILD_PLAN 2.1) changed the product after the design review: owners accept each booking (a request holds its seats), one booking can hold several seats, chat and calls after acceptance, payment confirmation, an inbox. The app's text says "Owner"; code and data say `host`.
 
 ## Status
-Phase 2 (Android foundation) is in progress. Done: P2-A01 project and modules (app + shared, Gradle 9.8.2, AGP 9.5.0, Kotlin 2.4.21, Compose Multiplatform 1.12.2), P2-A02 convention plugins (hitchy.android.application and hitchy.kmp.library in build-logic/convention), P2-A03 flavors, signing, build config, P2-A04 core utilities. Next: P2-A05 Firebase wiring. The admin web project arrives in P5-W01; until then its CI workflow skips its jobs.
+Phase 2 (Android foundation) is in progress. Done: P2-A01 project and modules (app + shared, Gradle 9.8.2, AGP 9.5.0, Kotlin 2.4.21, Compose Multiplatform 1.12.2), P2-A02 convention plugins (hitchy.android.application and hitchy.kmp.library in build-logic/convention), P2-A03 flavors, signing, build config, P2-A04 core utilities, P2-A05 Firebase wiring. Next: P2-A06 Koin dependency injection. The admin web project arrives in P5-W01; until then its CI workflow skips its jobs.
 
 ## Layout
 - backend/ — Firebase: functions (TypeScript), rules, indexes, seed data
@@ -109,6 +109,7 @@ List files changed, test results, and any [HUMAN] or [DECISION] items.
 | 2026-10-29 | P2-A02 Convention plugins in build-logic/convention | PR #19 |
 | 2026-10-29 | P2-A03 Flavors, signing, build config, AppConfig | PR #20 |
 | 2026-10-29 | P2-A04 Core utilities: AppError, AppResult, Clock, CairoTime, MoneyFormat, PhoneNumber | PR #21 |
+| 2026-10-29 | P2-A05 Firebase wiring: emulator config, FunctionsClient, App Check, Crashlytics | PR #22 |
 
 Deploy jobs skip until each GitHub environment has its Phase 0 secrets (ADR 0003 row 18).
 
@@ -118,7 +119,7 @@ Deploy jobs skip until each GitHub environment has its Phase 0 secrets (ADR 0003
 - [HUMAN] hitchy-dev is on the free Spark plan (2026-10-29): Firestore in europe-west1, Phone sign-in with test numbers, dev apps registered; no Storage bucket and no Cloud Functions. It moves to Blaze only when we need a shared cloud dev. Until then, do not add the GitHub `dev` environment secrets (GCP_WIF_PROVIDER, GCP_SERVICE_ACCOUNT, FIREBASE_ANDROID_APP_ID): CI would start deploying to hitchy-dev and fail. BUILD_PLAN Phase 0 lists the steps for the move.
 - [HUMAN] The iOS teammate's GitHub username in .github/CODEOWNERS.
 - [DECISION-01] Functions region is the default `europe-west1`. [DECISION-16] `ADMIN_URL` in backend/functions/src/lib/app.ts is "TODO-HUMAN" until P5-W01 creates the admin sites.
-- To check later: detekt 1.23.8 with Kotlin 2.4 (P2-A12); Firebase BoM 35 with GitLive 2.7.0 (P2-A05).
+- To check later: detekt 1.23.8 with Kotlin 2.4 (P2-A12).
 
 ## Local setup (Islam's Mac)
 - Node 24.22.1 from Homebrew (`node@24`, put on PATH in ~/.zshrc) with npm 11; Java 21 (Temurin) is the default `java` for the Firebase emulators; Android uses JDK 17.
