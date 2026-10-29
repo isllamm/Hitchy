@@ -113,6 +113,7 @@ List files changed, test results, and any [HUMAN] or [DECISION] items.
 | 2026-10-29 | P2-A06 Dependency injection: Koin BOM 4.2.2, DataStore AppSettings, 15 feature modules, verify() test | PR #23 |
 | 2026-10-29 | P2-A07 Navigation and deep links: 38 routes, DeepLinks.parse, HitchyNavHost, 29 tests | PR #24 |
 | 2026-10-29 | P2-A08 Screen pattern: MviViewModel, AppError.message(), SampleScreen and test | PR #25 |
+| 2026-10-29 | P2-A09 Strings and language: AppLanguage, LanguageSwitcher, default Arabic, 71 error strings, ErrorCatalogTest | PR #26 |
 
 Deploy jobs skip until each GitHub environment has its Phase 0 secrets (ADR 0003 row 18).
 
