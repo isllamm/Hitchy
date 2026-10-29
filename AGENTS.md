@@ -47,6 +47,7 @@ Android (android/):
 - Each feature has data/ (repository implementations), domain/ (interfaces, pure Kotlin), presentation/ (MviViewModel<State, Action, Event>) and ui/ (Compose). Konsist tests enforce: domain and core.model import no Firebase or Android; ViewModels live in presentation; ui never imports data.
 - Build values (ENV, functions region, emulator flag) reach shared through AppConfig in Koin, never through BuildConfig.
 - core/data/dto mirrors the contract; a test decodes every file in contract/fixtures strictly.
+- Maps: only the Maps SDK map without a map ID; never Directions, Routes, Places, Geocoding or Street View (paid). Route lines are straight lines between points. The key comes from `MAPS_API_KEY` in android/local.properties or CI, never committed (BUILD_PLAN 5.10).
 
 Contract: backend/functions/src/schemas/ is the source of truth; contract/ mirrors it for the iOS app.
 
@@ -121,7 +122,7 @@ Deploy jobs skip until each GitHub environment has its Phase 0 secrets (ADR 0003
 ## Open items
 - [HUMAN] The GitHub repo isllamm/Hitchy is public; the plan (P0-H01) says private.
 - [HUMAN] Phase 0: Firebase projects hitchy-dev and hitchy-prod, region, phone sign-in, Android apps, release key, App Check, CI access (Workload Identity) and secrets, TTL policies on idempotency, notifications and messages, the auto-stop in hitchy-dev, the cleanup rule for old function builds, and the Storage permission to read Firestore (P0-H01 to P0-H15).
-- [HUMAN] hitchy-dev is on the free Spark plan (2026-10-29): Firestore in europe-west1, Phone sign-in with test numbers, dev apps registered; no Storage bucket and no Cloud Functions. It moves to Blaze only when we need a shared cloud dev. Until then, do not add the GitHub `dev` environment secrets (GCP_WIF_PROVIDER, GCP_SERVICE_ACCOUNT, FIREBASE_ANDROID_APP_ID): CI would start deploying to hitchy-dev and fail. BUILD_PLAN Phase 0 lists the steps for the move.
+- [HUMAN] Both projects are on Blaze and set up to cost 0 USD (2026-10-29, BUILD_PLAN Phase 0 "Keeping both projects at 0 USD"): Storage bucket in us-central1 (free tier), no real text messages until launch (SMS region policy allows no region), and only the free map (BUILD_PLAN 5.10). Still to do in hitchy-dev: budget alerts, auto-stop, Storage bucket, P0-H15, then the `dev` environment secrets (CI starts deploying when they exist), then P0-H14. Before launch: check that ID photos may be stored in the US under Egypt's data protection law.
 - [HUMAN] The iOS teammate's GitHub username in .github/CODEOWNERS.
 - [DECISION-01] Functions region is the default `europe-west1`. [DECISION-16] `ADMIN_URL` in backend/functions/src/lib/app.ts is "TODO-HUMAN" until P5-W01 creates the admin sites.
 - To check later: detekt 1.23.8 with Kotlin 2.4 (P2-A12).
