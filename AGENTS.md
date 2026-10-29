@@ -106,6 +106,7 @@ Deploy jobs skip until each GitHub environment has its Phase 0 secrets (ADR 0003
 ## Open items
 - [HUMAN] The GitHub repo isllamm/Hitchy is public; the plan (P0-H01) says private.
 - [HUMAN] Phase 0: Firebase projects hitchy-dev and hitchy-prod, region, phone sign-in, Android apps, release key, App Check, CI access (Workload Identity) and secrets, TTL policies on idempotency, notifications and messages, the auto-stop in hitchy-dev, the cleanup rule for old function builds, and the Storage permission to read Firestore (P0-H01 to P0-H15).
+- [HUMAN] hitchy-dev is on the free Spark plan (2026-10-29): Firestore in europe-west1, Phone sign-in with test numbers, dev apps registered; no Storage bucket and no Cloud Functions. It moves to Blaze only when we need a shared cloud dev. Until then, do not add the GitHub `dev` environment secrets (GCP_WIF_PROVIDER, GCP_SERVICE_ACCOUNT, FIREBASE_ANDROID_APP_ID): CI would start deploying to hitchy-dev and fail. BUILD_PLAN Phase 0 lists the steps for the move.
 - [HUMAN] The iOS teammate's GitHub username in .github/CODEOWNERS.
 - [DECISION-01] Functions region is the default `europe-west1`. [DECISION-16] `ADMIN_URL` in backend/functions/src/lib/app.ts is "TODO-HUMAN" until P5-W01 creates the admin sites.
 - To check later: detekt 1.23.8 with Kotlin 2.4 (P2-A12); Firebase BoM 35 with GitLive 2.7.0 (P2-A05).
