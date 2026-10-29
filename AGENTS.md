@@ -5,6 +5,7 @@ Shared guidance for every AI coding agent in this repository: Claude Code, Googl
 Hitchy: carpooling for Greater Cairo commuters. Riders are free; hosts buy trip packages.
 Full spec: docs/BUILD_PLAN.md. Read its sections 1–10 before any task.
 Decisions: docs/adr/ (0001 = architecture, 0002 = pinned versions and open points, 0003 = where the repo differs from the plan, 0004 = design review).
+Rider designs: docs/design/rider-flow.md (screen index and flow map of the full rider design set; the images stay off the repo).
 Plan v1.1 (BUILD_PLAN 2.1) changed the product after the design review: owners accept each booking (a request holds its seats), one booking can hold several seats, chat and calls after acceptance, payment confirmation, an inbox. The app's text says "Owner"; code and data say `host`.
 
 ## Status
