@@ -14,24 +14,24 @@ object PhoneNumber {
         val trimmed = input.trim()
         if (trimmed.isEmpty()) return null
 
-        val ascii = buildString(trimmed.length) {
-            for (ch in trimmed) {
-                when (ch) {
-                    in '0'..'9' -> append(ch)
-                    in '\u0660'..'\u0669' -> append((ch - '\u0660' + '0'.code).toChar())
-                    in '\u06F0'..'\u06F9' -> append((ch - '\u06F0' + '0'.code).toChar())
-                    '+' -> if (isEmpty()) append('+') else return null
-                    ' ', '-', '.', '(', ')' -> continue
-                    else -> return null
-                }
+        val ascii = toAsciiDigits(trimmed) ?: return null
+
+        return VALID_E164_REGEX.matchEntire(ascii)?.value
+            ?: NATIONAL_REGEX.matchEntire(ascii)?.let { "+20${it.groupValues[1]}" }
+            ?: INTL_00_REGEX.matchEntire(ascii)?.let { "+20${it.groupValues[1]}" }
+            ?: INTL_20_REGEX.matchEntire(ascii)?.let { "+20${it.groupValues[1]}" }
+    }
+
+    private fun toAsciiDigits(input: String): String? = buildString(input.length) {
+        for (ch in input) {
+            when (ch) {
+                in '0'..'9' -> append(ch)
+                in '\u0660'..'\u0669' -> append((ch - '\u0660' + '0'.code).toChar())
+                in '\u06F0'..'\u06F9' -> append((ch - '\u06F0' + '0'.code).toChar())
+                '+' -> if (isEmpty()) append('+') else return null
+                ' ', '-', '.', '(', ')' -> continue
+                else -> return null
             }
         }
-
-        VALID_E164_REGEX.matchEntire(ascii)?.let { return it.value }
-        NATIONAL_REGEX.matchEntire(ascii)?.let { return "+20${it.groupValues[1]}" }
-        INTL_00_REGEX.matchEntire(ascii)?.let { return "+20${it.groupValues[1]}" }
-        INTL_20_REGEX.matchEntire(ascii)?.let { return "+20${it.groupValues[1]}" }
-
-        return null
     }
 }

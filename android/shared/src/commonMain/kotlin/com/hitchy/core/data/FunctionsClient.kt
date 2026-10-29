@@ -11,46 +11,53 @@ interface FunctionsClient {
         name: String,
         input: I,
         inputSerializer: KSerializer<I>,
-        outputSerializer: KSerializer<O>
+        outputSerializer: KSerializer<O>,
     ): AppResult<O>
 }
 
 suspend inline fun <reified I : Any, reified O : Any> FunctionsClient.call(
     name: String,
-    input: I
+    input: I,
 ): AppResult<O> = call(name, input, serializer<I>(), serializer<O>())
 
 class GitLiveFunctionsClient(
-    private val functions: FirebaseFunctions
+    private val functions: FirebaseFunctions,
 ) : FunctionsClient {
 
     constructor(region: String) : this(Firebase.functions(region = region))
 
+    @Suppress("TooGenericExceptionCaught")
     override suspend fun <I : Any, O : Any> call(
         name: String,
         input: I,
         inputSerializer: KSerializer<I>,
-        outputSerializer: KSerializer<O>
-    ): AppResult<O> {
-        return try {
-            val callable = functions.httpsCallable(name)
-            val result = callable(inputSerializer, input)
-            val data = result.data(outputSerializer)
-            AppResult.Ok(data)
-        } catch (t: Throwable) {
-            AppResult.Err(mapFunctionsError(t))
-        }
+        outputSerializer: KSerializer<O>,
+    ): AppResult<O> = try {
+        val callable = functions.httpsCallable(name)
+        val result = callable(inputSerializer, input)
+        val data = result.data(outputSerializer)
+        AppResult.Ok(data)
+    } catch (t: Throwable) {
+        AppResult.Err(mapFunctionsError(t))
     }
 }
+
+private val NetworkExceptionKeywords = listOf(
+    "ConnectException",
+    "UnknownHostException",
+    "SocketTimeoutException",
+    "SocketException",
+)
 
 /**
  * Pure function mapping Firebase / platform function errors to domain [AppError].
  */
+@Suppress("ReturnCount")
 fun mapFunctionsError(
     message: String? = null,
     code: String? = null,
     details: Any? = null,
-    cause: Throwable? = null
+    cause: Throwable? = null,
 ): AppError {
     // 1. Business error: details has reason (e.g. { reason: "RIDE_FULL", extra: "..." })
     val reason = extractReason(details)
@@ -85,7 +92,7 @@ fun mapFunctionsError(throwable: Throwable): AppError {
         message = message,
         code = info.code,
         details = info.details,
-        cause = throwable.cause ?: throwable
+        cause = throwable.cause ?: throwable,
     )
 }
 
@@ -99,6 +106,7 @@ private fun extractReason(details: Any?): AppError.Reason? {
                 return AppError.Reason(code = reason, extra = extra)
             }
         }
+
         is String -> {
             val reasonMatch = Regex(""""reason"\s*:\s*"([^"]+)"""").find(details)
             if (reasonMatch != null) {
@@ -114,11 +122,9 @@ private fun extractReason(details: Any?): AppError.Reason? {
 private fun isNetworkCause(throwable: Throwable?): Boolean {
     if (throwable == null) return false
     val name = throwable::class.simpleName ?: ""
-    if (name.contains("ConnectException") ||
-        name.contains("UnknownHostException") ||
-        name.contains("SocketTimeoutException") ||
-        name.contains("SocketException")
-    ) return true
+    if (NetworkExceptionKeywords.any { name.contains(it) }) {
+        return true
+    }
     return isNetworkCause(throwable.cause)
 }
 

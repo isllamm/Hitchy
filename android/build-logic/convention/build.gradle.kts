@@ -12,4 +12,6 @@ dependencies {
     compileOnly("org.jetbrains.compose:compose-gradle-plugin:${libs.findVersion("composeMultiplatform").get()}")
     implementation("com.google.gms:google-services:${libs.findVersion("googleServicesPlugin").get()}")
     implementation("com.google.firebase:firebase-crashlytics-gradle:${libs.findVersion("crashlyticsPlugin").get()}")
+    implementation("io.gitlab.arturbosch.detekt:detekt-gradle-plugin:${libs.findVersion("detekt").get()}")
+    implementation("com.diffplug.spotless:spotless-plugin-gradle:${libs.findVersion("spotless").get()}")
 }

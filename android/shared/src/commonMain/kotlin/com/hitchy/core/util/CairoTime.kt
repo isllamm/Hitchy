@@ -1,7 +1,5 @@
 package com.hitchy.core.util
 
-import kotlin.time.ExperimentalTime
-import kotlin.time.Instant
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -12,9 +10,15 @@ import kotlinx.datetime.isoDayNumber
 import kotlinx.datetime.minus
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 const val CAIRO = "Africa/Cairo"
 val CairoTimeZone: TimeZone = TimeZone.of(CAIRO)
+
+private const val MINUTES_PER_HOUR = 60
+private const val MAX_HOUR = 23
+private const val MAX_MINUTE = 59
 
 // Minutes since midnight from "HH:mm", 0 … 1439. Throws if invalid or out of range.
 fun hhmmToMinutes(time: String): Int {
@@ -22,28 +26,24 @@ fun hhmmToMinutes(time: String): Int {
         ?: throw IllegalArgumentException("Invalid time format, expected \"HH:mm\": $time")
     val hours = match.groupValues[1].toInt()
     val minutes = match.groupValues[2].toInt()
-    if (hours !in 0..23 || minutes !in 0..59) {
+    if (hours !in 0..MAX_HOUR || minutes !in 0..MAX_MINUTE) {
         throw IndexOutOfBoundsException("Time out of range: $time")
     }
-    return hours * 60 + minutes
+    return hours * MINUTES_PER_HOUR + minutes
 }
 
 @OptIn(ExperimentalTime::class)
-fun toCairo(instant: Instant): LocalDateTime {
-    return instant.toLocalDateTime(CairoTimeZone)
-}
+fun toCairo(instant: Instant): LocalDateTime = instant.toLocalDateTime(CairoTimeZone)
 
 // The Cairo calendar date, "YYYY-MM-DD".
 @OptIn(ExperimentalTime::class)
-fun dateKey(instant: Instant): String {
-    return toCairo(instant).date.toString()
-}
+fun dateKey(instant: Instant): String = toCairo(instant).date.toString()
 
 // Minutes since Cairo midnight, 0 … 1439.
 @OptIn(ExperimentalTime::class)
 fun minuteOfDay(instant: Instant): Int {
     val t = toCairo(instant)
-    return t.hour * 60 + t.minute
+    return t.hour * MINUTES_PER_HOUR + t.minute
 }
 
 // Formats Cairo time as "HH:mm".
@@ -64,7 +64,7 @@ fun cairoDateTime(key: String, time: String): Instant {
         ?: throw IllegalArgumentException("Invalid time format, expected \"HH:mm\": $time")
     val hours = match.groupValues[1].toInt()
     val minutes = match.groupValues[2].toInt()
-    if (hours !in 0..23 || minutes !in 0..59) {
+    if (hours !in 0..MAX_HOUR || minutes !in 0..MAX_MINUTE) {
         throw IndexOutOfBoundsException("Time out of range: $time")
     }
     val local = LocalDateTime(date, LocalTime(hours, minutes))

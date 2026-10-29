@@ -1,3 +1,5 @@
+@file:Suppress("MagicNumber")
+
 package com.hitchy.core.ui
 
 import com.hitchy.core.data.AppError
@@ -15,7 +17,7 @@ class ErrorCatalogTest {
     data class ErrorEntry(
         val reason: String,
         val english: String,
-        val arabic: String
+        val arabic: String,
     )
 
     private fun findRepoRoot(): File {
@@ -31,18 +33,16 @@ class ErrorCatalogTest {
 
     private fun parseErrorsContract(contractFile: File): List<ErrorEntry> {
         val lines = contractFile.readLines()
-        val entries = mutableListOf<ErrorEntry>()
-
-        for (line in lines) {
+        return lines.mapNotNull { line ->
             val trimmed = line.trim()
-            if (!trimmed.startsWith("|") || !trimmed.endsWith("|")) continue
+            if (!trimmed.startsWith("|") || !trimmed.endsWith("|")) return@mapNotNull null
             val parts = trimmed.split("|").map { it.trim() }
-            if (parts.size < 5) continue
+            if (parts.size < 5) return@mapNotNull null
             val rawReason = parts[1]
-            if (!rawReason.startsWith("`") || !rawReason.endsWith("`")) continue
+            if (!rawReason.startsWith("`") || !rawReason.endsWith("`")) return@mapNotNull null
 
             val reason = rawReason.removeSurrounding("`")
-            if (reason.isEmpty() || reason == "Reason") continue
+            if (reason.isEmpty() || reason == "Reason") return@mapNotNull null
 
             val english: String
             val arabic: String
@@ -56,10 +56,8 @@ class ErrorCatalogTest {
                 arabic = parts[3]
             }
 
-            entries.add(ErrorEntry(reason = reason, english = english, arabic = arabic))
+            ErrorEntry(reason = reason, english = english, arabic = arabic)
         }
-
-        return entries
     }
 
     private fun parseStringsXml(file: File): Map<String, String> {
@@ -109,12 +107,12 @@ class ErrorCatalogTest {
             assertEquals(
                 entry.english,
                 enStrings[key],
-                "English text mismatch for key '$key' (${entry.reason})"
+                "English text mismatch for key '$key' (${entry.reason})",
             )
             assertEquals(
                 entry.arabic,
                 arStrings[key],
-                "Arabic text mismatch for key '$key' (${entry.reason})"
+                "Arabic text mismatch for key '$key' (${entry.reason})",
             )
         }
     }
@@ -132,7 +130,7 @@ class ErrorCatalogTest {
                 assertNotEquals(
                     Res.string.error_internal,
                     resource,
-                    "Reason ${entry.reason} mapped to fallback error_internal instead of dedicated resource"
+                    "Reason ${entry.reason} mapped to fallback error_internal instead of dedicated resource",
                 )
             }
         }

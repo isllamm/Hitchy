@@ -11,12 +11,17 @@ import java.io.ByteArrayOutputStream
 import kotlin.math.max
 import kotlin.math.roundToInt
 
+private const val ROTATE_90_DEG = 90f
+private const val ROTATE_180_DEG = 180f
+private const val ROTATE_270_DEG = 270f
+private const val MAX_JPEG_QUALITY = 100
+
 class AndroidImageCompressor : ImageCompressor {
 
     override suspend fun toJpeg(
         bytes: ByteArray,
         maxSidePx: Int,
-        quality: Int
+        quality: Int,
     ): ByteArray = withContext(Dispatchers.Default) {
         if (bytes.isEmpty()) return@withContext bytes
 
@@ -60,15 +65,7 @@ class AndroidImageCompressor : ImageCompressor {
             decodedBitmap
         }
 
-        val matrix = Matrix()
-        when (orientation) {
-            ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
-            ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
-            ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
-            ExifInterface.ORIENTATION_FLIP_HORIZONTAL -> matrix.postScale(-1f, 1f)
-            ExifInterface.ORIENTATION_FLIP_VERTICAL -> matrix.postScale(1f, -1f)
-        }
-
+        val matrix = createExifMatrix(orientation)
         val rotatedBitmap = if (!matrix.isIdentity) {
             Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.width, scaledBitmap.height, matrix, true)
         } else {
@@ -76,7 +73,17 @@ class AndroidImageCompressor : ImageCompressor {
         }
 
         val outputStream = ByteArrayOutputStream()
-        rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, quality.coerceIn(0, 100), outputStream)
+        rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, quality.coerceIn(0, MAX_JPEG_QUALITY), outputStream)
         outputStream.toByteArray()
+    }
+
+    private fun createExifMatrix(orientation: Int): Matrix = Matrix().apply {
+        when (orientation) {
+            ExifInterface.ORIENTATION_ROTATE_90 -> postRotate(ROTATE_90_DEG)
+            ExifInterface.ORIENTATION_ROTATE_180 -> postRotate(ROTATE_180_DEG)
+            ExifInterface.ORIENTATION_ROTATE_270 -> postRotate(ROTATE_270_DEG)
+            ExifInterface.ORIENTATION_FLIP_HORIZONTAL -> postScale(-1f, 1f)
+            ExifInterface.ORIENTATION_FLIP_VERTICAL -> postScale(1f, -1f)
+        }
     }
 }

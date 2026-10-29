@@ -1,5 +1,6 @@
 plugins {
     id("hitchy.android.application")
+    id("hitchy.quality")
 }
 
 dependencies {
@@ -28,4 +29,8 @@ dependencies {
 
     testImplementation(libs.kotlin.test.junit)
     testImplementation(libs.koin.test)
+
+    configurations.matching { it.name == "devDebugImplementation" }.all {
+        dependencies.add(project.dependencies.create(libs.leakcanary.android.get()))
+    }
 }
