@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Shared guidance for every AI coding agent in this repository: Claude Code, Google Antigravity and Gemini CLI. Antigravity loads this file by itself; CLAUDE.md and GEMINI.md import it. Edit this file, not those two.
+Shared guidance for every AI coding agent in this repository: Claude Code, OpenAI Codex, Google Antigravity and Gemini CLI. Codex and Antigravity load this file by themselves; CLAUDE.md and GEMINI.md import it. Edit this file, not those two. Keep it under 32 KiB: Codex stops reading project instructions after that by default.
 
 Hitchy: carpooling for Greater Cairo commuters. Riders are free; hosts buy trip packages.
 Full spec: docs/BUILD_PLAN.md. Read its sections 1–10 before any task.
