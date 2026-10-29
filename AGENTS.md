@@ -99,14 +99,13 @@ List files changed, test results, and any [HUMAN] or [DECISION] items.
 | 2026-10-29 | P1-B03 schemas: io.ts outputs and 32 strict zod inputs, 231 tests | PR #4 |
 | 2026-10-29 | P1-B04 pricing and geo domain logic, 257 tests | PR #6 |
 | 2026-10-29 | P1-B05 Firestore security rules matrix, 344 tests | PR #7 |
-| 2026-10-29 | P1-B06 Storage security rules and KYC cross-service checks, 368 tests | PR #8 |
+| 2026-10-29 | P1-B06 Storage security rules and KYC cross-service checks, 368 tests | PR #9 |
 
 Deploy jobs skip until each GitHub environment has its Phase 0 secrets (ADR 0003 row 18).
 
 ## Open items
 - [HUMAN] The GitHub repo isllamm/Hitchy is public; the plan (P0-H01) says private.
-- [HUMAN] Phase 0: Firebase projects hitchy-dev and hitchy-prod, region, phone sign-in, Android apps, release key, App Check, CI access (Workload Identity) and secrets, TTL policies on idempotency, notifications and messages, the auto-stop in hitchy-dev, and the cleanup rule for old function builds after the first deploy (P0-H01 to P0-H14).
-- [HUMAN] Storage rules cross-service permission: Firebase Storage service agent requires permission to read Firestore documents in hitchy-dev and hitchy-prod before the first deploy.
+- [HUMAN] Phase 0: Firebase projects hitchy-dev and hitchy-prod, region, phone sign-in, Android apps, release key, App Check, CI access (Workload Identity) and secrets, TTL policies on idempotency, notifications and messages, the auto-stop in hitchy-dev, the cleanup rule for old function builds, and the Storage permission to read Firestore (P0-H01 to P0-H15).
 - [HUMAN] The iOS teammate's GitHub username in .github/CODEOWNERS.
 - [DECISION-01] Functions region is the default `europe-west1`. [DECISION-16] `ADMIN_URL` in backend/functions/src/lib/app.ts is "TODO-HUMAN" until P5-W01 creates the admin sites.
 - To check later: detekt 1.23.8 with Kotlin 2.4 (P2-A12); Firebase BoM 35 with GitLive 2.7.0 (P2-A05).
