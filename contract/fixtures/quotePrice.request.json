@@ -1,0 +1,7 @@
+{
+  "vehicleId": "vehicle-host-1",
+  "fromZone": "fifth_settlement",
+  "toZone": "smart_village",
+  "departAt": "2026-11-02T05:30:00.000Z",
+  "seats": 2
+}

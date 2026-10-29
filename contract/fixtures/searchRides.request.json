@@ -1,0 +1,14 @@
+{
+  "fromZone": "fifth_settlement",
+  "toZone": "smart_village",
+  "fromPointId": "p1",
+  "date": "2026-11-02",
+  "time": "05:30",
+  "seats": 1,
+  "sort": "recommended",
+  "timeBand": "any",
+  "maxPrice": 60,
+  "minRating": 4.8,
+  "verifiedOnly": false,
+  "womenOnly": false
+}

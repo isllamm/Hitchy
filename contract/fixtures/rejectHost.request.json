@@ -1,0 +1,10 @@
+{
+  "uid": "host-test-uid",
+  "rejections": [
+    {
+      "doc": "drivingLicense",
+      "reason": "blurry"
+    }
+  ],
+  "note": "Document photo is blurry. Please upload a clear photo of your driving license."
+}

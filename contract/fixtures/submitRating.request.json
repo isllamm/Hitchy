@@ -1,0 +1,6 @@
+{
+  "rideId": "ride-test-1",
+  "toUid": "host-test-uid",
+  "stars": 5,
+  "tags": ["clean_car", "friendly", "on_time"]
+}
