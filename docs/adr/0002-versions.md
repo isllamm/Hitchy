@@ -1,6 +1,6 @@
 # 0002 · Versions
 
-- **Status:** backend versions accepted (P1-B01 on 2026-10-29). Android P2-A01 scaffold, P2-A02 convention plugins, P2-A04 core utilities, P2-A05 Firebase wiring, P2-A06 Koin dependency injection, and P2-A07 Navigation and deep links built with pinned versions (AGP 9.5.0, Gradle 9.8.2, Kotlin 2.4.21, Compose Multiplatform 1.12.2, compileSdk 37, targetSdk 36, minSdk 26, serialization 1.12.0, kotlinx-datetime 0.8.0, GitLive 2.7.0, Firebase BoM 34.18.0, Google Services plugin 4.5.0, Crashlytics plugin 3.0.8, Coroutines 1.11.0, Koin BOM 4.2.2, DataStore Preferences 1.3.0, navigation-compose 2.10.0). Other Android and admin web versions stay proposed until their tasks build with them.
+- **Status:** backend versions accepted (P1-B01 on 2026-10-29). Android P2-A01 scaffold, P2-A02 convention plugins, P2-A04 core utilities, P2-A05 Firebase wiring, P2-A06 Koin dependency injection, P2-A07 Navigation and deep links, and P2-A08 Screen pattern built with pinned versions (AGP 9.5.0, Gradle 9.8.2, Kotlin 2.4.21, Compose Multiplatform 1.12.2, compileSdk 37, targetSdk 36, minSdk 26, serialization 1.12.0, kotlinx-datetime 0.8.0, GitLive 2.7.0, Firebase BoM 34.18.0, Google Services plugin 4.5.0, Crashlytics plugin 3.0.8, Coroutines 1.11.0, Koin BOM 4.2.2, DataStore Preferences 1.3.0, navigation-compose 2.10.0, lifecycle-viewmodel-compose 2.11.0, lifecycle-runtime-compose 2.11.0, Turbine 1.2.1). Other Android and admin web versions stay proposed until their tasks build with them.
 - **Date:** 2026-10-28
 - **Source:** [docs/BUILD_PLAN.md](../BUILD_PLAN.md), section 4.4 and tasks P1-B01, P2-A01
 
@@ -42,6 +42,7 @@ These are the newest stable releases on 2026-10-28, checked against each other's
 | UI | Compose Multiplatform | 1.12.2 | |
 | UI | org.jetbrains.compose.material3:material3 | 1.9.0 | Material 3 now has its own version line; 1.9.0 is its newest stable (1.13.0 is in beta). |
 | ViewModel | org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose | 2.11.0 | |
+| UI | org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose | 2.11.0 | Not in 4.4: collectAsStateWithLifecycle in commonMain. |
 | Navigation | org.jetbrains.androidx.navigation:navigation-compose | 2.10.0 | |
 | DI | Koin BOM | 4.2.2 | koin-core, koin-compose, koin-compose-viewmodel, koin-android. |
 | Firebase in `commonMain` | GitLive firebase-kotlin-sdk | 2.7.0 | firebase-auth, -firestore, -functions, -storage. Built with Kotlin 2.2.21 and Firebase BoM 34.18.0. |

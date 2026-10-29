@@ -8,6 +8,8 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.androidx.navigation.compose)
+            implementation(libs.androidx.lifecycle.viewmodel.compose)
+            implementation(libs.androidx.lifecycle.runtime.compose)
             implementation(libs.gitlive.firebase.auth)
             implementation(libs.gitlive.firebase.firestore)
             implementation(libs.gitlive.firebase.functions)
@@ -32,6 +34,7 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.turbine)
         }
     }
 }
