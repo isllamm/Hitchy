@@ -1,0 +1,137 @@
+import { getApps, initializeApp } from "firebase-admin/app";
+import { getAuth } from "firebase-admin/auth";
+import { getFirestore } from "firebase-admin/firestore";
+import { beforeAll, describe, expect, it } from "vitest";
+import type { UserDoc, VehicleDoc, ZoneDoc } from "../../src/schemas/docs.js";
+import { runSeed, validateProjectTarget } from "../../src/seed/seed.js";
+
+const PROJECT_ID = "demo-hitchy";
+
+beforeAll(() => {
+  process.env["FIRESTORE_EMULATOR_HOST"] = "127.0.0.1:8080";
+  process.env["FIREBASE_AUTH_EMULATOR_HOST"] = "127.0.0.1:9099";
+  if (!getApps().some((a) => a.name === "test-admin")) {
+    initializeApp({ projectId: PROJECT_ID }, "test-admin");
+  }
+});
+
+describe("validateProjectTarget", () => {
+  it("defaults to demo-hitchy emulator when project is omitted or demo-hitchy", () => {
+    expect(validateProjectTarget(undefined)).toEqual({
+      isDev: false,
+      targetProject: "demo-hitchy",
+    });
+    expect(validateProjectTarget("demo-hitchy")).toEqual({
+      isDev: false,
+      targetProject: "demo-hitchy",
+    });
+  });
+
+  it("refuses unknown and production projects", () => {
+    expect(() => validateProjectTarget("prod")).toThrow(
+      /Refusing to seed unknown or production project/,
+    );
+    expect(() => validateProjectTarget("hitchy-prod")).toThrow(
+      /Refusing to seed unknown or production project/,
+    );
+    expect(() => validateProjectTarget("staging")).toThrow(
+      /Refusing to seed unknown or production project/,
+    );
+  });
+
+  it("refuses dev project when emulator environment variables are set", () => {
+    process.env["FIRESTORE_EMULATOR_HOST"] = "127.0.0.1:8080";
+    expect(() => validateProjectTarget("dev")).toThrow(
+      /Refusing to seed dev project with emulator environment variables set/,
+    );
+  });
+
+  it("refuses dev project when real data has TODO-HUMAN values", () => {
+    const savedFirestore = process.env["FIRESTORE_EMULATOR_HOST"];
+    const savedAuth = process.env["FIREBASE_AUTH_EMULATOR_HOST"];
+    delete process.env["FIRESTORE_EMULATOR_HOST"];
+    delete process.env["FIREBASE_AUTH_EMULATOR_HOST"];
+
+    try {
+      expect(() => validateProjectTarget("dev")).toThrow(
+        /Refusing to seed dev project while real values/,
+      );
+    } finally {
+      process.env["FIRESTORE_EMULATOR_HOST"] = savedFirestore;
+      process.env["FIREBASE_AUTH_EMULATOR_HOST"] = savedAuth;
+    }
+  });
+});
+
+describe("runSeed on emulator", () => {
+  it("seeds all documents, creates auth users with admin claim, and is idempotent", async () => {
+    const app = getApps().find((a) => a.name === "test-admin");
+    if (!app) {
+      throw new Error("Admin app not initialized");
+    }
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    // First run
+    const stats1 = await runSeed({ project: "demo-hitchy", silent: true });
+    expect(stats1).toEqual({
+      configs: 6,
+      zones: 4,
+      points: 12,
+      routes: 2,
+      companies: 2,
+      users: 6,
+      vehicles: 2,
+      kyc: 2,
+    });
+
+    // Check config documents
+    const pricingSnap = await db.doc("config/pricing").get();
+    expect(pricingSnap.exists).toBe(true);
+    expect(pricingSnap.data()?.["fuelPriceEgpPerLiter"]).toBe(22.25);
+
+    const adminsSnap = await db.doc("config/admins").get();
+    expect(adminsSnap.exists).toBe(true);
+    expect(adminsSnap.data()?.["uids"]).toContain("admin-test-uid");
+
+    // Check reference data
+    const zoneSnap = await db.doc("zones/fifth_settlement").get();
+    expect(zoneSnap.exists).toBe(true);
+    const zoneData = zoneSnap.data() as ZoneDoc;
+    expect(zoneData.name.en).toBe("Fifth Settlement");
+
+    const pointSnap = await db.doc("zones/fifth_settlement/points/p1").get();
+    expect(pointSnap.exists).toBe(true);
+
+    const routeSnap = await db.doc("routes/fifth_settlement__smart_village").get();
+    expect(routeSnap.exists).toBe(true);
+    expect(routeSnap.data()?.["distanceKm"]).toBe(55);
+    expect(routeSnap.data()?.["usualMinutes"]).toBe(65);
+
+    const companySnap = await db.doc("companies/test_company_a").get();
+    expect(companySnap.exists).toBe(true);
+
+    // Check users and auth claims
+    const userSnap = await db.doc("users/host-test-uid").get();
+    expect(userSnap.exists).toBe(true);
+    const userData = userSnap.data() as UserDoc;
+    expect(userData.host.status).toBe("approved");
+    expect(userData.host.verified).toBe(true);
+
+    const vehicleSnap = await db.doc("users/host-test-uid/vehicles/vehicle-host-1").get();
+    expect(vehicleSnap.exists).toBe(true);
+    const vehicleData = vehicleSnap.data() as VehicleDoc;
+    expect(vehicleData.status).toBe("approved");
+
+    const kycSnap = await db.doc("kyc/host-test-uid").get();
+    expect(kycSnap.exists).toBe(true);
+    expect(kycSnap.data()?.["status"]).toBe("approved");
+
+    const adminAuthUser = await auth.getUser("admin-test-uid");
+    expect(adminAuthUser.customClaims?.["admin"]).toBe(true);
+
+    // Second run (idempotency verification: must succeed and produce identical stats)
+    const stats2 = await runSeed({ project: "demo-hitchy", silent: true });
+    expect(stats2).toEqual(stats1);
+  });
+});

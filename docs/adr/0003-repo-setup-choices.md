@@ -2,7 +2,7 @@
 
 - **Status:** accepted
 - **Date:** 2026-10-28
-- **Source:** setup of the repo skeleton (P0-A01), CLAUDE.md and the CI/CD workflows; rows 12 to 18 from the backend scaffold (P1-B01, 2026-10-29); rows 19 to 22 from the shared backend library (P1-B02, 2026-10-29); rows 23 to 25 from the schemas (P1-B03, 2026-10-29); rows 27 to 30 from pricing and geo (P1-B04, 2026-10-29); rows 31 to 34 from Firestore rules (P1-B05, 2026-10-29); row 35 from Storage rules (P1-B06, 2026-10-29); row 36 from Indexes (P1-B07, 2026-10-29)
+- **Source:** setup of the repo skeleton (P0-A01), CLAUDE.md and the CI/CD workflows; rows 12 to 18 from the backend scaffold (P1-B01, 2026-10-29); rows 19 to 22 from the shared backend library (P1-B02, 2026-10-29); rows 23 to 25 from the schemas (P1-B03, 2026-10-29); rows 27 to 30 from pricing and geo (P1-B04, 2026-10-29); rows 31 to 34 from Firestore rules (P1-B05, 2026-10-29); row 35 from Storage rules (P1-B06, 2026-10-29); row 36 from Indexes (P1-B07, 2026-10-29); rows 37 to 39 from Seed data (P1-B08, 2026-10-29)
 
 ## Context
 
@@ -48,6 +48,9 @@ The repo was set up from [docs/BUILD_PLAN.md](../BUILD_PLAN.md) on 2026-10-28. A
 | 34 | Saved places and notification inbox rules are implemented and tested in P1-B05 as part of the full matrix. | P7-B06: "Saved places and the inbox in the rules" | Complete matrix coverage early; P7-B06 will only add its own feature-specific tests. |
 | 35 | Storage rules enforce `request.resource.size > 0` on KYC documents and avatars in addition to the upper size bounds (5 MB and 2 MB). | `request.resource.size < 5 * 1024 * 1024` and `request.resource.size < 2 * 1024 * 1024` (9.3) | Rejects empty 0-byte file uploads before they consume storage or trigger unnecessary downstream document reviews. |
 | 36 | `firestore.indexes.json` is verified by automated unit tests (`test/unit/indexes.test.ts`) checking valid JSON, query scopes, non-duplication, and Section 10 definitions. | P1-B07: `firebase deploy --dry-run` or emulator loading | The Firestore emulator does not enforce or track composite indexes, and `firebase deploy --dry-run` requires online credentials unavailable offline and in PR CI. |
+| 37 | For the emulator, 3 clearly fake pickup points per zone ("Test point 1"...) and 2 test companies are seeded. Real coordinates and companies remain `TODO-HUMAN`. `--project dev` strictly refuses while any real value is `TODO-HUMAN`. | 7.6: "Never invent coordinates", companies `TODO-HUMAN` | Allows full local end-to-end development without inventing fake production data in dev. |
+| 38 | `seed.ts` validates `--project`: missing or `demo-hitchy` defaults emulator env vars if unset; `--project dev` refuses if emulator env vars are set and refuses if `TODO-HUMAN` values exist; all other projects (including `hitchy-prod`) are refused. | P1-B08: `--project dev` writes only config, zones, routes and companies | Protects against accidental writes to production or cloud dev with test/fake data or emulator credentials. |
+| 39 | Seed logic is implemented in `backend/functions/src/seed/seed.ts` and called by `backend/seed/seed.ts`. | `backend/seed/seed.ts` (P1-B08) | `backend/functions/tsconfig.json` enforces `rootDir: "."` to emit `lib/src/index.js` for Cloud Functions. Placing the implementation in `src/` allows integration tests and typecheck to import it cleanly without TS6059 errors. |
 
 ## Consequences
 

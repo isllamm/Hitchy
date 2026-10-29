@@ -1,0 +1,118 @@
+[
+  {
+    "id": "fifth_settlement",
+    "name": { "ar": "التجمع الخامس", "en": "Fifth Settlement" },
+    "active": true,
+    "order": 1,
+    "points": [
+      {
+        "id": "p1",
+        "name": { "ar": "نقطة تجريبية 1", "en": "Test point 1" },
+        "lat": 30.001,
+        "lng": 31.401,
+        "active": true
+      },
+      {
+        "id": "p2",
+        "name": { "ar": "نقطة تجريبية 2", "en": "Test point 2" },
+        "lat": 30.002,
+        "lng": 31.402,
+        "active": true
+      },
+      {
+        "id": "p3",
+        "name": { "ar": "نقطة تجريبية 3", "en": "Test point 3" },
+        "lat": 30.003,
+        "lng": 31.403,
+        "active": true
+      }
+    ]
+  },
+  {
+    "id": "rehab",
+    "name": { "ar": "الرحاب", "en": "Rehab" },
+    "active": true,
+    "order": 2,
+    "points": [
+      {
+        "id": "p1",
+        "name": { "ar": "نقطة تجريبية 1", "en": "Test point 1" },
+        "lat": 30.051,
+        "lng": 31.481,
+        "active": true
+      },
+      {
+        "id": "p2",
+        "name": { "ar": "نقطة تجريبية 2", "en": "Test point 2" },
+        "lat": 30.052,
+        "lng": 31.482,
+        "active": true
+      },
+      {
+        "id": "p3",
+        "name": { "ar": "نقطة تجريبية 3", "en": "Test point 3" },
+        "lat": 30.053,
+        "lng": 31.483,
+        "active": true
+      }
+    ]
+  },
+  {
+    "id": "smart_village",
+    "name": { "ar": "القرية الذكية", "en": "Smart Village" },
+    "active": true,
+    "order": 3,
+    "points": [
+      {
+        "id": "p1",
+        "name": { "ar": "نقطة تجريبية 1", "en": "Test point 1" },
+        "lat": 30.071,
+        "lng": 31.011,
+        "active": true
+      },
+      {
+        "id": "p2",
+        "name": { "ar": "نقطة تجريبية 2", "en": "Test point 2" },
+        "lat": 30.072,
+        "lng": 31.012,
+        "active": true
+      },
+      {
+        "id": "p3",
+        "name": { "ar": "نقطة تجريبية 3", "en": "Test point 3" },
+        "lat": 30.073,
+        "lng": 31.013,
+        "active": true
+      }
+    ]
+  },
+  {
+    "id": "zewail_city",
+    "name": { "ar": "مدينة زويل", "en": "Zewail City" },
+    "active": true,
+    "order": 4,
+    "points": [
+      {
+        "id": "p1",
+        "name": { "ar": "نقطة تجريبية 1", "en": "Test point 1" },
+        "lat": 29.961,
+        "lng": 31.041,
+        "active": true
+      },
+      {
+        "id": "p2",
+        "name": { "ar": "نقطة تجريبية 2", "en": "Test point 2" },
+        "lat": 29.962,
+        "lng": 31.042,
+        "active": true
+      },
+      {
+        "id": "p3",
+        "name": { "ar": "نقطة تجريبية 3", "en": "Test point 3" },
+        "lat": 29.963,
+        "lng": 31.043,
+        "active": true
+      }
+    ]
+  }
+]
