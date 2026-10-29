@@ -19,6 +19,8 @@ backend/functions/lib/
 # IDE: ignore .idea but keep the shared code style
 .idea/*
 !.idea/codeStyles/
+android/.idea/*
+!android/.idea/codeStyles/
 
 # Gradle
 build/

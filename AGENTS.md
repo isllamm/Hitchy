@@ -8,7 +8,7 @@ Decisions: docs/adr/ (0001 = architecture, 0002 = pinned versions and open point
 Plan v1.1 (BUILD_PLAN 2.1) changed the product after the design review: owners accept each booking (a request holds its seats), one booking can hold several seats, chat and calls after acceptance, payment confirmation, an inbox. The app's text says "Owner"; code and data say `host`.
 
 ## Status
-Phase 2 (Android foundation) is in progress. Done: P2-A01 project and modules (app + shared, Gradle 9.8.2, AGP 9.5.0, Kotlin 2.4.21, Compose Multiplatform 1.12.2), P2-A02 convention plugins (hitchy.android.application and hitchy.kmp.library in build-logic/convention), P2-A03 flavors, signing, build config, P2-A04 core utilities, P2-A05 Firebase wiring. Next: P2-A06 Koin dependency injection. The admin web project arrives in P5-W01; until then its CI workflow skips its jobs.
+Phase 2 (Android foundation) is in progress. Done: P2-A01 project and modules (app + shared, Gradle 9.8.2, AGP 9.5.0, Kotlin 2.4.21, Compose Multiplatform 1.12.2), P2-A02 convention plugins (hitchy.android.application and hitchy.kmp.library in build-logic/convention), P2-A03 flavors, signing, build config, P2-A04 core utilities, P2-A05 Firebase wiring, P2-A06 Koin dependency injection. Next: P2-A07 Navigation and deep links. The admin web project arrives in P5-W01; until then its CI workflow skips its jobs.
 
 ## Layout
 - backend/ — Firebase: functions (TypeScript), rules, indexes, seed data
