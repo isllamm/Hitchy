@@ -110,6 +110,7 @@ List files changed, test results, and any [HUMAN] or [DECISION] items.
 | 2026-10-29 | P2-A03 Flavors, signing, build config, AppConfig | PR #20 |
 | 2026-10-29 | P2-A04 Core utilities: AppError, AppResult, Clock, CairoTime, MoneyFormat, PhoneNumber | PR #21 |
 | 2026-10-29 | P2-A05 Firebase wiring: emulator config, FunctionsClient, App Check, Crashlytics | PR #22 |
+| 2026-10-29 | P2-A06 Dependency injection: Koin BOM 4.2.2, DataStore AppSettings, 15 feature modules, verify() test | PR #23 |
 
 Deploy jobs skip until each GitHub environment has its Phase 0 secrets (ADR 0003 row 18).
 
