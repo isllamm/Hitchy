@@ -34,7 +34,7 @@ class GitLiveFunctionsClient(
         outputSerializer: KSerializer<O>,
     ): AppResult<O> = try {
         val callable = functions.httpsCallable(name)
-        val result = callable(inputSerializer, input)
+        val result = callable(inputSerializer, input) { encodeDefaults = false }
         val data = result.data(outputSerializer)
         AppResult.Ok(data)
     } catch (t: Throwable) {
