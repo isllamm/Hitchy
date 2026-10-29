@@ -968,8 +968,8 @@ Every function below is the exact spec. Inputs go in `schemas/inputs.ts` (zod), 
   1. Signed in → else `UNAUTHENTICATED`.
   2. App Check (when enforced) → else `UNAUTHENTICATED`.
   3. Admin functions: `request.auth.token.admin === true` → else `PERMISSION_DENIED`.
-  4. Profile required (all except `completeProfile`): `users/{uid}` exists → else `PROFILE_REQUIRED`.
-  5. Not suspended (all except read-only, safety and account functions) → else `SUSPENDED`.
+  4. Profile required (all except `completeProfile` and admin functions): `users/{uid}` exists → else `PROFILE_REQUIRED`. Admin dashboard accounts have no profile (ADR 0003).
+  5. Not suspended (all except read-only, safety, account and admin functions) → else `SUSPENDED`.
   6. Input parses with zod → else `INVALID_INPUT` (with the failing field paths in `extra`).
 - Instants in inputs and outputs are ISO-8601 UTC strings.
 - Each handler exports a pure-ish core for tests: `export async function requestSeatsCore(input, ctx)`. The callable is one line: `export const requestSeats = makeCallable("requestSeats", RequestSeatsInput, requestSeatsCore)`.
@@ -2149,7 +2149,7 @@ The criminal record can be uploaded at any time, so an approved host can ask for
 
 ### P1-B03 · Schemas
 
-- **Files:** `src/schemas/docs.ts` (all of section 6), `src/schemas/io.ts` (8.2), `src/schemas/inputs.ts` (inputs of Phases 4 to 8; later phases add theirs).
+- **Files:** `src/schemas/docs.ts` (all of section 6; written in P1-B02, this task checks it), `src/schemas/io.ts` (8.2), `src/schemas/inputs.ts` (inputs of Phases 4 to 8; later phases add theirs).
 - **Done when:** types compile; each zod schema has a unit test with one valid and one invalid example.
 
 ### P1-B04 · Pricing and geo
@@ -2712,7 +2712,7 @@ interface ProfileRepository {
 - **Done when:** tests cover each function and the admin-only checks.
 
 #### P5-B05 · Admin accounts and config
-- **Spec:** `set-admin` gains `--email <email>` (finds the user by email) and `--notify-uid <uid>` (adds an app account to `config/admins.notifyUids`). `sendToAdmins` sends to both lists. Add `schemas/config.ts` (zod for every config doc in section 7) and the `updateConfig` callable (section 8.4).
+- **Spec:** `set-admin` gains `--email <email>` (finds the user by email) and `--notify-uid <uid>` (adds an app account to `config/admins.notifyUids`). `sendToAdmins` sends to both lists. Add the zod schemas for every config doc in section 7 to `schemas/config.ts` (its TypeScript types exist since P1-B02; derive them from the schemas) and the `updateConfig` callable (section 8.4).
 - **Done when:** tests cover both script options, both notification lists, and `updateConfig` refusing an invalid value and bumping `version`.
 
 ### Android
