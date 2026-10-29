@@ -1,5 +1,4 @@
 # Android CI/CD (docs/BUILD_PLAN.md, task P2-A14).
-# The jobs are skipped until android/gradlew exists (task P2-A01).
 # Distribution jobs skip their steps until their environment has the Phase 0 secrets (P0-H05, P0-H06, P0-H09).
 name: android
 
@@ -16,30 +15,13 @@ on:
       - "android/**"
       - "contract/**"
       - ".github/workflows/android.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  ready:
-    name: Android code exists
-    runs-on: ubuntu-latest
-    outputs:
-      ok: ${{ steps.check.outputs.ok }}
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - id: check
-        run: |
-          if [ -f android/gradlew ]; then
-            echo "ok=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "ok=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::No android/gradlew yet (task P2-A01). Skipping the other jobs."
-          fi
-
   check:
-    needs: ready
-    if: needs.ready.outputs.ok == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -59,8 +41,16 @@ jobs:
           GOOGLE_SERVICES_DEV: ${{ secrets.GOOGLE_SERVICES_DEV }}
           GOOGLE_SERVICES_PROD: ${{ secrets.GOOGLE_SERVICES_PROD }}
         run: |
-          echo "$GOOGLE_SERVICES_DEV" | base64 --decode > app/src/dev/google-services.json
-          echo "$GOOGLE_SERVICES_PROD" | base64 --decode > app/src/prod/google-services.json
+          if [ -n "$GOOGLE_SERVICES_DEV" ]; then
+            echo "$GOOGLE_SERVICES_DEV" | base64 --decode > app/src/dev/google-services.json
+          else
+            echo "::notice::GOOGLE_SERVICES_DEV not available (fork or Dependabot PR); using the demo-hitchy placeholder."
+          fi
+          if [ -n "$GOOGLE_SERVICES_PROD" ]; then
+            echo "$GOOGLE_SERVICES_PROD" | base64 --decode > app/src/prod/google-services.json
+          else
+            echo "::notice::GOOGLE_SERVICES_PROD not available (fork or Dependabot PR); using the demo-hitchy placeholder."
+          fi
       - run: ./gradlew check assembleDevDebug
 
   distribute-dev:
