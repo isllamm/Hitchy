@@ -28,3 +28,18 @@ The full list, with where each decision changes the data model, functions, rules
 - New data: booking `seats`, `total`, `expiresAt`, `respondedAt`, `paymentConfirmedAt`; statuses `requested`, `declined`, `expired`; chat messages; the inbox; saved places.
 - Phone numbers are no longer always hidden (R18 changed). They are shared only inside an accepted booking.
 - The designs still need the fixes listed in section 3.8 of the build plan.
+
+## Update 2026-10-30: full rider design set
+
+Islam shared the full rider design set (57 PNG files, English only; the index and flow map are in [docs/design/rider-flow.md](../design/rider-flow.md)). It adds Profile, Settings, Saved places, Help, Contact support and About. Where it disagreed with the plan, Islam decided:
+
+| Area | Decision |
+| --- | --- |
+| Saved places | Keep fixed points only; "Add" opens the point search and point-pin map, with no address fields |
+| Wallet | No wallet at launch (R19 stays). A rider wallet to pay deposits to owners is `[LATER]`, after launch, in its own plan update |
+| Notifications | Keep the plan's texts (8.15): no Hitchy fee text, no "Booking request sent" item |
+| Rating | Keep the plan: stars and tags, no comment box; the thank-you screen ends with "Done" |
+| Wording | The badge says "Verified owner" |
+| Settings | Opens from a row in the Profile tab; the notification toggle and language move there. Identity Verification shows in owner mode only. Privacy Settings and Safety Center are `[LATER]` |
+| New screens | Plan 3.8 maps Profile, ProfileEdit, Settings and About (P4-A04), Saved places (P7-A02), and Help and Contact support (P13-A05) |
+| Help and support | The FAQ is a fixed list in string resources. Contact support saves a request in Firestore through a new callable `contactSupport` (P13-B06) that admins read in the admin web (P13-W03); its details are asked when that task starts |

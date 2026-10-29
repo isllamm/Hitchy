@@ -128,7 +128,7 @@ Hitchy matches commuters in Greater Cairo who drive to work with colleagues goin
 | R16 | Points need proof | host and rider phones traveled together (GPS) | `onRideFinished` |
 | R17 | Fixed Ride | weekly plan turned into daily rides | Phase 12 |
 | R18 | Phone numbers stay private | only `getContactPhone` returns another user's phone, and only between a host and a rider with an accepted booking, from acceptance until the ride ends `[DECISION-22]` | `getContactPhone`, all |
-| R19 | No wallet | seat price and late fees are paid between people | — |
+| R19 | No wallet | seat price and late fees are paid between people. `[LATER]` after launch: a rider wallet to pay deposits to owners (Islam, 2026-10-30), planned in its own plan update | — |
 | R20 | The host accepts each booking | a request holds its seats until the host accepts or declines, or the request expires `[DECISION-21]` | `requestSeats`, `respondToRequest`, `expireRequest` |
 | R21 | Several seats per booking | one booking holds 1 … seats left; price, cancel and late fee apply per booking | `requestSeats` |
 | R22 | Payment proof | after the trip the host marks each rider as paid; a record only, no money passes through Hitchy | `confirmSeatPayment` |
@@ -2602,7 +2602,7 @@ These conflict with the plan. Until they are fixed in Figma or decided, the code
 
 ### 3.8 App designs: screen map and fix list
 
-The design exports (46 PNG files, 393 × 852 frames at 2×, English and LTR only) were reviewed on 2026-10-29. Islam keeps the files; the Figma file stays the source for exact sizes. Each screen below follows its design plus the fix list. Screens not listed keep `[FIGMA]`.
+The design exports (46 PNG files, 393 × 852 frames at 2×, English and LTR only) were reviewed on 2026-10-29. Islam keeps the files; the Figma file stays the source for exact sizes. The full rider set (57 files) followed on 2026-10-30 and adds the Profile, Settings, Saved places, Help and About screens; its screen index and rider flow map are in `docs/design/rider-flow.md`. Each screen below follows its design plus the fix list. Screens not listed keep `[FIGMA]`.
 
 | Design file | Screen (route) | Task |
 | --- | --- | --- |
@@ -2618,21 +2618,28 @@ The design exports (46 PNG files, 393 × 852 frames at 2×, English and LTR only
 | Search · Finding rides, Search · Available rides, Search · No rides found, Ride Result Card | SearchResults | P7-A02 |
 | Search · Filters & sort | Sort & filter sheet | P7-A02 |
 | Ride details | RiderRideDetails before booking, and the request sheet | P7-A03 |
-| My Rides, Rides Screen, My rides · Past | MyTrips (Rides tab: Upcoming, Completed, Cancelled) | P7-A04 |
+| My Rides, Rides Screen, My rides · Past | MyTrips (Rides tab: Upcoming, Completed, Cancelled). The -1 files are the same list opened from Profile, with Back and no bottom bar | P7-A04 |
 | Upcoming ride details, Cancel booking, Booking cancelled | RiderRideDetails after booking, cancel sheet | P7-A04 |
 | Notifications, Notifications · Empty | Notifications (inbox) | P7-A05 |
-| Tracking · On the way (-1 Arrived, -2 In ride) | RiderTrip | P8-A04 |
+| Tracking · On the way (-2 Arrived, -3 In ride; -1 is an older layout), Tracking · Completed | RiderTrip | P8-A04 |
 | Upcoming ride details-1 (a completed ride) | RiderRideDetails, completed | P8-A04 |
 | Rate Owner · Empty, Rate Owner · Selected, Rating thank you | RateTrip (rider rates the owner) | P8-A06 |
 | Fuel Share Receipt | Receipt | P8-A10 |
 | shop | Shop (empty state; holds Rewards or Packages) | P9-A01, P10-A01 |
 | Toggle | `HitchySwitch` | P3-A04 |
+| المزيد ("More") | Profile tab | P4-A04 |
+| Personal Information, Personal Information-1 | ProfileEdit and the photo sheet | P4-A04 |
+| Settings | Settings | P4-A04, P13-A04 |
+| About App | About | P4-A04 |
+| Saved Places, Map, Add Address | SavedPlaces (list, add, edit) | P7-A02 |
+| Hitchy Mobile App Screens (Copy) | Help (FAQ) | P13-A05 |
+| Hitchy Mobile App Screens (Copy)-1 | Contact support sheet | P13-A05 |
 
-Not designed yet, so still `[FIGMA]`: ProfileSetup, Settings, Profile, every owner screen (Become an owner, HostApplication, HostStatus, AddVehicle, PostRide, MyRides as owner, HostRideDetails with requests, HostTrip, rating riders, Packages, CreditHistory), Fees, Rewards, Invite, Assistant, the Fixed Ride screens, BackupOptions, Chat, EmergencyContact, the SOS sheet, DeleteAccount, Debug, and every Arabic (RTL) version.
+Not designed yet, so still `[FIGMA]`: ProfileSetup, every owner screen (Become an owner, HostApplication, HostStatus, AddVehicle, PostRide, MyRides as owner, HostRideDetails with requests, HostTrip, rating riders, Packages, CreditHistory), Fees, Rewards, Invite, Assistant, the Fixed Ride screens, BackupOptions, Chat, EmergencyContact, the SOS sheet, DeleteAccount, Debug, and every Arabic (RTL) version.
 
 **Fix list for the designer.** The code already follows these; the designs should catch up:
 
-1. Words: "Owner" in English everywhere, never "driver" ("Verified driver" → "Verified").
+1. Words: "Owner" in English everywhere, never "driver" ("Verified driver" → "Verified owner").
 2. Remove "Pay the Hitchy fee to lock it in": riders pay Hitchy nothing. Show "Pay the owner directly by cash or InstaPay" on the request sheet and the receipt.
 3. Places are fixed points only: no free addresses ("Street 9, Maadi"), no free map pin; the map shows point pins to tap. Sample places should come from the pilot zones (Fifth Settlement, Rehab, Smart Village).
 4. Date sheet: days after today + 7 are disabled; the "For today…" note shows only for today.
@@ -2648,6 +2655,10 @@ Not designed yet, so still `[FIGMA]`: ProfileSetup, Settings, Profile, every own
 14. Welcome: add the language choice (Arabic or English).
 15. Fix the word breaks on onboarding ("co mmute", "wit h"), show disabled states for Continue, Verify and Submit, and use Android system bars instead of iOS ones.
 16. Make every screen in Arabic (RTL) too.
+17. Saved places: "Add" opens the point search and the point-pin map (fix 3); no address fields. Labels Home, Work or Other. Fix the five "Home Area" labels and add a Save button.
+18. Profile tab: no wallet balance (R19). Add a Settings row; move the notification toggle and the language choice into Settings.
+19. Settings: hide Privacy Settings and Safety Center for now `[LATER]`. Identity Verification shows only in owner mode.
+20. About: real text instead of the placeholder. The other design bugs are listed in `docs/design/rider-flow.md`.
 
 ---
 
@@ -2695,7 +2706,7 @@ interface ProfileRepository {
 - **Spec:** `RootViewModel` combines `authState` and `observeMe()` into `Loading | SignedOut | NeedsProfile | Ready(activeRole)`. The NavHost start destination follows it; signing out clears the back stack.
 - **Done when:** a unit test covers all four states and the switch between them.
 
-#### P4-A04 · Screens (designed: Onboarding, Welcome, PhoneEntry, OtpVerify, see 3.8; the rest `[FIGMA]`)
+#### P4-A04 · Screens (designed: Onboarding, Welcome, PhoneEntry, OtpVerify, Profile, ProfileEdit, Settings, About, see 3.8; the rest `[FIGMA]`)
 
 | Screen | State | Actions | Notes |
 | --- | --- | --- | --- |
@@ -2705,7 +2716,10 @@ interface ProfileRepository {
 | OtpVerify | `code`, `secondsToResend`, `loading`, `error` | `CodeChanged`, `Resend`, `ChangeNumber` | Auto-submit at 6 digits; `verificationId` in `SavedStateHandle` (designs "Verification code", "Wrong code") |
 | ProfileSetup | names, `gender`, `companyQuery`, `companies`, `companyId`, `companyOther`, `workStart`, `workEnd`, `language`, `referralCode`, `submitting`, `error`, `canSubmit` | field changes, `Submit` | Gender note: "can't be changed later" |
 | Home (shell) | `activeRole`, `hostStatus` | `SwitchRole` | Tabs for both roles: Home, Rides, Shop, Profile `[DECISION-18]`. Rider Home is "Plan your ride" (design "home", built in P7-A02); owner Home `[FIGMA]` shows today's rides, open requests and Post ride. Shop holds Rewards (rider) or Packages (owner). A not-approved owner sees a "Become an owner" card |
-| Settings | language, notification permission, version | `ChangeLanguage`, `SignOut`, `OpenDebug` | Debug opens with a long press on the version in `dev` |
+| Profile | `me` (photo, first name, rating), `activeRole` | `EditProfile`, `OpenMyRides`, `OpenSavedPlaces`, `OpenSettings`, `OpenHelp`, `OpenAbout`, `SignOut` | Profile tab (design "المزيد"). No wallet row (R19). My rides opens MyTrips with Back (P7-A04), Saved places opens SavedPlaces (P7-A02), Help opens Help (P13-A05) |
+| ProfileEdit | the basic profile fields (6.2), photo, `saving`, `error` | field changes, `ChangePhoto`, `Save` | Designs "Personal Information" and "-1" (photo sheet). The phone number is shown read-only |
+| Settings | language, notification permission, version, `activeRole` | `ChangeLanguage`, `OpenIdentityVerification`, `OpenDeleteAccount`, `OpenDebug` | Design "Settings", opened from a row in Profile. Identity Verification shows only in owner mode (application status and the Verified request, P5). Delete account opens P13-A04. Privacy Settings and Safety Center `[LATER]`. Debug opens with a long press on the version in `dev` |
+| About | version | — | Design "About App"; the text comes from string resources |
 
 #### P4-A05 · Device tokens
 - **Spec:** `DeviceRepository.register(token)` writes `users/{uid}/devices/{installId}` (`fcmToken`, `platform: "android"`, `appVersion`, `language`, `updatedAt` = server time) after sign-in and in `HitchyMessagingService.onNewToken`; `unregister()` deletes it on sign-out.
@@ -3176,6 +3190,7 @@ interface FixedRepository {
 | P13-B03 `deleteAccount` | 8.12 | integration test: no doc or file with the user's personal data remains; anonymized records stay; Auth user deleted; safe to re-run |
 | P13-B04 `purgeKycPhotos` | 8.12 `[DECISION-14]` | only reviewed documents older than the retention |
 | P13-B05 Deletion web page | `backend/hosting/public/delete-account.html`, Arabic and English: how to delete in the app, and how to ask by email `[HUMAN: support email]` | deployed on Hosting at a fixed URL |
+| P13-B06 `contactSupport` | new callable (Islam, 2026-10-30): the Contact support form creates a `supportRequests` doc that admins read. The details (input fields, categories, text limits, rate limit, idempotency, status) are open points to ask when the task starts, then added to sections 6 and 8.12 and the contract | a request from the app appears for admins; bad input → `INVALID_INPUT` |
 
 **Android**
 
@@ -3183,12 +3198,14 @@ interface FixedRepository {
 - **P13-A02 SOS `[FIGMA]`:** on both trip screens; confirm sheet with police 122, ambulance 123 and the emergency contact; `ACTION_DIAL` (no call permission); SMS intent with the location link; then `reportSafetyEvent`.
 - **P13-A03:** Emergency contact screen; Report and Block from ride details and the rating sheet.
 - **P13-A04 Delete account `[FIGMA]`:** explain what is deleted → fresh OTP (re-run `PhoneAuth`) → `deleteAccount` → sign out. `ACTIVE_TRIP_SOON` explains what to cancel.
+- **P13-A05 Help and Contact support:** designs "Hitchy Mobile App Screens (Copy)" and "-1". The FAQ is a fixed list in string resources, English and Arabic. Contact support sends the form with `contactSupport` (P13-B06). What "Report a Safety Concern" opens is still to decide.
 - `[HUMAN]` Privacy policy and the Google Play Data safety form, matching what the app collects: phone, name, gender, workplace, ID photos, location during trips.
 
 **Admin web**
 
 - **P13-W01 Reports and SOS:** `/reports` (open reports including low ratings, links to the ride and both users; Close with a note → `closeReport`; Suspend → `setSuspended`). `/sos` (live list, unhandled on top with a sound, ride and people details, pickup map link; Mark handled → `handleSafetyEvent`). The dashboard adds both counts.
 - **P13-W02 Users and audit:** `/users` finds a user by phone (normalized to `+20…`); `/users/:uid` shows profile, roles, host status, credits, points, fees, recent rides and bookings, with Suspend / Unsuspend, Set gender and Set Verified; `/audit` lists `adminActions`, newest first.
+- **P13-W03 Support requests:** an admin page that lists the `contactSupport` requests; details decided with P13-B06.
 
 **E2E:** Appendix C steps 26–28.
 
