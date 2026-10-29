@@ -2095,10 +2095,10 @@ The criminal record can be uploaded at any time, so an approved host can ask for
 | P0-H05 | Android apps `[DECISION-02]` | `com.hitchy.app.dev` in `hitchy-dev`, `com.hitchy.app` in `hitchy-prod`. Add SHA-1 and SHA-256 of the debug and release keys. Save each `google-services.json` base64-encoded as GitHub secrets `GOOGLE_SERVICES_DEV` and `GOOGLE_SERVICES_PROD`. |
 | P0-H06 | Release key | Create the release keystore. GitHub secrets: `ANDROID_KEYSTORE_B64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`. Keep a backup in a password manager. |
 | P0-H07 | App Check | Register Play Integrity (Android) and App Attest (iOS) in both projects. Enforcement stays off until Phase 14. |
-| P0-H08 | API keys | In Google Cloud console, restrict the Android key to the package names and SHA-1s, and the iOS key to the bundle IDs. |
+| P0-H08 | API keys | In Google Cloud console, restrict the Android key to the package names and SHA-1s, and the iOS key to the bundle IDs (`com.hitchy.app.dev`, `com.hitchy.app`). |
 | P0-H09 | CI access | Workload Identity Federation from GitHub Actions to each project, with a deploy service account that can deploy functions, rules, indexes, hosting and App Distribution. Environment secrets: `GCP_WIF_PROVIDER`, `GCP_SERVICE_ACCOUNT`, `FIREBASE_ANDROID_APP_ID`. |
 | P0-H10 | Accounts | Google Play Console `[DECISION-03]`, Apple Developer, a domain, and a support email. |
-| P0-H11 | iOS config | Register the iOS app in both projects and send the config files to the iOS teammate privately. |
+| P0-H11 | iOS config | Register the iOS apps: bundle ID `com.hitchy.app.dev` in `hitchy-dev` and `com.hitchy.app` in `hitchy-prod` (confirmed by the iOS teammate, 2026-10-29). Send each `GoogleService-Info.plist` to the iOS teammate privately. |
 | P0-H12 | TTL policy | Firestore TTL policies on `expireAt` for the `idempotency`, `notifications` and `messages` collection groups, in both projects. |
 
 ### P0-A01 · Repo skeleton
@@ -3415,7 +3415,7 @@ Until Islam decides, the agent uses the default and leaves `TODO(DECISION-NN)` w
 | ID | Decision | Default for the agent | Needed by |
 | --- | --- | --- | --- |
 | 01 | Firestore and Functions region | `europe-west1` | Phase 0 |
-| 02 | Android package name | `com.hitchy.app` (dev `com.hitchy.app.dev`) | Phase 0 |
+| 02 | Android package name and iOS bundle ID | Android `com.hitchy.app` (dev `com.hitchy.app.dev`). iOS decided by the iOS teammate on 2026-10-29: `com.hitchy.app` (prod), `com.hitchy.app.dev` (dev) | Phase 0 |
 | 03 | Google Play account type | Organization (no code impact) | Phase 0 |
 | 04 | Default language and digits | Arabic, Western digits | Phase 2 |
 | 05 | Dark mode | Light only (Figma has no dark tokens) | Phase 3 |
