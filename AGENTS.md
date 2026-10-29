@@ -105,7 +105,7 @@ Deploy jobs skip until each GitHub environment has its Phase 0 secrets (ADR 0003
 
 ## Open items
 - [HUMAN] The GitHub repo isllamm/Hitchy is public; the plan (P0-H01) says private.
-- [HUMAN] Phase 0: Firebase projects hitchy-dev and hitchy-prod, region, phone sign-in, Android apps, release key, App Check, CI access (Workload Identity) and secrets, TTL policies on idempotency, notifications and messages (P0-H01 to P0-H12).
+- [HUMAN] Phase 0: Firebase projects hitchy-dev and hitchy-prod, region, phone sign-in, Android apps, release key, App Check, CI access (Workload Identity) and secrets, TTL policies on idempotency, notifications and messages, the auto-stop in hitchy-dev, and the cleanup rule for old function builds after the first deploy (P0-H01 to P0-H14).
 - [HUMAN] Storage rules cross-service permission: Firebase Storage service agent requires permission to read Firestore documents in hitchy-dev and hitchy-prod before the first deploy.
 - [HUMAN] The iOS teammate's GitHub username in .github/CODEOWNERS.
 - [DECISION-01] Functions region is the default `europe-west1`. [DECISION-16] `ADMIN_URL` in backend/functions/src/lib/app.ts is "TODO-HUMAN" until P5-W01 creates the admin sites.
