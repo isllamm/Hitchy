@@ -1,0 +1,1 @@
+# Hitchy app proguard rules
