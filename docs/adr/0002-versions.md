@@ -1,6 +1,6 @@
 # 0002 · Versions
 
-- **Status:** backend versions accepted (P1-B01 built and tested with them on 2026-10-29). Android and admin web versions stay proposed until P2-A01 and P5-W01 build with them.
+- **Status:** backend versions accepted (P1-B01 on 2026-10-29). Android P2-A01 scaffold built with pinned versions (AGP 9.5.0, Gradle 9.8.2, Kotlin 2.4.21, Compose Multiplatform 1.12.2, compileSdk 37, targetSdk 36, minSdk 26). Other Android and admin web versions stay proposed until their tasks build with them.
 - **Date:** 2026-10-28
 - **Source:** [docs/BUILD_PLAN.md](../BUILD_PLAN.md), section 4.4 and tasks P1-B01, P2-A01
 
@@ -36,7 +36,8 @@ These are the newest stable releases on 2026-10-28, checked against each other's
 | --- | --- | --- | --- |
 | Build | Gradle (wrapper) | 9.8.2 | |
 | Build | Android Gradle Plugin | 9.5.0 | Includes the KMP library plugin `com.android.kotlin.multiplatform.library`. |
-| Build | compileSdk and targetSdk | 36 | Google Play requires API 36 for new apps and updates. minSdk 26 as proposed in P2-A02. |
+| Build | compileSdk | 37 | Required by Compose Multiplatform 1.12.2 (AndroidX Compose 1.12.1 AAR metadata requires compileSdk >= 37). |
+| Build | targetSdk and minSdk | targetSdk 36, minSdk 26 | Google Play requires targetSdk 36. minSdk 26 as proposed in P2-A02. |
 | Language | Kotlin | 2.4.21 | Also the Compose compiler plugin and kotlin.test. |
 | UI | Compose Multiplatform | 1.12.2 | |
 | UI | org.jetbrains.compose.material3:material3 | 1.9.0 | Material 3 now has its own version line; 1.9.0 is its newest stable (1.13.0 is in beta). |
