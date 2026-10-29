@@ -3,7 +3,7 @@
 Carpooling for commuters in Greater Cairo. Riders use the app for free. Hosts (car owners) buy trip packages. Riders pay hosts for seats directly, by cash or InstaPay; Hitchy never holds that money.
 
 - Full spec: [docs/BUILD_PLAN.md](docs/BUILD_PLAN.md)
-- Rules for AI agents: [CLAUDE.md](CLAUDE.md)
+- Rules for AI agents: [AGENTS.md](AGENTS.md) (Claude Code, Google Antigravity and Gemini CLI)
 - Architecture decisions: [docs/adr/](docs/adr/)
 
 ## Layout

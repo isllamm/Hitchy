@@ -37,6 +37,7 @@ The repo was set up from [docs/BUILD_PLAN.md](../BUILD_PLAN.md) on 2026-10-28. A
 | 23 | `schemas/io.ts` holds 8.2 plus the output type of every Phase 4–8 callable. | P1-B03 lists io.ts as "8.2" | Section 4.2 says io.ts holds all outputs, section 8 specifies them, and P1-B10's contract test needs them. |
 | 24 | Callable input objects are strict: an unknown field is `INVALID_INPUT`. | Not covered | Catches app bugs and typos early; the contract changes before the apps, so apps never send fields the server doesn't know. |
 | 25 | Text inputs are trimmed before their length is checked; chat text keeps its inner lines and spaces. | Not covered | A name of only spaces must fail the 1-character minimum, and stored values stay clean. |
+| 26 | The AI rules live in `AGENTS.md`, with the project status, Islam's working rules and local setup notes. `CLAUDE.md` and `GEMINI.md` only import it. | Copy Appendix A into `CLAUDE.md` (0.1) | The team also uses Google Antigravity and Gemini CLI; one shared file keeps every agent on the same rules. |
 
 ## Consequences
 
