@@ -6,6 +6,7 @@ import androidx.core.os.LocaleListCompat
 import com.hitchy.core.data.FirebaseModule
 import com.hitchy.core.model.AppConfig
 import com.hitchy.core.model.Env
+import com.hitchy.core.platform.AndroidActivityProvider
 import com.hitchy.di.appModule
 import com.hitchy.di.coreModule
 import com.hitchy.di.featureModules
@@ -31,7 +32,7 @@ class HitchyApplication : Application() {
 
         FirebaseModule.init(this, appConfig)
 
-        startKoin {
+        val koinApp = startKoin {
             androidLogger(if (appConfig.env == Env.DEV) Level.DEBUG else Level.ERROR)
             androidContext(this@HitchyApplication)
             modules(
@@ -41,5 +42,7 @@ class HitchyApplication : Application() {
                 ) + featureModules
             )
         }
+
+        registerActivityLifecycleCallbacks(koinApp.koin.get<AndroidActivityProvider>())
     }
 }
