@@ -17,6 +17,7 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.JointType
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import com.google.maps.android.compose.ComposeMapColorScheme
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
@@ -90,6 +91,7 @@ actual fun HitchyMap(
         contentDescription = contentDescription ?: stringResource(Res.string.map_content_description),
         properties = MapSettings,
         uiSettings = MapControls,
+        mapColorScheme = ComposeMapColorScheme.LIGHT,
         onMapLoaded = { mapLoaded = true },
     ) {
         if (route.size >= 2) {

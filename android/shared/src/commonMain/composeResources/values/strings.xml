@@ -419,7 +419,7 @@
     <string name="host_trip_status_arrived">Arrived at destination</string>
     <string name="host_trip_status_completed">Trip completed</string>
     <string name="host_trip_btn_start">Start trip</string>
-    <string name="host_trip_btn_im_here">I\'m here</string>
+    <string name="host_trip_btn_im_here">I'm here</string>
     <string name="host_trip_btn_boarded">%1$s is in the car</string>
     <string name="host_trip_btn_report_late">Report late (EGP 10)</string>
     <string name="host_trip_btn_next_stop">Head to next stop</string>
@@ -431,6 +431,6 @@
     <string name="host_trip_boarded_count">%1$d of %2$d on board</string>
     <string name="host_trip_payment_done_title">Payment collected!</string>
     <string name="host_trip_payment_done_total">Total collected: EGP %1$d</string>
-    <string name="host_trip_payment_done_bookings">%1$d riders paid directly to your wallet</string>
+    <string name="host_trip_payment_done_bookings">Paid directly to your wallet by %1$d rider(s)</string>
     <string name="host_trip_wallet_balance">Wallet balance: EGP %1$d</string>
 </resources>

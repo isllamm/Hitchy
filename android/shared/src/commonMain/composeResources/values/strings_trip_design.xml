@@ -2,7 +2,7 @@
 <resources>
     <string name="trip_design_pickup_label">Pickup</string>
     <string name="trip_design_dropoff_label">Drop-off</string>
-    <string name="trip_design_owner_car_label">Owner\'s car</string>
+    <string name="trip_design_owner_car_label">Owner's car</string>
     <string name="trip_design_vehicle_line">%1$s %2$s</string>
     <string name="trip_design_vehicle_detail">%1$s · %2$s</string>
     <string name="trip_design_your_seat">Your seat</string>
