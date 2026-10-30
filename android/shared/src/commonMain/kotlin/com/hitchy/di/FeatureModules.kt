@@ -63,7 +63,7 @@ val ridesModule = module {
     single<RidesRepository> { RidesRepositoryImpl(get()) }
     viewModel { OwnerHomeViewModel(get(), get(), get()) }
     viewModel { PostRideViewModel(get(), get(), get(), get()) }
-    viewModel { HostRideDetailsViewModel(get(), get()) }
+    viewModel { HostRideDetailsViewModel(get(), get(), get()) }
 }
 
 val bookingModule = module {
@@ -77,7 +77,7 @@ val bookingModule = module {
 val tripModule = module {
     single<TripRepository> { TripRepositoryImpl(get()) }
     viewModel { RiderTripViewModel(get(), get(), get(), get(), get()) }
-    viewModel { HostTripViewModel(get(), get(), get(), get()) }
+    viewModel { HostTripViewModel(get(), get(), get(), get(), get()) }
 }
 
 val packagesModule = module { }

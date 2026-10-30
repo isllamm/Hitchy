@@ -8,6 +8,7 @@ import com.hitchy.core.model.CancelRideReason
 import com.hitchy.core.model.RideStatus
 import com.hitchy.core.ui.MviViewModel
 import com.hitchy.feature.booking.domain.BookingRepository
+import com.hitchy.feature.profile.domain.ProfileRepository
 import com.hitchy.feature.rides.domain.Booking
 import com.hitchy.feature.rides.domain.Ride
 import com.hitchy.feature.rides.domain.RidesRepository
@@ -24,6 +25,7 @@ data class HostRideDetailsState(
     val ride: Ride? = null,
     val pendingBookings: List<Booking> = emptyList(),
     val confirmedBookings: List<Booking> = emptyList(),
+    val riderNames: Map<String, String> = emptyMap(),
     val isResponding: Boolean = false,
     val isCancelling: Boolean = false,
     val messageAlert: StringResource? = null,
@@ -60,7 +62,10 @@ sealed interface HostRideDetailsEvent {
 class HostRideDetailsViewModel(
     private val ridesRepository: RidesRepository,
     private val bookingRepository: BookingRepository,
+    private val profileRepository: ProfileRepository,
 ) : MviViewModel<HostRideDetailsState, HostRideDetailsAction, HostRideDetailsEvent>(HostRideDetailsState()) {
+
+    private val namesRequested = mutableSetOf<String>()
 
     override fun onAction(action: HostRideDetailsAction) {
         when (action) {
@@ -81,6 +86,7 @@ class HostRideDetailsViewModel(
 
         ridesRepository.observeBookings(rideId)
             .onEach { allBookings ->
+                loadRiderNames(allBookings.map { it.riderUid })
                 val pending = allBookings.filter { it.status == BookingStatus.REQUESTED }
                 val confirmed = allBookings.filter {
                     it.status == BookingStatus.BOOKED || it.status == BookingStatus.COMPLETED
@@ -93,6 +99,17 @@ class HostRideDetailsViewModel(
                 }
             }
             .launchIn(viewModelScope)
+    }
+
+    private fun loadRiderNames(uids: List<String>) {
+        for (uid in uids) {
+            if (!namesRequested.add(uid)) continue
+            profileRepository.observePublicProfile(uid)
+                .onEach { profile ->
+                    if (profile != null) setState { copy(riderNames = riderNames + (uid to profile.firstName)) }
+                }
+                .launchIn(viewModelScope)
+        }
     }
 
     private fun respondRequest(riderUid: String, accept: Boolean) {

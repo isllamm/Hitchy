@@ -147,6 +147,7 @@ fun HostTripScreen(
                     items(state.bookings, key = { it.riderUid }) { booking ->
                         HostRiderBoardingCard(
                             booking = booking,
+                            riderName = state.riderNames[booking.riderUid],
                             isFreeWaitOver = state.isFreeWaitOver,
                             onMarkBoarded = {
                                 viewModel.onAction(HostTripAction.MarkBoarded(booking.riderUid))
@@ -365,6 +366,7 @@ private fun BoardingSectionHeader(
 @Composable
 private fun HostRiderBoardingCard(
     booking: Booking,
+    riderName: String?,
     isFreeWaitOver: Boolean,
     onMarkBoarded: () -> Unit,
     onReportLate: () -> Unit,
@@ -374,7 +376,7 @@ private fun HostRiderBoardingCard(
     val spacing = HitchyTheme.spacing
     val typography = HitchyTheme.typography
     val cardShape = RoundedCornerShape(12.dp)
-    val shortName = booking.riderUid.take(RIDER_NAME_LENGTH).replaceFirstChar { it.uppercase() }
+    val shortName = riderName ?: booking.riderUid.take(RIDER_NAME_LENGTH).replaceFirstChar { it.uppercase() }
 
     Surface(
         modifier = modifier
