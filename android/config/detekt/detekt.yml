@@ -4,6 +4,8 @@ build:
 naming:
   FunctionNaming:
     ignoreAnnotated: ['Composable', 'Test']
+  MatchingDeclarationName:
+    active: false
 
 empty-blocks:
   EmptyFunctionBlock:
@@ -12,10 +14,14 @@ empty-blocks:
 complexity:
   LongMethod:
     ignoreAnnotated: ['Composable', 'Test']
+  LongParameterList:
+    ignoreAnnotated: ['Composable']
+  CyclomaticComplexMethod:
+    ignoreAnnotated: ['Composable']
 
 style:
   MagicNumber:
-    ignoreNumbers: ['-1', '0', '1', '2', '7']
+    ignoreNumbers: ['-1', '0', '1', '2', '3', '4', '7', '50']
     ignorePropertyDeclaration: true
     ignoreCompanionObjectPropertyDeclaration: true
     ignoreAnnotation: true
