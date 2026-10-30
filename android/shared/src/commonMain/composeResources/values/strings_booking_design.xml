@@ -1,0 +1,28 @@
+<resources>
+    <string name="bk_finding_title">Finding rides for you…</string>
+    <string name="bk_finding_body">Looking for available owners going to your destination.</string>
+    <string name="bk_trip_meta">%1$s · %2$s · %3$s</string>
+    <string name="bk_rides_match_one">1 ride matches your trip</string>
+    <string name="bk_rides_match_many">%1$d rides match your trip</string>
+    <string name="bk_prices_per_seat">Prices are per seat</string>
+    <string name="bk_best_match">Best match</string>
+    <string name="bk_arrival">arrival</string>
+    <string name="bk_pickup_walk">%1$s · %2$d m walk</string>
+    <string name="bk_verified_owner">Verified owner</string>
+    <string name="bk_rating_line">%1$s · %2$d rides</string>
+    <string name="bk_total_per_seat">Total per seat</string>
+    <string name="bk_egp_amount">EGP %1$d</string>
+    <string name="bk_view_ride">View ride</string>
+    <string name="bk_empty_body">No owners are going from %1$s to %2$s around %3$s on %4$s.</string>
+    <string name="bk_edit_route">Edit pickup or destination</string>
+    <string name="bk_search_again">Search again</string>
+    <string name="bk_your_owner">Your owner</string>
+    <string name="bk_vehicle_line_hidden">%1$s %2$s %3$s · Plate shared after acceptance</string>
+    <string name="bk_pickup_location">Pickup location</string>
+    <string name="bk_pickup_location_walk">Pickup location · %1$d m walk</string>
+    <string name="bk_dropoff_location">Drop-off location</string>
+    <string name="bk_available_seats">Available seats</string>
+    <string name="bk_price_title">Price</string>
+    <string name="bk_total">Total</string>
+    <string name="bk_request_ride">Request ride</string>
+</resources>

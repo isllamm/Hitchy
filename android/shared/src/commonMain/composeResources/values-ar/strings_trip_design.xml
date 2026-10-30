@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="trip_design_pickup_label">نقطة الركوب</string>
+    <string name="trip_design_dropoff_label">نقطة الوصول</string>
+    <string name="trip_design_owner_car_label">عربية صاحب المشوار</string>
+    <string name="trip_design_vehicle_line">%1$s %2$s</string>
+    <string name="trip_design_vehicle_detail">%1$s · %2$s</string>
+    <string name="trip_design_your_seat">مكانك</string>
+    <string name="trip_design_total">الإجمالي</string>
+    <string name="trip_design_cancel_title">تلغي الحجز ده؟</string>
+    <string name="trip_design_cancel_info">الغي بدري عشان صاحب العربية يعرض مكانك على حد تاني.</string>
+    <string name="trip_design_cancelled_body">مكانك فضي تاني. إن شاء الله نشوفك في مشوار تاني قريب.</string>
+    <string name="trip_design_find_another">دوّر على مشوار تاني</string>
+</resources>

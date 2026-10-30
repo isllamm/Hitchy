@@ -271,6 +271,36 @@
     <string name="rider_home_passengers_label">عدد الركاب</string>
     <string name="rider_home_women_only_label">رحلات سيدات فقط</string>
     <string name="rider_home_search_button">ابحث عن رحلات</string>
+    <string name="rider_home_from_label">من</string>
+    <string name="rider_home_to_label">إلى</string>
+    <string name="rider_home_date_label">التاريخ</string>
+    <string name="rider_home_time_title">ميعاد الحركة</string>
+    <string name="rider_home_passengers_one">راكب واحد</string>
+    <string name="rider_home_date_format">%1$s، %3$d %2$s</string>
+    <string-array name="rider_home_weekdays">
+        <item>الإثنين</item>
+        <item>الثلاثاء</item>
+        <item>الأربعاء</item>
+        <item>الخميس</item>
+        <item>الجمعة</item>
+        <item>السبت</item>
+        <item>الأحد</item>
+    </string-array>
+    <string-array name="rider_home_months">
+        <item>يناير</item>
+        <item>فبراير</item>
+        <item>مارس</item>
+        <item>أبريل</item>
+        <item>مايو</item>
+        <item>يونيو</item>
+        <item>يوليو</item>
+        <item>أغسطس</item>
+        <item>سبتمبر</item>
+        <item>أكتوبر</item>
+        <item>نوفمبر</item>
+        <item>ديسمبر</item>
+    </string-array>
+    <string name="rider_home_passengers_many">%1$d ركاب</string>
     <string name="rider_home_missing_route_error">من فضلك اختر نقطة التحرك ونقطة الوصول.</string>
     <string name="rider_home_same_zone_error">نقطة التحرك والوصول لازم يكونوا في منطقتين مختلفتين.</string>
     <string name="picker_select_pickup_title">اختر نقطة التحرك</string>

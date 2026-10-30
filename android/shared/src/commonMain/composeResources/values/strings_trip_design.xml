@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="trip_design_pickup_label">Pickup</string>
+    <string name="trip_design_dropoff_label">Drop-off</string>
+    <string name="trip_design_owner_car_label">Owner\'s car</string>
+    <string name="trip_design_vehicle_line">%1$s %2$s</string>
+    <string name="trip_design_vehicle_detail">%1$s · %2$s</string>
+    <string name="trip_design_your_seat">Your seat</string>
+    <string name="trip_design_total">Total</string>
+    <string name="trip_design_cancel_title">Cancel this booking?</string>
+    <string name="trip_design_cancel_info">Cancel early so the Owner can offer your seat to someone else.</string>
+    <string name="trip_design_cancelled_body">Your seat is free again. We hope to see you on another ride soon.</string>
+    <string name="trip_design_find_another">Find another ride</string>
+</resources>

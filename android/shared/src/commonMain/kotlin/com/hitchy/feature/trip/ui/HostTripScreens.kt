@@ -1,79 +1,90 @@
+@file:Suppress("MagicNumber", "TooManyFunctions")
+
 package com.hitchy.feature.trip.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Surface
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hitchy.core.model.AppLanguage
+import com.hitchy.core.model.GeoPoint
 import com.hitchy.core.platform.LanguageSwitcher
 import com.hitchy.core.ui.ErrorText
-import com.hitchy.core.ui.components.Avatar
+import com.hitchy.core.ui.components.BackButton
+import com.hitchy.core.ui.components.BackButtonStyle
 import com.hitchy.core.ui.components.HitchyButton
 import com.hitchy.core.ui.components.HitchyButtonVariant
-import com.hitchy.core.ui.components.RideStatusVariant
-import com.hitchy.core.ui.components.StatusChip
-import com.hitchy.core.ui.components.TopBar
-import com.hitchy.core.ui.components.TripStep
-import com.hitchy.core.ui.components.TripStepper
-import com.hitchy.core.ui.icon.HitchyIcons
+import com.hitchy.core.ui.map.HitchyMap
+import com.hitchy.core.ui.map.MapPin
 import com.hitchy.core.ui.theme.HitchyTheme
+import com.hitchy.core.util.isoToCairoTime
 import com.hitchy.feature.rides.domain.Booking
+import com.hitchy.feature.rides.domain.Ride
 import com.hitchy.feature.trip.presentation.HostTripAction
 import com.hitchy.feature.trip.presentation.HostTripPhase
 import com.hitchy.feature.trip.presentation.HostTripState
 import com.hitchy.feature.trip.presentation.HostTripViewModel
 import hitchy.shared.generated.resources.Res
-import hitchy.shared.generated.resources.host_trip_boarded_count
 import hitchy.shared.generated.resources.host_trip_btn_boarded
 import hitchy.shared.generated.resources.host_trip_btn_confirm_payment
 import hitchy.shared.generated.resources.host_trip_btn_end_trip
 import hitchy.shared.generated.resources.host_trip_btn_im_here
 import hitchy.shared.generated.resources.host_trip_btn_next_stop
 import hitchy.shared.generated.resources.host_trip_btn_payment_done
-import hitchy.shared.generated.resources.host_trip_btn_report_late
 import hitchy.shared.generated.resources.host_trip_btn_start
-import hitchy.shared.generated.resources.host_trip_free_wait_over
-import hitchy.shared.generated.resources.host_trip_free_wait_timer
-import hitchy.shared.generated.resources.host_trip_payment_done_bookings
-import hitchy.shared.generated.resources.host_trip_payment_done_title
-import hitchy.shared.generated.resources.host_trip_payment_done_total
-import hitchy.shared.generated.resources.host_trip_status_arrived
-import hitchy.shared.generated.resources.host_trip_status_at_stop
-import hitchy.shared.generated.resources.host_trip_status_driving
-import hitchy.shared.generated.resources.host_trip_status_in_progress
+import hitchy.shared.generated.resources.host_trip_status_completed
 import hitchy.shared.generated.resources.host_trip_status_leaving
-import hitchy.shared.generated.resources.host_trip_title
-import hitchy.shared.generated.resources.host_trip_wallet_balance
-import org.jetbrains.compose.resources.painterResource
+import hitchy.shared.generated.resources.owner_design_all_on_board
+import hitchy.shared.generated.resources.owner_design_arrived_at
+import hitchy.shared.generated.resources.owner_design_eyebrow_arrived
+import hitchy.shared.generated.resources.owner_design_eyebrow_at_pickups
+import hitchy.shared.generated.resources.owner_design_heading_to
+import hitchy.shared.generated.resources.owner_design_leave_at
+import hitchy.shared.generated.resources.owner_design_on_board_count
+import hitchy.shared.generated.resources.owner_design_report_late
+import hitchy.shared.generated.resources.owner_design_riders_count
+import hitchy.shared.generated.resources.owner_design_step_completed
+import hitchy.shared.generated.resources.owner_design_step_on_the_way
+import hitchy.shared.generated.resources.owner_design_step_pickups
+import hitchy.shared.generated.resources.owner_design_waiting_for
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
-private const val SECONDS_PER_MINUTE = 60
+private val MapHeight = 330.dp
+private val SheetTopOffset = 280.dp
+private val SheetRadius = 28.dp
+private const val ALL_STEPS_DONE = 4
 
+/**
+ * Owner trip day built to the demo design: the map with a straight route line on top, and a rounded sheet with
+ * the headline, the four steps, the riders, the wait timer and the big action button.
+ */
 @Composable
 fun HostTripScreen(
     rideId: String,
@@ -84,430 +95,291 @@ fun HostTripScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val languageSwitcher: LanguageSwitcher = koinInject()
     val language = languageSwitcher.getCurrentLanguage()
-    val colors = HitchyTheme.colors
-    val spacing = HitchyTheme.spacing
+    var selectedUid by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(rideId) {
         viewModel.onAction(HostTripAction.Init(rideId))
     }
 
-    val currentStep = when (state.phase) {
-        HostTripPhase.LEAVING, HostTripPhase.DRIVING_TO_STOP -> TripStep.OwnerOnTheWay
-        HostTripPhase.AT_STOP -> TripStep.Arrived
-        HostTripPhase.EN_ROUTE -> TripStep.InRide
-        HostTripPhase.ARRIVED, HostTripPhase.PAYMENT_DONE -> TripStep.Completed
-    }
-
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(colors.background),
-    ) {
-        TopBar(
-            title = stringResource(Res.string.host_trip_title),
-            onBackClick = onBack,
+    val current = currentRider(state.bookings, selectedUid)
+    Box(modifier = modifier.fillMaxSize().background(HitchyTheme.colors.background)) {
+        HitchyMap(
+            pins = tripPins(state.ride),
+            route = tripRoute(state.ride),
+            modifier = Modifier.fillMaxWidth().height(MapHeight),
         )
-
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = spacing.space16),
-            verticalArrangement = Arrangement.spacedBy(spacing.space16),
-        ) {
-            item {
-                Spacer(modifier = Modifier.height(spacing.space8))
-                TripStepper(currentStep = currentStep)
-            }
-
-            if (state.phase == HostTripPhase.PAYMENT_DONE) {
-                item {
-                    PaymentDoneCard(
-                        state = state,
-                        onDone = onBack,
-                    )
-                }
-            } else {
-                item {
-                    ActivePhaseCard(
-                        state = state,
-                        language = language,
-                        onStartTrip = { viewModel.onAction(HostTripAction.StartTrip) },
-                        onArriveAtStop = { viewModel.onAction(HostTripAction.ArriveAtStop) },
-                        onNextStopOrFinish = { viewModel.onAction(HostTripAction.NextStopOrFinish) },
-                        onFinishTrip = { viewModel.onAction(HostTripAction.FinishTrip) },
-                        onConfirmPayment = { viewModel.onAction(HostTripAction.ConfirmPayment) },
-                    )
-                }
-
-                if (state.phase == HostTripPhase.AT_STOP) {
-                    item {
-                        BoardingSectionHeader(state = state)
-                    }
-
-                    items(state.bookings, key = { it.riderUid }) { booking ->
-                        HostRiderBoardingCard(
-                            booking = booking,
-                            riderName = state.riderNames[booking.riderUid],
-                            isFreeWaitOver = state.isFreeWaitOver,
-                            onMarkBoarded = {
-                                viewModel.onAction(HostTripAction.MarkBoarded(booking.riderUid))
-                            },
-                            onReportLate = {
-                                viewModel.onAction(HostTripAction.ReportLate(booking.riderUid))
-                            },
-                        )
-                    }
-                }
-            }
-
-            val error = state.error
-            if (error != null) {
-                item {
-                    ErrorText(
-                        error = error,
-                        style = HitchyTheme.typography.caption,
-                        color = colors.error,
-                    )
-                }
-            }
-
-            item { Spacer(modifier = Modifier.height(spacing.space32)) }
-        }
+        BackButton(
+            onClick = onBack,
+            style = BackButtonStyle.OutlinedCircle,
+            modifier = Modifier.align(Alignment.TopStart).statusBarsPadding().padding(start = 8.dp, top = 8.dp),
+        )
+        TripSheet(
+            state = state,
+            language = language,
+            current = current,
+            onSelectRider = { selectedUid = it },
+            onAction = viewModel::onAction,
+            onDone = onBack,
+            modifier = Modifier.fillMaxSize().padding(top = SheetTopOffset),
+        )
     }
 }
 
+/** Fixed points only: the start and the ride's stops (the ride has no destination coordinates). */
+private fun tripRoute(ride: Ride?): List<GeoPoint> {
+    if (ride == null) return emptyList()
+    return listOf(ride.fromPoint) + ride.stops.map { stop -> stop.point }
+}
+
+private fun tripPins(ride: Ride?): List<MapPin> {
+    if (ride == null) return emptyList()
+    val stops = ride.stops.mapIndexed { index, stop -> MapPin(id = "stop_$index", point = stop.point) }
+    return listOf(MapPin(id = "from", point = ride.fromPoint)) + stops
+}
+
 @Composable
-private fun ActivePhaseCard(
+private fun TripSheet(
     state: HostTripState,
     language: AppLanguage,
-    onStartTrip: () -> Unit,
-    onArriveAtStop: () -> Unit,
-    onNextStopOrFinish: () -> Unit,
-    onFinishTrip: () -> Unit,
-    onConfirmPayment: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val colors = HitchyTheme.colors
-    val spacing = HitchyTheme.spacing
-    val typography = HitchyTheme.typography
-    val cardShape = RoundedCornerShape(16.dp)
-
-    Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(cardShape)
-            .border(1.dp, colors.border, cardShape),
-        color = colors.white,
-        shape = cardShape,
-    ) {
-        Column(
-            modifier = Modifier.padding(spacing.space16),
-            verticalArrangement = Arrangement.spacedBy(spacing.space12),
-        ) {
-            val fromName = state.ride?.fromPointName?.resolve(language).orEmpty()
-            val toName = state.ride?.toPointName?.resolve(language).orEmpty()
-            val routeText = "$fromName → $toName"
-            when (state.phase) {
-                HostTripPhase.LEAVING -> {
-                    StatusChip(
-                        status = RideStatusVariant.Confirmed,
-                        customLabel = stringResource(Res.string.host_trip_status_leaving),
-                    )
-                    Text(
-                        text = routeText,
-                        style = typography.title,
-                        color = colors.textPrimary,
-                    )
-                    HitchyButton(
-                        onClick = onStartTrip,
-                        loading = state.isLoading,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Text(text = stringResource(Res.string.host_trip_btn_start))
-                    }
-                }
-
-                HostTripPhase.DRIVING_TO_STOP -> {
-                    StatusChip(
-                        status = RideStatusVariant.InProgress,
-                        customLabel = stringResource(Res.string.host_trip_status_driving, state.currentStopName),
-                    )
-                    Text(
-                        text = state.currentStopName,
-                        style = typography.h2,
-                        color = colors.textPrimary,
-                    )
-                    HitchyButton(
-                        onClick = onArriveAtStop,
-                        loading = state.isLoading,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Text(text = stringResource(Res.string.host_trip_btn_im_here))
-                    }
-                }
-
-                HostTripPhase.AT_STOP -> {
-                    StatusChip(
-                        status = RideStatusVariant.Completed,
-                        customLabel = stringResource(Res.string.host_trip_status_at_stop, state.currentStopName),
-                    )
-                    WaitTimerDisplay(
-                        freeWaitSecondsLeft = state.freeWaitSecondsLeft,
-                        isFreeWaitOver = state.isFreeWaitOver,
-                        lateSeconds = state.lateSeconds,
-                    )
-                    HitchyButton(
-                        onClick = onNextStopOrFinish,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Text(text = stringResource(Res.string.host_trip_btn_next_stop))
-                    }
-                }
-
-                HostTripPhase.EN_ROUTE -> {
-                    StatusChip(
-                        status = RideStatusVariant.InProgress,
-                        customLabel = stringResource(Res.string.host_trip_status_in_progress),
-                    )
-                    Text(
-                        text = stringResource(
-                            Res.string.host_trip_boarded_count,
-                            state.boardedCount,
-                            state.totalBookedSeats,
-                        ),
-                        style = typography.title,
-                        color = colors.purple,
-                    )
-                    HitchyButton(
-                        onClick = onFinishTrip,
-                        loading = state.isLoading,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Text(text = stringResource(Res.string.host_trip_btn_end_trip))
-                    }
-                }
-
-                HostTripPhase.ARRIVED -> {
-                    StatusChip(
-                        status = RideStatusVariant.Completed,
-                        customLabel = stringResource(Res.string.host_trip_status_arrived),
-                    )
-                    Text(
-                        text = state.ride?.toPointName?.resolve(language).orEmpty(),
-                        style = typography.h2,
-                        color = colors.textPrimary,
-                    )
-                    HitchyButton(
-                        onClick = onConfirmPayment,
-                        loading = state.isLoading,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Text(text = stringResource(Res.string.host_trip_btn_confirm_payment))
-                    }
-                }
-
-                HostTripPhase.PAYMENT_DONE -> Unit
-            }
-        }
-    }
-}
-
-@Composable
-private fun WaitTimerDisplay(
-    freeWaitSecondsLeft: Int,
-    isFreeWaitOver: Boolean,
-    lateSeconds: Int,
-    modifier: Modifier = Modifier,
-) {
-    val colors = HitchyTheme.colors
-    val typography = HitchyTheme.typography
-
-    if (!isFreeWaitOver) {
-        val mins = freeWaitSecondsLeft / SECONDS_PER_MINUTE
-        val secs = freeWaitSecondsLeft % SECONDS_PER_MINUTE
-        Text(
-            text = stringResource(Res.string.host_trip_free_wait_timer, mins, secs),
-            style = typography.h2,
-            color = colors.purple,
-            modifier = modifier,
-        )
-    } else {
-        val mins = lateSeconds / SECONDS_PER_MINUTE
-        val secs = lateSeconds % SECONDS_PER_MINUTE
-        Text(
-            text = stringResource(Res.string.host_trip_free_wait_over, mins, secs),
-            style = typography.h2,
-            color = colors.error,
-            modifier = modifier,
-        )
-    }
-}
-
-@Composable
-private fun BoardingSectionHeader(
-    state: HostTripState,
-    modifier: Modifier = Modifier,
-) {
-    val colors = HitchyTheme.colors
-    val typography = HitchyTheme.typography
-
-    Text(
-        text = stringResource(
-            Res.string.host_trip_boarded_count,
-            state.boardedCount,
-            state.totalBookedSeats,
-        ),
-        style = typography.title,
-        color = colors.textPrimary,
-        modifier = modifier,
-    )
-}
-
-@Composable
-private fun HostRiderBoardingCard(
-    booking: Booking,
-    riderName: String?,
-    isFreeWaitOver: Boolean,
-    onMarkBoarded: () -> Unit,
-    onReportLate: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val colors = HitchyTheme.colors
-    val spacing = HitchyTheme.spacing
-    val typography = HitchyTheme.typography
-    val cardShape = RoundedCornerShape(12.dp)
-    val shortName = riderName ?: booking.riderUid.take(RIDER_NAME_LENGTH).replaceFirstChar { it.uppercase() }
-
-    Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(cardShape)
-            .border(1.dp, colors.border, cardShape),
-        color = colors.white,
-        shape = cardShape,
-    ) {
-        Column(
-            modifier = Modifier.padding(spacing.space12),
-            verticalArrangement = Arrangement.spacedBy(spacing.space8),
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(spacing.space8),
-            ) {
-                Avatar(initials = shortName.take(2).uppercase())
-                Text(
-                    text = shortName,
-                    style = typography.title,
-                    color = colors.textPrimary,
-                    modifier = Modifier.weight(1f),
-                )
-                if (booking.boardedAt != null) {
-                    StatusChip(
-                        status = RideStatusVariant.Completed,
-                        customLabel = "On board",
-                    )
-                }
-            }
-
-            if (booking.boardedAt == null) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(spacing.space8),
-                ) {
-                    HitchyButton(
-                        onClick = onMarkBoarded,
-                        modifier = Modifier.weight(1f),
-                    ) {
-                        Text(text = stringResource(Res.string.host_trip_btn_boarded, shortName))
-                    }
-                    if (isFreeWaitOver) {
-                        HitchyButton(
-                            onClick = onReportLate,
-                            variant = HitchyButtonVariant.Outline,
-                        ) {
-                            Text(text = stringResource(Res.string.host_trip_btn_report_late))
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun PaymentDoneCard(
-    state: HostTripState,
+    current: Booking?,
+    onSelectRider: (String) -> Unit,
+    onAction: (HostTripAction) -> Unit,
     onDone: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = HitchyTheme.colors
-    val spacing = HitchyTheme.spacing
-    val typography = HitchyTheme.typography
-    val cardShape = RoundedCornerShape(16.dp)
-
-    Surface(
+    Column(
         modifier = modifier
-            .fillMaxWidth()
-            .clip(cardShape)
-            .border(1.dp, colors.border, cardShape),
-        color = colors.white,
-        shape = cardShape,
+            .clip(RoundedCornerShape(topStart = SheetRadius, topEnd = SheetRadius))
+            .background(colors.white),
     ) {
+        Box(
+            modifier = Modifier
+                .padding(top = 8.dp)
+                .align(Alignment.CenterHorizontally)
+                .size(width = 40.dp, height = 4.dp)
+                .clip(CircleShape)
+                .background(colors.border),
+        )
         Column(
-            modifier = Modifier.padding(spacing.space24),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(spacing.space16),
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 20.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
-            Box(
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(CircleShape)
-                    .background(colors.lavender),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    painter = painterResource(HitchyIcons.Check),
-                    contentDescription = null,
-                    tint = colors.purple,
-                    modifier = Modifier.size(32.dp),
-                )
+            SheetHeader(state = state, language = language, current = current)
+            OwnerTripProgress(currentIndex = progressIndex(state.phase))
+            SheetBody(state = state, language = language, current = current, onSelectRider = onSelectRider)
+            val error = state.error
+            if (error != null) {
+                ErrorText(error = error, style = HitchyTheme.typography.caption, color = colors.error)
             }
+        }
+        ActionBar(state = state, current = current, onAction = onAction, onDone = onDone)
+    }
+}
 
-            Text(
-                text = stringResource(Res.string.host_trip_payment_done_title),
-                style = typography.h2,
-                color = colors.textPrimary,
-            )
+@Composable
+private fun SheetBody(
+    state: HostTripState,
+    language: AppLanguage,
+    current: Booking?,
+    onSelectRider: (String) -> Unit,
+) {
+    if (state.phase == HostTripPhase.PAYMENT_DONE) {
+        PaymentSummaryCard(state = state)
+        return
+    }
+    if (state.bookings.isNotEmpty()) {
+        RiderStatusCard(
+            state = state,
+            language = language,
+            currentUid = current?.riderUid,
+            onSelect = onSelectRider,
+        )
+    }
+    if (state.phase == HostTripPhase.AT_STOP) {
+        WaitTimerCard(state = state)
+    }
+}
 
+private fun progressIndex(phase: HostTripPhase): Int = when (phase) {
+    HostTripPhase.LEAVING -> 0
+    HostTripPhase.DRIVING_TO_STOP, HostTripPhase.AT_STOP -> 1
+    HostTripPhase.EN_ROUTE -> 2
+    HostTripPhase.ARRIVED, HostTripPhase.PAYMENT_DONE -> ALL_STEPS_DONE
+}
+
+@Composable
+private fun SheetHeader(
+    state: HostTripState,
+    language: AppLanguage,
+    current: Booking?,
+) {
+    val colors = HitchyTheme.colors
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.Top,
+    ) {
+        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(
-                text = stringResource(Res.string.host_trip_payment_done_total, state.paymentTotalCollected),
-                style = typography.title,
+                text = stringResource(eyebrowRes(state.phase)),
+                style = HitchyTheme.typography.bodyStrong,
                 color = colors.purple,
             )
-
             Text(
-                text = stringResource(Res.string.host_trip_payment_done_bookings, state.paymentBookingsCount),
-                style = typography.body,
-                color = colors.textSecondary,
+                text = headline(state, language, current),
+                style = HitchyTheme.typography.h1,
+                color = colors.navy,
+                maxLines = 2,
             )
+        }
+        CountPill(state = state)
+    }
+}
 
-            Text(
-                text = stringResource(Res.string.host_trip_wallet_balance, state.walletBalance),
-                style = typography.title,
-                color = colors.textPrimary,
+private fun eyebrowRes(phase: HostTripPhase): StringResource = when (phase) {
+    HostTripPhase.LEAVING -> Res.string.host_trip_status_leaving
+    HostTripPhase.DRIVING_TO_STOP -> Res.string.owner_design_step_pickups
+    HostTripPhase.AT_STOP -> Res.string.owner_design_eyebrow_at_pickups
+    HostTripPhase.EN_ROUTE -> Res.string.owner_design_step_on_the_way
+    HostTripPhase.ARRIVED -> Res.string.owner_design_eyebrow_arrived
+    HostTripPhase.PAYMENT_DONE -> Res.string.owner_design_step_completed
+}
+
+@Composable
+private fun headline(
+    state: HostTripState,
+    language: AppLanguage,
+    current: Booking?,
+): String {
+    val destination = state.ride?.toPointName?.resolve(language).orEmpty()
+    return when (state.phase) {
+        HostTripPhase.LEAVING ->
+            stringResource(Res.string.owner_design_leave_at, isoToCairoTime(state.ride?.departAt))
+
+        HostTripPhase.DRIVING_TO_STOP ->
+            stringResource(Res.string.owner_design_heading_to, currentStopName(state, language))
+
+        HostTripPhase.AT_STOP -> if (current != null) {
+            stringResource(Res.string.owner_design_waiting_for, riderDisplayName(state.riderNames, current.riderUid))
+        } else {
+            stringResource(Res.string.owner_design_all_on_board)
+        }
+
+        HostTripPhase.EN_ROUTE -> stringResource(Res.string.owner_design_heading_to, destination)
+
+        HostTripPhase.ARRIVED -> stringResource(Res.string.owner_design_arrived_at, destination)
+
+        HostTripPhase.PAYMENT_DONE -> stringResource(Res.string.host_trip_status_completed)
+    }
+}
+
+private fun currentStopName(state: HostTripState, language: AppLanguage): String {
+    val stopName = state.ride?.stops?.getOrNull(state.currentStopIndex)?.pointName?.resolve(language)
+    return stopName?.takeIf { it.isNotBlank() } ?: state.currentStopName
+}
+
+@Composable
+private fun CountPill(state: HostTripState) {
+    val total = state.bookings.size
+    when {
+        state.phase == HostTripPhase.LEAVING ->
+            OwnerPill(stringResource(Res.string.owner_design_riders_count, total), PillTone.Warning)
+
+        else -> {
+            val everyone = total > 0 && state.boardedCount == total
+            OwnerPill(
+                text = stringResource(Res.string.owner_design_on_board_count, state.boardedCount),
+                tone = if (everyone) PillTone.Success else PillTone.Warning,
             )
-
-            Spacer(modifier = Modifier.height(spacing.space8))
-
-            HitchyButton(
-                onClick = onDone,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text(text = stringResource(Res.string.host_trip_btn_payment_done))
-            }
         }
     }
 }
 
-private const val RIDER_NAME_LENGTH = 8
+@Composable
+private fun ActionBar(
+    state: HostTripState,
+    current: Booking?,
+    onAction: (HostTripAction) -> Unit,
+    onDone: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .navigationBarsPadding()
+            .padding(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        when (state.phase) {
+            HostTripPhase.LEAVING ->
+                MainAction(Res.string.host_trip_btn_start, state.isLoading) { onAction(HostTripAction.StartTrip) }
+
+            HostTripPhase.DRIVING_TO_STOP ->
+                MainAction(Res.string.host_trip_btn_im_here, state.isLoading) { onAction(HostTripAction.ArriveAtStop) }
+
+            HostTripPhase.AT_STOP -> AtStopActions(state = state, current = current, onAction = onAction)
+
+            HostTripPhase.EN_ROUTE ->
+                MainAction(Res.string.host_trip_btn_end_trip, state.isLoading) { onAction(HostTripAction.FinishTrip) }
+
+            HostTripPhase.ARRIVED ->
+                MainAction(Res.string.host_trip_btn_confirm_payment, state.isLoading) {
+                    onAction(HostTripAction.ConfirmPayment)
+                }
+
+            HostTripPhase.PAYMENT_DONE -> MainAction(Res.string.host_trip_btn_payment_done, false, onDone)
+        }
+    }
+}
+
+@Composable
+private fun AtStopActions(
+    state: HostTripState,
+    current: Booking?,
+    onAction: (HostTripAction) -> Unit,
+) {
+    if (current == null) {
+        MainAction(Res.string.host_trip_btn_next_stop, false) { onAction(HostTripAction.NextStopOrFinish) }
+        return
+    }
+    val name = riderDisplayName(state.riderNames, current.riderUid)
+    HitchyButton(
+        onClick = { onAction(HostTripAction.MarkBoarded(current.riderUid)) },
+        loading = state.isLoading,
+        variant = if (state.isFreeWaitOver) HitchyButtonVariant.Primary else HitchyButtonVariant.Tonal,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Text(text = stringResource(Res.string.host_trip_btn_boarded, name))
+    }
+    if (state.isFreeWaitOver && current.lateFeeId == null) {
+        HitchyButton(
+            onClick = { onAction(HostTripAction.ReportLate(current.riderUid)) },
+            loading = state.isLoading,
+            variant = HitchyButtonVariant.Destructive,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(text = stringResource(Res.string.owner_design_report_late, name))
+        }
+    }
+    HitchyButton(
+        onClick = { onAction(HostTripAction.NextStopOrFinish) },
+        variant = HitchyButtonVariant.Outline,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Text(text = stringResource(Res.string.host_trip_btn_next_stop))
+    }
+}
+
+@Composable
+private fun MainAction(
+    label: StringResource,
+    loading: Boolean,
+    onClick: () -> Unit,
+) {
+    HitchyButton(onClick = onClick, loading = loading, modifier = Modifier.fillMaxWidth()) {
+        Text(text = stringResource(label))
+    }
+}

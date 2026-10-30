@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="owner_design_status_posted">منشور</string>
+    <string name="owner_design_route_start">نقطة البداية</string>
+    <string name="owner_design_route_dropoff">نقطة الوصول</string>
+    <string name="owner_design_riders_title">الركاب</string>
+    <string name="owner_design_pickup_line">الالتقاط %1$s · %2$s</string>
+    <string name="owner_design_seats_open">المقاعد الفاضية: %1$d</string>
+    <string name="owner_design_requests_waiting">طلبات مستنية: %1$d</string>
+    <string name="owner_design_seat_price">سعر المقعد</string>
+    <string name="owner_design_egp">%1$d ج.م</string>
+    <string name="owner_design_expected">المتوقع</string>
+    <string name="owner_design_expected_range">%1$d ج.م · حتى %2$d ج.م</string>
+    <string name="owner_design_step_leaving">التحرك</string>
+    <string name="owner_design_step_pickups">الالتقاط</string>
+    <string name="owner_design_step_on_the_way">في الطريق</string>
+    <string name="owner_design_step_completed">تم الوصول</string>
+    <string name="owner_design_eyebrow_at_pickups">عند نقطة الالتقاط</string>
+    <string name="owner_design_eyebrow_arrived">وصلت</string>
+    <string name="owner_design_leave_at">اتحرك الساعة %1$s</string>
+    <string name="owner_design_heading_to">رايح على %1$s</string>
+    <string name="owner_design_waiting_for">مستني %1$s</string>
+    <string name="owner_design_all_on_board">كل الركاب في العربية</string>
+    <string name="owner_design_arrived_at">وصلت %1$s</string>
+    <string name="owner_design_riders_count">الركاب: %1$d</string>
+    <string name="owner_design_on_board_count">في العربية: %1$d</string>
+    <string name="owner_design_chip_waiting">مستني</string>
+    <string name="owner_design_chip_next">الجاي</string>
+    <string name="owner_design_chip_here_now">دلوقتي</string>
+    <string name="owner_design_chip_on_board">في العربية</string>
+    <string name="owner_design_chip_on_board_late">في العربية · متأخر</string>
+    <string name="owner_design_chip_dropped_off">نزل</string>
+    <string name="owner_design_timer_label">الانتظار</string>
+    <string name="owner_design_timer_value">%1$02d:%2$02d</string>
+    <string name="owner_design_late_fee_applies">غرامة التأخير بدأت</string>
+    <string name="owner_design_free_wait">انتظار مجاني · %1$d دقايق</string>
+    <string name="owner_design_late_fee">غرامة تأخير ١٠ ج.م</string>
+    <string name="owner_design_report_late">بلّغ إن %1$s اتأخر</string>
+</resources>

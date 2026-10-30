@@ -10,8 +10,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -29,11 +31,15 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hitchy.core.model.AppLanguage
 import com.hitchy.core.platform.LanguageSwitcher
+import com.hitchy.core.ui.components.BackButton
+import com.hitchy.core.ui.components.BackButtonStyle
 import com.hitchy.core.ui.components.HitchyButton
 import com.hitchy.core.ui.components.HitchyButtonVariant
 import com.hitchy.core.ui.components.SearchField
 import com.hitchy.core.ui.components.TopBar
 import com.hitchy.core.ui.icon.HitchyIcons
+import com.hitchy.core.ui.map.HitchyMap
+import com.hitchy.core.ui.map.MapPin
 import com.hitchy.core.ui.theme.HitchyTheme
 import com.hitchy.feature.places.domain.Point
 import com.hitchy.feature.places.presentation.PlacesPickerAction
@@ -146,9 +152,7 @@ fun MapPointPickerScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val colors = HitchyTheme.colors
-    val typography = HitchyTheme.typography
-    val spacing = HitchyTheme.spacing
-    val currentLanguage: AppLanguage = languageSwitcher.getCurrentLanguage()
+    val language: AppLanguage = languageSwitcher.getCurrentLanguage()
     val zonesById = state.zones.associateBy { it.id }
 
     LaunchedEffect(field) {
@@ -163,88 +167,96 @@ fun MapPointPickerScreen(
         }
     }
 
-    Surface(
-        modifier = modifier.fillMaxSize(),
-        color = colors.background,
-    ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            TopBar(
-                title = stringResource(Res.string.picker_map_title),
-                onBackClick = onBack,
-            )
+    val selected = state.selectedPoint
+    val pointsById = state.points.associateBy { it.id }
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(spacing.screenPadding),
-                verticalArrangement = Arrangement.spacedBy(spacing.space16),
+    Box(modifier = modifier.fillMaxSize().background(colors.background)) {
+        HitchyMap(
+            pins = state.points.map { MapPin(id = it.id, point = it.location, selected = it.id == selected?.id) },
+            onPinClick = { id -> pointsById[id]?.let { viewModel.onAction(PlacesPickerAction.HighlightPoint(it)) } },
+            modifier = Modifier.fillMaxSize(),
+        )
+        BackButton(
+            onClick = onBack,
+            style = BackButtonStyle.OutlinedCircle,
+            modifier = Modifier.statusBarsPadding().padding(start = 16.dp, top = 8.dp),
+        )
+        PointSheet(
+            selected = selected,
+            zoneName = zonesById[selected?.zoneId]?.name?.resolve(language).orEmpty(),
+            language = language,
+            onConfirm = { selected?.let { viewModel.onAction(PlacesPickerAction.ConfirmPoint(it)) } },
+            modifier = Modifier.align(Alignment.BottomCenter),
+        )
+    }
+}
+
+@Composable
+private fun PointSheet(
+    selected: Point?,
+    zoneName: String,
+    language: AppLanguage,
+    onConfirm: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val colors = HitchyTheme.colors
+    val typography = HitchyTheme.typography
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
+            .background(colors.white)
+            .navigationBarsPadding()
+            .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Box(
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .size(width = 40.dp, height = 4.dp)
+                .clip(CircleShape)
+                .background(colors.border),
+        )
+        Text(
+            text = stringResource(Res.string.picker_map_title),
+            style = typography.h3,
+            color = colors.navy,
+        )
+        Surface(
+            modifier = Modifier.fillMaxWidth().border(1.dp, colors.border, RoundedCornerShape(20.dp)),
+            shape = RoundedCornerShape(20.dp),
+            color = colors.white,
+        ) {
+            Row(
+                modifier = Modifier.padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                // Stylized interactive pilot map preview card
                 Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(160.dp)
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(colors.lavender)
-                        .border(1.dp, colors.border, RoundedCornerShape(16.dp))
-                        .padding(spacing.space16),
+                    modifier = Modifier.size(44.dp).clip(RoundedCornerShape(12.dp)).background(colors.errorBg),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(spacing.space8),
-                    ) {
-                        Icon(
-                            painter = painterResource(HitchyIcons.Pin),
-                            contentDescription = null,
-                            tint = colors.pin,
-                            modifier = Modifier.size(32.dp),
-                        )
-                        val selected = state.selectedPoint
-                        if (selected != null) {
-                            Text(
-                                text = selected.name.resolve(currentLanguage),
-                                style = typography.h3,
-                                color = colors.navy,
-                            )
-                        }
-                        Text(
-                            text = stringResource(Res.string.picker_map_subtitle),
-                            style = typography.caption,
-                            color = colors.textSecondary,
-                        )
-                    }
+                    Icon(
+                        painter = painterResource(HitchyIcons.Pin),
+                        contentDescription = null,
+                        tint = colors.pin,
+                        modifier = Modifier.size(22.dp),
+                    )
                 }
-
-                LazyColumn(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(spacing.space8),
-                ) {
-                    items(state.points, key = { it.id }) { point ->
-                        val zoneName = zonesById[point.zoneId]?.name?.resolve(currentLanguage).orEmpty()
-                        PointRow(
-                            point = point,
-                            zoneName = zoneName,
-                            language = currentLanguage,
-                            selected = state.selectedPoint?.id == point.id,
-                            onClick = { viewModel.onAction(PlacesPickerAction.HighlightPoint(point)) },
-                        )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = selected?.name?.resolve(language) ?: stringResource(Res.string.picker_map_subtitle),
+                        style = typography.bodyStrong,
+                        color = colors.navy,
+                    )
+                    if (selected != null && zoneName.isNotEmpty()) {
+                        Text(text = zoneName, style = typography.caption, color = colors.textSecondary)
                     }
-                }
-
-                HitchyButton(
-                    onClick = {
-                        val selected = state.selectedPoint
-                        if (selected != null) {
-                            viewModel.onAction(PlacesPickerAction.ConfirmPoint(selected))
-                        }
-                    },
-                    enabled = state.selectedPoint != null,
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Text(text = stringResource(Res.string.picker_confirm_point))
                 }
             }
+        }
+        HitchyButton(onClick = onConfirm, enabled = selected != null, modifier = Modifier.fillMaxWidth()) {
+            Text(text = stringResource(Res.string.picker_confirm_point))
         }
     }
 }
