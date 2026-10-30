@@ -37,8 +37,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.hitchy.core.ui.cairoTime12
 import com.hitchy.core.model.AppLanguage
+import com.hitchy.core.ui.cairoTime12
 import com.hitchy.core.ui.components.Avatar
 import com.hitchy.core.ui.components.AvatarSize
 import com.hitchy.core.ui.components.BackButton
@@ -62,6 +62,8 @@ import com.hitchy.feature.places.domain.Point
 import hitchy.shared.generated.resources.Res
 import hitchy.shared.generated.resources.bk_arrival
 import hitchy.shared.generated.resources.bk_best_match
+import hitchy.shared.generated.resources.bk_card_dropoff
+import hitchy.shared.generated.resources.bk_card_pickup
 import hitchy.shared.generated.resources.bk_cancel_search
 import hitchy.shared.generated.resources.bk_edit_route
 import hitchy.shared.generated.resources.bk_egp_amount
@@ -90,7 +92,7 @@ private val FindingSheetTop = 344.dp
 private val FindingSheetRadius = 24.dp
 private val FindingBackTop = 56.dp
 private val SkeletonShape = RoundedCornerShape(16.dp)
-private val ResultCardRadius = 24.dp
+private val ResultCardRadius = 16.dp
 
 /** Names and the pickup point used by the three search screens, resolved from the zones and points lists. */
 internal data class SearchSummary(
@@ -279,6 +281,11 @@ private fun SearchCountRow(count: Int) {
     }
 }
 
+/**
+ * Figma's Ride Offer Card (component 397:518): white, r=16, pad 16, 12dp gaps. The owner row, a lilac
+ * trip box with the times and the pickup and drop-off lines, the seats, the total, and View ride.
+ * The v1.0 fee rows are not shown: in v1.2 the seat price is the whole price.
+ */
 @Composable
 private fun SearchResultCard(
     card: RideCard,
@@ -287,16 +294,25 @@ private fun SearchResultCard(
 ) {
     val colors = HitchyTheme.colors
     val typography = HitchyTheme.typography
-    BookingCardSurface(background = colors.lilac, borderColor = colors.lavender, radius = ResultCardRadius) {
+    BookingCardSurface(radius = ResultCardRadius) {
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             if (card.bestMatch) BestMatchPill()
-            ResultTimesRow(card)
-            ResultRouteLines(card, language)
-            HorizontalDivider(color = colors.border, thickness = 1.dp)
             ResultHostRow(card.host)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(colors.lilac)
+                    .padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                ResultTimesRow(card)
+                ResultRouteLines(card, language)
+            }
+            SeatIndicator(availableSeats = card.seatsLeft)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -304,7 +320,7 @@ private fun SearchResultCard(
             ) {
                 Text(
                     text = stringResource(Res.string.bk_total_per_seat),
-                    style = typography.bodyStrong,
+                    style = typography.bodyBold,
                     color = colors.textSecondary,
                 )
                 Text(
@@ -345,35 +361,20 @@ private fun BestMatchPill() {
     }
 }
 
+/** Figma: "7:30 AM → 8:20 AM arrival", 18/26 Bold times, a purple 14/22 arrow, a 12/18 label. */
 @Composable
 private fun ResultTimesRow(card: RideCard) {
     val colors = HitchyTheme.colors
     val typography = HitchyTheme.typography
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        Text(text = cairoTime12(card.pickup.at), style = typography.h3, color = colors.navy)
-        Icon(
-            painter = painterResource(HitchyIcons.ArrowForward),
-            contentDescription = null,
-            tint = colors.purple,
-            modifier = Modifier.size(12.dp),
-        )
-        Text(text = cairoTime12(card.arriveAt), style = typography.h3, color = colors.navy)
-        Text(
-            text = stringResource(Res.string.bk_arrival),
-            style = typography.caption,
-            color = colors.textSecondary,
-            maxLines = 1,
-        )
-        Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
-            SeatIndicator(availableSeats = card.seatsLeft)
-        }
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(text = cairoTime12(card.pickup.at), style = typography.title, color = colors.navy)
+        Text(text = "→", style = typography.body, color = colors.purple)
+        Text(text = cairoTime12(card.arriveAt), style = typography.title, color = colors.navy)
+        Text(text = stringResource(Res.string.bk_arrival), style = typography.caption, color = colors.textSecondary, maxLines = 1)
     }
 }
 
+/** Figma's two Bold 12/18 lines: "Pickup: … · 250 m away" and "Drop-off: …". */
 @Composable
 private fun ResultRouteLines(
     card: RideCard,
@@ -381,48 +382,21 @@ private fun ResultRouteLines(
 ) {
     val colors = HitchyTheme.colors
     val typography = HitchyTheme.typography
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        ResultLine {
-            Box(
-                modifier = Modifier
-                    .size(14.dp)
-                    .border(2.dp, colors.purple, CircleShape),
-            )
-            Text(
-                text = stringResource(
-                    Res.string.bk_pickup_walk,
-                    card.pickup.name.resolve(language),
-                    card.pickup.walkM,
-                ),
-                style = typography.body,
-                color = colors.navy,
-                maxLines = 1,
-            )
-        }
-        ResultLine {
-            Icon(
-                painter = painterResource(HitchyIcons.Pin),
-                contentDescription = null,
-                tint = colors.pin,
-                modifier = Modifier.size(14.dp),
-            )
-            Text(
-                text = card.toPointName.resolve(language),
-                style = typography.body,
-                color = colors.navy,
-                maxLines = 1,
-            )
-        }
-    }
+    Text(
+        text = stringResource(Res.string.bk_card_pickup, card.pickup.name.resolve(language), card.pickup.walkM),
+        style = typography.captionStrong,
+        color = colors.navy,
+        maxLines = 1,
+    )
+    Text(
+        text = stringResource(Res.string.bk_card_dropoff, card.toPointName.resolve(language)),
+        style = typography.captionStrong,
+        color = colors.navy,
+        maxLines = 1,
+    )
 }
 
-@Composable
-private fun ResultLine(content: @Composable () -> Unit) {
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        content()
-    }
-}
-
+/** Figma's `Host row`: a 44dp lavender avatar, the name in Bold 14/22, "★ 4.9 · 128 rides" and the badge. */
 @Composable
 private fun ResultHostRow(host: RideHost) {
     val colors = HitchyTheme.colors
@@ -432,20 +406,17 @@ private fun ResultHostRow(host: RideHost) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Avatar(initials = host.firstName.take(2), size = AvatarSize.LG)
+        Box(
+            modifier = Modifier.size(44.dp).clip(CircleShape).background(colors.lavender),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(text = host.firstName.take(2).uppercase(), style = typography.bodyBold, color = colors.purple)
+        }
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = host.firstName, style = typography.bodyStrong, color = colors.navy, maxLines = 1)
+            Text(text = host.firstName, style = typography.bodyBold, color = colors.navy, maxLines = 1)
             host.rating?.let { rating ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                ) {
-                    Icon(
-                        painter = painterResource(HitchyIcons.Star),
-                        contentDescription = null,
-                        tint = colors.warning,
-                        modifier = Modifier.size(14.dp),
-                    )
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(text = "★", style = typography.captionStrong, color = colors.warning)
                     Text(
                         text = stringResource(Res.string.bk_rating_line, rating.toString().take(3), host.trips),
                         style = typography.caption,

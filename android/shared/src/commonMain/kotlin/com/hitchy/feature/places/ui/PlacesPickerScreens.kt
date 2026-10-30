@@ -54,16 +54,16 @@ import com.hitchy.feature.places.presentation.PlacesPickerState
 import com.hitchy.feature.places.presentation.PlacesPickerViewModel
 import hitchy.shared.generated.resources.Res
 import hitchy.shared.generated.resources.picker_choose_on_map
+import hitchy.shared.generated.resources.picker_clear
 import hitchy.shared.generated.resources.picker_confirm_destination
 import hitchy.shared.generated.resources.picker_confirm_pickup
-import hitchy.shared.generated.resources.picker_map_subtitle
-import hitchy.shared.generated.resources.picker_map_title_destination
-import hitchy.shared.generated.resources.picker_map_title_pickup
-import hitchy.shared.generated.resources.picker_clear
 import hitchy.shared.generated.resources.picker_from_label
 import hitchy.shared.generated.resources.picker_from_placeholder
 import hitchy.shared.generated.resources.picker_map_hint_destination
 import hitchy.shared.generated.resources.picker_map_hint_pickup
+import hitchy.shared.generated.resources.picker_map_subtitle
+import hitchy.shared.generated.resources.picker_map_title_destination
+import hitchy.shared.generated.resources.picker_map_title_pickup
 import hitchy.shared.generated.resources.picker_pickup_points
 import hitchy.shared.generated.resources.picker_results_for
 import hitchy.shared.generated.resources.picker_route_title
@@ -119,7 +119,11 @@ fun RoutePickerScreen(
         ) {
             item {
                 Row(modifier = Modifier.fillMaxWidth().height(44.dp), verticalAlignment = Alignment.CenterVertically) {
-                    BackButton(onClick = onBack, style = BackButtonStyle.OutlinedCircle, modifier = Modifier.size(44.dp))
+                    BackButton(
+                        onClick = onBack,
+                        style = BackButtonStyle.OutlinedCircle,
+                        modifier = Modifier.size(44.dp),
+                    )
                     Text(
                         text = stringResource(Res.string.picker_route_title),
                         style = typography.title,
@@ -248,7 +252,14 @@ private fun RouteFieldsCard(
                         onTap = { onFieldTap(pair.second) },
                     )
                 } else {
-                    RouteField(isFrom = false, active = true, query = state.query, value = null, onQueryChange = onQueryChange, onTap = {})
+                    RouteField(
+                        isFrom = false,
+                        active = true,
+                        query = state.query,
+                        value = null,
+                        onQueryChange = onQueryChange,
+                        onTap = {},
+                    )
                 }
             }
         }
@@ -291,13 +302,24 @@ private fun RouteField(
         modifier = Modifier
             .fillMaxWidth()
             .clip(FieldShape)
-            .then(if (active) Modifier.border(1.5.dp, colors.purple, FieldShape) else Modifier.clickable(onClick = onTap))
+            .then(
+                if (active) {
+                    Modifier
+                        .border(1.5.dp, colors.purple, FieldShape)
+                } else {
+                    Modifier
+                        .clickable(onClick = onTap)
+                },
+            )
             .padding(start = 8.dp, end = 12.dp, top = 8.dp, bottom = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
-            modifier = Modifier.size(40.dp).clip(FieldShape).background(if (isFrom) colors.lavender else colors.pinTint),
+            modifier = Modifier
+                .size(40.dp)
+                .clip(FieldShape)
+                .background(if (isFrom) colors.lavender else colors.pinTint),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
@@ -313,7 +335,9 @@ private fun RouteField(
                 style = typography.caption,
                 color = colors.textSecondary,
             )
-            val placeholder = stringResource(if (isFrom) Res.string.picker_from_placeholder else Res.string.picker_to_placeholder)
+            val placeholder = stringResource(
+                if (isFrom) Res.string.picker_from_placeholder else Res.string.picker_to_placeholder,
+            )
             if (active) {
                 BasicTextField(
                     value = query,
@@ -324,7 +348,13 @@ private fun RouteField(
                     modifier = Modifier.fillMaxWidth().focusRequester(focus),
                     decorationBox = { inner ->
                         Box {
-                            if (query.isEmpty()) Text(text = placeholder, style = typography.body, color = colors.textDisabled)
+                            if (query.isEmpty()) {
+                                Text(
+                                    text = placeholder,
+                                    style = typography.body,
+                                    color = colors.textDisabled,
+                                )
+                            }
                             inner()
                         }
                     },
@@ -372,7 +402,12 @@ private fun LocationRow(
             modifier = Modifier.size(40.dp).clip(FieldShape).background(colors.lavender),
             contentAlignment = Alignment.Center,
         ) {
-            Icon(painter = painterResource(icon), contentDescription = null, tint = colors.purple, modifier = Modifier.size(20.dp))
+            Icon(
+                painter = painterResource(icon),
+                contentDescription = null,
+                tint = colors.purple,
+                modifier = Modifier.size(20.dp),
+            )
         }
         Column(modifier = Modifier.weight(1f)) {
             Text(text = title, style = typography.bodyBold, color = colors.navy, maxLines = 1)
@@ -462,7 +497,9 @@ private fun PointSheet(
                 .background(colors.border),
         )
         Text(
-            text = stringResource(if (pickingFrom) Res.string.picker_map_title_pickup else Res.string.picker_map_title_destination),
+            text = stringResource(
+                if (pickingFrom) Res.string.picker_map_title_pickup else Res.string.picker_map_title_destination,
+            ),
             style = typography.h3,
             color = colors.navy,
         )
@@ -477,7 +514,10 @@ private fun PointSheet(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
-                modifier = Modifier.size(40.dp).clip(FieldShape).background(if (pickingFrom) colors.lavender else colors.pinTint),
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(FieldShape)
+                    .background(if (pickingFrom) colors.lavender else colors.pinTint),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(

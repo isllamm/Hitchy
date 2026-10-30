@@ -23,8 +23,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.hitchy.core.ui.cairoTime12
 import com.hitchy.core.model.AppLanguage
+import com.hitchy.core.ui.cairoTime12
 import com.hitchy.core.ui.components.Avatar
 import com.hitchy.core.ui.icon.HitchyIcons
 import com.hitchy.core.ui.theme.HitchyTheme

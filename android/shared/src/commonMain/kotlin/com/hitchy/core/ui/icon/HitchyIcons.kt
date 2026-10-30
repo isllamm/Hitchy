@@ -2,8 +2,41 @@ package com.hitchy.core.ui.icon
 
 import hitchy.shared.generated.resources.Res
 import hitchy.shared.generated.resources.fig_arrow_forward
+import hitchy.shared.generated.resources.fig_back
+import hitchy.shared.generated.resources.fig_bell
+import hitchy.shared.generated.resources.fig_calendar_small
+import hitchy.shared.generated.resources.fig_cancelled
+import hitchy.shared.generated.resources.fig_car_28
+import hitchy.shared.generated.resources.fig_check_small
+import hitchy.shared.generated.resources.fig_chevron_left_month
+import hitchy.shared.generated.resources.fig_chevron_right
+import hitchy.shared.generated.resources.fig_chevron_right_20
+import hitchy.shared.generated.resources.fig_clear
+import hitchy.shared.generated.resources.fig_clock_small
+import hitchy.shared.generated.resources.fig_close
+import hitchy.shared.generated.resources.fig_close_small
+import hitchy.shared.generated.resources.fig_destination
 import hitchy.shared.generated.resources.fig_driver
+import hitchy.shared.generated.resources.fig_info_16
+import hitchy.shared.generated.resources.fig_info_small
+import hitchy.shared.generated.resources.fig_map
+import hitchy.shared.generated.resources.fig_minus
+import hitchy.shared.generated.resources.fig_no_rides
+import hitchy.shared.generated.resources.fig_passenger_small
+import hitchy.shared.generated.resources.fig_pickup
+import hitchy.shared.generated.resources.fig_pin_small
+import hitchy.shared.generated.resources.fig_place
+import hitchy.shared.generated.resources.fig_plus
 import hitchy.shared.generated.resources.fig_rider
+import hitchy.shared.generated.resources.fig_search_small
+import hitchy.shared.generated.resources.fig_swap
+import hitchy.shared.generated.resources.fig_tab_home_off
+import hitchy.shared.generated.resources.fig_tab_home_on
+import hitchy.shared.generated.resources.fig_tab_rides_off
+import hitchy.shared.generated.resources.fig_tab_rides_on
+import hitchy.shared.generated.resources.fig_tab_shop_off
+import hitchy.shared.generated.resources.fig_tab_shop_on
+import hitchy.shared.generated.resources.fig_toast_error
 import hitchy.shared.generated.resources.ic_add_person
 import hitchy.shared.generated.resources.ic_back
 import hitchy.shared.generated.resources.ic_bell
@@ -37,37 +70,14 @@ import hitchy.shared.generated.resources.ic_success
 import hitchy.shared.generated.resources.ic_swap
 import hitchy.shared.generated.resources.ic_upload
 import hitchy.shared.generated.resources.ic_warning
-import hitchy.shared.generated.resources.fig_bell
-import hitchy.shared.generated.resources.fig_calendar_small
-import hitchy.shared.generated.resources.fig_chevron_right
-import hitchy.shared.generated.resources.fig_clock_small
-import hitchy.shared.generated.resources.fig_minus
-import hitchy.shared.generated.resources.fig_passenger_small
-import hitchy.shared.generated.resources.fig_pin_small
-import hitchy.shared.generated.resources.fig_plus
-import hitchy.shared.generated.resources.fig_search_small
-import hitchy.shared.generated.resources.fig_tab_home_off
-import hitchy.shared.generated.resources.fig_tab_home_on
-import hitchy.shared.generated.resources.fig_tab_rides_off
-import hitchy.shared.generated.resources.fig_tab_rides_on
-import hitchy.shared.generated.resources.fig_tab_shop_off
-import hitchy.shared.generated.resources.fig_tab_shop_on
-import hitchy.shared.generated.resources.fig_close_small
-import hitchy.shared.generated.resources.fig_toast_error
-import hitchy.shared.generated.resources.fig_check_small
-import hitchy.shared.generated.resources.fig_chevron_left_month
-import hitchy.shared.generated.resources.fig_close
-import hitchy.shared.generated.resources.fig_info_small
-import hitchy.shared.generated.resources.fig_back
-import hitchy.shared.generated.resources.fig_clear
-import hitchy.shared.generated.resources.fig_destination
-import hitchy.shared.generated.resources.fig_map
-import hitchy.shared.generated.resources.fig_pickup
-import hitchy.shared.generated.resources.fig_place
-import hitchy.shared.generated.resources.fig_swap
-import hitchy.shared.generated.resources.fig_chevron_right_20
-import hitchy.shared.generated.resources.fig_no_rides
-import hitchy.shared.generated.resources.fig_car_28
+import hitchy.shared.generated.resources.fig_chevron_18
+import hitchy.shared.generated.resources.fig_destination_22
+import hitchy.shared.generated.resources.fig_home_22
+import hitchy.shared.generated.resources.fig_menu_bell
+import hitchy.shared.generated.resources.fig_menu_rides
+import hitchy.shared.generated.resources.fig_menu_settings
+import hitchy.shared.generated.resources.fig_person_22
+import hitchy.shared.generated.resources.fig_back_22
 import org.jetbrains.compose.resources.DrawableResource
 
 /**
@@ -181,6 +191,22 @@ object HitchyIcons {
 
     /** Figma's 28x28 car outline on the ride's vehicle row. */
     val Car28: DrawableResource get() = Res.drawable.fig_car_28
+
+    /** Figma's 16dp info mark (cancel sheet) and 30dp check (booking cancelled). */
+    val Info16: DrawableResource get() = Res.drawable.fig_info_16
+    val CancelledCheck: DrawableResource get() = Res.drawable.fig_cancelled
+
+    /** Figma's Profile icons: 22dp info rows, 20dp menu rows, 18dp chevron (mirrors). */
+    val Person22: DrawableResource get() = Res.drawable.fig_person_22
+    val Home22: DrawableResource get() = Res.drawable.fig_home_22
+    val Destination22: DrawableResource get() = Res.drawable.fig_destination_22
+    val MenuRides: DrawableResource get() = Res.drawable.fig_menu_rides
+    val MenuBell: DrawableResource get() = Res.drawable.fig_menu_bell
+    val MenuSettings: DrawableResource get() = Res.drawable.fig_menu_settings
+    val Chevron18: DrawableResource get() = Res.drawable.fig_chevron_18
+
+    /** Figma's 22dp plain back arrow (Notifications header); mirrors. */
+    val Back22: DrawableResource get() = Res.drawable.fig_back_22
 
     val all: Map<String, DrawableResource> get() = mapOf(
         "back" to Back,

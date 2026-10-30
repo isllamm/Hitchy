@@ -10,8 +10,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,8 +24,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -60,11 +60,10 @@ import hitchy.shared.generated.resources.rider_home_date_format
 import hitchy.shared.generated.resources.rider_home_date_label
 import hitchy.shared.generated.resources.rider_home_from_label
 import hitchy.shared.generated.resources.rider_home_from_placeholder
-import hitchy.shared.generated.resources.rider_home_dismiss
 import hitchy.shared.generated.resources.rider_home_missing_destination_error
 import hitchy.shared.generated.resources.rider_home_missing_route_error
-import hitchy.shared.generated.resources.rider_home_notifications
 import hitchy.shared.generated.resources.rider_home_months
+import hitchy.shared.generated.resources.rider_home_notifications
 import hitchy.shared.generated.resources.rider_home_passengers_label
 import hitchy.shared.generated.resources.rider_home_passengers_many
 import hitchy.shared.generated.resources.rider_home_passengers_one
@@ -174,6 +173,7 @@ fun RiderHomeContent(
                     } else {
                         stringResource(Res.string.rider_home_missing_route_error)
                     }
+
                     RiderSearchValidationError.SAME_ZONE -> stringResource(Res.string.rider_home_same_zone_error)
                 },
                 onDismiss = { viewModel.onAction(RiderHomeAction.DismissError) },
@@ -446,7 +446,11 @@ private fun FormCard(
         modifier = modifier
             .fillMaxWidth()
             .then(
-                if (shadow) Modifier.figmaShadow(CardShape, Color.Black.copy(alpha = 0.02f), blur = 4.dp, y = 2.dp) else Modifier,
+                if (shadow) {
+                    Modifier.figmaShadow(CardShape, Color.Black.copy(alpha = 0.02f), blur = 4.dp, y = 2.dp)
+                } else {
+                    Modifier
+                },
             )
             .clip(CardShape)
             .background(colors.white)
@@ -471,7 +475,11 @@ private fun PassengersCard(
             modifier = Modifier.size(32.dp).clip(RoundedCornerShape(12.dp)).background(colors.lavender),
             contentAlignment = Alignment.Center,
         ) {
-            Icon(painter = painterResource(HitchyIcons.PassengerSmall), contentDescription = null, tint = colors.purpleDeep)
+            Icon(
+                painter = painterResource(HitchyIcons.PassengerSmall),
+                contentDescription = null,
+                tint = colors.purpleDeep,
+            )
         }
         Column(modifier = Modifier.weight(1f).padding(start = 14.dp)) {
             Text(
@@ -567,44 +575,6 @@ private fun SearchButton(
             text = stringResource(Res.string.rider_home_search_button),
             style = typography.button,
             color = colors.white,
-        )
-    }
-}
-
-/** Figma's error toast (component 446:2958): 48dp, r=12, #FEE2E2, Bold #B91C1C text, a close mark. */
-@Composable
-internal fun ErrorToast(
-    text: String,
-    onDismiss: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val colors = HitchyTheme.colors
-    val typography = HitchyTheme.typography
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(colors.errorBg)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(
-            painter = painterResource(HitchyIcons.ToastError),
-            contentDescription = null,
-            tint = colors.errorText,
-            modifier = Modifier.size(20.dp),
-        )
-        Text(
-            text = text,
-            style = typography.bodyBold,
-            color = colors.errorText,
-            modifier = Modifier.weight(1f).padding(start = 10.dp),
-        )
-        Icon(
-            painter = painterResource(HitchyIcons.CloseSmall),
-            contentDescription = stringResource(Res.string.rider_home_dismiss),
-            tint = colors.errorText,
-            modifier = Modifier.size(18.dp).clip(CircleShape).clickable(onClick = onDismiss),
         )
     }
 }

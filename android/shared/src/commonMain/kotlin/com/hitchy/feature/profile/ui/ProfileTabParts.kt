@@ -96,31 +96,29 @@ internal fun ProfileHeader(profile: User?) {
     }
 }
 
-/** The wallet balance on a lilac card, as in the design: label on the start side, amount in purple. */
+/** The wallet balance (demo) as a Figma profile section: 12/18 label, the amount in Cairo 800 24/30 purple. */
 @Composable
 internal fun WalletCard(balanceEgp: Int) {
     val colors = HitchyTheme.colors
     val typography = HitchyTheme.typography
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(CardRadius))
-            .background(colors.lilac)
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Text(
-            text = stringResource(Res.string.profile_wallet_balance_label),
-            style = typography.bodyStrong,
-            color = colors.navy,
-            modifier = Modifier.weight(1f),
-        )
-        Text(
-            text = stringResource(Res.string.format_egp, balanceEgp.toString()),
-            style = typography.h3,
-            color = colors.purple,
-        )
+    FigmaSection {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Text(
+                text = stringResource(Res.string.profile_wallet_balance_label),
+                style = typography.caption,
+                color = colors.textSecondary,
+                modifier = Modifier.weight(1f),
+            )
+            Text(
+                text = stringResource(Res.string.format_egp, balanceEgp.toString()),
+                style = typography.amount,
+                color = colors.purple,
+            )
+        }
     }
 }
 

@@ -29,8 +29,8 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.input.pointer.pointerInput
@@ -43,8 +43,8 @@ import com.hitchy.core.ui.icon.HitchyIcons
 import com.hitchy.core.ui.theme.HitchyTheme
 import hitchy.shared.generated.resources.Res
 import hitchy.shared.generated.resources.rider_home_date_today
-import hitchy.shared.generated.resources.rider_home_dismiss
 import hitchy.shared.generated.resources.rider_home_date_tomorrow
+import hitchy.shared.generated.resources.rider_home_dismiss
 import hitchy.shared.generated.resources.rider_home_months
 import hitchy.shared.generated.resources.rider_sheet_am
 import hitchy.shared.generated.resources.rider_sheet_confirm_date
@@ -343,7 +343,12 @@ fun TimeSheet(
             // Three 80dp columns, 30dp apart, with ":" between hours and minutes.
             Row(modifier = Modifier.align(Alignment.Center), horizontalArrangement = Arrangement.spacedBy(30.dp)) {
                 val hours = (1..HOURS_PER_HALF_DAY).map { it.toString() }
-                Wheel(hours, hour12 - 1, wrap = true, modifier = Modifier.width(WheelWidth)) { emit(it + 1, minute, isPm) }
+                Wheel(
+                    hours,
+                    hour12 - 1,
+                    wrap = true,
+                    modifier = Modifier.width(WheelWidth),
+                ) { emit(it + 1, minute, isPm) }
                 val minutes = MinuteSteps.map { it.toString().padStart(2, '0') }
                 Wheel(minutes, MinuteSteps.indexOf(minute), wrap = true, modifier = Modifier.width(WheelWidth)) {
                     emit(hour12, MinuteSteps[it], isPm)

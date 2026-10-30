@@ -50,6 +50,7 @@ import com.hitchy.feature.booking.presentation.RiderHomeEvent
 import com.hitchy.feature.booking.presentation.RiderHomeState
 import com.hitchy.feature.booking.presentation.RiderHomeViewModel
 import com.hitchy.feature.booking.presentation.RiderSearchValidationError
+import com.hitchy.feature.profile.domain.ProfileRepository
 import com.hitchy.feature.profile.ui.ProfileTabContent
 import com.hitchy.feature.rides.ui.OwnerHomeContent
 import hitchy.shared.generated.resources.Res
@@ -73,7 +74,6 @@ import hitchy.shared.generated.resources.role_host_desc
 import hitchy.shared.generated.resources.shop_coming_soon_body
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import com.hitchy.feature.profile.domain.ProfileRepository
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -145,6 +145,7 @@ fun HomeScreen(
                     BottomNavItem.Profile -> {
                         ProfileTabContent(
                             onOpenMyRides = { selectedTab = BottomNavItem.Rides },
+                            onOpenNotifications = onOpenNotifications,
                             onOpenSettings = onOpenSettings,
                             onOpenHostApplication = onOpenHostApplication,
                         )

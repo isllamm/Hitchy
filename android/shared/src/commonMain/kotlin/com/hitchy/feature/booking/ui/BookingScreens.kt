@@ -20,11 +20,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.hitchy.core.ui.cairoTime12
 import com.hitchy.core.model.AppLanguage
 import com.hitchy.core.model.BookingStatus
 import com.hitchy.core.model.RideStatus
 import com.hitchy.core.platform.LanguageSwitcher
+import com.hitchy.core.ui.cairoTime12
 import com.hitchy.core.ui.components.BannerVariant
 import com.hitchy.core.ui.components.EmptyState
 import com.hitchy.core.ui.components.HitchyBanner

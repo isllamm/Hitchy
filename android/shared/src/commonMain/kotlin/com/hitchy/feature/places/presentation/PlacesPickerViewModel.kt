@@ -42,6 +42,7 @@ sealed interface PlacesPickerAction {
     data class Init(val field: String) : PlacesPickerAction
     data class UpdateQuery(val query: String) : PlacesPickerAction
     data class HighlightPoint(val point: Point) : PlacesPickerAction
+
     /** [moveToEmptyField]: after a pickup, go on to an empty destination instead of closing. */
     data class ConfirmPoint(val point: Point, val moveToEmptyField: Boolean = false) : PlacesPickerAction
 
@@ -105,23 +106,28 @@ class PlacesPickerViewModel(
 
             is PlacesPickerAction.HighlightPoint -> setState { copy(selectedPoint = action.point) }
 
-            is PlacesPickerAction.ConfirmPoint -> {
-                val current = state.value
-                selectionHolder.select(current.field, action.point)
-                val pair = current.pair
-                val other = pair?.let { if (current.field == it.first) it.second else it.first }
-                if (action.moveToEmptyField && other != null && selectionHolder.get(other) == null) {
-                    setState { copy(field = other, query = "", selectedPoint = points.firstOrNull()) }
-                } else {
-                    viewModelScope.launch { emit(PlacesPickerEvent.PointConfirmed) }
-                }
-            }
+            is PlacesPickerAction.ConfirmPoint -> confirm(action)
 
             is PlacesPickerAction.SwitchField -> setState {
-                copy(field = action.field, query = "", selectedPoint = selectionHolder.get(action.field) ?: selectedPoint)
+                copy(
+                    field = action.field,
+                    query = "",
+                    selectedPoint = selectionHolder.get(action.field) ?: selectedPoint,
+                )
             }
 
             PlacesPickerAction.Swap -> state.value.pair?.let { selectionHolder.swap(it.first, it.second) }
+        }
+    }
+    private fun confirm(action: PlacesPickerAction.ConfirmPoint) {
+        val current = state.value
+        selectionHolder.select(current.field, action.point)
+        val pair = current.pair
+        val other = pair?.let { if (current.field == it.first) it.second else it.first }
+        if (action.moveToEmptyField && other != null && selectionHolder.get(other) == null) {
+            setState { copy(field = other, query = "", selectedPoint = points.firstOrNull()) }
+        } else {
+            viewModelScope.launch { emit(PlacesPickerEvent.PointConfirmed) }
         }
     }
 }

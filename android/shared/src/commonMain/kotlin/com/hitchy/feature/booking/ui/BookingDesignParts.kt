@@ -12,9 +12,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -142,7 +142,12 @@ private fun BookingMarkerColumn() {
     val colors = HitchyTheme.colors
     // Figma: a 10dp dot, a 2x58 line from 5dp down, and the 10.5x14 pin at 60dp, in a 10x74 column.
     Box(modifier = Modifier.size(width = 10.5.dp, height = 74.dp)) {
-        Box(modifier = Modifier.offset(x = 4.dp, y = 5.dp).size(width = 2.dp, height = 58.dp).background(colors.lavender))
+        Box(
+            modifier = Modifier
+                .offset(x = 4.dp, y = 5.dp)
+                .size(width = 2.dp, height = 58.dp)
+                .background(colors.lavender),
+        )
         Box(modifier = Modifier.size(10.dp).clip(CircleShape).background(colors.deepPurple))
         Icon(
             painter = painterResource(HitchyIcons.PinSmall),

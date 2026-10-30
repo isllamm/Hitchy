@@ -18,6 +18,7 @@ val White = Color(0xFFFFFFFF)
 val Scrim = Color(0xFF0F0F0F)
 
 // Colours the Figma rider frames use beyond the Phase 3 palette.
+
 /** The hairline stroke on Home's input cards. */
 val Hairline = Color(0xFFE9EEF5)
 

@@ -12,8 +12,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
@@ -71,7 +71,12 @@ internal fun TripRouteCard(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(modifier = Modifier.size(width = 10.5.dp, height = 74.dp)) {
-            Box(modifier = Modifier.offset(x = 4.dp, y = 5.dp).size(width = 2.dp, height = 58.dp).background(colors.lavender))
+            Box(
+                modifier = Modifier
+                    .offset(x = 4.dp, y = 5.dp)
+                    .size(width = 2.dp, height = 58.dp)
+                    .background(colors.lavender),
+            )
             Box(modifier = Modifier.size(10.dp).clip(CircleShape).background(colors.deepPurple))
             Icon(
                 painter = painterResource(HitchyIcons.PinSmall),
@@ -145,7 +150,11 @@ internal fun TripVehicleSeatCard(
         Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(colors.border))
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(text = stringResource(Res.string.trip_design_your_seat), style = typography.caption, color = colors.textSecondary)
+                Text(
+                    text = stringResource(Res.string.trip_design_your_seat),
+                    style = typography.caption,
+                    color = colors.textSecondary,
+                )
                 Text(
                     text = if (seats == 1) {
                         stringResource(Res.string.rider_home_passengers_one)
@@ -157,7 +166,11 @@ internal fun TripVehicleSeatCard(
                 )
             }
             Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(text = stringResource(Res.string.trip_design_total), style = typography.caption, color = colors.textSecondary)
+                Text(
+                    text = stringResource(Res.string.trip_design_total),
+                    style = typography.caption,
+                    color = colors.textSecondary,
+                )
                 Text(
                     text = stringResource(Res.string.format_egp, total.toString()),
                     style = typography.captionStrong,

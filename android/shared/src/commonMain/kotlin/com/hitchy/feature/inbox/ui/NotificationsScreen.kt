@@ -26,15 +26,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import com.hitchy.core.util.isoToEpochMs
+import androidx.compose.ui.unit.sp
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.foundation.layout.height
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.hitchy.core.ui.cairoTime12
 import com.hitchy.core.model.AppLanguage
 import com.hitchy.core.platform.LanguageSwitcher
+import com.hitchy.core.ui.cairoTime12
 import com.hitchy.core.ui.components.BackButton
 import com.hitchy.core.ui.components.BackButtonStyle
 import com.hitchy.core.ui.components.EmptyState
@@ -48,6 +54,14 @@ import com.hitchy.feature.inbox.presentation.InboxAction
 import com.hitchy.feature.inbox.presentation.InboxEvent
 import com.hitchy.feature.inbox.presentation.InboxViewModel
 import hitchy.shared.generated.resources.Res
+import hitchy.shared.generated.resources.action_back
+import hitchy.shared.generated.resources.inbox_hours_ago
+import hitchy.shared.generated.resources.inbox_minutes_ago
+import hitchy.shared.generated.resources.inbox_just_now
+import hitchy.shared.generated.resources.inbox_new
+import hitchy.shared.generated.resources.inbox_tab_account
+import hitchy.shared.generated.resources.inbox_tab_rides
+import hitchy.shared.generated.resources.inbox_tab_all
 import hitchy.shared.generated.resources.inbox_empty_body
 import hitchy.shared.generated.resources.inbox_empty_title
 import hitchy.shared.generated.resources.inbox_mark_all_read
@@ -76,6 +90,10 @@ private data class TileLook(val icon: DrawableResource, val background: Color, v
  * Notifications built to the design: a round back button with the title, then a Today and an Earlier group.
  * Unread items sit on a lilac block with a purple dot; each type gets its own icon tile.
  */
+/**
+ * Figma frame 398:6013 "Notifications": a 60dp header (back, title, Mark all read), the tab list and
+ * full-width rows. The Messages tab is left out: there is no chat in the demo.
+ */
 @Composable
 fun NotificationsScreen(
     onBack: () -> Unit,
@@ -88,7 +106,9 @@ fun NotificationsScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val colors = HitchyTheme.colors
     val currentLanguage: AppLanguage = languageSwitcher.getCurrentLanguage()
-    val todayKey = dateKey(clock.now())
+    val nowMs = clock.now().toEpochMilliseconds()
+    var tab by remember { mutableStateOf(InboxTab.All) }
+    val shown = state.items.filter { tab == InboxTab.All || it.tab() == tab }
 
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
@@ -98,14 +118,15 @@ fun NotificationsScreen(
         }
     }
 
-    Surface(
-        modifier = modifier.fillMaxSize(),
-        color = colors.white,
-    ) {
+    Surface(modifier = modifier.fillMaxSize(), color = colors.white) {
         Column(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
-            NotificationsHeader(onBack = onBack)
-
-            if (state.items.isEmpty() && !state.isLoading) {
+            NotificationsHeader(
+                onBack = onBack,
+                showMarkAll = state.unreadIds.isNotEmpty(),
+                onMarkAll = { viewModel.onAction(InboxAction.MarkAllRead) },
+            )
+            InboxTabs(selected = tab, onSelect = { tab = it })
+            if (shown.isEmpty() && !state.isLoading) {
                 EmptyState(
                     title = stringResource(Res.string.inbox_empty_title),
                     message = stringResource(Res.string.inbox_empty_body),
@@ -113,176 +134,210 @@ fun NotificationsScreen(
                     modifier = Modifier.fillMaxSize(),
                 )
             } else {
-                val (today, earlier) = state.items.partition { isoToCairoDateKey(it.createdAt) == todayKey }
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(bottom = 16.dp),
-                ) {
-                    notificationSection(
-                        title = Res.string.notif_design_today,
-                        entries = today,
-                        showMarkAll = state.unreadIds.isNotEmpty(),
-                        language = currentLanguage,
-                        isToday = true,
-                        onMarkAll = { viewModel.onAction(InboxAction.MarkAllRead) },
-                        onTap = { viewModel.onAction(InboxAction.TapNotification(it)) },
-                    )
-                    notificationSection(
-                        title = Res.string.notif_design_earlier,
-                        entries = earlier,
-                        showMarkAll = state.unreadIds.isNotEmpty() && today.isEmpty(),
-                        language = currentLanguage,
-                        isToday = false,
-                        onMarkAll = { viewModel.onAction(InboxAction.MarkAllRead) },
-                        onTap = { viewModel.onAction(InboxAction.TapNotification(it)) },
-                    )
+                LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 16.dp)) {
+                    items(shown, key = { it.id }) { entry ->
+                        NotificationDesignRow(
+                            item = entry,
+                            language = currentLanguage,
+                            nowMs = nowMs,
+                            onClick = { viewModel.onAction(InboxAction.TapNotification(entry)) },
+                        )
+                    }
                 }
             }
         }
     }
 }
 
-@Suppress("LongParameterList")
-private fun LazyListScope.notificationSection(
-    title: StringResource,
-    entries: List<InboxItem>,
-    showMarkAll: Boolean,
-    language: AppLanguage,
-    isToday: Boolean,
-    onMarkAll: () -> Unit,
-    onTap: (InboxItem) -> Unit,
-) {
-    if (entries.isEmpty()) return
-    item(key = "header_$isToday") {
-        SectionHeader(title = stringResource(title), showMarkAll = showMarkAll, onMarkAll = onMarkAll)
-    }
-    items(entries, key = { it.id }) { entry ->
-        NotificationDesignRow(item = entry, language = language, isToday = isToday, onClick = { onTap(entry) })
-    }
+private enum class InboxTab { All, Rides, Account }
+
+private fun InboxItem.tab(): InboxTab = when {
+    type.startsWith("booking") || type.startsWith("ride") || type.startsWith("payment") ||
+        type.startsWith("request") || type.startsWith("rate") || type == "low_balance" -> InboxTab.Rides
+    else -> InboxTab.Account
 }
 
+/** Figma's header: a 44dp plain back button, the 18/26 title centred, "Mark all read" in Bold 13/16 purple. */
 @Composable
-private fun NotificationsHeader(onBack: () -> Unit) {
-    val colors = HitchyTheme.colors
-    Box(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        BackButton(
-            onClick = onBack,
-            style = BackButtonStyle.OutlinedCircle,
-            modifier = Modifier.align(Alignment.CenterStart),
-        )
-        Text(
-            text = stringResource(Res.string.inbox_title),
-            style = HitchyTheme.typography.h3,
-            color = colors.navy,
-        )
-    }
-}
-
-@Composable
-private fun SectionHeader(
-    title: String,
+private fun NotificationsHeader(
+    onBack: () -> Unit,
     showMarkAll: Boolean,
     onMarkAll: () -> Unit,
 ) {
     val colors = HitchyTheme.colors
     val typography = HitchyTheme.typography
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Text(text = title.uppercase(), style = typography.captionStrong, color = colors.textSecondary)
+    Box(modifier = Modifier.fillMaxWidth().height(60.dp).padding(horizontal = 4.dp)) {
+        Box(
+            modifier = Modifier.align(Alignment.CenterStart).size(44.dp).clip(CircleShape).clickable(onClick = onBack),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                painter = painterResource(HitchyIcons.Back22),
+                contentDescription = stringResource(Res.string.action_back),
+                tint = colors.navy,
+                modifier = Modifier.size(22.dp),
+            )
+        }
+        Text(
+            text = stringResource(Res.string.inbox_title),
+            style = typography.title,
+            color = colors.navy,
+            modifier = Modifier.align(Alignment.Center),
+        )
         if (showMarkAll) {
             Text(
                 text = stringResource(Res.string.inbox_mark_all_read),
-                style = typography.captionStrong,
+                style = typography.bodyBold.copy(fontSize = 13.sp, lineHeight = 16.sp),
                 color = colors.purple,
-                modifier = Modifier.clickable(onClick = onMarkAll),
+                modifier = Modifier.align(Alignment.CenterEnd).padding(end = 8.dp).clickable(onClick = onMarkAll),
             )
         }
     }
 }
 
+/** Figma's `Tab List`: 44dp tabs, SemiBold 13/18; the open one purple with a 1dp underline, on a 1dp rule. */
+@Composable
+private fun InboxTabs(
+    selected: InboxTab,
+    onSelect: (InboxTab) -> Unit,
+) {
+    val colors = HitchyTheme.colors
+    val style = HitchyTheme.typography.bodyStrong.copy(fontSize = 13.sp, lineHeight = 18.sp)
+    Column {
+        Row(modifier = Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 8.dp)) {
+            InboxTab.entries.forEach { tab ->
+                val active = tab == selected
+                Column(
+                    modifier = Modifier.weight(1f).height(44.dp).clickable { onSelect(tab) },
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = stringResource(
+                                when (tab) {
+                                    InboxTab.All -> Res.string.inbox_tab_all
+                                    InboxTab.Rides -> Res.string.inbox_tab_rides
+                                    InboxTab.Account -> Res.string.inbox_tab_account
+                                },
+                            ),
+                            style = style,
+                            color = if (active) colors.purple else colors.textSecondary,
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .background(if (active) colors.purple else Color.Transparent),
+                    )
+                }
+            }
+        }
+        Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(colors.border))
+    }
+}
+
+/**
+ * Figma's row: full width, pad 16/20, unread on #F5F3FF; a 40dp r=12 tile, a Bold 14/20 title with
+ * "New", a 12/18 body, a 10/15 #9CA3AF time and an 18dp chevron, over a 1dp rule.
+ */
 @Composable
 private fun NotificationDesignRow(
     item: InboxItem,
     language: AppLanguage,
-    isToday: Boolean,
+    nowMs: Long,
     onClick: () -> Unit,
 ) {
     val colors = HitchyTheme.colors
     val typography = HitchyTheme.typography
     val look = tileLook(item.type, colors)
     val unread = item.isUnread
+    val small = typography.caption.copy(fontSize = 10.sp, lineHeight = 15.sp)
 
-    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 2.dp)) {
+    Column(modifier = Modifier.fillMaxWidth().background(if (unread) colors.lilac else colors.white)) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
-                .background(if (unread) colors.lilac else colors.white)
-                .clickable(onClick = onClick)
-                .padding(12.dp),
+            modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).padding(horizontal = 20.dp, vertical = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Box(
                 modifier = Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)).background(look.background),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(
-                    painter = painterResource(look.icon),
-                    contentDescription = null,
-                    tint = look.tint,
-                    modifier = Modifier.size(20.dp),
-                )
+                Icon(painter = painterResource(look.icon), contentDescription = null, tint = look.tint, modifier = Modifier.size(20.dp))
             }
-            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Column(modifier = Modifier.weight(1f)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
                     Text(
                         text = item.title.resolve(language),
-                        style = typography.bodyStrong,
+                        style = typography.bodyBold.copy(lineHeight = 20.sp),
                         color = colors.navy,
                         modifier = Modifier.weight(1f),
-                    )
-                    Text(
-                        text = notificationTime(item.createdAt, isToday),
-                        style = typography.caption,
-                        color = if (unread) colors.purple else colors.textSecondary,
+                        maxLines = 1,
                     )
                     if (unread) {
-                        Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(colors.purple))
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(colors.purple))
+                            Text(
+                                text = stringResource(Res.string.inbox_new),
+                                style = small.copy(fontWeight = typography.bodyBold.fontWeight),
+                                color = colors.purple,
+                            )
+                        }
                     }
                 }
-                Text(text = item.body.resolve(language), style = typography.body, color = colors.textSecondary)
+                Text(
+                    text = item.body.resolve(language),
+                    style = typography.caption,
+                    color = colors.textSecondary,
+                    modifier = Modifier.padding(top = 2.dp),
+                )
+                Text(
+                    text = relativeTime(item.createdAt, nowMs),
+                    style = small,
+                    color = colors.textDisabled,
+                    modifier = Modifier.padding(top = 5.dp),
+                )
             }
+            Icon(
+                painter = painterResource(HitchyIcons.Chevron18),
+                contentDescription = null,
+                tint = colors.navy,
+                modifier = Modifier.size(18.dp),
+            )
         }
-        if (!unread) {
-            HorizontalDivider(color = colors.border, thickness = 1.dp)
+        Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(colors.border))
+    }
+}
+
+/** "Just now", "2 min ago", "1 hr ago", or "Oct 22", as Figma writes the time. */
+@Composable
+private fun relativeTime(
+    createdAt: String,
+    nowMs: Long,
+): String {
+    val minutes = ((nowMs - isoToEpochMs(createdAt)) / MS_PER_MINUTE).coerceAtLeast(0)
+    return when {
+        minutes < 1 -> stringResource(Res.string.inbox_just_now)
+        minutes < MINUTES_PER_HOUR -> stringResource(Res.string.inbox_minutes_ago, minutes.toInt())
+        minutes < MINUTES_PER_DAY -> stringResource(Res.string.inbox_hours_ago, (minutes / MINUTES_PER_HOUR).toInt())
+        else -> {
+            val key = isoToCairoDateKey(createdAt)
+            val months = stringArrayResource(Res.array.rider_home_months)
+            val month = key.substring(DATE_MONTH_START, DATE_MONTH_END).toIntOrNull() ?: return key
+            val day = key.substring(DATE_DAY_START).toIntOrNull() ?: return key
+            stringResource(Res.string.notif_design_short_date, months[month - 1], day)
         }
     }
 }
 
-/** The time of day for today's items, "Oct 22" for older ones. */
-@Composable
-private fun notificationTime(
-    createdAt: String,
-    isToday: Boolean,
-): String {
-    if (isToday) return cairoTime12(createdAt)
-    val key = isoToCairoDateKey(createdAt)
-    if (key.length < DATE_DAY_START + 1) return key
-    val months = stringArrayResource(Res.array.rider_home_months)
-    val month = key.substring(DATE_MONTH_START, DATE_MONTH_END).toIntOrNull() ?: return key
-    val day = key.substring(DATE_DAY_START).toIntOrNull() ?: return key
-    return stringResource(Res.string.notif_design_short_date, months[month - 1], day)
-}
+private const val MS_PER_MINUTE = 60_000L
+private const val MINUTES_PER_HOUR = 60L
+private const val MINUTES_PER_DAY = 1_440L
 
 /** One icon tile look per notification type; unknown types get the bell. */
 private fun tileLook(

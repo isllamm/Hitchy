@@ -18,8 +18,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hitchy.core.model.GeoPoint
 import com.hitchy.core.platform.LanguageSwitcher
 import com.hitchy.core.ui.components.BackButton
-import com.hitchy.core.ui.figmaTop
 import com.hitchy.core.ui.components.BackButtonStyle
+import com.hitchy.core.ui.figmaTop
 import com.hitchy.core.ui.map.HitchyMap
 import com.hitchy.core.ui.map.MapPin
 import com.hitchy.core.ui.theme.HitchyTheme

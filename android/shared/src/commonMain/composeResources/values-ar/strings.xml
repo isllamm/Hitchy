@@ -362,7 +362,7 @@
     <string name="inbox_mark_all_read">تحديد الكل كمقروء</string>
     <string name="inbox_empty_title">لا توجد إشعارات جديدة</string>
     <string name="inbox_empty_body">تحديثات حجوزاتك ورحلاتك هتظهر هنا.</string>
-    <string name="profile_tab_title">المزيد</string>
+    <string name="profile_tab_title">حسابي</string>
     <string name="profile_wallet_balance_label">رصيد المحفظة (ج.م)</string>
     <string name="profile_switch_to_owner">التحويل لوضع صاحب عربية</string>
     <string name="profile_switch_to_rider">التحويل لوضع راكب</string>
@@ -457,4 +457,25 @@
     <string name="rides_filter_upcoming">القادمة</string>
     <string name="rides_filter_completed">المكتملة</string>
     <string name="rides_filter_cancelled">الملغية</string>
+    <string name="otp_expired_title">الكود انتهى</string>
+    <string name="otp_expired_body">الأكواد بتنتهي بعد ٥ دقايق علشان أمان حسابك.</string>
+    <string name="otp_expired_alert_title">الكود ده انتهى</string>
+    <string name="otp_expired_alert_body">اطلب كود جديد علشان تكمل.</string>
+    <string name="otp_send_new_code">ابعت كود جديد</string>
+    <string name="profile_info_phone">رقم الموبايل</string>
+    <string name="profile_info_company">الشركة</string>
+    <string name="profile_mode_label">الوضع الحالي</string>
+    <string name="profile_mode_passenger">راكب</string>
+    <string name="profile_mode_driver">صاحب عربية</string>
+    <string name="profile_menu_notifications">الإشعارات</string>
+    <string name="bk_card_pickup">الركوب: %1$s · على بعد %2$d م</string>
+    <string name="bk_card_dropoff">النزول: %1$s</string>
+    <string name="inbox_tab_all">الكل</string>
+    <string name="inbox_tab_rides">المشاوير</string>
+    <string name="inbox_tab_account">الحساب</string>
+    <string name="inbox_new">جديد</string>
+    <string name="inbox_just_now">دلوقتي</string>
+    <string name="inbox_minutes_ago">من %1$d دقيقة</string>
+    <string name="inbox_hours_ago">من %1$d ساعة</string>
+    <string name="bk_verified_short">موثّق</string>
 </resources>

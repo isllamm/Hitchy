@@ -22,11 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.hitchy.core.ui.cairoTime12
-import com.hitchy.core.ui.figmaBottom
-import com.hitchy.core.util.isoToCairoDateKey
-import com.hitchy.feature.booking.ui.bookingDateLabel
 import com.hitchy.core.model.AppLanguage
+import com.hitchy.core.ui.cairoTime12
 import com.hitchy.core.ui.components.BannerVariant
 import com.hitchy.core.ui.components.HitchyBanner
 import com.hitchy.core.ui.components.HitchyButton
@@ -34,17 +31,20 @@ import com.hitchy.core.ui.components.RideStatusVariant
 import com.hitchy.core.ui.components.StatusPill
 import com.hitchy.core.ui.components.TripStep
 import com.hitchy.core.ui.components.TripStepper
+import com.hitchy.core.ui.figmaBottom
 import com.hitchy.core.ui.message
 import com.hitchy.core.ui.theme.HitchyTheme
+import com.hitchy.core.util.isoToCairoDateKey
+import com.hitchy.feature.booking.ui.bookingDateLabel
 import com.hitchy.feature.rides.domain.Booking
 import com.hitchy.feature.trip.presentation.RiderTripAction
 import com.hitchy.feature.trip.presentation.RiderTripState
 import hitchy.shared.generated.resources.Res
-import hitchy.shared.generated.resources.trip_design_schedule
 import hitchy.shared.generated.resources.rider_trip_cancel_button
 import hitchy.shared.generated.resources.rider_trip_checked_in_badge
 import hitchy.shared.generated.resources.rider_trip_checkin_button
 import hitchy.shared.generated.resources.rider_trip_waiting_payment
+import hitchy.shared.generated.resources.trip_design_schedule
 import org.jetbrains.compose.resources.stringResource
 
 private val SheetRadius = 24.dp
@@ -176,4 +176,3 @@ private fun TripActions(
         )
     }
 }
-

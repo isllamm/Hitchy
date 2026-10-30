@@ -31,11 +31,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.hitchy.core.ui.cairoTime12
 import com.hitchy.core.model.AppLanguage
 import com.hitchy.core.model.RideStatus
 import com.hitchy.core.platform.LanguageSwitcher
 import com.hitchy.core.ui.ErrorText
+import com.hitchy.core.ui.cairoTime12
 import com.hitchy.core.ui.components.Avatar
 import com.hitchy.core.ui.components.BackButton
 import com.hitchy.core.ui.components.BackButtonStyle

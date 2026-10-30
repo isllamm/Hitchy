@@ -15,9 +15,9 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -29,26 +29,26 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.hitchy.core.ui.cairoTime12
-import com.hitchy.core.ui.figmaTop
 import com.hitchy.core.model.AppLanguage
 import com.hitchy.core.model.BookingStatus
 import com.hitchy.core.model.RideStatus
 import com.hitchy.core.platform.LanguageSwitcher
+import com.hitchy.core.ui.cairoTime12
 import com.hitchy.core.ui.components.BackButton
 import com.hitchy.core.ui.components.BackButtonStyle
 import com.hitchy.core.ui.components.EmptyState
 import com.hitchy.core.ui.components.RideStatusVariant
 import com.hitchy.core.ui.components.StatusPill
+import com.hitchy.core.ui.figmaTop
 import com.hitchy.core.ui.icon.HitchyIcons
 import com.hitchy.core.ui.theme.HitchyTheme
 import com.hitchy.core.util.dateKey
@@ -58,9 +58,6 @@ import com.hitchy.feature.booking.presentation.UnifiedRideItem
 import com.hitchy.feature.booking.presentation.opensOwnerTrip
 import com.hitchy.feature.booking.presentation.opensRiderTrip
 import hitchy.shared.generated.resources.Res
-import hitchy.shared.generated.resources.rides_filter_cancelled
-import hitchy.shared.generated.resources.rides_filter_completed
-import hitchy.shared.generated.resources.rides_filter_upcoming
 import hitchy.shared.generated.resources.format_egp
 import hitchy.shared.generated.resources.location_dropoff_label
 import hitchy.shared.generated.resources.location_pickup_label
@@ -72,6 +69,9 @@ import hitchy.shared.generated.resources.rider_home_months
 import hitchy.shared.generated.resources.rider_home_weekdays
 import hitchy.shared.generated.resources.rides_design_vehicle
 import hitchy.shared.generated.resources.rides_design_when
+import hitchy.shared.generated.resources.rides_filter_cancelled
+import hitchy.shared.generated.resources.rides_filter_completed
+import hitchy.shared.generated.resources.rides_filter_upcoming
 import hitchy.shared.generated.resources.rides_t14_seats_booked
 import hitchy.shared.generated.resources.rides_tab_empty_body
 import hitchy.shared.generated.resources.rides_tab_empty_title
@@ -303,7 +303,12 @@ private fun RideRoute(
     Row(horizontalArrangement = Arrangement.spacedBy(27.dp), verticalAlignment = Alignment.CenterVertically) {
         Box(modifier = Modifier.size(width = 10.5.dp, height = if (dropOffName != null) 74.dp else 10.dp)) {
             if (dropOffName != null) {
-                Box(modifier = Modifier.offset(x = 4.dp, y = 5.dp).size(width = 2.dp, height = 58.dp).background(colors.lavender))
+                Box(
+                    modifier = Modifier
+                        .offset(x = 4.dp, y = 5.dp)
+                        .size(width = 2.dp, height = 58.dp)
+                        .background(colors.lavender),
+                )
                 Icon(
                     painter = painterResource(HitchyIcons.PinSmall),
                     contentDescription = null,
@@ -444,13 +449,18 @@ private fun UnifiedRideItem.filter(): RidesFilter {
     }
     return when (variant) {
         RideStatusVariant.Completed -> RidesFilter.Completed
+
         RideStatusVariant.Cancelled, RideStatusVariant.Declined, RideStatusVariant.Expired, RideStatusVariant.NoShow ->
             RidesFilter.Cancelled
+
         else -> RidesFilter.Upcoming
     }
 }
 
-/** Figma's `Ride Tabs` (17:125): three equal 48dp tabs; the open one is Bold purple on a 3dp bar, others on a 1dp rule. */
+/**
+ * Figma's `Ride Tabs` (17:125): three equal 48dp tabs; the open one is Bold purple on a 3dp bar,
+ * the others sit on a 1dp rule.
+ */
 @Composable
 private fun RidesTabs(
     selected: RidesFilter,
