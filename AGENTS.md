@@ -10,7 +10,7 @@ Plan v1.1 (BUILD_PLAN 2.1) changed the product after the design review: owners a
 Plan v1.2 (BUILD_PLAN 2.2, 2026-10-30) for the demo: a wallet that pays owners, ride stops, the free wait from the owner's arrival, one Rides list. Demo designs: docs/design/demo-flow.md.
 
 ## Status
-Phase 3 (Design system): P3-A01 tokens and theme, P3-A02 Cairo font, P3-A03 Icons, P3-A04 Components from Figma, P3-A05 Components not in Figma, P3-A06 Gallery. Next: the demo build in BUILD_PLAN 3.9 (P3-B01 first, then three lanes) for Friday 2026-10-30 evening; then P3-A07 Swap the screens. The admin web project arrives in P5-W01; until then its CI workflow skips its jobs.
+The demo build (BUILD_PLAN 3.9) for Friday 2026-10-30 evening. **The backend lane is finished:** P3-B01 demo contract, P3-B02 offer a ride, P3-B03 search and booking, P3-B04 trip day, P3-B05 wallet payments, P3-B06 demo inbox. The backend now runs the whole demo cycle on the emulators (601 to 610 tests). Phase 4 backend has started alongside it (P4-B01, P4-B02). Lane 2 has P3-A08 done; still open are P3-A09 rider screens, P3-A10 owner screens and P3-H01 the run itself. Phase 3 design system (P3-A01 to P3-A06) is done; P3-A07 Swap the screens comes after the demo. The admin web project arrives in P5-W01; until then its CI workflow skips its jobs.
 
 ## Layout
 - backend/ — Firebase: functions (TypeScript), rules, indexes, seed data
@@ -130,6 +130,12 @@ List files changed, test results, and any [HUMAN] or [DECISION] items.
 | 2026-10-30 | P3-A06 Gallery: dev-only gallery screen, category filters, interactive RTL/LTR toggle, 5 sections | PR #40 |
 | 2026-10-30 | P4-B01 completeProfile callable, defaults, kyc doc, referral codes, locked gender, 8 integration tests | PR #44 |
 | 2026-10-30 | P4-B02 switchRole callable, host status enforcement, 4 integration tests | PR #45 |
+| 2026-10-30 | P3-B01 Demo contract v1.2: RideStop, wallets, booking pickup fields, 4 new reasons, pickupZones index, seeded wallets, contract and fixtures, 479 tests | PR #42 |
+| 2026-10-30 | P3-B02 Offer a ride: quotePrice and createRide with stops, first repos (users, vehicles, zones, routes, rides), 500 tests | PR #43 |
+| 2026-10-30 | P3-B03 Search, request, accept, cancel: pickup-based searchRides, ranking, requestSeats with the wallet hold, respondToRequest, cancelBooking, 549 tests | PR #46 |
+| 2026-10-30 | P3-B04 Trip day: startRide, arriveAtStop, checkIn, markBoarded, reportLate, finishRide with one credit and a ledger row, 586 tests | PR #49 |
+| 2026-10-30 | P3-B05 Wallet payments: confirmRidePayment and topUpWallet, every balance equal to the sum of its entries, 601 tests | PR #50 |
+| 2026-10-30 | P3-B06 Demo inbox: onBookingChanged, payment_confirmed, the inbox written even when the push fails, 610 tests | PR #51 |
 
 Deploy jobs skip until each GitHub environment has its Phase 0 secrets (ADR 0003 row 18).
 
@@ -138,6 +144,10 @@ Deploy jobs skip until each GitHub environment has its Phase 0 secrets (ADR 0003
 - [HUMAN] Phase 0: Firebase projects hitchy-dev and hitchy-prod, region, phone sign-in, Android apps, release key, App Check, CI access (Workload Identity) and secrets, TTL policies on idempotency, notifications and messages, the auto-stop in hitchy-dev, the cleanup rule for old function builds, and the Storage permission to read Firestore (P0-H01 to P0-H15).
 - [HUMAN] Both projects are on Blaze and set up to cost 0 USD (2026-10-29, BUILD_PLAN Phase 0 "Keeping both projects at 0 USD"): Storage bucket in us-central1 (free tier), no real text messages until launch (SMS region policy allows no region), and only the free map (BUILD_PLAN 5.10). Still to do in hitchy-dev: budget alerts, auto-stop, Storage bucket, P0-H15, then the `dev` environment secrets (CI starts deploying when they exist), then P0-H14. Before launch: check that ID photos may be stored in the US under Egypt's data protection law.
 - [HUMAN] The iOS teammate's GitHub username in .github/CODEOWNERS.
+- [HUMAN] **The seed's `config/limits` holds demo values** (ADR 0003 row 81): `minLeadMinutes` 5, `maxRidesPerHostPerDay` 10, `rideGapMinutes` 90 → 5. The plan's values are 30, 2 and 90 (BUILD_PLAN 7.3). Restore them before `hitchy-dev` or `hitchy-prod` serves anyone, because `npm run seed -- --project dev` writes the same file. The tests pin the plan's numbers, so the real rules stay tested.
+- [HUMAN] P3-H01: real names and coordinates for the demo pickup points in `backend/seed/data/zones.json` (today they are "Test point 1"), and `MAPS_API_KEY` in `android/local.properties`. Never invent coordinates.
+- The Emulator Suite does not emulate FCM, so no push arrives on the emulators. The Notifications screen works because it reads the inbox from Firestore; the system notification tray does not.
+- Not built yet, by plan: `expireRequest` (P7-B02), so a request waits until the owner answers; the `rideReminder` enqueue (P7-B05); `onRideFinished` and `closeStaleRides` (P8-B06), so `tripsCompleted` and `verifiedTogether` stay unchanged after a trip; `cancelBooking` with reason `host_late` (P7-B03, needs trip presence); fee disputes (P8-B04).
 - [DECISION-01] Functions region is the default `europe-west1`. [DECISION-16] `ADMIN_URL` in backend/functions/src/lib/app.ts is "TODO-HUMAN" until P5-W01 creates the admin sites.
 - A user whose activeRole differs from the notification's audience (e.g. booking_requested while in rider mode) gets the wrong screen; to fix in the notification-tap task.
 
