@@ -95,4 +95,16 @@ class PlacesRepositoryImpl(
             }
         }
     }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override fun observeAllPoints(): Flow<List<Point>> = observeZones().flatMapLatest { zones ->
+        if (zones.isEmpty()) {
+            flowOf(emptyList())
+        } else {
+            val pointFlows = zones.map { zone -> observePoints(zone.id) }
+            kotlinx.coroutines.flow.combine(pointFlows) { arrays ->
+                arrays.flatMap { it }
+            }
+        }
+    }
 }

@@ -22,4 +22,5 @@ data class Point(
 interface PlacesRepository {
     fun observeZones(): Flow<List<Zone>>
     fun observePoints(zoneId: String): Flow<List<Point>>
+    fun observeAllPoints(): Flow<List<Point>>
 }

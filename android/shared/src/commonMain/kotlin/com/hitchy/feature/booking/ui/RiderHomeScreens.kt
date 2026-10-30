@@ -1,0 +1,431 @@
+package com.hitchy.feature.booking.ui
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.hitchy.core.model.AppLanguage
+import com.hitchy.core.model.Role
+import com.hitchy.core.platform.LanguageSwitcher
+import com.hitchy.core.ui.components.BannerVariant
+import com.hitchy.core.ui.components.BottomNav
+import com.hitchy.core.ui.components.BottomNavItem
+import com.hitchy.core.ui.components.EmptyState
+import com.hitchy.core.ui.components.GreetingHeader
+import com.hitchy.core.ui.components.HitchyBanner
+import com.hitchy.core.ui.components.HitchyButton
+import com.hitchy.core.ui.components.PassengersStepper
+import com.hitchy.core.ui.components.RouteInput
+import com.hitchy.core.ui.components.SelectChip
+import com.hitchy.core.ui.icon.HitchyIcons
+import com.hitchy.core.ui.theme.HitchyTheme
+import com.hitchy.feature.booking.presentation.RiderHomeAction
+import com.hitchy.feature.booking.presentation.RiderHomeEvent
+import com.hitchy.feature.booking.presentation.RiderHomeState
+import com.hitchy.feature.booking.presentation.RiderHomeViewModel
+import com.hitchy.feature.booking.presentation.RiderSearchValidationError
+import com.hitchy.feature.profile.ui.ProfileTabContent
+import hitchy.shared.generated.resources.Res
+import hitchy.shared.generated.resources.app_name
+import hitchy.shared.generated.resources.nav_home
+import hitchy.shared.generated.resources.nav_shop
+import hitchy.shared.generated.resources.picker_time_sheet_title
+import hitchy.shared.generated.resources.rider_home_date_today
+import hitchy.shared.generated.resources.rider_home_date_tomorrow
+import hitchy.shared.generated.resources.rider_home_from_placeholder
+import hitchy.shared.generated.resources.rider_home_missing_route_error
+import hitchy.shared.generated.resources.rider_home_passengers_label
+import hitchy.shared.generated.resources.rider_home_plan_title
+import hitchy.shared.generated.resources.rider_home_same_zone_error
+import hitchy.shared.generated.resources.rider_home_search_button
+import hitchy.shared.generated.resources.rider_home_time_label
+import hitchy.shared.generated.resources.rider_home_to_placeholder
+import hitchy.shared.generated.resources.rides_tab_title
+import hitchy.shared.generated.resources.role_host
+import hitchy.shared.generated.resources.role_host_desc
+import hitchy.shared.generated.resources.shop_coming_soon_body
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
+
+@Composable
+fun HomeScreen(
+    activeRole: Role,
+    onOpenNotifications: () -> Unit,
+    onOpenRoutePicker: (String) -> Unit,
+    onNavigateToSearchResults: (RiderHomeEvent.NavigateToSearchResults) -> Unit,
+    onOpenRiderRideDetails: (String) -> Unit,
+    onOpenRiderTrip: (String) -> Unit,
+    onOpenHostRideDetails: (String) -> Unit,
+    onOpenHostTrip: (String) -> Unit,
+    onOpenPostRide: () -> Unit,
+    onOpenSettings: () -> Unit,
+    onOpenHostApplication: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val colors = HitchyTheme.colors
+    var selectedTab by remember { mutableStateOf(BottomNavItem.Home) }
+
+    Surface(
+        modifier = modifier.fillMaxSize(),
+        color = colors.background,
+    ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier.weight(1f)) {
+                when (selectedTab) {
+                    BottomNavItem.Home -> {
+                        if (activeRole == Role.HOST) {
+                            OwnerHomePreviewPlaceholder(
+                                onOpenNotifications = onOpenNotifications,
+                                onOpenPostRide = onOpenPostRide,
+                                onOpenRidesTab = { selectedTab = BottomNavItem.Rides },
+                            )
+                        } else {
+                            RiderHomeContent(
+                                onOpenNotifications = onOpenNotifications,
+                                onOpenRoutePicker = onOpenRoutePicker,
+                                onNavigateToSearchResults = onNavigateToSearchResults,
+                            )
+                        }
+                    }
+
+                    BottomNavItem.Rides -> {
+                        RidesTabContent(
+                            onBack = null,
+                            onOpenRiderRideDetails = onOpenRiderRideDetails,
+                            onOpenRiderTrip = onOpenRiderTrip,
+                            onOpenHostRideDetails = onOpenHostRideDetails,
+                            onOpenHostTrip = onOpenHostTrip,
+                        )
+                    }
+
+                    BottomNavItem.Shop -> {
+                        EmptyState(
+                            title = stringResource(Res.string.nav_shop),
+                            message = stringResource(Res.string.shop_coming_soon_body),
+                            icon = HitchyIcons.Star,
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                    }
+
+                    BottomNavItem.Profile -> {
+                        ProfileTabContent(
+                            onOpenMyRides = { selectedTab = BottomNavItem.Rides },
+                            onOpenSettings = onOpenSettings,
+                            onOpenHostApplication = onOpenHostApplication,
+                        )
+                    }
+                }
+            }
+
+            BottomNav(
+                selectedItem = selectedTab,
+                onItemSelected = { selectedTab = it },
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun RiderHomeContent(
+    onOpenNotifications: () -> Unit,
+    onOpenRoutePicker: (String) -> Unit,
+    onNavigateToSearchResults: (RiderHomeEvent.NavigateToSearchResults) -> Unit,
+    modifier: Modifier = Modifier,
+    languageSwitcher: LanguageSwitcher = koinInject(),
+    viewModel: RiderHomeViewModel = koinViewModel(),
+) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val colors = HitchyTheme.colors
+    val typography = HitchyTheme.typography
+    val spacing = HitchyTheme.spacing
+    val currentLanguage: AppLanguage = languageSwitcher.getCurrentLanguage()
+
+    LaunchedEffect(viewModel) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is RiderHomeEvent.NavigateToSearchResults -> onNavigateToSearchResults(event)
+            }
+        }
+    }
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
+    ) {
+        GreetingHeader(
+            firstName = state.firstName.ifBlank { stringResource(Res.string.app_name) },
+            onNotificationsClick = onOpenNotifications,
+            hasUnreadNotifications = state.hasUnreadNotifications,
+        )
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(spacing.screenPadding),
+            verticalArrangement = Arrangement.spacedBy(spacing.space16),
+        ) {
+            // Map header preview card
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(colors.lavender)
+                    .border(1.dp, colors.border, RoundedCornerShape(16.dp)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(spacing.space8),
+                ) {
+                    Icon(
+                        painter = painterResource(HitchyIcons.Pin),
+                        contentDescription = null,
+                        tint = colors.pin,
+                        modifier = Modifier.size(28.dp),
+                    )
+                    Text(
+                        text = stringResource(Res.string.rider_home_plan_title),
+                        style = typography.h2,
+                        color = colors.navy,
+                    )
+                }
+            }
+
+            // Plan your ride card
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(1.dp, colors.border, RoundedCornerShape(16.dp)),
+                shape = RoundedCornerShape(16.dp),
+                color = colors.white,
+            ) {
+                Column(
+                    modifier = Modifier.padding(spacing.space16),
+                    verticalArrangement = Arrangement.spacedBy(spacing.space16),
+                ) {
+                    val pickupText = state.fromPoint?.name?.resolve(currentLanguage)
+                        ?: stringResource(Res.string.rider_home_from_placeholder)
+                    val dropoffText = state.toPoint?.name?.resolve(currentLanguage)
+                        ?: stringResource(Res.string.rider_home_to_placeholder)
+
+                    RouteInput(
+                        pickupValue = pickupText,
+                        dropOffValue = dropoffText,
+                        onPickupClick = { onOpenRoutePicker(RiderHomeState.FIELD_FROM) },
+                        onDropOffClick = { onOpenRoutePicker(RiderHomeState.FIELD_TO) },
+                        onSwap = { viewModel.onAction(RiderHomeAction.SwapRoute) },
+                        onPickupClear = if (state.fromPoint != null) {
+                            { viewModel.onAction(RiderHomeAction.ClearFrom) }
+                        } else {
+                            null
+                        },
+                        onDropOffClear = if (state.toPoint != null) {
+                            { viewModel.onAction(RiderHomeAction.ClearTo) }
+                        } else {
+                            null
+                        },
+                    )
+
+                    // Date & time chips
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(spacing.space8),
+                        verticalArrangement = Arrangement.spacedBy(spacing.space8),
+                    ) {
+                        SelectChip(
+                            label = stringResource(Res.string.rider_home_date_today),
+                            selected = state.dateKey == state.todayDateKey,
+                            onClick = { viewModel.onAction(RiderHomeAction.SelectDate(state.todayDateKey)) },
+                        )
+                        SelectChip(
+                            label = stringResource(Res.string.rider_home_date_tomorrow),
+                            selected = state.dateKey == state.tomorrowDateKey,
+                            onClick = { viewModel.onAction(RiderHomeAction.SelectDate(state.tomorrowDateKey)) },
+                        )
+                        SelectChip(
+                            label = stringResource(Res.string.rider_home_time_label, state.timeFormatted),
+                            selected = state.showTimeSheet,
+                            onClick = {
+                                viewModel.onAction(RiderHomeAction.ToggleTimeSheet(!state.showTimeSheet))
+                            },
+                        )
+                    }
+
+                    if (state.showTimeSheet) {
+                        TimeSlotSelector(
+                            selectedMinutes = state.timeMinutes,
+                            onSelectMinutes = { viewModel.onAction(RiderHomeAction.SelectTime(it)) },
+                        )
+                    }
+
+                    // Passengers stepper row
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.rider_home_passengers_label),
+                            style = typography.bodyStrong,
+                            color = colors.navy,
+                        )
+                        PassengersStepper(
+                            count = state.seats,
+                            onCountChange = { viewModel.onAction(RiderHomeAction.UpdateSeats(it)) },
+                        )
+                    }
+
+                    val validationError = state.validationError
+                    if (validationError != null) {
+                        val errText = when (validationError) {
+                            RiderSearchValidationError.MISSING_ROUTE ->
+                                stringResource(Res.string.rider_home_missing_route_error)
+
+                            RiderSearchValidationError.SAME_ZONE ->
+                                stringResource(Res.string.rider_home_same_zone_error)
+                        }
+                        HitchyBanner(
+                            text = errText,
+                            variant = BannerVariant.Error,
+                            onDismiss = { viewModel.onAction(RiderHomeAction.DismissError) },
+                        )
+                    }
+
+                    HitchyButton(
+                        onClick = { viewModel.onAction(RiderHomeAction.SubmitSearch) },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(text = stringResource(Res.string.rider_home_search_button))
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Suppress("MagicNumber")
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun TimeSlotSelector(
+    selectedMinutes: Int,
+    onSelectMinutes: (Int) -> Unit,
+) {
+    val colors = HitchyTheme.colors
+    val typography = HitchyTheme.typography
+    val spacing = HitchyTheme.spacing
+    // Popular commute slots in 15-min / 30-min steps
+    val slots = remember {
+        listOf(
+            7 * 60,
+            7 * 60 + 30,
+            8 * 60,
+            8 * 60 + 15,
+            8 * 60 + 30,
+            9 * 60,
+            9 * 60 + 30,
+            17 * 60,
+            17 * 60 + 30,
+            18 * 60,
+            18 * 60 + 30,
+        )
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(colors.background)
+            .padding(spacing.space12),
+        verticalArrangement = Arrangement.spacedBy(spacing.space8),
+    ) {
+        Text(
+            text = stringResource(Res.string.picker_time_sheet_title),
+            style = typography.captionStrong,
+            color = colors.navy,
+        )
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(spacing.space8),
+            verticalArrangement = Arrangement.spacedBy(spacing.space8),
+        ) {
+            slots.forEach { minutes ->
+                val h = (minutes / 60).toString().padStart(2, '0')
+                val m = (minutes % 60).toString().padStart(2, '0')
+                SelectChip(
+                    label = "$h:$m",
+                    selected = selectedMinutes == minutes,
+                    onClick = { onSelectMinutes(minutes) },
+                )
+            }
+        }
+    }
+}
+
+/** Owner home arrives in P3-A10; until then the tab offers the two owner entry points. */
+@Composable
+private fun OwnerHomePreviewPlaceholder(
+    onOpenNotifications: () -> Unit,
+    onOpenPostRide: () -> Unit,
+    onOpenRidesTab: () -> Unit,
+) {
+    val spacing = HitchyTheme.spacing
+    Column(modifier = Modifier.fillMaxSize()) {
+        GreetingHeader(
+            firstName = stringResource(Res.string.role_host),
+            onNotificationsClick = onOpenNotifications,
+        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(spacing.screenPadding),
+            verticalArrangement = Arrangement.spacedBy(spacing.space16),
+        ) {
+            EmptyState(
+                title = stringResource(Res.string.role_host),
+                message = stringResource(Res.string.role_host_desc),
+                icon = HitchyIcons.Car,
+            )
+            HitchyButton(
+                onClick = onOpenRidesTab,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(text = stringResource(Res.string.rides_tab_title))
+            }
+            HitchyButton(
+                onClick = onOpenPostRide,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(text = stringResource(Res.string.nav_home))
+            }
+        }
+    }
+}
