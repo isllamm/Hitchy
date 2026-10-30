@@ -10,7 +10,7 @@ Plan v1.1 (BUILD_PLAN 2.1) changed the product after the design review: owners a
 Plan v1.2 (BUILD_PLAN 2.2, 2026-10-30) for the demo: a wallet that pays owners, ride stops, the free wait from the owner's arrival, one Rides list. Demo designs: docs/design/demo-flow.md.
 
 ## Status
-Phase 3 (Design system): P3-A01 tokens and theme, P3-A02 Cairo font, P3-A03 Icons, P3-A04 Components from Figma, P3-A05 Components not in Figma, P3-A06 Gallery. Next: the demo build in BUILD_PLAN 3.9 (P3-B01 first, then three lanes) for Friday 2026-10-30 evening; then P3-A07 Swap the screens. The admin web project arrives in P5-W01; until then its CI workflow skips its jobs.
+Phase 3 (Design system): P3-A01 tokens and theme, P3-A02 Cairo font, P3-A03 Icons, P3-A04 Components from Figma, P3-A05 Components not in Figma, P3-A06 Gallery. The demo build (BUILD_PLAN 3.9, for Friday 2026-10-30 evening) is in progress. Merged: P3-B01 contract, P3-B02 offer a ride, P3-B03 search, request, accept and cancel, P3-B04 trip day, P3-B05 wallet payments, P3-B06 demo inbox, P3-A08 demo data and sign-in, P3-A09 rider demo screens, and the two Phase 4 callables sign-in needs (P4-B01 completeProfile, P4-B02 switchRole). Next: P3-A10 owner screens, P3-A11 Maps SDK (PR #54), then the demo run P3-H01 (Islam); after the demo, P3-A07 Swap the screens. The admin web project arrives in P5-W01; until then its CI workflow skips its jobs.
 
 ## Layout
 - backend/ — Firebase: functions (TypeScript), rules, indexes, seed data
@@ -128,8 +128,16 @@ List files changed, test results, and any [HUMAN] or [DECISION] items.
 | 2026-10-30 | P3-A04 Components from Figma: 27 components in core/ui/components, previews, strings | PR #38 |
 | 2026-10-30 | P3-A05 Components not in Figma: 16 components, design review badges, previews, tests | PR #39 |
 | 2026-10-30 | P3-A06 Gallery: dev-only gallery screen, category filters, interactive RTL/LTR toggle, 5 sections | PR #40 |
+| 2026-10-30 | P3-B01 Demo contract v1.2: wallets and entries, ride stops, booking pickup fields, arriveAtStop, confirmRidePayment and topUpWallet in the contract, new error reasons, 479 backend tests | PR #42 |
+| 2026-10-30 | P3-B02 Offer a ride: quotePrice and createRide with stops, demo seed limits for rehearsals, 500 backend tests | PR #43 |
 | 2026-10-30 | P4-B01 completeProfile callable, defaults, kyc doc, referral codes, locked gender, 8 integration tests | PR #44 |
 | 2026-10-30 | P4-B02 switchRole callable, host status enforcement, 4 integration tests | PR #45 |
+| 2026-10-30 | P3-B03 Search, request, accept, cancel: searchRides with ranking and pickup stops, requestSeats with the wallet check, respondToRequest, cancelBooking, 549 backend tests | PR #46 |
+| 2026-10-30 | P3-A08 Demo data and sign-in: phone sign-in, repositories for auth, profile, wallet, places, vehicles, rides, bookings, trip and inbox, root navigation by role | PR #48 |
+| 2026-10-30 | P3-B04 Trip day: startRide, arriveAtStop (the free wait starts at the owner's arrival), checkIn, markBoarded, reportLate, finishRide with a shared finishRideCore, 586 backend tests | PR #49 |
+| 2026-10-30 | P3-B05 Wallet payments: confirmRidePayment (fare plus late fee, several riders in one call, idempotent) and topUpWallet, 601 backend tests | PR #50 |
+| 2026-10-30 | P3-B06 Demo inbox: booking and payment messages stored in the inbox, 610 backend tests | PR #51 |
+| 2026-10-30 | P3-A09 Rider demo screens: auth, profile setup, place picker, rider Home and search, ride details, rider trip, Rides tab, notifications, 133 unit tests | PR #53 |
 
 Deploy jobs skip until each GitHub environment has its Phase 0 secrets (ADR 0003 row 18).
 
