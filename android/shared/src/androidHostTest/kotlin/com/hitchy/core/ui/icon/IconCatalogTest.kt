@@ -1,0 +1,94 @@
+@file:Suppress("MagicNumber")
+
+package com.hitchy.core.ui.icon
+
+import java.io.File
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+
+class IconCatalogTest {
+
+    private val expectedIcons = listOf(
+        "back",
+        "more",
+        "bell",
+        "mail",
+        "lock",
+        "person",
+        "eye",
+        "check",
+        "scooter",
+        "motorbike",
+        "add_person",
+        "id_card_verified",
+        "upload",
+        "camera",
+        "car",
+        "clock",
+        "search",
+        "close",
+        "chevron_down",
+        "location_dot",
+        "pin",
+        "swap",
+        "star",
+        "shield_check",
+        "info",
+        "warning",
+        "error",
+        "success",
+        "repeat",
+        "home",
+        "rides",
+        "profile",
+    )
+
+    private val mirroredIcons = setOf("back", "swap")
+
+    private fun findDrawableDir(): File {
+        val candidates = listOf(
+            File("src/commonMain/composeResources/drawable"),
+            File("shared/src/commonMain/composeResources/drawable"),
+            File("android/shared/src/commonMain/composeResources/drawable"),
+        )
+        return candidates.firstOrNull { it.isDirectory }
+            ?: error("Could not locate composeResources/drawable directory")
+    }
+
+    @Test
+    fun testAllExpectedIconsRegistered() {
+        assertEquals(32, HitchyIcons.all.size)
+        assertEquals(expectedIcons.sorted(), HitchyIcons.all.keys.sorted())
+    }
+
+    @Test
+    fun testAllVectorFilesExistAndConformToDesignSpec() {
+        val drawableDir = findDrawableDir()
+        for (name in expectedIcons) {
+            val file = File(drawableDir, "ic_$name.xml")
+            assertTrue(file.exists(), "Missing icon file: ${file.absolutePath}")
+
+            val content = file.readText()
+            assertTrue(content.contains("<vector"), "Icon ic_$name.xml must be an Android vector drawable")
+            assertTrue(content.contains("android:width=\"24dp\""), "Icon ic_$name.xml must have width 24dp")
+            assertTrue(content.contains("android:height=\"24dp\""), "Icon ic_$name.xml must have height 24dp")
+            assertTrue(
+                content.contains("android:viewportWidth=\"24\""),
+                "Icon ic_$name.xml must have viewportWidth 24",
+            )
+            assertTrue(
+                content.contains("android:viewportHeight=\"24\""),
+                "Icon ic_$name.xml must have viewportHeight 24",
+            )
+            assertTrue(content.contains("android:strokeWidth=\"2\""), "Icon ic_$name.xml must have strokeWidth 2")
+
+            if (name in mirroredIcons) {
+                assertTrue(
+                    content.contains("android:autoMirrored=\"true\""),
+                    "Directional icon ic_$name.xml must have autoMirrored=\"true\"",
+                )
+            }
+        }
+    }
+}

@@ -9,7 +9,7 @@ Rider designs: docs/design/rider-flow.md (screen index and flow map of the full 
 Plan v1.1 (BUILD_PLAN 2.1) changed the product after the design review: owners accept each booking (a request holds its seats), one booking can hold several seats, chat and calls after acceptance, payment confirmation, an inbox. The app's text says "Owner"; code and data say `host`.
 
 ## Status
-Phase 3 (Design system): P3-A01 tokens and theme, P3-A02 Cairo font (Regular, SemiBold, Bold with OFL license, English/Arabic previews). Next: P3-A03 Icons. The admin web project arrives in P5-W01; until then its CI workflow skips its jobs.
+Phase 3 (Design system): P3-A01 tokens and theme, P3-A02 Cairo font, P3-A03 Icons (32 vector drawables, HitchyIcons, IconGallery, IconCatalogTest). Next: P3-A04 Components from Figma. The admin web project arrives in P5-W01; until then its CI workflow skips its jobs.
 
 ## Layout
 - backend/ — Firebase: functions (TypeScript), rules, indexes, seed data
