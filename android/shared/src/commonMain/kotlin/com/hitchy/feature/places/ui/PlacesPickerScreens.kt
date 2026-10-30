@@ -125,13 +125,13 @@ fun RoutePickerScreen(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(spacing.space8),
                 ) {
-                    items(state.filteredPoints, key = { it.id }) { point ->
+                    items(state.filteredPoints, key = { "${it.zoneId}/${it.id}" }) { point ->
                         val zoneName = zonesById[point.zoneId]?.name?.resolve(currentLanguage).orEmpty()
                         PointRow(
                             point = point,
                             zoneName = zoneName,
                             language = currentLanguage,
-                            selected = state.selectedPoint?.id == point.id,
+                            selected = isSamePoint(state.selectedPoint, point),
                             onClick = { viewModel.onAction(PlacesPickerAction.ConfirmPoint(point)) },
                         )
                     }
@@ -168,12 +168,16 @@ fun MapPointPickerScreen(
     }
 
     val selected = state.selectedPoint
-    val pointsById = state.points.associateBy { it.id }
+    val pointsByKey = state.points.associateBy { "${it.zoneId}/${it.id}" }
+    val selectedKey = selected?.let { "${it.zoneId}/${it.id}" }
 
     Box(modifier = modifier.fillMaxSize().background(colors.background)) {
         HitchyMap(
-            pins = state.points.map { MapPin(id = it.id, point = it.location, selected = it.id == selected?.id) },
-            onPinClick = { id -> pointsById[id]?.let { viewModel.onAction(PlacesPickerAction.HighlightPoint(it)) } },
+            pins = state.points.map {
+                val key = "${it.zoneId}/${it.id}"
+                MapPin(id = key, point = it.location, selected = key == selectedKey)
+            },
+            onPinClick = { key -> pointsByKey[key]?.let { viewModel.onAction(PlacesPickerAction.HighlightPoint(it)) } },
             modifier = Modifier.fillMaxSize(),
         )
         BackButton(
@@ -318,4 +322,9 @@ private fun PointRow(
             }
         }
     }
+}
+
+private fun isSamePoint(a: Point?, b: Point): Boolean {
+    if (a == null) return false
+    return a.zoneId == b.zoneId && a.id == b.id
 }
