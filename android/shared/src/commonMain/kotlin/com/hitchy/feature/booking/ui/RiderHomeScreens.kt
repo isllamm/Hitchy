@@ -73,6 +73,7 @@ import hitchy.shared.generated.resources.role_host_desc
 import hitchy.shared.generated.resources.shop_coming_soon_body
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import com.hitchy.feature.profile.domain.ProfileRepository
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -90,9 +91,13 @@ fun HomeScreen(
     onOpenSettings: () -> Unit,
     onOpenHostApplication: () -> Unit,
     modifier: Modifier = Modifier,
+    profileRepository: ProfileRepository = koinInject(),
 ) {
     val colors = HitchyTheme.colors
     var selectedTab by remember { mutableStateOf(BottomNavItem.Home) }
+    val me by profileRepository.observeMe().collectAsStateWithLifecycle(initialValue = null)
+    // Figma's Profile tab shows the user's initials, "FT".
+    val initials = me?.let { "${it.firstName.take(1)}${it.lastName.take(1)}".uppercase() }
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -150,6 +155,7 @@ fun HomeScreen(
             BottomNav(
                 selectedItem = selectedTab,
                 onItemSelected = { selectedTab = it },
+                userInitials = initials,
             )
         }
     }

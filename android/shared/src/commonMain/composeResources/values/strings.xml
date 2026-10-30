@@ -264,7 +264,7 @@
     <string name="profile_save_continue">Save and continue</string>
     <string name="rider_home_plan_title">Plan your ride</string>
     <string name="rider_home_from_placeholder">Select pickup point</string>
-    <string name="rider_home_to_placeholder">Select destination point</string>
+    <string name="rider_home_to_placeholder">Choose destination</string>
     <string name="rider_home_date_today">Today</string>
     <string name="rider_home_date_tomorrow">Tomorrow</string>
     <string name="rider_home_time_label">Time · %1$s</string>
@@ -303,6 +303,9 @@
     <string name="rider_home_passengers_many">%1$d passengers</string>
     <string name="rider_home_missing_route_error">Please select both pickup and destination points.</string>
     <string name="rider_home_same_zone_error">Pickup and destination must be in different zones.</string>
+    <string name="rider_home_missing_destination_error">Choose a destination to search for rides.</string>
+    <string name="rider_home_notifications">Notifications</string>
+    <string name="rider_home_dismiss">Dismiss</string>
     <string name="picker_select_pickup_title">Select pickup</string>
     <string name="picker_select_dropoff_title">Select drop-off</string>
     <string name="picker_choose_on_map">Choose on map</string>

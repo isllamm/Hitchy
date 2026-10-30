@@ -264,7 +264,7 @@
     <string name="profile_save_continue">حفظ ومتابعة</string>
     <string name="rider_home_plan_title">خطط لمشوارك</string>
     <string name="rider_home_from_placeholder">اختر نقطة التحرك</string>
-    <string name="rider_home_to_placeholder">اختر نقطة الوصول</string>
+    <string name="rider_home_to_placeholder">اختار وجهتك</string>
     <string name="rider_home_date_today">اليوم</string>
     <string name="rider_home_date_tomorrow">غداً</string>
     <string name="rider_home_time_label">الوقت · %1$s</string>
@@ -303,6 +303,9 @@
     <string name="rider_home_passengers_many">%1$d ركاب</string>
     <string name="rider_home_missing_route_error">من فضلك اختر نقطة التحرك ونقطة الوصول.</string>
     <string name="rider_home_same_zone_error">نقطة التحرك والوصول لازم يكونوا في منطقتين مختلفتين.</string>
+    <string name="rider_home_missing_destination_error">اختار وجهتك علشان تدور على مشاوير.</string>
+    <string name="rider_home_notifications">الإشعارات</string>
+    <string name="rider_home_dismiss">إغلاق</string>
     <string name="picker_select_pickup_title">اختر نقطة التحرك</string>
     <string name="picker_select_dropoff_title">اختر نقطة الوصول</string>
     <string name="picker_choose_on_map">اختر على الخريطة</string>

@@ -5,6 +5,13 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.dropShadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.shadow.Shadow
+import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -39,3 +46,16 @@ fun figmaTop(offset: Dp): Dp = maxOf(offset, WindowInsets.statusBars.asPaddingVa
 /** A Figma offset from the screen bottom, never under the navigation bar. */
 @Composable
 fun figmaBottom(offset: Dp): Dp = maxOf(offset, WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding())
+
+/**
+ * A Figma drop shadow: x and y offset, blur and spread in dp, and its colour with alpha.
+ * Material elevation cannot match Figma's tinted, offset shadows, so screens use this.
+ */
+fun Modifier.figmaShadow(
+    shape: Shape,
+    color: Color,
+    blur: Dp,
+    x: Dp = 0.dp,
+    y: Dp = 0.dp,
+    spread: Dp = 0.dp,
+): Modifier = dropShadow(shape, Shadow(radius = blur, color = color, spread = spread, offset = DpOffset(x, y)))

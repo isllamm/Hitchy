@@ -16,6 +16,34 @@ val White = Color(0xFFFFFFFF)
 
 /** Figma's photo scrim on the onboarding screens. */
 val Scrim = Color(0xFF0F0F0F)
+
+// Colours the Figma rider frames use beyond the Phase 3 palette.
+/** The hairline stroke on Home's input cards. */
+val Hairline = Color(0xFFE9EEF5)
+
+/** The "From" dot and the route pin's centre. */
+val Royal = Color(0xFF4318FF)
+
+/** The soft pink behind the destination pin. */
+val PinSoft = Color(0xFFFFF0F4)
+
+/** The darker purple of the small form icons. */
+val PurpleDeep = Color(0xFF5B21E6)
+
+/** Sheet handles. */
+val Handle = Color(0xFFCBD5E1)
+
+/** Placeholder text in the route fields. */
+val Slate = Color(0xFF64748B)
+
+/** The map's land colour, shown before tiles load. */
+val MapLand = Color(0xFFEDF3ED)
+
+/** Disabled chevrons and faint dividers. */
+val Gray300 = Color(0xFFD1D5DB)
+
+/** The ink of shadows that Figma tints. */
+val ShadowInk = Color(0xFF111827)
 val Background = Color(0xFFF8F9FC)
 val Border = Color(0xFFE5E7EB)
 val DisabledSurface = Color(0xFFF3F4F6)

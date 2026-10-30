@@ -37,6 +37,27 @@ import hitchy.shared.generated.resources.ic_success
 import hitchy.shared.generated.resources.ic_swap
 import hitchy.shared.generated.resources.ic_upload
 import hitchy.shared.generated.resources.ic_warning
+import hitchy.shared.generated.resources.fig_bell
+import hitchy.shared.generated.resources.fig_calendar_small
+import hitchy.shared.generated.resources.fig_chevron_right
+import hitchy.shared.generated.resources.fig_clock_small
+import hitchy.shared.generated.resources.fig_minus
+import hitchy.shared.generated.resources.fig_passenger_small
+import hitchy.shared.generated.resources.fig_pin_small
+import hitchy.shared.generated.resources.fig_plus
+import hitchy.shared.generated.resources.fig_search_small
+import hitchy.shared.generated.resources.fig_tab_home_off
+import hitchy.shared.generated.resources.fig_tab_home_on
+import hitchy.shared.generated.resources.fig_tab_rides_off
+import hitchy.shared.generated.resources.fig_tab_rides_on
+import hitchy.shared.generated.resources.fig_tab_shop_off
+import hitchy.shared.generated.resources.fig_tab_shop_on
+import hitchy.shared.generated.resources.fig_close_small
+import hitchy.shared.generated.resources.fig_toast_error
+import hitchy.shared.generated.resources.fig_check_small
+import hitchy.shared.generated.resources.fig_chevron_left_month
+import hitchy.shared.generated.resources.fig_close
+import hitchy.shared.generated.resources.fig_info_small
 import org.jetbrains.compose.resources.DrawableResource
 
 /**
@@ -89,6 +110,51 @@ object HitchyIcons {
 
     /** Figma's 12dp onboarding next arrow; mirrors in right-to-left layouts. */
     val ArrowForward: DrawableResource get() = Res.drawable.fig_arrow_forward
+
+    /** Figma's 10x10.5 chevron at the end of a form row; mirrors in right-to-left layouts. */
+    val ChevronRightSmall: DrawableResource get() = Res.drawable.fig_chevron_right
+
+    /** Figma's 10.5x14 destination pin in a form tile. */
+    val PinSmall: DrawableResource get() = Res.drawable.fig_pin_small
+
+    /** Figma's 10.5x12 calendar in the Date tile. */
+    val CalendarSmall: DrawableResource get() = Res.drawable.fig_calendar_small
+
+    /** Figma's 12x12 clock in the Departure time tile. */
+    val ClockSmall: DrawableResource get() = Res.drawable.fig_clock_small
+
+    /** Figma's 10.5x12 person in the Passengers tile. */
+    val PassengerSmall: DrawableResource get() = Res.drawable.fig_passenger_small
+
+    /** Figma's 14x14 magnifier on the Search rides button. */
+    val SearchSmall: DrawableResource get() = Res.drawable.fig_search_small
+
+    /** Figma's 18x18 stepper minus. */
+    val Minus: DrawableResource get() = Res.drawable.fig_minus
+
+    /** Figma's 18x18 stepper plus. */
+    val Plus: DrawableResource get() = Res.drawable.fig_plus
+
+    /** Figma's 20x20 notification bell on Home. */
+    val BellLinear: DrawableResource get() = Res.drawable.fig_bell
+
+    /** Figma's 24dp tab icons: bold when the tab is open, linear otherwise. */
+    val TabHomeOn: DrawableResource get() = Res.drawable.fig_tab_home_on
+    val TabHomeOff: DrawableResource get() = Res.drawable.fig_tab_home_off
+    val TabRidesOn: DrawableResource get() = Res.drawable.fig_tab_rides_on
+    val TabRidesOff: DrawableResource get() = Res.drawable.fig_tab_rides_off
+    val TabShopOn: DrawableResource get() = Res.drawable.fig_tab_shop_on
+    val TabShopOff: DrawableResource get() = Res.drawable.fig_tab_shop_off
+
+    /** Figma's 20x20 error mark and 18x18 close on a toast. */
+    val ToastError: DrawableResource get() = Res.drawable.fig_toast_error
+    val CloseSmall: DrawableResource get() = Res.drawable.fig_close_small
+
+    /** Figma's 22x22 sheet close, 16x16 chip check, 22x22 month chevron (points back) and 18x18 info. */
+    val SheetClose: DrawableResource get() = Res.drawable.fig_close
+    val CheckSmall: DrawableResource get() = Res.drawable.fig_check_small
+    val ChevronBack: DrawableResource get() = Res.drawable.fig_chevron_left_month
+    val InfoSmall: DrawableResource get() = Res.drawable.fig_info_small
 
     val all: Map<String, DrawableResource> get() = mapOf(
         "back" to Back,
