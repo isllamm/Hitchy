@@ -14,3 +14,5 @@ export { checkIn } from "./handlers/trip/checkIn.js";
 export { markBoarded } from "./handlers/trip/markBoarded.js";
 export { reportLate } from "./handlers/trip/reportLate.js";
 export { finishRide } from "./handlers/trip/finishRide.js";
+export { confirmRidePayment } from "./handlers/trip/confirmRidePayment.js";
+export { topUpWallet } from "./handlers/packages/topUpWallet.js";
