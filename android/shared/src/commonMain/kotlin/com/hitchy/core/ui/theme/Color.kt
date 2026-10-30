@@ -13,6 +13,9 @@ val Lilac = Color(0xFFF5F3FF)
 
 // Neutral
 val White = Color(0xFFFFFFFF)
+
+/** Figma's photo scrim on the onboarding screens. */
+val Scrim = Color(0xFF0F0F0F)
 val Background = Color(0xFFF8F9FC)
 val Border = Color(0xFFE5E7EB)
 val DisabledSurface = Color(0xFFF3F4F6)

@@ -1,6 +1,9 @@
 package com.hitchy.core.ui.icon
 
 import hitchy.shared.generated.resources.Res
+import hitchy.shared.generated.resources.fig_arrow_forward
+import hitchy.shared.generated.resources.fig_driver
+import hitchy.shared.generated.resources.fig_rider
 import hitchy.shared.generated.resources.ic_add_person
 import hitchy.shared.generated.resources.ic_back
 import hitchy.shared.generated.resources.ic_bell
@@ -73,6 +76,17 @@ object HitchyIcons {
     val Home: DrawableResource get() = Res.drawable.ic_home
     val Rides: DrawableResource get() = Res.drawable.ic_rides
     val Profile: DrawableResource get() = Res.drawable.ic_profile
+
+    // Figma drawings kept at their own size and weight, outside the 24dp set above.
+
+    /** Figma's 30dp DriverIcon, the "I have a vehicle" role card. */
+    val Driver: DrawableResource get() = Res.drawable.fig_driver
+
+    /** Figma's 30dp RiderIcon, the "I need a ride" role card. */
+    val Rider: DrawableResource get() = Res.drawable.fig_rider
+
+    /** Figma's 12dp onboarding next arrow; mirrors in right-to-left layouts. */
+    val ArrowForward: DrawableResource get() = Res.drawable.fig_arrow_forward
 
     val all: Map<String, DrawableResource> get() = mapOf(
         "back" to Back,

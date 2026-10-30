@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -44,7 +45,6 @@ fun OtpField(
 ) {
     val colors = LocalHitchyColors.current
     val typography = LocalHitchyTypography.current
-    val spacing = LocalHitchySpacing.current
     val boxShape = RoundedCornerShape(12.dp)
 
     BasicTextField(
@@ -67,34 +67,40 @@ fun OtpField(
             },
         ),
         decorationBox = {
+            // Figma: six 53x56 r=12 boxes, SPACE_BETWEEN across 361. The active box takes a
+            // purple stroke; a wrong code turns every box #FEE2E2 on #EF4444.
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(spacing.space8, Alignment.CenterHorizontally),
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 for (i in 0 until OTP_LENGTH) {
                     val char = otpValue.getOrNull(i)?.toString().orEmpty()
-                    val isFocused = otpValue.length == i
+                    val isActive = otpValue.length == i
 
                     val borderColor = when {
                         isError -> colors.error
-                        isFocused -> colors.purple
-                        char.isNotEmpty() -> colors.navy
+                        isActive -> colors.purple
                         else -> colors.border
+                    }
+                    val fillColor = when {
+                        isError -> colors.errorBg
+                        !enabled -> colors.disabledSurface
+                        else -> colors.white
                     }
 
                     Box(
                         modifier = Modifier
-                            .width(48.dp)
+                            .width(53.dp)
                             .height(56.dp)
                             .clip(boxShape)
-                            .background(if (enabled) colors.white else colors.disabledSurface)
-                            .border(if (isFocused || isError) 2.dp else 1.dp, borderColor, boxShape),
+                            .background(fillColor)
+                            .border(1.3.dp, borderColor, boxShape),
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
                             text = char,
-                            style = typography.h2,
-                            color = if (isError) colors.errorText else colors.navy,
+                            style = typography.h3,
+                            color = colors.navy,
                             textAlign = TextAlign.Center,
                         )
                     }
@@ -110,8 +116,12 @@ fun OtpFieldLtrPreview() {
     HitchyTheme {
         val spacing = LocalHitchySpacing.current
         Surface(color = LocalHitchyColors.current.background) {
-            Box(modifier = Modifier.padding(spacing.space16)) {
-                OtpField(otpValue = "123", onOtpChange = {})
+            Column(
+                modifier = Modifier.padding(spacing.space16),
+                verticalArrangement = Arrangement.spacedBy(spacing.space16),
+            ) {
+                OtpField(otpValue = "47", onOtpChange = {})
+                OtpField(otpValue = "835104", onOtpChange = {}, isError = true)
             }
         }
     }

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -20,6 +21,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -64,70 +66,77 @@ fun RoleCard(
         AppRoleType.Host -> stringResource(Res.string.role_host_desc)
     }
     val icon: DrawableResource = when (role) {
-        AppRoleType.Rider -> HitchyIcons.Person
-        AppRoleType.Host -> HitchyIcons.Car
+        AppRoleType.Rider -> HitchyIcons.Rider
+        AppRoleType.Host -> HitchyIcons.Driver
     }
 
+    // Figma: 361x96, pad 16/24, r=16. Unselected white on a #E5E7EB stroke; selected #EDE9FE on purple.
     val borderColor = if (selected) colors.purple else colors.border
-    val borderWidth = if (selected) 2.dp else 1.dp
-    val bgColor = if (selected) colors.lilac else colors.white
+    val bgColor = if (selected) colors.lavender else colors.white
 
     Surface(
         modifier = modifier
             .fillMaxWidth()
+            .height(96.dp)
             .clip(cardShape)
-            .border(borderWidth, borderColor, cardShape)
+            .border(1.3.dp, borderColor, cardShape)
             .clickable(onClick = onClick),
         shape = cardShape,
         color = bgColor,
     ) {
         Row(
-            modifier = Modifier.padding(spacing.space16),
+            modifier = Modifier.padding(vertical = spacing.space16, horizontal = spacing.space24),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(spacing.space16),
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
-                    .background(if (selected) colors.lavender else colors.background),
-                contentAlignment = Alignment.Center,
+            Row(
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(spacing.space16),
             ) {
-                Icon(
-                    painter = painterResource(icon),
-                    contentDescription = null,
-                    tint = if (selected) colors.purple else colors.navy,
-                    modifier = Modifier.size(24.dp),
-                )
-            }
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = title,
-                    style = typography.title,
-                    color = colors.navy,
-                )
-                Text(
-                    text = description,
-                    style = typography.body,
-                    color = colors.textSecondary,
-                    modifier = Modifier.padding(top = 2.dp),
-                )
-            }
-
-            if (selected) {
                 Box(
                     modifier = Modifier
-                        .size(24.dp)
-                        .clip(CircleShape)
-                        .background(colors.purple),
+                        .size(52.dp)
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(colors.lilac),
                     contentAlignment = Alignment.Center,
                 ) {
+                    Icon(
+                        painter = painterResource(icon),
+                        contentDescription = null,
+                        tint = colors.purple,
+                        modifier = Modifier.size(30.dp),
+                    )
+                }
+
+                Column(verticalArrangement = Arrangement.spacedBy(spacing.space4)) {
+                    Text(
+                        text = title,
+                        style = typography.h3,
+                        color = colors.navy,
+                    )
+                    Text(
+                        text = description,
+                        style = typography.bodyLarge,
+                        color = colors.textSecondary,
+                    )
+                }
+            }
+
+            Box(
+                modifier = Modifier
+                    .size(22.dp)
+                    .clip(CircleShape)
+                    .background(if (selected) colors.purple else Color.Transparent)
+                    .border(1.32.dp, if (selected) colors.purple else colors.border, CircleShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                if (selected) {
                     Icon(
                         painter = painterResource(HitchyIcons.Check),
                         contentDescription = null,
                         tint = colors.white,
-                        modifier = Modifier.size(14.dp),
+                        modifier = Modifier.size(15.dp),
                     )
                 }
             }

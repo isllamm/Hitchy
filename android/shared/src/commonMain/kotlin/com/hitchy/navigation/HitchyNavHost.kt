@@ -39,6 +39,7 @@ import com.hitchy.feature.auth.presentation.RootViewModel
 import com.hitchy.feature.auth.ui.OnboardingScreen
 import com.hitchy.feature.auth.ui.OtpVerifyScreen
 import com.hitchy.feature.auth.ui.PhoneEntryScreen
+import com.hitchy.feature.auth.ui.SplashScreen
 import com.hitchy.feature.auth.ui.WelcomeScreen
 import com.hitchy.feature.booking.domain.SearchInput
 import com.hitchy.feature.booking.ui.HomeScreen
@@ -69,7 +70,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 fun RootState.toStartDestination(): Any? = when (this) {
     RootState.Loading -> null
-    RootState.SignedOut -> Welcome
+    RootState.SignedOut -> Onboarding
     RootState.NeedsProfile -> ProfileSetup
     is RootState.Ready -> Home
 }
@@ -87,7 +88,7 @@ fun HitchyNavHost(
     val initialDestination = remember(targetRoot != null) { targetRoot }
 
     if (initialDestination == null) {
-        RootLoadingScreen(modifier = modifier)
+        SplashScreen(modifier = modifier)
         return
     }
 
@@ -109,7 +110,6 @@ fun HitchyNavHost(
         composable<Welcome> {
             WelcomeScreen(
                 onContinueToPhone = { navController.navigate(PhoneEntry) },
-                onOpenOnboarding = { navController.navigate(Onboarding) },
             )
         }
         composable<PhoneEntry> {
@@ -271,7 +271,13 @@ fun HitchyNavHost(
             }
         }
         composable<Onboarding> {
-            OnboardingScreen(onFinish = { navController.popBackStack() })
+            OnboardingScreen(
+                onFinish = {
+                    navController.navigate(Welcome) {
+                        popUpTo<Onboarding> { inclusive = true }
+                    }
+                },
+            )
         }
         composable<RoutePicker> { backStackEntry ->
             val route = backStackEntry.toRoute<RoutePicker>()
@@ -299,32 +305,6 @@ fun HitchyNavHost(
         composable<Chat> { PlaceholderScreen("Chat") }
         composable<Receipt> { PlaceholderScreen("Receipt") }
         composable<Shop> { PlaceholderScreen("Shop") }
-    }
-}
-
-@Composable
-private fun RootLoadingScreen(
-    modifier: Modifier = Modifier,
-) {
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(HitchyTheme.colors.brandGradient),
-        contentAlignment = Alignment.Center,
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(HitchyTheme.spacing.space16),
-        ) {
-            Text(
-                text = stringResource(Res.string.app_name),
-                style = HitchyTheme.typography.display,
-                color = HitchyTheme.colors.white,
-            )
-            CircularProgressIndicator(
-                color = HitchyTheme.colors.white,
-            )
-        }
     }
 }
 

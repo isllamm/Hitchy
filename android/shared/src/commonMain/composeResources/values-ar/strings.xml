@@ -25,7 +25,7 @@
     <!-- Design System Components -->
     <string name="phone_field_label">رقم الموبايل</string>
     <string name="phone_field_helper">هنبعتلك كود تأكيد</string>
-    <string name="phone_field_error">أدخل رقم موبايل مصري صحيح</string>
+    <string name="phone_field_error">اكتب رقم موبايل مصري صحيح.</string>
     <string name="search_field_placeholder">بحث</string>
     <string name="search_field_clear">مسح البحث</string>
     <string name="location_pickup_label">مكان التحرك</string>
@@ -62,13 +62,13 @@
 
     <!-- Components (P3-A05) -->
     <string name="needs_design_review">يحتاج مراجعة التصميم</string>
-    <string name="otp_title">كود التأكيد</string>
+    <string name="otp_title">شوف رسايلك</string>
     <string name="empty_state_title">مفيش حاجة هنا لسه</string>
     <string name="error_state_title">حصل خطأ ما</string>
-    <string name="role_rider">راكب</string>
-    <string name="role_rider_desc">احجز كرسي في مشاوير العمل اليومية</string>
-    <string name="role_host">صاحب عربية</string>
-    <string name="role_host_desc">شارك كراسيك الفاضية ووفر بنزين</string>
+    <string name="role_rider">محتاج مشوار</string>
+    <string name="role_rider_desc">لاقي مشوار قريب تعتمد عليه</string>
+    <string name="role_host">عندي عربية</string>
+    <string name="role_host_desc">شارك مشوارك مع غيرك.</string>
     <string name="action_message">رسالة</string>
     <string name="action_call">اتصال</string>
     <string name="action_share_trip">مشاركة الرحلة</string>
@@ -214,27 +214,39 @@
     <string name="error_network">مفيش اتصال بالإنترنت.</string>
 
     <!-- Demo Rider & Auth Screens (P3-A09) -->
-    <string name="onboarding_title_1">مشاوير يومية مع ركاب موثوقين</string>
-    <string name="onboarding_body_1">شارك مشوارك اليومي في القاهرة الكبرى مع جيرانك وزمايلك في الشغل.</string>
-    <string name="onboarding_title_2">أسعار عادلة وواضحة</string>
-    <string name="onboarding_body_2">اعرف تكلفة الكرسي مسبقاً وادفع من محفظتك بعد انتهاء المشوار.</string>
-    <string name="onboarding_title_3">مجتمع آمن وموثق</string>
-    <string name="onboarding_body_3">شارات الشركات وتوثيق الهوية ورحلات السيدات فقط لراحة وأمان كل مشوار.</string>
+    <string name="onboarding_title_1">نفس الطريق، سوا أحسن</string>
+    <string name="onboarding_body_1">لاقي ناس في نفس طريقك وشاركوا مشوار يومكم بسهولة.</string>
+    <string name="onboarding_title_2">شارك المشوار، وقسّم التكلفة</string>
+    <string name="onboarding_body_2">وفّر في مصاريف يومك بمشاركة تكلفة البنزين مع زمايلك في الرحلة.</string>
+    <string name="onboarding_title_3">عربيات أقل، مدن أنظف</string>
+    <string name="onboarding_body_3">خلي كل كرسي يفرق. قلّل الزحمة والتلوث برحلة مشتركة في كل مرة.</string>
     <string name="onboarding_skip">تخطي</string>
     <string name="onboarding_get_started">ابدأ الآن</string>
     <string name="welcome_title">أهلاً بك في هيتشي</string>
-    <string name="welcome_subtitle">اختار طريقة مشوارك النهارده</string>
+    <string name="welcome_subtitle">شارك مشوارك اليومي ووفّر في مصاريف البنزين</string>
     <string name="welcome_rider_subtitle">محتاج مشوار</string>
     <string name="welcome_owner_subtitle">عندي عربية</string>
     <string name="welcome_continue">متابعة</string>
     <string name="welcome_how_it_works">إزاي هيتشي بيشتغل</string>
-    <string name="phone_entry_title">أدخل رقم الموبايل</string>
-    <string name="phone_entry_privacy_note">رقمك بيتشارك بس مع صاحب العربية أو الركاب بعد قبول الحجز.</string>
-    <string name="otp_verify_subtitle">تم الإرسال إلى %1$s</string>
-    <string name="otp_resend_in">إعادة إرسال الكود خلال %1$d ثانية</string>
+    <string name="phone_entry_title">إيه رقمك؟</string>
+    <string name="phone_entry_privacy_note">رقمك يفضل خاص لحد ما تقبل مشوار.</string>
+    <string name="otp_verify_subtitle">اكتب الكود المرسل إلى %1$s</string>
+    <string name="otp_resend_in">إعادة إرسال الكود بعد %1$s</string>
     <string name="otp_resend_now">إعادة إرسال الكود</string>
     <string name="otp_change_number">تغيير الرقم</string>
-    <string name="otp_verify_button">تأكيد</string>
+    <string name="otp_verify_button">تأكيد الرقم</string>
+    <string name="phone_field_prefix">+20</string>
+    <string name="phone_field_placeholder">10 1234 5678</string>
+    <string name="phone_entry_subtitle">هنبعتلك كود لمرة واحدة. مش محتاج كلمة سر.</string>
+    <string name="phone_entry_create_account">مش عندك حساب؟ %1$s</string>
+    <string name="phone_entry_terms">باستمرارك، أنت موافق على %1$s و%2$s في هيتشي.</string>
+    <string name="phone_entry_terms_link">الشروط</string>
+    <string name="phone_entry_privacy_link">سياسة الخصوصية</string>
+    <string name="phone_entry_create_account_link">أنشئ حساب</string>
+    <string name="welcome_safety_note">رحلات يومية آمنة وموثّقة</string>
+    <string name="splash_logo_description">هيتشي</string>
+    <string name="onboarding_next">التالي</string>
+    <string name="onboarding_image_description">مشوار مشترك وقت الغروب</string>
     <string name="profile_setup_title">كمّل بياناتك</string>
     <string name="profile_setup_subtitle">عرّف زمايلك في المشوار بيك</string>
     <string name="profile_first_name_label">الاسم الأول</string>

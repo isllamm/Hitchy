@@ -1,6 +1,7 @@
 package com.hitchy.core.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -30,6 +31,9 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 enum class BackButtonStyle {
     Plain,
     TonalCircle,
+
+    /** Figma's 44x44 white circle with a 1dp #E5E7EB stroke: every screen that opens with a back arrow. */
+    OutlinedCircle,
 }
 
 @Composable
@@ -46,7 +50,23 @@ fun BackButton(
         modifier = modifier.size(48.dp),
         enabled = enabled,
     ) {
-        if (style == BackButtonStyle.TonalCircle) {
+        if (style == BackButtonStyle.OutlinedCircle) {
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(CircleShape)
+                    .background(colors.white)
+                    .border(1.dp, colors.border, CircleShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    painter = painterResource(HitchyIcons.Back),
+                    contentDescription = stringResource(Res.string.action_back),
+                    tint = colors.navy,
+                    modifier = Modifier.size(20.dp),
+                )
+            }
+        } else if (style == BackButtonStyle.TonalCircle) {
             Box(
                 modifier = Modifier
                     .size(40.dp)
@@ -81,6 +101,7 @@ fun BackButtonLtrPreview() {
             Row(modifier = Modifier.padding(spacing.space16)) {
                 BackButton(onClick = {}, style = BackButtonStyle.Plain)
                 BackButton(onClick = {}, style = BackButtonStyle.TonalCircle)
+                BackButton(onClick = {}, style = BackButtonStyle.OutlinedCircle)
             }
         }
     }

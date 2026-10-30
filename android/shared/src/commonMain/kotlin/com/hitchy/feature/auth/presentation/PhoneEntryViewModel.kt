@@ -11,12 +11,15 @@ data class PhoneEntryState(
     val phoneInput: String = "",
     val error: AppError? = null,
 ) {
+    // The field shows a fixed "+20", so "1012345678" is the number the user is asked for.
     val normalizedPhone: String?
-        get() = PhoneNumber.normalize(phoneInput)
+        get() = PhoneNumber.normalize(phoneInput) ?: PhoneNumber.normalize("$EGYPT_PREFIX$phoneInput")
 
     val isValid: Boolean
         get() = normalizedPhone != null
 }
+
+private const val EGYPT_PREFIX = "+20"
 
 sealed interface PhoneEntryAction {
     data class UpdatePhone(val input: String) : PhoneEntryAction
