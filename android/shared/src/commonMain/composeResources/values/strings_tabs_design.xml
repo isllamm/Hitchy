@@ -7,4 +7,5 @@
     <string name="profile_design_rating">%1$s · %2$d rides</string>
     <string name="profile_design_info_title">My Information</string>
     <string name="profile_design_settings_row">Notifications and language</string>
+    <string name="rides_t14_seats_booked">%1$d of %2$d seats booked</string>
 </resources>

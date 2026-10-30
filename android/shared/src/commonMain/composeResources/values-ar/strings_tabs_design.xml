@@ -7,4 +7,5 @@
     <string name="profile_design_rating">%1$s · %2$d مشوار</string>
     <string name="profile_design_info_title">معلوماتي</string>
     <string name="profile_design_settings_row">الإشعارات واللغة</string>
+    <string name="rides_t14_seats_booked">%1$d من %2$d كراسي اتحجزت</string>
 </resources>

@@ -1,0 +1,5 @@
+<resources>
+    <string name="owner_home_wallet_label">رصيد المحفظة</string>
+    <string name="post_ride_time_earlier">قبل 15 د</string>
+    <string name="post_ride_time_later">بعد 15 د</string>
+</resources>
