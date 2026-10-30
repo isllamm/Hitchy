@@ -16,3 +16,4 @@ export { reportLate } from "./handlers/trip/reportLate.js";
 export { finishRide } from "./handlers/trip/finishRide.js";
 export { confirmRidePayment } from "./handlers/trip/confirmRidePayment.js";
 export { topUpWallet } from "./handlers/packages/topUpWallet.js";
+export { onBookingChanged } from "./triggers/onBookingChanged.js";

@@ -7,9 +7,12 @@ import { makeCallable } from "../../lib/callable.js";
 import type { CallCtx } from "../../lib/ctx.js";
 import { fail } from "../../lib/errors.js";
 import { withIdempotency } from "../../lib/idempotency.js";
+import { sendToUser } from "../../lib/notify.js";
 import { bookingRef, listBookings } from "../../repos/bookings.js";
 import { getFee } from "../../repos/fees.js";
+import { getProfile } from "../../repos/profiles.js";
 import { getRide } from "../../repos/rides.js";
+import { getUser } from "../../repos/users.js";
 import { addToWallet, getBalance } from "../../repos/wallets.js";
 import { ConfirmRidePaymentInput } from "../../schemas/inputs.js";
 import type { ConfirmRidePaymentOutput } from "../../schemas/io.js";
@@ -18,7 +21,7 @@ export async function confirmRidePaymentCore(
   input: ConfirmRidePaymentInput,
   ctx: CallCtx,
 ): Promise<ConfirmRidePaymentOutput> {
-  return withIdempotency(ctx.uid, input.requestId, async (tx: Transaction) => {
+  const result = await withIdempotency(ctx.uid, input.requestId, async (tx: Transaction) => {
     const ride = await getRide(input.rideId, tx);
     if (!ride || ride.hostId !== ctx.uid) fail("NOT_FOUND");
     if (ride.status !== "finished") fail("RIDE_NOT_FINISHED");
@@ -88,8 +91,16 @@ export async function confirmRidePaymentCore(
       }
     }
 
-    return { paidBookings: unpaid.length, total };
+    return { paidBookings: unpaid.length, total, riderUids: unpaid.map((b) => b.riderUid) };
   });
+
+  // After the commit, never inside it (8.1). The receipt opens from this message.
+  const owner = (await getProfile(ctx.uid))?.firstName ?? (await getUser(ctx.uid))?.firstName ?? "";
+  for (const riderUid of result.riderUids) {
+    await sendToUser(riderUid, "payment_confirmed", { name: owner, rideId: input.rideId });
+  }
+
+  return { paidBookings: result.paidBookings, total: result.total };
 }
 
 export const confirmRidePayment = makeCallable(
