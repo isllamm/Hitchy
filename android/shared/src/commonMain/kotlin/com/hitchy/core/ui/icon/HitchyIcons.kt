@@ -58,6 +58,14 @@ import hitchy.shared.generated.resources.fig_check_small
 import hitchy.shared.generated.resources.fig_chevron_left_month
 import hitchy.shared.generated.resources.fig_close
 import hitchy.shared.generated.resources.fig_info_small
+import hitchy.shared.generated.resources.fig_back
+import hitchy.shared.generated.resources.fig_clear
+import hitchy.shared.generated.resources.fig_destination
+import hitchy.shared.generated.resources.fig_map
+import hitchy.shared.generated.resources.fig_pickup
+import hitchy.shared.generated.resources.fig_place
+import hitchy.shared.generated.resources.fig_swap
+import hitchy.shared.generated.resources.fig_chevron_right_20
 import org.jetbrains.compose.resources.DrawableResource
 
 /**
@@ -155,6 +163,16 @@ object HitchyIcons {
     val CheckSmall: DrawableResource get() = Res.drawable.fig_check_small
     val ChevronBack: DrawableResource get() = Res.drawable.fig_chevron_left_month
     val InfoSmall: DrawableResource get() = Res.drawable.fig_info_small
+
+    /** Figma's 20dp route icons; ClearField keeps its two colours and is drawn untinted; BackArrow mirrors. */
+    val Pickup: DrawableResource get() = Res.drawable.fig_pickup
+    val Destination: DrawableResource get() = Res.drawable.fig_destination
+    val Swap20: DrawableResource get() = Res.drawable.fig_swap
+    val ClearField: DrawableResource get() = Res.drawable.fig_clear
+    val MapFold: DrawableResource get() = Res.drawable.fig_map
+    val Place: DrawableResource get() = Res.drawable.fig_place
+    val BackArrow: DrawableResource get() = Res.drawable.fig_back
+    val ChevronRight20: DrawableResource get() = Res.drawable.fig_chevron_right_20
 
     val all: Map<String, DrawableResource> get() = mapOf(
         "back" to Back,

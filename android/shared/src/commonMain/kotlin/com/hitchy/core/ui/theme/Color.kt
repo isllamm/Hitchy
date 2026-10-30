@@ -27,6 +27,9 @@ val Royal = Color(0xFF4318FF)
 /** The soft pink behind the destination pin. */
 val PinSoft = Color(0xFFFFF0F4)
 
+/** The pink tile behind the destination icon in the route picker. */
+val PinTint = Color(0xFFFFE4EC)
+
 /** The darker purple of the small form icons. */
 val PurpleDeep = Color(0xFF5B21E6)
 

@@ -436,4 +436,20 @@
     <string name="host_trip_payment_done_total">إجمالي المحصل: %1$d ج.م</string>
     <string name="host_trip_payment_done_bookings">%1$d ركاب تم الدفع لمحفظتك مباشرة</string>
     <string name="host_trip_wallet_balance">رصيد المحفظة: %1$d ج.م</string>
+    <string name="picker_route_title">خطط مشوارك</string>
+    <string name="picker_from_label">من</string>
+    <string name="picker_to_label">إلى</string>
+    <string name="picker_from_placeholder">دور على مكان الركوب</string>
+    <string name="picker_to_placeholder">رايح فين؟</string>
+    <string name="picker_map_hint_pickup">حط دبوس على مكان ركوبك</string>
+    <string name="picker_map_hint_destination">حط دبوس على وجهتك</string>
+    <string name="picker_pickup_points">أماكن الركوب</string>
+    <string name="picker_suggested_destinations">وجهات مقترحة</string>
+    <string name="picker_results_for">نتائج «%1$s»</string>
+    <string name="picker_swap">بدّل مكان الركوب والوجهة</string>
+    <string name="picker_clear">مسح</string>
+    <string name="picker_map_title_pickup">حدد مكان الركوب على الخريطة</string>
+    <string name="picker_map_title_destination">حدد وجهتك على الخريطة</string>
+    <string name="picker_confirm_pickup">تأكيد مكان الركوب</string>
+    <string name="picker_confirm_destination">تأكيد الوجهة</string>
 </resources>

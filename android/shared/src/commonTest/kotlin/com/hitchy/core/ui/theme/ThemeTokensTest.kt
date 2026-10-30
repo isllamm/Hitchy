@@ -31,6 +31,7 @@ class ThemeTokensTest {
         assertEquals(Color(0xFFE9EEF5), colors.hairline)
         assertEquals(Color(0xFF4318FF), colors.royal)
         assertEquals(Color(0xFFFFF0F4), colors.pinSoft)
+        assertEquals(Color(0xFFFFE4EC), colors.pinTint)
         assertEquals(Color(0xFF5B21E6), colors.purpleDeep)
         assertEquals(Color(0xFFCBD5E1), colors.handle)
         assertEquals(Color(0xFF64748B), colors.slate)

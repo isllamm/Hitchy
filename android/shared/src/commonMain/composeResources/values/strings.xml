@@ -436,4 +436,20 @@
     <string name="host_trip_payment_done_total">Total collected: EGP %1$d</string>
     <string name="host_trip_payment_done_bookings">%1$d riders paid directly to your wallet</string>
     <string name="host_trip_wallet_balance">Wallet balance: EGP %1$d</string>
+    <string name="picker_route_title">Plan your route</string>
+    <string name="picker_from_label">From</string>
+    <string name="picker_to_label">To</string>
+    <string name="picker_from_placeholder">Search pickup location</string>
+    <string name="picker_to_placeholder">Where are you going?</string>
+    <string name="picker_map_hint_pickup">Drop a pin on your pickup spot</string>
+    <string name="picker_map_hint_destination">Drop a pin on your destination</string>
+    <string name="picker_pickup_points">Pickup points</string>
+    <string name="picker_suggested_destinations">Suggested destinations</string>
+    <string name="picker_results_for">Results for “%1$s”</string>
+    <string name="picker_swap">Swap pickup and destination</string>
+    <string name="picker_clear">Clear</string>
+    <string name="picker_map_title_pickup">Set pickup on map</string>
+    <string name="picker_map_title_destination">Set destination on map</string>
+    <string name="picker_confirm_pickup">Confirm pickup</string>
+    <string name="picker_confirm_destination">Confirm destination</string>
 </resources>

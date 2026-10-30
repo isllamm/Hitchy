@@ -27,6 +27,7 @@ data class HitchyColors(
     val hairline: Color = Hairline,
     val royal: Color = Royal,
     val pinSoft: Color = PinSoft,
+    val pinTint: Color = PinTint,
     val purpleDeep: Color = PurpleDeep,
     val handle: Color = Handle,
     val slate: Color = Slate,

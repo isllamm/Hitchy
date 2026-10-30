@@ -16,7 +16,13 @@ data class PlacesPickerState(
     val zones: List<Zone> = emptyList(),
     val points: List<Point> = emptyList(),
     val selectedPoint: Point? = null,
+    /** The pickup and destination keys when [field] is one of a pair ("from"/"to"), else null. */
+    val pair: Pair<String, String>? = null,
+    val fromPoint: Point? = null,
+    val toPoint: Point? = null,
 ) {
+    val isFromActive: Boolean get() = pair?.first == this.field
+
     val filteredPoints: List<Point>
         get() {
             val q = query.trim().lowercase()
@@ -36,7 +42,12 @@ sealed interface PlacesPickerAction {
     data class Init(val field: String) : PlacesPickerAction
     data class UpdateQuery(val query: String) : PlacesPickerAction
     data class HighlightPoint(val point: Point) : PlacesPickerAction
-    data class ConfirmPoint(val point: Point) : PlacesPickerAction
+    /** [moveToEmptyField]: after a pickup, go on to an empty destination instead of closing. */
+    data class ConfirmPoint(val point: Point, val moveToEmptyField: Boolean = false) : PlacesPickerAction
+
+    /** Make the other field of the pair the one being picked. */
+    data class SwitchField(val field: String) : PlacesPickerAction
+    data object Swap : PlacesPickerAction
 }
 
 sealed interface PlacesPickerEvent {
@@ -63,16 +74,29 @@ class PlacesPickerViewModel(
                 }
             }
             .launchIn(viewModelScope)
+
+        selectionHolder.selections
+            .onEach { map ->
+                setState {
+                    val p = pair ?: return@setState this
+                    copy(fromPoint = map[p.first], toPoint = map[p.second])
+                }
+            }
+            .launchIn(viewModelScope)
     }
 
     override fun onAction(action: PlacesPickerAction) {
         when (action) {
             is PlacesPickerAction.Init -> {
                 val existing = selectionHolder.get(action.field)
+                val pair = pairOf(action.field)
                 setState {
                     copy(
                         field = action.field,
                         selectedPoint = existing ?: points.firstOrNull(),
+                        pair = pair,
+                        fromPoint = pair?.let { selectionHolder.get(it.first) },
+                        toPoint = pair?.let { selectionHolder.get(it.second) },
                     )
                 }
             }
@@ -82,11 +106,32 @@ class PlacesPickerViewModel(
             is PlacesPickerAction.HighlightPoint -> setState { copy(selectedPoint = action.point) }
 
             is PlacesPickerAction.ConfirmPoint -> {
-                selectionHolder.select(state.value.field, action.point)
-                viewModelScope.launch {
-                    emit(PlacesPickerEvent.PointConfirmed)
+                val current = state.value
+                selectionHolder.select(current.field, action.point)
+                val pair = current.pair
+                val other = pair?.let { if (current.field == it.first) it.second else it.first }
+                if (action.moveToEmptyField && other != null && selectionHolder.get(other) == null) {
+                    setState { copy(field = other, query = "", selectedPoint = points.firstOrNull()) }
+                } else {
+                    viewModelScope.launch { emit(PlacesPickerEvent.PointConfirmed) }
                 }
             }
+
+            is PlacesPickerAction.SwitchField -> setState {
+                copy(field = action.field, query = "", selectedPoint = selectionHolder.get(action.field) ?: selectedPoint)
+            }
+
+            PlacesPickerAction.Swap -> state.value.pair?.let { selectionHolder.swap(it.first, it.second) }
         }
     }
 }
+
+/** "from" and "to" (or "post_ride_from" and "post_ride_to") belong together; other fields stand alone. */
+internal fun pairOf(field: String): Pair<String, String>? = when {
+    field.endsWith(FROM_SUFFIX) -> field to field.removeSuffix(FROM_SUFFIX) + TO_SUFFIX
+    field.endsWith(TO_SUFFIX) -> field.removeSuffix(TO_SUFFIX) + FROM_SUFFIX to field
+    else -> null
+}
+
+private const val FROM_SUFFIX = "from"
+private const val TO_SUFFIX = "to"
