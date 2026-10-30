@@ -57,6 +57,37 @@
     <string name="nav_shop">Shop</string>
     <string name="nav_profile">Profile</string>
 
+    <!-- Components (P3-A05) -->
+    <string name="needs_design_review">Needs design review</string>
+    <string name="otp_title">Verification code</string>
+    <string name="empty_state_title">Nothing here yet</string>
+    <string name="error_state_title">Something went wrong</string>
+    <string name="role_rider">Rider</string>
+    <string name="role_rider_desc">Find seats on daily commutes</string>
+    <string name="role_host">Owner</string>
+    <string name="role_host_desc">Share empty seats and save fuel</string>
+    <string name="action_message">Message</string>
+    <string name="action_call">Call</string>
+    <string name="action_share_trip">Share trip</string>
+    <string name="action_report">Report</string>
+    <string name="action_emergency">Emergency</string>
+    <string name="fair_price_label">Fair price</string>
+    <string name="badge_women_only">Women only</string>
+    <string name="badge_same_company">Same company</string>
+    <string name="badge_tier_bronze">Bronze</string>
+    <string name="badge_tier_silver">Silver</string>
+    <string name="badge_tier_gold">Gold</string>
+    <string name="late_fee_title">Outstanding fee</string>
+    <string name="action_pay_now">Pay now</string>
+    <string name="document_upload_title">Upload document</string>
+    <string name="document_upload_prompt">Tap to choose photo or PDF</string>
+    <string name="balance_credits">Credits</string>
+    <string name="balance_points">Points</string>
+    <string name="owner_request_title">New seat request</string>
+    <string name="action_accept">Accept</string>
+    <string name="action_decline">Decline</string>
+    <string name="expires_in">Expires in %1$s</string>
+
     <!-- Debug Screen -->
     <string name="debug_title">Debug Menu</string>
     <string name="debug_refresh">Refresh</string>
