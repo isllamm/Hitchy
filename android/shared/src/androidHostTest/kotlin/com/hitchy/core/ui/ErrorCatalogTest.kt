@@ -78,11 +78,11 @@ class ErrorCatalogTest {
     }
 
     @Test
-    fun contractCatalogContainsAll71Reasons() {
+    fun contractCatalogContainsAll75Reasons() {
         val root = findRepoRoot()
         val contractFile = File(root, "contract/errors.md")
         val entries = parseErrorsContract(contractFile)
-        assertEquals(71, entries.size, "contract/errors.md should contain 71 error reasons")
+        assertEquals(75, entries.size, "contract/errors.md should contain 75 error reasons")
     }
 
     @Test

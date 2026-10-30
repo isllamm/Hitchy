@@ -116,3 +116,16 @@ data class UpdateConfigInputDto(
 data class UpdateConfigOutputDto(
     val version: Int,
 )
+
+/** Admin adds balance to a user's wallet (v1.2, R19). */
+@Serializable
+data class TopUpWalletInputDto(
+    val uid: String,
+    val amount: Int,
+    val requestId: String,
+)
+
+@Serializable
+data class TopUpWalletOutputDto(
+    val balance: Int,
+)

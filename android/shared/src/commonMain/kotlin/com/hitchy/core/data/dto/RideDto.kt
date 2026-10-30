@@ -27,6 +27,14 @@ data class QuoteResultDto(
 
 typealias QuotePriceOutputDto = QuoteResultDto
 
+/** A pickup the owner adds after the start point (v1.2, R24). */
+@Serializable
+data class RideStopInputDto(
+    val zone: String,
+    val pointId: String,
+    val at: String,
+)
+
 @Serializable
 data class CreateRideInputDto(
     val vehicleId: String,
@@ -34,6 +42,7 @@ data class CreateRideInputDto(
     val fromPointId: String,
     val toZone: String,
     val toPointId: String,
+    val stops: List<RideStopInputDto>,
     val direction: DirectionDto,
     val departAt: String,
     val seats: Int,
@@ -134,6 +143,15 @@ data class RideHostDto(
     val sameCompany: Boolean,
 )
 
+/** The pickup this rider would use on a ride card (v1.2, R24). */
+@Serializable
+data class RidePickupDto(
+    val id: String,
+    val name: LocalizedNameDto,
+    val at: String,
+    val walkM: Int,
+)
+
 @Serializable
 data class RideCardDto(
     val rideId: String,
@@ -149,6 +167,7 @@ data class RideCardDto(
     val fairPrice: Boolean,
     val seatsLeft: Int,
     val walkM: Int?,
+    val pickup: RidePickupDto,
     val bestMatch: Boolean,
     val womenOnly: Boolean,
     val vehicleType: VehicleTypeDto,
@@ -179,6 +198,7 @@ data class RideViewDto(
     val fairPrice: Boolean,
     val seatsLeft: Int,
     val walkM: Int?,
+    val pickup: RidePickupDto,
     val bestMatch: Boolean,
     val womenOnly: Boolean,
     val vehicleType: VehicleTypeDto,

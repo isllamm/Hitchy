@@ -176,6 +176,21 @@ class ContractDtoTest {
             inputSerializer = UpdateConfigInputDto.serializer(),
             outputSerializer = UpdateConfigOutputDto.serializer(),
         ),
+        CallableContract(
+            name = "arriveAtStop",
+            inputSerializer = ArriveAtStopInputDto.serializer(),
+            outputSerializer = ArriveAtStopOutputDto.serializer(),
+        ),
+        CallableContract(
+            name = "confirmRidePayment",
+            inputSerializer = ConfirmRidePaymentInputDto.serializer(),
+            outputSerializer = ConfirmRidePaymentOutputDto.serializer(),
+        ),
+        CallableContract(
+            name = "topUpWallet",
+            inputSerializer = TopUpWalletInputDto.serializer(),
+            outputSerializer = TopUpWalletOutputDto.serializer(),
+        ),
     )
 
     private fun findFixturesDir(): File {
