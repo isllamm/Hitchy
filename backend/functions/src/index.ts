@@ -4,3 +4,7 @@ export { completeProfile } from "./handlers/profile/completeProfile.js";
 export { switchRole } from "./handlers/profile/switchRole.js";
 export { quotePrice } from "./handlers/rides/quotePrice.js";
 export { createRide } from "./handlers/rides/createRide.js";
+export { searchRides } from "./handlers/booking/searchRides.js";
+export { requestSeats } from "./handlers/booking/requestSeats.js";
+export { respondToRequest } from "./handlers/booking/respondToRequest.js";
+export { cancelBooking } from "./handlers/booking/cancelBooking.js";

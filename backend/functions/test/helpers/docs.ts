@@ -3,7 +3,7 @@
 // emulator the way the functions do.
 import { Timestamp } from "firebase-admin/firestore";
 import type { LimitsConfig, PricingConfig } from "../../src/schemas/config.js";
-import type { UserDoc, VehicleDoc } from "../../src/schemas/docs.js";
+import type { ProfileDoc, RideDoc, UserDoc, VehicleDoc } from "../../src/schemas/docs.js";
 
 export const FIXED_NOW = new Date("2026-11-02T05:30:00Z"); // 07:30 Cairo, inside a peak window
 
@@ -152,6 +152,79 @@ export function limitsConfig(overrides: Partial<LimitsConfig> = {}): LimitsConfi
     assistantEnabled: false,
     fixedRideEnabled: false,
     rewardsEnabled: false,
+  };
+  return { ...base, ...overrides };
+}
+
+export function profileDoc(overrides: Partial<ProfileDoc> = {}): ProfileDoc {
+  const base: ProfileDoc = {
+    schemaVersion: 1,
+    firstName: "Test",
+    photoPath: null,
+    hostRating: { avg: null, count: 0 },
+    hostTrips: 0,
+    riderRating: { avg: null, count: 0 },
+    verified: false,
+    hostTier: "bronze",
+    riderTier: "bronze",
+    updatedAt: ts(FIXED_NOW),
+  };
+  return { ...base, ...overrides };
+}
+
+// A ride as createRide would write it (6.5). Tests that are about search or booking write rides
+// straight to the emulator instead of going through createRide and its daily limits.
+export function rideDoc(overrides: Partial<RideDoc> = {}): RideDoc {
+  const at = ts(FIXED_NOW);
+  const name = { ar: "نقطة", en: "Point" };
+  const base: RideDoc = {
+    schemaVersion: 1,
+    createdAt: at,
+    updatedAt: at,
+    hostId: "some-host",
+    hostCompanyId: null,
+    vehicleId: "some-car",
+    vehicle: {
+      type: "car",
+      make: "TestMake",
+      model: "TestModel",
+      color: "Silver",
+      plate: "TEST-PLATE",
+    },
+    fromZone: "zone-from",
+    fromPointId: "pt1",
+    fromPointName: name,
+    fromPoint: { lat: 30.0, lng: 31.0 },
+    toZone: "zone-to",
+    toPointId: "pt1",
+    toPointName: name,
+    stops: [],
+    pickupZones: ["zone-from"],
+    direction: "to_work",
+    departAt: ts(new Date("2026-11-02T06:30:00Z")),
+    dateKey: "2026-11-02",
+    seatsTotal: 3,
+    seatsLeft: 3,
+    pricePerSeat: 56,
+    priceRange: {
+      min: 42,
+      recommended: 56,
+      max: 67,
+      trafficLevel: "peak",
+      distanceKm: 55,
+      configVersion: 1,
+    },
+    womenOnly: false,
+    status: "open",
+    fixedRideId: null,
+    bookingsCount: 0,
+    creditConsumed: false,
+    postProcessed: false,
+    autoFinished: false,
+    startedAt: null,
+    finishedAt: null,
+    cancelledAt: null,
+    cancelReason: null,
   };
   return { ...base, ...overrides };
 }
