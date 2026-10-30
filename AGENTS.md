@@ -10,7 +10,7 @@ Plan v1.1 (BUILD_PLAN 2.1) changed the product after the design review: owners a
 Plan v1.2 (BUILD_PLAN 2.2, 2026-10-30) for the demo: a wallet that pays owners, ride stops, the free wait from the owner's arrival, one Rides list. Demo designs: docs/design/demo-flow.md.
 
 ## Status
-Phase 3 (Design system): P3-A01 tokens and theme, P3-A02 Cairo font, P3-A03 Icons, P3-A04 Components from Figma, P3-A05 Components not in Figma, P3-A06 Gallery. The demo build (BUILD_PLAN 3.9, for Friday 2026-10-30 evening) is in progress. **The backend lane is finished:** P3-B01 demo contract, P3-B02 offer a ride, P3-B03 search and booking, P3-B04 trip day, P3-B05 wallet payments, P3-B06 demo inbox. The backend now runs the whole demo cycle on the emulators (601 to 610 tests). Also merged: P3-A08 demo data and sign-in, P3-A09 rider demo screens, P3-A11 Maps SDK, and the two Phase 4 callables sign-in needs (P4-B01 completeProfile, P4-B02 switchRole). Next: P3-A10 owner screens (in progress), then the demo run P3-H01 (Islam); after the demo, P3-A07 Swap the screens. The admin web project arrives in P5-W01; until then its CI workflow skips its jobs.
+Phase 3 (Design system): P3-A01 tokens and theme, P3-A02 Cairo font, P3-A03 Icons, P3-A04 Components from Figma, P3-A05 Components not in Figma, P3-A06 Gallery. The demo build (BUILD_PLAN 3.9, for Friday 2026-10-30 evening) is in progress. **The backend lane is finished:** P3-B01 demo contract, P3-B02 offer a ride, P3-B03 search and booking, P3-B04 trip day, P3-B05 wallet payments, P3-B06 demo inbox. The backend now runs the whole demo cycle on the emulators (601 to 610 tests). Also merged: P3-A08 demo data and sign-in, P3-A09 rider demo screens, P3-A11 Maps SDK, and the two Phase 4 callables sign-in needs (P4-B01 completeProfile, P4-B02 switchRole). P3-A10 owner demo screens are merged too, so every task in the demo build is done except P3-H01, the demo run (Islam). The rider entry screens were rebuilt to the Figma DEMO frames (#58), and two owner-screen fixes landed (#60, #61). Open before the run: real names and coordinates for the demo pickup points, the Maps tiles check on a device, and one walk through the full cycle on the emulators. After the demo: P3-A07 Swap the screens. The admin web project arrives in P5-W01; until then its CI workflow skips its jobs.
 
 ## Layout
 - backend/ — Firebase: functions (TypeScript), rules, indexes, seed data
@@ -138,7 +138,12 @@ List files changed, test results, and any [HUMAN] or [DECISION] items.
 | 2026-10-30 | P3-B05 Wallet payments: confirmRidePayment and topUpWallet, every balance equal to the sum of its entries, 601 tests | PR #50 |
 | 2026-10-30 | P3-B06 Demo inbox: onBookingChanged, payment_confirmed, the inbox written even when the push fails, 610 tests | PR #51 |
 | 2026-10-30 | P3-A09 Rider demo screens: auth, profile setup, place picker, rider Home and search, ride details, rider trip, Rides tab, notifications, 133 unit tests | PR #53 |
+| 2026-10-30 | Fix: the Compose resources are packaged into the APK; the app crashed on launch with a MissingResourceException and CI did not catch it | PR #57 |
 | 2026-10-30 | P3-A11 Maps SDK: play-services-maps and maps-compose, the key from MAPS_API_KEY into the manifest, HitchyMap with fixed pins and a straight route line, dev gallery Map section, 6 tests | PR #54 |
+| 2026-10-30 | P3-A10 Owner demo screens: owner Home, Post ride with stops, ride details with requests, host trip with the free wait, Confirm Payment | PR #59 |
+| 2026-10-30 | P3-A09 rework: rider entry screens built to the Figma DEMO frames, design tokens fixed to Figma, the +20 phone number accepted, 29 strings with a stray backslash fixed | PR #58 |
+| 2026-10-30 | Fix: owner app sends UUID request ids (offer a ride and Confirm Payment were refused), detekt errors cleared on main | PR #60 |
+| 2026-10-30 | Fix: the owner sees the rider's first name, not part of the user id | PR #61 |
 
 Deploy jobs skip until each GitHub environment has its Phase 0 secrets (ADR 0003 row 18).
 
