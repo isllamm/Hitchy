@@ -57,6 +57,7 @@ import hitchy.shared.generated.resources.Res
 import hitchy.shared.generated.resources.format_egp
 import hitchy.shared.generated.resources.location_dropoff_label
 import hitchy.shared.generated.resources.location_pickup_label
+import hitchy.shared.generated.resources.price_per_seat_large
 import hitchy.shared.generated.resources.rider_home_date_format
 import hitchy.shared.generated.resources.rider_home_date_today
 import hitchy.shared.generated.resources.rider_home_date_tomorrow
@@ -64,6 +65,7 @@ import hitchy.shared.generated.resources.rider_home_months
 import hitchy.shared.generated.resources.rider_home_weekdays
 import hitchy.shared.generated.resources.rides_design_vehicle
 import hitchy.shared.generated.resources.rides_design_when
+import hitchy.shared.generated.resources.rides_t14_seats_booked
 import hitchy.shared.generated.resources.rides_tab_empty_body
 import hitchy.shared.generated.resources.rides_tab_empty_title
 import hitchy.shared.generated.resources.rides_tab_role_owner_badge
@@ -96,6 +98,7 @@ private data class RideCardData(
     val tileIcon: DrawableResource,
     val priceEgp: Int,
     val onClick: () -> Unit,
+    val perSeat: Boolean = false,
 )
 
 /**
@@ -216,7 +219,7 @@ private fun UnifiedRideItem.toCardData(
         pickupName = ride.fromPointName.resolve(language),
         dropOffName = ride.toPointName.resolve(language),
         title = stringResource(
-            Res.string.rides_tab_role_owner_badge,
+            Res.string.rides_t14_seats_booked,
             (ride.seatsTotal - ride.seatsLeft).coerceAtLeast(0),
             ride.seatsTotal,
         ),
@@ -228,6 +231,7 @@ private fun UnifiedRideItem.toCardData(
         ),
         tileIcon = HitchyIcons.Car,
         priceEgp = ride.pricePerSeat,
+        perSeat = true,
         onClick = {
             if (ride.status.opensOwnerTrip()) {
                 onOpenHostTrip(ride.id)
@@ -348,7 +352,11 @@ private fun RideFooter(data: RideCardData) {
             }
         }
         Text(
-            text = stringResource(Res.string.format_egp, data.priceEgp.toString()),
+            text = if (data.perSeat) {
+                stringResource(Res.string.price_per_seat_large, data.priceEgp)
+            } else {
+                stringResource(Res.string.format_egp, data.priceEgp.toString())
+            },
             style = typography.bodyStrong,
             color = colors.navy,
         )

@@ -1,0 +1,5 @@
+<resources>
+    <string name="owner_home_wallet_label">Wallet balance</string>
+    <string name="post_ride_time_earlier">-15 min</string>
+    <string name="post_ride_time_later">+15 min</string>
+</resources>
