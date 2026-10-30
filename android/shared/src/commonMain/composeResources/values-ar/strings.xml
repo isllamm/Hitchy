@@ -453,4 +453,8 @@
     <string name="picker_confirm_pickup">تأكيد مكان الركوب</string>
     <string name="picker_confirm_destination">تأكيد الوجهة</string>
     <string name="bk_cancel_search">إلغاء البحث</string>
+    <string name="trip_design_schedule">%1$s · %2$s</string>
+    <string name="rides_filter_upcoming">القادمة</string>
+    <string name="rides_filter_completed">المكتملة</string>
+    <string name="rides_filter_cancelled">الملغية</string>
 </resources>

@@ -67,6 +67,7 @@ import hitchy.shared.generated.resources.fig_place
 import hitchy.shared.generated.resources.fig_swap
 import hitchy.shared.generated.resources.fig_chevron_right_20
 import hitchy.shared.generated.resources.fig_no_rides
+import hitchy.shared.generated.resources.fig_car_28
 import org.jetbrains.compose.resources.DrawableResource
 
 /**
@@ -177,6 +178,9 @@ object HitchyIcons {
 
     /** Figma's 44x44 car outline on the No rides found state. */
     val NoRides: DrawableResource get() = Res.drawable.fig_no_rides
+
+    /** Figma's 28x28 car outline on the ride's vehicle row. */
+    val Car28: DrawableResource get() = Res.drawable.fig_car_28
 
     val all: Map<String, DrawableResource> get() = mapOf(
         "back" to Back,

@@ -353,7 +353,7 @@
     <string name="rider_trip_payment_amount">Paid EGP %1$d from your wallet</string>
     <string name="rider_trip_wallet_remaining">Remaining wallet balance: EGP %1$d</string>
     <string name="rider_trip_waiting_payment">Trip finished · Waiting for owner to confirm payment</string>
-    <string name="rides_tab_title">My Rides</string>
+    <string name="rides_tab_title">My rides</string>
     <string name="rides_tab_empty_title">No rides yet</string>
     <string name="rides_tab_empty_body">Your booked trips and offered rides will appear here.</string>
     <string name="rides_tab_role_rider_badge">Rider · %1$d seats</string>
@@ -422,7 +422,7 @@
     <string name="host_trip_status_arrived">Arrived at destination</string>
     <string name="host_trip_status_completed">Trip completed</string>
     <string name="host_trip_btn_start">Start trip</string>
-    <string name="host_trip_btn_im_here">I\'m here</string>
+    <string name="host_trip_btn_im_here">I'm here</string>
     <string name="host_trip_btn_boarded">%1$s is in the car</string>
     <string name="host_trip_btn_report_late">Report late (EGP 10)</string>
     <string name="host_trip_btn_next_stop">Head to next stop</string>
@@ -453,4 +453,8 @@
     <string name="picker_confirm_pickup">Confirm pickup</string>
     <string name="picker_confirm_destination">Confirm destination</string>
     <string name="bk_cancel_search">Cancel search</string>
+    <string name="trip_design_schedule">%1$s · %2$s</string>
+    <string name="rides_filter_upcoming">Upcoming</string>
+    <string name="rides_filter_completed">Completed</string>
+    <string name="rides_filter_cancelled">Cancelled</string>
 </resources>
