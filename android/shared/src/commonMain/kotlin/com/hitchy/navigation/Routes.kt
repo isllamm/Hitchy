@@ -112,6 +112,9 @@ data object DeleteAccount
 data object Debug
 
 @Serializable
+data object Gallery
+
+@Serializable
 data object Onboarding
 
 @Serializable

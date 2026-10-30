@@ -26,6 +26,7 @@ import com.hitchy.core.model.AppLanguage
 import com.hitchy.core.model.Env
 import com.hitchy.core.platform.LanguageSwitcher
 import com.hitchy.feature.debug.ui.DebugScreen
+import com.hitchy.feature.debug.ui.gallery.ComponentGalleryScreen
 import hitchy.shared.generated.resources.Res
 import hitchy.shared.generated.resources.language_arabic
 import hitchy.shared.generated.resources.language_english
@@ -88,6 +89,12 @@ fun HitchyNavHost(
         if (appConfig.env == Env.DEV) {
             composable<Debug> {
                 DebugScreen(
+                    onBack = { navController.popBackStack() },
+                    onNavigateToGallery = { navController.navigate(Gallery) },
+                )
+            }
+            composable<Gallery> {
+                ComponentGalleryScreen(
                     onBack = { navController.popBackStack() },
                 )
             }
