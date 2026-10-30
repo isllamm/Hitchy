@@ -54,3 +54,22 @@ tasks.withType<Test>().configureEach {
     inputs.dir(fixturesDir).withPropertyName("contractFixturesDir")
     systemProperty("hitchy.contract.fixturesDir", fixturesDir.absolutePath)
 }
+
+// Compose Multiplatform registers `copyAndroidMainComposeResourcesToAndroidAssets`
+// but configures its `outputDirectory` only for `com.android.library`. This module
+// uses AGP's newer `com.android.kotlin.multiplatform.library`, which that wiring
+// does not reach, so the task is left without an output, never runs, and the APK
+// ships with no `composeResources` at all — the app then dies on its first string
+// lookup with `MissingResourceException`. Nothing fails before that: the build is
+// green, the install succeeds, and the crash only appears on launch.
+//
+// `matching { }.configureEach { }` rather than `named(...)`, because Compose
+// registers the task after this script is evaluated, and reflection for the
+// property because the task type is internal to the plugin.
+tasks.matching { it.name == "copyAndroidMainComposeResourcesToAndroidAssets" }
+    .configureEach {
+        val output = this::class.java.methods
+            .first { it.name == "getOutputDirectory" }
+            .invoke(this) as DirectoryProperty
+        output.set(layout.buildDirectory.dir("generated/composeResourcesAssets"))
+    }
