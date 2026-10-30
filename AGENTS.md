@@ -126,6 +126,7 @@ List files changed, test results, and any [HUMAN] or [DECISION] items.
 | 2026-10-30 | P3-A03 Icons: 32 vector drawables, HitchyIcons, IconCatalogTest, IconGallery preview | PR #37 |
 | 2026-10-30 | P3-A04 Components from Figma: 27 components in core/ui/components, previews, strings | PR #38 |
 | 2026-10-30 | P3-A05 Components not in Figma: 16 components, design review badges, previews, tests | PR #39 |
+| 2026-10-30 | P3-A06 Gallery: dev-only gallery screen, category filters, interactive RTL/LTR toggle, 5 sections | PR #40 |
 
 Deploy jobs skip until each GitHub environment has its Phase 0 secrets (ADR 0003 row 18).
 
