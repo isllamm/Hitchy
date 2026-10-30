@@ -12,6 +12,7 @@ import com.hitchy.core.platform.AndroidDialer
 import com.hitchy.core.platform.AndroidImageCompressor
 import com.hitchy.core.platform.AndroidLanguageSwitcher
 import com.hitchy.core.platform.AndroidLocationProvider
+import com.hitchy.core.platform.AndroidPhoneAuth
 import com.hitchy.core.platform.AndroidSharer
 import com.hitchy.core.platform.AppSettings
 import com.hitchy.core.platform.DataStoreAppSettings
@@ -20,6 +21,7 @@ import com.hitchy.core.platform.ImageCompressor
 import com.hitchy.core.platform.LanguageSwitcher
 import com.hitchy.core.platform.LocationProvider
 import com.hitchy.core.platform.NoOpAnalytics
+import com.hitchy.core.platform.PhoneAuth
 import com.hitchy.core.platform.Sharer
 import com.hitchy.feature.debug.data.AndroidDebugInfo
 import com.hitchy.feature.debug.domain.DebugInfo
@@ -48,6 +50,6 @@ fun appModule(appConfig: AppConfig): Module = module {
 
     single<DebugInfo> { AndroidDebugInfo(get()) }
 
-    // TODO(P4-A01): PhoneAuth binding
+    single<PhoneAuth> { AndroidPhoneAuth(get(), get()) }
     // TODO(P8-A02): TripTracker binding
 }

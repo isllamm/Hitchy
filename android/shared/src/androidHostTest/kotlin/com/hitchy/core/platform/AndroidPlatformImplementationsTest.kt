@@ -37,4 +37,28 @@ class AndroidPlatformImplementationsTest {
         val emptyResult = compressor.toJpeg(byteArrayOf())
         assertEquals(0, emptyResult.size)
     }
+
+    @Test
+    fun testMapPhoneAuthErrorMappings() {
+        assertEquals(
+            com.hitchy.core.data.AppError.Reason("OTP_INVALID"),
+            mapPhoneAuthError(RuntimeException("ERROR_INVALID_VERIFICATION_CODE")),
+        )
+        assertEquals(
+            com.hitchy.core.data.AppError.Reason("OTP_EXPIRED"),
+            mapPhoneAuthError(RuntimeException("ERROR_SESSION_EXPIRED")),
+        )
+        assertEquals(
+            com.hitchy.core.data.AppError.Reason("TOO_MANY_ATTEMPTS"),
+            mapPhoneAuthError(RuntimeException("ERROR_TOO_MANY_REQUESTS")),
+        )
+        assertEquals(
+            com.hitchy.core.data.AppError.Reason("SMS_QUOTA"),
+            mapPhoneAuthError(RuntimeException("ERROR_QUOTA_EXCEEDED")),
+        )
+        assertEquals(
+            com.hitchy.core.data.AppError.Network,
+            mapPhoneAuthError(RuntimeException("A network error has occurred")),
+        )
+    }
 }

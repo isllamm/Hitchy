@@ -1,6 +1,7 @@
 package com.hitchy.navigation
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,12 +12,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -25,9 +31,13 @@ import com.hitchy.core.model.AppConfig
 import com.hitchy.core.model.AppLanguage
 import com.hitchy.core.model.Env
 import com.hitchy.core.platform.LanguageSwitcher
+import com.hitchy.core.ui.theme.HitchyTheme
+import com.hitchy.feature.auth.presentation.RootState
+import com.hitchy.feature.auth.presentation.RootViewModel
 import com.hitchy.feature.debug.ui.DebugScreen
 import com.hitchy.feature.debug.ui.gallery.ComponentGalleryScreen
 import hitchy.shared.generated.resources.Res
+import hitchy.shared.generated.resources.app_name
 import hitchy.shared.generated.resources.language_arabic
 import hitchy.shared.generated.resources.language_english
 import hitchy.shared.generated.resources.placeholder_screen
@@ -36,17 +46,45 @@ import hitchy.shared.generated.resources.settings_title
 import hitchy.shared.generated.resources.settings_version
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
+
+fun RootState.toStartDestination(): Any? = when (this) {
+    RootState.Loading -> null
+    RootState.SignedOut -> Welcome
+    RootState.NeedsProfile -> ProfileSetup
+    is RootState.Ready -> Home
+}
 
 @Composable
 fun HitchyNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
-    startDestination: Any = Welcome,
+    startDestination: Any? = null,
     appConfig: AppConfig = koinInject(),
+    rootViewModel: RootViewModel = koinViewModel(),
 ) {
+    val rootState by rootViewModel.state.collectAsStateWithLifecycle()
+    val targetRoot = startDestination ?: rootState.toStartDestination()
+    val initialDestination = remember(targetRoot != null) { targetRoot }
+
+    if (initialDestination == null) {
+        RootLoadingScreen(modifier = modifier)
+        return
+    }
+
+    LaunchedEffect(targetRoot) {
+        val dest = targetRoot ?: return@LaunchedEffect
+        if (dest != initialDestination || rootState is RootState.SignedOut) {
+            navController.navigate(dest) {
+                popUpTo(0) { inclusive = true }
+                launchSingleTop = true
+            }
+        }
+    }
+
     NavHost(
         navController = navController,
-        startDestination = startDestination,
+        startDestination = initialDestination,
         modifier = modifier,
     ) {
         composable<Welcome> { PlaceholderScreen("Welcome") }
@@ -106,6 +144,32 @@ fun HitchyNavHost(
         composable<Chat> { PlaceholderScreen("Chat") }
         composable<Receipt> { PlaceholderScreen("Receipt") }
         composable<Shop> { PlaceholderScreen("Shop") }
+    }
+}
+
+@Composable
+private fun RootLoadingScreen(
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(HitchyTheme.colors.brandGradient),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(HitchyTheme.spacing.space16),
+        ) {
+            Text(
+                text = stringResource(Res.string.app_name),
+                style = HitchyTheme.typography.display,
+                color = HitchyTheme.colors.white,
+            )
+            CircularProgressIndicator(
+                color = HitchyTheme.colors.white,
+            )
+        }
     }
 }
 
