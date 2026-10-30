@@ -14,7 +14,10 @@ fun hitchyLightColorScheme(colors: HitchyColors = HitchyColors()): ColorScheme =
     onPrimaryContainer = colors.purple,
     secondary = colors.deepPurple,
     onSecondary = colors.white,
+    secondaryContainer = colors.lilac,
+    onSecondaryContainer = colors.navy,
     tertiary = colors.pin,
+    onTertiary = colors.white,
     background = colors.background,
     onBackground = colors.textPrimary,
     surface = colors.white,
@@ -29,28 +32,32 @@ fun hitchyLightColorScheme(colors: HitchyColors = HitchyColors()): ColorScheme =
 )
 
 /**
- * Main theme composable for Hitchy.
+ * Hitchy app theme.
  *
  * Light theme only [DECISION-05].
  */
 @Composable
 fun HitchyTheme(
     colors: HitchyColors = HitchyColors(),
-    typography: HitchyTypography = HitchyTypography(),
-    spacing: HitchySpacing = HitchySpacing(),
+    typography: HitchyTypography = rememberHitchyTypography(),
     shapes: HitchyShapes = HitchyShapes(),
+    spacing: HitchySpacing = HitchySpacing(),
     content: @Composable () -> Unit,
 ) {
+    val materialColorScheme = hitchyLightColorScheme(colors)
+    val materialTypography = typography.toMaterialTypography()
+    val materialShapes = shapes.toMaterialShapes()
+
     CompositionLocalProvider(
         LocalHitchyColors provides colors,
         LocalHitchyTypography provides typography,
-        LocalHitchySpacing provides spacing,
         LocalHitchyShapes provides shapes,
+        LocalHitchySpacing provides spacing,
     ) {
         MaterialTheme(
-            colorScheme = hitchyLightColorScheme(colors),
-            typography = typography.toMaterialTypography(),
-            shapes = shapes.toMaterialShapes(),
+            colorScheme = materialColorScheme,
+            typography = materialTypography,
+            shapes = materialShapes,
             content = content,
         )
     }
@@ -67,13 +74,13 @@ object HitchyTheme {
         @ReadOnlyComposable
         get() = LocalHitchyTypography.current
 
-    val spacing: HitchySpacing
-        @Composable
-        @ReadOnlyComposable
-        get() = LocalHitchySpacing.current
-
     val shapes: HitchyShapes
         @Composable
         @ReadOnlyComposable
         get() = LocalHitchyShapes.current
+
+    val spacing: HitchySpacing
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalHitchySpacing.current
 }

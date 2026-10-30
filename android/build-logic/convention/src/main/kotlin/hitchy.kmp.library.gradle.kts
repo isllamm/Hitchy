@@ -33,6 +33,7 @@ configure<KotlinMultiplatformExtension> {
         commonMain.dependencies {
             implementation(libs.findLibrary("compose-material3").get())
             implementation(libs.findLibrary("compose-resources").get())
+            implementation(libs.findLibrary("compose-ui-tooling-preview").get())
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
