@@ -26,6 +26,7 @@ class FakeHostRepository(
     override suspend fun requestVerification(): AppResult<Unit> = AppResult.Ok(Unit)
 
     companion object {
+        @Suppress("LongParameterList")
         fun sampleVehicle(
             id: String = "veh-1",
             type: VehicleType = VehicleType.CAR,

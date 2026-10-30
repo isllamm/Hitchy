@@ -97,7 +97,11 @@ class HostTripViewModelTest {
         vm.onAction(HostTripAction.ConfirmPayment)
         advanceUntilIdle()
         assertEquals(HostTripPhase.PAYMENT_DONE, vm.state.value.phase)
+        // The backend accepts only a UUID as the request id.
+        assertTrue(UUID_PATTERN.matches(tripRepo.lastConfirmRequestId.orEmpty()))
         assertEquals(35, vm.state.value.paymentTotalCollected)
         assertEquals(1, vm.state.value.paymentBookingsCount)
     }
 }
+
+private val UUID_PATTERN = Regex("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")

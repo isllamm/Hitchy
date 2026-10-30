@@ -79,7 +79,8 @@ class OwnerViewModelsTest {
 
         // 2. Select valid points
         val p1 = Point("p1", "maadi", LocalizedName("المعادي", "Maadi"), GeoPoint(29.96, 31.25), true)
-        val p2 = Point("p2", "smart-village", LocalizedName("القرية الذكية", "Smart Village"), GeoPoint(30.07, 31.02), true)
+        val smartVillage = LocalizedName("القرية الذكية", "Smart Village")
+        val p2 = Point("p2", "smart-village", smartVillage, GeoPoint(30.07, 31.02), true)
         holder.select(PostRideState.FIELD_FROM, p1)
         holder.select(PostRideState.FIELD_TO, p2)
         advanceUntilIdle()
@@ -103,6 +104,9 @@ class OwnerViewModelsTest {
 
             val event = awaitItem() as PostRideEvent.NavigateToRideDetails
             assertEquals("ride-new", event.rideId)
+            // The backend accepts only a UUID as the request id.
+            val requestId = ridesRepo.lastCreateInput?.requestId.orEmpty()
+            assertTrue(UUID_PATTERN.matches(requestId))
             cancelAndIgnoreRemainingEvents()
         }
     }
@@ -146,3 +150,5 @@ class OwnerViewModelsTest {
         }
     }
 }
+
+private val UUID_PATTERN = Regex("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")

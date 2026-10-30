@@ -28,6 +28,9 @@ import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 data class PostRideStopState(
     val index: Int,
@@ -98,7 +101,7 @@ sealed interface PostRideEvent {
     data class NavigateToRideDetails(val rideId: String) : PostRideEvent
 }
 
-@OptIn(ExperimentalTime::class)
+@OptIn(ExperimentalTime::class, ExperimentalUuidApi::class)
 class PostRideViewModel(
     private val ridesRepository: RidesRepository,
     hostRepository: HostRepository,
@@ -268,25 +271,13 @@ class PostRideViewModel(
             return
         }
 
-        val stopsInput = current.stops.mapNotNull { s ->
-            val p = s.point ?: return@mapNotNull null
-            val stopInstant = departInstant + s.minutesFromDepart.minutes
-            RideStopInput(
-                zone = p.zoneId,
-                pointId = p.id,
-                at = stopInstant.toString(),
-            )
-        }
-
-        val direction = if (current.departTimeMinutes < PostRideState.MIDDAY_MINUTES) {
-            Direction.TO_WORK
-        } else {
-            Direction.TO_HOME
-        }
+        val stopsInput = stopInputs(current, departInstant)
+        val direction = directionFor(current)
 
         setState { copy(isSubmitting = true, error = null) }
         viewModelScope.launch {
-            val reqId = "post-ride-${clock.now().toEpochMilliseconds()}"
+            // The server needs a UUID request id (it makes the call safe to repeat).
+            val reqId = Uuid.random().toString()
             val res = ridesRepository.create(
                 CreateRideInput(
                     vehicleId = vehicleId,
@@ -314,6 +305,24 @@ class PostRideViewModel(
                 }
             }
         }
+    }
+
+    private fun stopInputs(
+        current: PostRideState,
+        departInstant: Instant,
+    ): List<RideStopInput> {
+        val inputs = mutableListOf<RideStopInput>()
+        for (s in current.stops) {
+            val p = s.point ?: continue
+            val at = departInstant + s.minutesFromDepart.minutes
+            inputs += RideStopInput(zone = p.zoneId, pointId = p.id, at = at.toString())
+        }
+        return inputs
+    }
+
+    private fun directionFor(current: PostRideState): Direction {
+        val beforeMidday = current.departTimeMinutes < PostRideState.MIDDAY_MINUTES
+        return if (beforeMidday) Direction.TO_WORK else Direction.TO_HOME
     }
 
     companion object {

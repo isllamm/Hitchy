@@ -9,6 +9,7 @@ import com.hitchy.feature.trip.domain.TripRepository
 
 class FakeTripRepository : TripRepository {
     var lastCheckedInRideId: String? = null
+    var lastConfirmRequestId: String? = null
     var lastCheckInPoint: GeoPoint? = null
     var checkInResult: AppResult<Int> = AppResult.Ok(15)
 
@@ -38,6 +39,7 @@ class FakeTripRepository : TripRepository {
         rideId: String,
         requestId: String,
     ): AppResult<ConfirmPaymentResult> {
+        lastConfirmRequestId = requestId
         val res = ConfirmPaymentResult(paidBookings = 1, total = 35)
         return AppResult.Ok(res)
     }

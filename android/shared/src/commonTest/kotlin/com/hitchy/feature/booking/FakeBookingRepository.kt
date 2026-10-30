@@ -133,6 +133,7 @@ class FakeBookingRepository : BookingRepository {
             ),
         )
 
+        @Suppress("LongParameterList")
         fun sampleBooking(
             rideId: String = "ride-1",
             riderUid: String = "rider-1",
