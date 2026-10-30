@@ -13,6 +13,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Hitchy">
 
+        <!-- Maps SDK key from MAPS_API_KEY (BUILD_PLAN 5.10). Empty when the key is not set. -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${MAPS_API_KEY}" />
+
         <activity
             android:name=".app.MainActivity"
             android:exported="true">

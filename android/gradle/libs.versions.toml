@@ -18,6 +18,8 @@ navigationCompose = "2.10.0"
 androidxLifecycle = "2.11.0"
 turbine = "1.2.1"
 playServicesLocation = "21.4.0"
+playServicesMaps = "20.1.0"
+mapsCompose = "9.0.1"
 detekt = "1.23.8"
 spotless = "8.10.4"
 ktlint = "1.8.0"
@@ -73,6 +75,8 @@ androidx-datastore-preferences = { module = "androidx.datastore:datastore-prefer
 
 # Location
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
+play-services-maps = { module = "com.google.android.gms:play-services-maps", version.ref = "playServicesMaps" }
+maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "mapsCompose" }
 
 # Code Quality & Debugging
 leakcanary-android = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }
