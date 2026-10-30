@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import com.hitchy.core.ui.cairoTime12
 import com.hitchy.core.model.AppLanguage
 import com.hitchy.core.model.GeoPoint
 import com.hitchy.core.ui.components.Avatar
@@ -35,7 +36,6 @@ import com.hitchy.core.ui.map.HitchyMap
 import com.hitchy.core.ui.map.MapPin
 import com.hitchy.core.ui.theme.HitchyTheme
 import com.hitchy.core.util.isoToCairoDateKey
-import com.hitchy.core.util.isoToCairoTime
 import com.hitchy.feature.booking.domain.RideHost
 import com.hitchy.feature.booking.presentation.RiderRideDetailsState
 import com.hitchy.feature.rides.domain.Ride
@@ -75,9 +75,9 @@ internal fun RideDetailsSections(
     val booking = state.booking
     val pickupName = booking?.pickupPointName?.resolve(language)
         ?: card?.pickup?.name?.resolve(language).orEmpty()
-    val pickupTime = booking?.let { isoToCairoTime(it.pickupAt) } ?: isoToCairoTime(card?.pickup?.at)
+    val pickupTime = booking?.let { cairoTime12(it.pickupAt) } ?: cairoTime12(card?.pickup?.at)
     val dropName = ride?.toPointName?.resolve(language) ?: card?.toPointName?.resolve(language).orEmpty()
-    val dropTime = isoToCairoTime(card?.arriveAt)
+    val dropTime = cairoTime12(card?.arriveAt)
     val dateKey = ride?.dateKey ?: isoToCairoDateKey(card?.departAt)
     val walkM = if (booking == null) card?.pickup?.walkM else null
 

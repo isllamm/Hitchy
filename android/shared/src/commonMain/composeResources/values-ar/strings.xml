@@ -452,4 +452,5 @@
     <string name="picker_map_title_destination">حدد وجهتك على الخريطة</string>
     <string name="picker_confirm_pickup">تأكيد مكان الركوب</string>
     <string name="picker_confirm_destination">تأكيد الوجهة</string>
+    <string name="bk_cancel_search">إلغاء البحث</string>
 </resources>

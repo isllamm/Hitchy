@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.hitchy.core.ui.cairoTime12
 import com.hitchy.core.model.AppLanguage
 import com.hitchy.core.ui.components.BannerVariant
 import com.hitchy.core.ui.components.HitchyBanner
@@ -32,7 +33,6 @@ import com.hitchy.core.ui.components.TripStep
 import com.hitchy.core.ui.components.TripStepper
 import com.hitchy.core.ui.message
 import com.hitchy.core.ui.theme.HitchyTheme
-import com.hitchy.core.util.isoToCairoTime
 import com.hitchy.feature.rides.domain.Booking
 import com.hitchy.feature.trip.presentation.RiderTripAction
 import com.hitchy.feature.trip.presentation.RiderTripState
@@ -129,7 +129,7 @@ private fun TripStatusRow(
     ) {
         StatusChip(status = variant)
         Text(
-            text = isoToCairoTime(booking.pickupAt),
+            text = cairoTime12(booking.pickupAt),
             style = HitchyTheme.typography.caption,
             color = HitchyTheme.colors.textSecondary,
         )

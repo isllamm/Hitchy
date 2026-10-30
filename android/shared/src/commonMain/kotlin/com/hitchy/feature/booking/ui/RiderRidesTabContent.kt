@@ -35,6 +35,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.hitchy.core.ui.cairoTime12
 import com.hitchy.core.model.AppLanguage
 import com.hitchy.core.model.BookingStatus
 import com.hitchy.core.model.RideStatus
@@ -48,7 +49,6 @@ import com.hitchy.core.ui.icon.HitchyIcons
 import com.hitchy.core.ui.theme.HitchyTheme
 import com.hitchy.core.util.dateKey
 import com.hitchy.core.util.isoToCairoDateKey
-import com.hitchy.core.util.isoToCairoTime
 import com.hitchy.feature.booking.presentation.RidesTabViewModel
 import com.hitchy.feature.booking.presentation.UnifiedRideItem
 import com.hitchy.feature.booking.presentation.opensOwnerTrip
@@ -196,7 +196,7 @@ private fun UnifiedRideItem.toCardData(
     is UnifiedRideItem.AsRider -> RideCardData(
         status = booking.status.toVariant(),
         dateKey = isoToCairoDateKey(booking.departAt),
-        time = isoToCairoTime(booking.pickupAt),
+        time = cairoTime12(booking.pickupAt),
         pickupName = booking.pickupPointName.resolve(language),
         dropOffName = null,
         title = stringResource(Res.string.rides_tab_role_rider_badge, booking.seats),
@@ -215,7 +215,7 @@ private fun UnifiedRideItem.toCardData(
     is UnifiedRideItem.AsOwner -> RideCardData(
         status = ride.status.toVariant(),
         dateKey = isoToCairoDateKey(ride.departAt),
-        time = isoToCairoTime(ride.departAt),
+        time = cairoTime12(ride.departAt),
         pickupName = ride.fromPointName.resolve(language),
         dropOffName = ride.toPointName.resolve(language),
         title = stringResource(

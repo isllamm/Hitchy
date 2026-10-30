@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.hitchy.core.ui.cairoTime12
 import com.hitchy.core.model.AppLanguage
 import com.hitchy.core.platform.LanguageSwitcher
 import com.hitchy.core.ui.components.BackButton
@@ -42,7 +43,6 @@ import com.hitchy.core.ui.theme.HitchyColors
 import com.hitchy.core.ui.theme.HitchyTheme
 import com.hitchy.core.util.dateKey
 import com.hitchy.core.util.isoToCairoDateKey
-import com.hitchy.core.util.isoToCairoTime
 import com.hitchy.feature.inbox.domain.InboxItem
 import com.hitchy.feature.inbox.presentation.InboxAction
 import com.hitchy.feature.inbox.presentation.InboxEvent
@@ -275,7 +275,7 @@ private fun notificationTime(
     createdAt: String,
     isToday: Boolean,
 ): String {
-    if (isToday) return isoToCairoTime(createdAt)
+    if (isToday) return cairoTime12(createdAt)
     val key = isoToCairoDateKey(createdAt)
     if (key.length < DATE_DAY_START + 1) return key
     val months = stringArrayResource(Res.array.rider_home_months)
