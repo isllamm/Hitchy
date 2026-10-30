@@ -27,15 +27,31 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.hitchy.core.model.AppConfig
 import com.hitchy.core.model.AppLanguage
 import com.hitchy.core.model.Env
+import com.hitchy.core.model.Role
 import com.hitchy.core.platform.LanguageSwitcher
 import com.hitchy.core.ui.theme.HitchyTheme
 import com.hitchy.feature.auth.presentation.RootState
 import com.hitchy.feature.auth.presentation.RootViewModel
+import com.hitchy.feature.auth.ui.OnboardingScreen
+import com.hitchy.feature.auth.ui.OtpVerifyScreen
+import com.hitchy.feature.auth.ui.PhoneEntryScreen
+import com.hitchy.feature.auth.ui.WelcomeScreen
+import com.hitchy.feature.booking.domain.SearchInput
+import com.hitchy.feature.booking.ui.HomeScreen
+import com.hitchy.feature.booking.ui.RiderRideDetailsScreen
+import com.hitchy.feature.booking.ui.RidesTabContent
+import com.hitchy.feature.booking.ui.SearchResultsScreen
 import com.hitchy.feature.debug.ui.DebugScreen
 import com.hitchy.feature.debug.ui.gallery.ComponentGalleryScreen
+import com.hitchy.feature.inbox.ui.NotificationsScreen
+import com.hitchy.feature.places.ui.MapPointPickerScreen
+import com.hitchy.feature.places.ui.RoutePickerScreen
+import com.hitchy.feature.profile.ui.ProfileSetupScreen
+import com.hitchy.feature.trip.ui.RiderTripScreen
 import hitchy.shared.generated.resources.Res
 import hitchy.shared.generated.resources.app_name
 import hitchy.shared.generated.resources.language_arabic
@@ -87,11 +103,64 @@ fun HitchyNavHost(
         startDestination = initialDestination,
         modifier = modifier,
     ) {
-        composable<Welcome> { PlaceholderScreen("Welcome") }
-        composable<PhoneEntry> { PlaceholderScreen("PhoneEntry") }
-        composable<OtpVerify> { PlaceholderScreen("OtpVerify") }
-        composable<ProfileSetup> { PlaceholderScreen("ProfileSetup") }
-        composable<Home> { PlaceholderScreen("Home") }
+        composable<Welcome> {
+            WelcomeScreen(
+                onContinueToPhone = { navController.navigate(PhoneEntry) },
+                onOpenOnboarding = { navController.navigate(Onboarding) },
+            )
+        }
+        composable<PhoneEntry> {
+            PhoneEntryScreen(
+                onBack = { navController.popBackStack() },
+                onNavigateToOtp = { phoneE164 -> navController.navigate(OtpVerify(phoneE164)) },
+            )
+        }
+        composable<OtpVerify> { backStackEntry ->
+            val route = backStackEntry.toRoute<OtpVerify>()
+            OtpVerifyScreen(
+                phoneE164 = route.phoneE164,
+                onBack = { navController.popBackStack() },
+                onVerified = {
+                    // RootViewModel reacts to AuthState changes automatically
+                },
+            )
+        }
+        composable<ProfileSetup> {
+            ProfileSetupScreen(
+                onCompleted = {
+                    navController.navigate(Home) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                },
+            )
+        }
+        composable<Home> {
+            val readyState = rootState as? RootState.Ready
+            HomeScreen(
+                activeRole = readyState?.activeRole ?: Role.RIDER,
+                onOpenNotifications = { navController.navigate(Notifications) },
+                onOpenRoutePicker = { field -> navController.navigate(RoutePicker(field)) },
+                onNavigateToSearchResults = { event ->
+                    navController.navigate(
+                        SearchResults(
+                            fromZone = event.fromZone,
+                            toZone = event.toZone,
+                            fromPointId = event.fromPointId,
+                            date = event.date,
+                            time = event.time,
+                            seats = event.seats,
+                        ),
+                    )
+                },
+                onOpenRiderRideDetails = { rideId -> navController.navigate(RiderRideDetails(rideId)) },
+                onOpenRiderTrip = { rideId -> navController.navigate(RiderTrip(rideId)) },
+                onOpenHostRideDetails = { rideId -> navController.navigate(HostRideDetails(rideId)) },
+                onOpenHostTrip = { rideId -> navController.navigate(HostTrip(rideId)) },
+                onOpenPostRide = { navController.navigate(PostRide) },
+                onOpenSettings = { navController.navigate(Settings) },
+                onOpenHostApplication = { navController.navigate(HostApplication) },
+            )
+        }
         composable<Settings> {
             SettingsPlaceholderScreen(
                 onNavigateToDebug = { navController.navigate(Debug) },
@@ -104,11 +173,49 @@ fun HitchyNavHost(
         composable<MyRides> { PlaceholderScreen("MyRides") }
         composable<HostRideDetails> { PlaceholderScreen("HostRideDetails") }
         composable<Search> { PlaceholderScreen("Search") }
-        composable<SearchResults> { PlaceholderScreen("SearchResults") }
-        composable<RiderRideDetails> { PlaceholderScreen("RiderRideDetails") }
-        composable<MyTrips> { PlaceholderScreen("MyTrips") }
+        composable<SearchResults> { backStackEntry ->
+            val route = backStackEntry.toRoute<SearchResults>()
+            val input = remember(route) {
+                SearchInput(
+                    fromZone = route.fromZone,
+                    toZone = route.toZone,
+                    fromPointId = route.fromPointId,
+                    date = route.date,
+                    time = route.time,
+                    seats = route.seats,
+                )
+            }
+            SearchResultsScreen(
+                input = input,
+                onBack = { navController.popBackStack() },
+                onOpenRideDetails = { rideId -> navController.navigate(RiderRideDetails(rideId)) },
+            )
+        }
+        composable<RiderRideDetails> { backStackEntry ->
+            val route = backStackEntry.toRoute<RiderRideDetails>()
+            RiderRideDetailsScreen(
+                rideId = route.rideId,
+                onBack = { navController.popBackStack() },
+                onOpenTrip = { rideId -> navController.navigate(RiderTrip(rideId)) },
+            )
+        }
+        composable<MyTrips> {
+            RidesTabContent(
+                onBack = { navController.popBackStack() },
+                onOpenRiderRideDetails = { rideId -> navController.navigate(RiderRideDetails(rideId)) },
+                onOpenRiderTrip = { rideId -> navController.navigate(RiderTrip(rideId)) },
+                onOpenHostRideDetails = { rideId -> navController.navigate(HostRideDetails(rideId)) },
+                onOpenHostTrip = { rideId -> navController.navigate(HostTrip(rideId)) },
+            )
+        }
         composable<HostTrip> { PlaceholderScreen("HostTrip") }
-        composable<RiderTrip> { PlaceholderScreen("RiderTrip") }
+        composable<RiderTrip> { backStackEntry ->
+            val route = backStackEntry.toRoute<RiderTrip>()
+            RiderTripScreen(
+                rideId = route.rideId,
+                onBack = { navController.popBackStack() },
+            )
+        }
         composable<RateTrip> { PlaceholderScreen("RateTrip") }
         composable<Fees> { PlaceholderScreen("Fees") }
         composable<Packages> { PlaceholderScreen("Packages") }
@@ -137,10 +244,32 @@ fun HitchyNavHost(
                 )
             }
         }
-        composable<Onboarding> { PlaceholderScreen("Onboarding") }
-        composable<RoutePicker> { PlaceholderScreen("RoutePicker") }
-        composable<MapPointPicker> { PlaceholderScreen("MapPointPicker") }
-        composable<Notifications> { PlaceholderScreen("Notifications") }
+        composable<Onboarding> {
+            OnboardingScreen(onFinish = { navController.popBackStack() })
+        }
+        composable<RoutePicker> { backStackEntry ->
+            val route = backStackEntry.toRoute<RoutePicker>()
+            RoutePickerScreen(
+                field = route.field,
+                onBack = { navController.popBackStack() },
+                onOpenMapPicker = { f -> navController.navigate(MapPointPicker(f)) },
+                onPointSelected = { navController.popBackStack() },
+            )
+        }
+        composable<MapPointPicker> { backStackEntry ->
+            val route = backStackEntry.toRoute<MapPointPicker>()
+            MapPointPickerScreen(
+                field = route.field,
+                onBack = { navController.popBackStack() },
+                onPointConfirmed = { navController.popBackStack() },
+            )
+        }
+        composable<Notifications> {
+            NotificationsScreen(
+                onBack = { navController.popBackStack() },
+                onOpenDeepLink = { _ -> navController.popBackStack() },
+            )
+        }
         composable<Chat> { PlaceholderScreen("Chat") }
         composable<Receipt> { PlaceholderScreen("Receipt") }
         composable<Shop> { PlaceholderScreen("Shop") }
