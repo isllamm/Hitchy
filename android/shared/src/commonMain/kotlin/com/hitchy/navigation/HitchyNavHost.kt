@@ -35,6 +35,7 @@ import com.hitchy.core.model.Role
 import com.hitchy.core.platform.LanguageSwitcher
 import com.hitchy.core.ui.theme.HitchyTheme
 import com.hitchy.feature.auth.presentation.RootState
+import com.hitchy.feature.rides.ui.PostRideScreen
 import com.hitchy.feature.auth.presentation.RootViewModel
 import com.hitchy.feature.auth.ui.OnboardingScreen
 import com.hitchy.feature.auth.ui.OtpVerifyScreen
@@ -169,7 +170,16 @@ fun HitchyNavHost(
         composable<HostApplication> { PlaceholderScreen("HostApplication") }
         composable<HostStatus> { PlaceholderScreen("HostStatus") }
         composable<AddVehicle> { PlaceholderScreen("AddVehicle") }
-        composable<PostRide> { PlaceholderScreen("PostRide") }
+        composable<PostRide> {
+            PostRideScreen(
+                onDismiss = { navController.popBackStack() },
+                onOpenPointPicker = { field -> navController.navigate(MapPointPicker(field)) },
+                onOpenMyRides = {
+                    navController.popBackStack()
+                    navController.navigate(MyRides)
+                },
+            )
+        }
         composable<MyRides> { PlaceholderScreen("MyRides") }
         composable<HostRideDetails> { PlaceholderScreen("HostRideDetails") }
         composable<Search> { PlaceholderScreen("Search") }

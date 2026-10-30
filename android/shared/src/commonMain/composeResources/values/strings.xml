@@ -323,4 +323,30 @@
     <string name="profile_switch_to_rider">Switch to Rider mode</string>
     <string name="profile_sign_out">Sign out</string>
     <string name="shop_coming_soon_body">Trip packages and rewards will be available here.</string>
+
+    <!-- P3-A10 owner ride posting -->
+    <string name="post_ride_route_title">Post your commute</string>
+    <string name="post_ride_review_title">Review and publish</string>
+    <string name="post_ride_step_one">Step 1 of 2 · Route and schedule</string>
+    <string name="post_ride_step_two">Step 2 of 2 · Price and review</string>
+    <string name="post_ride_leave_at">Leave at</string>
+    <string name="post_ride_seats_title">Seats you offer</string>
+    <string name="post_ride_seats_hint">Max %1$d seats</string>
+    <string name="post_ride_women_only">Women only</string>
+    <string name="post_ride_continue">Continue</string>
+    <string name="post_ride_price_header">EACH RIDER PAYS YOU</string>
+    <string name="post_ride_fair_price">Fair price</string>
+    <string name="post_ride_per_seat">EGP %1$d / seat</string>
+    <string name="post_ride_price_min">Min</string>
+    <string name="post_ride_price_recommended">Recommended</string>
+    <string name="post_ride_price_max">Max</string>
+    <string name="post_ride_price_breakdown_fuel">Fuel</string>
+    <string name="post_ride_price_breakdown_running">Running cost</string>
+    <string name="post_ride_price_breakdown_trip">Trip cost for %1$d seats</string>
+    <string name="post_ride_summary_title">YOUR COMMUTE</string>
+    <string name="post_ride_seats_open">%1$d seats open</string>
+    <string name="post_ride_publish">Publish my commute</string>
+    <string name="post_ride_live_title">Your commute is live</string>
+    <string name="post_ride_live_body">We will notify you when a rider asks for a seat.</string>
+    <string name="post_ride_live_go_to_rides">Go to my rides</string>
 </resources>

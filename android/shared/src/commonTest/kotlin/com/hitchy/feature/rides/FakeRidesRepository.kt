@@ -25,7 +25,7 @@ class FakeRidesRepository : RidesRepository {
     val ridesById = MutableStateFlow<Map<String, Ride>>(emptyMap())
     val bookingsByRideId = MutableStateFlow<Map<String, List<Booking>>>(emptyMap())
 
-    override suspend fun quote(input: QuoteInput): AppResult<Quote> = AppResult.Ok(
+    var quoteResult: AppResult<Quote> = AppResult.Ok(
         Quote(
             min = 25,
             recommended = 35,
@@ -37,10 +37,18 @@ class FakeRidesRepository : RidesRepository {
             configVersion = 1,
         ),
     )
+    var createResult: AppResult<String> = AppResult.Ok("ride-new")
+    var lastQuoteInput: QuoteInput? = null
+    var lastCreateInput: CreateRideInput? = null
+
+    override suspend fun quote(input: QuoteInput): AppResult<Quote> {
+        lastQuoteInput = input
+        return quoteResult
+    }
 
     override suspend fun create(input: CreateRideInput): AppResult<String> {
-        val rideId = "ride-new"
-        return AppResult.Ok(rideId)
+        lastCreateInput = input
+        return createResult
     }
 
     override suspend fun cancel(rideId: String, reason: CancelRideReason): AppResult<Int> = AppResult.Ok(1)

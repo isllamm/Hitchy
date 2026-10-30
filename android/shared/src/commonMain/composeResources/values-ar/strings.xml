@@ -323,4 +323,30 @@
     <string name="profile_switch_to_rider">التحويل لوضع راكب</string>
     <string name="profile_sign_out">تسجيل الخروج</string>
     <string name="shop_coming_soon_body">باقات الرحلات والمكافآت هتكون متاحة هنا.</string>
+
+    <!-- P3-A10 owner ride posting -->
+    <string name="post_ride_route_title">انشر مشوارك</string>
+    <string name="post_ride_review_title">راجع وانشر</string>
+    <string name="post_ride_step_one">خطوة 1 من 2 · المشوار والميعاد</string>
+    <string name="post_ride_step_two">خطوة 2 من 2 · السعر والمراجعة</string>
+    <string name="post_ride_leave_at">تتحرك الساعة</string>
+    <string name="post_ride_seats_title">الكراسي اللي بتقدمها</string>
+    <string name="post_ride_seats_hint">أقصى %1$d كراسي</string>
+    <string name="post_ride_women_only">للسيدات فقط</string>
+    <string name="post_ride_continue">كمّل</string>
+    <string name="post_ride_price_header">كل راكب يدفعلك</string>
+    <string name="post_ride_fair_price">سعر عادل</string>
+    <string name="post_ride_per_seat">%1$d جنيه للكرسي</string>
+    <string name="post_ride_price_min">الأقل</string>
+    <string name="post_ride_price_recommended">المقترح</string>
+    <string name="post_ride_price_max">الأكثر</string>
+    <string name="post_ride_price_breakdown_fuel">البنزين</string>
+    <string name="post_ride_price_breakdown_running">تكاليف العربية</string>
+    <string name="post_ride_price_breakdown_trip">تكلفة المشوار لـ %1$d كراسي</string>
+    <string name="post_ride_summary_title">مشوارك</string>
+    <string name="post_ride_seats_open">%1$d كراسي متاحة</string>
+    <string name="post_ride_publish">انشر مشواري</string>
+    <string name="post_ride_live_title">مشوارك شغال</string>
+    <string name="post_ride_live_body">هنبلغك لما حد يطلب كرسي.</string>
+    <string name="post_ride_live_go_to_rides">روح لمشاويري</string>
 </resources>

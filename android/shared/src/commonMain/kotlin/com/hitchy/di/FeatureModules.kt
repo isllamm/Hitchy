@@ -31,6 +31,7 @@ import com.hitchy.feature.profile.presentation.ProfileSetupViewModel
 import com.hitchy.feature.profile.presentation.ProfileTabViewModel
 import com.hitchy.feature.rides.data.RidesRepositoryImpl
 import com.hitchy.feature.rides.domain.RidesRepository
+import com.hitchy.feature.rides.presentation.PostRideViewModel
 import com.hitchy.feature.trip.data.TripRepositoryImpl
 import com.hitchy.feature.trip.domain.TripRepository
 import com.hitchy.feature.trip.presentation.RiderTripViewModel
@@ -57,6 +58,7 @@ val hostModule = module {
 
 val ridesModule = module {
     single<RidesRepository> { RidesRepositoryImpl(get()) }
+    viewModel { PostRideViewModel(get(), get(), get(), get(), get()) }
 }
 
 val bookingModule = module {
