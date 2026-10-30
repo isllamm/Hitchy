@@ -57,6 +57,37 @@
     <string name="nav_shop">المتجر</string>
     <string name="nav_profile">حسابي</string>
 
+    <!-- Components (P3-A05) -->
+    <string name="needs_design_review">يحتاج مراجعة التصميم</string>
+    <string name="otp_title">كود التأكيد</string>
+    <string name="empty_state_title">مفيش حاجة هنا لسه</string>
+    <string name="error_state_title">حصل خطأ ما</string>
+    <string name="role_rider">راكب</string>
+    <string name="role_rider_desc">احجز كرسي في مشاوير العمل اليومية</string>
+    <string name="role_host">صاحب عربية</string>
+    <string name="role_host_desc">شارك كراسيك الفاضية ووفر بنزين</string>
+    <string name="action_message">رسالة</string>
+    <string name="action_call">اتصال</string>
+    <string name="action_share_trip">مشاركة الرحلة</string>
+    <string name="action_report">إبلاغ</string>
+    <string name="action_emergency">طوارئ</string>
+    <string name="fair_price_label">السعر العادل</string>
+    <string name="badge_women_only">سيدات فقط</string>
+    <string name="badge_same_company">نفس الشركة</string>
+    <string name="badge_tier_bronze">برونزي</string>
+    <string name="badge_tier_silver">فضي</string>
+    <string name="badge_tier_gold">ذهبي</string>
+    <string name="late_fee_title">رسوم متأخرة</string>
+    <string name="action_pay_now">ادفع الآن</string>
+    <string name="document_upload_title">رفع المستند</string>
+    <string name="document_upload_prompt">اضغط لاختيار صورة أو مستند</string>
+    <string name="balance_credits">الرصيد</string>
+    <string name="balance_points">النقاط</string>
+    <string name="owner_request_title">طلب حجز جديد</string>
+    <string name="action_accept">قبول</string>
+    <string name="action_decline">رفض</string>
+    <string name="expires_in">ينتهي خلال %1$s</string>
+
     <!-- Debug Screen -->
     <string name="debug_title">قائمة تصحيح الأخطاء</string>
     <string name="debug_refresh">تحديث</string>

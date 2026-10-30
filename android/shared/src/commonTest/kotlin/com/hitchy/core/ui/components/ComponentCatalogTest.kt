@@ -63,4 +63,32 @@ class ComponentCatalogTest {
         val actual = RideStatusVariant.entries.map { it.name }.toSet()
         assertEquals(expected, actual)
     }
+
+    @Test
+    fun `role card covers rider and host`() {
+        val expected = setOf("Rider", "Host")
+        val actual = AppRoleType.entries.map { it.name }.toSet()
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun `trip action types cover 5 quick actions`() {
+        val expected = setOf("Message", "Call", "ShareTrip", "Report", "Emergency")
+        val actual = TripActionType.entries.map { it.name }.toSet()
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun `community badge types cover women-only, company and 3 tiers`() {
+        val expected = setOf("WomenOnly", "SameCompany", "BronzeTier", "SilverTier", "GoldTier")
+        val actual = CommunityBadgeType.entries.map { it.name }.toSet()
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun `chat bubble types cover sent, received, and assistant`() {
+        val expected = setOf("Sent", "Received", "Assistant")
+        val actual = ChatBubbleType.entries.map { it.name }.toSet()
+        assertEquals(expected, actual)
+    }
 }
