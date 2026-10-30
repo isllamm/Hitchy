@@ -43,3 +43,23 @@ Islam shared the full rider design set (57 PNG files, English only; the index an
 | Settings | Opens from a row in the Profile tab; the notification toggle and language move there. Identity Verification shows in owner mode only. Privacy Settings and Safety Center are `[LATER]` |
 | New screens | Plan 3.8 maps Profile, ProfileEdit, Settings and About (P4-A04), Saved places (P7-A02), and Help and Contact support (P13-A05) |
 | Help and support | The FAQ is a fixed list in string resources. Contact support saves a request in Firestore through a new callable `contactSupport` (P13-B06) that admins read in the admin web (P13-W03); its details are asked when that task starts |
+
+## Update 2026-10-30 (night): demo designs
+
+Islam shared the demo designs (26 rider and 11 owner files; the flow maps are in [docs/design/demo-flow.md](../design/demo-flow.md)) and set a demo of the full rider and owner cycle for Friday 2026-10-30 evening, on the real backend. Plan 2.2 (v1.2) holds the decisions; 3.9 holds the tasks.
+
+| Area | Decision |
+| --- | --- |
+| Demo | The real screens on the local emulators with seed data, happy path first (tasks P3-B01 to P3-H01) |
+| Wallet | Replaces the earlier "no wallet" decision. Seed balance and an admin top-up; the owner's Confirm Payment moves each rider's fare and late fee to the owner; a request needs enough balance |
+| Rider designs | The earlier decisions stand, except the wallet |
+| Pickups | The owner adds stops (fixed points with times); the rider picks one |
+| Free wait | Starts when the owner taps "I'm here"; a fee only after "Report late" |
+| Rides tab | One list for both roles |
+| Earnings line | "Expected EGP x · up to EGP y" on owner ride details |
+| Tests | A one-time exception to rule 5 for the demo tasks: the happy path plus every money, permission and input check |
+
+Consequences:
+
+- Hitchy now holds user balances. Before any real money: a legal check (a wallet may need a licence in Egypt) and a payment provider. Both are `[LATER]`.
+- New functions `arriveAtStop`, `confirmRidePayment` (replaces `confirmSeatPayment`) and `topUpWallet`; new data `RideStop`, `pickupZones`, booking pickup fields, `hostArrivedAt`, wallets and wallet entries; new reasons `INSUFFICIENT_BALANCE`, `STOPS_INVALID`, `PICKUP_NOT_ON_RIDE`, `RIDE_NOT_FINISHED`; open decisions 28 to 32.

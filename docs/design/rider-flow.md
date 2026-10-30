@@ -172,7 +172,7 @@ In 3.8 but not in this folder: Search · Filters & sort, Upcoming ride details (
 | # | Design shows | Decision | Where in the plan |
 | --- | --- | --- | --- |
 | 1 | Saved places with a free address and a free map pin | Fixed points only. "Add" opens the point search and point-pin map; no address fields | 3.8 fix 17, P7-A02 |
-| 2 | A "250 EGP" wallet in the Profile tab | No wallet at launch (R19). A rider wallet to pay deposits to owners is `[LATER]`, after launch, in its own plan update | R19, 3.8 fix 18 |
+| 2 | A "250 EGP" wallet in the Profile tab | Changed the same night for the demo: a real wallet now, paid by the owner's Confirm Payment (plan 2.2 #2, [demo-flow.md](demo-flow.md)). The first decision was no wallet at launch | R19, 3.8 fix 18, 2.2 |
 | 3 | "Pay the Hitchy fee" and "Booking request sent" in Notifications | Keep the plan's texts (8.15) | 3.8 fixes 2 and 11 |
 | 4 | A comment box in Rating, "Track ride" on the thank-you screen | Stars and tags only; the thank-you screen ends with "Done" | 3.8 fix 9 |
 | 5 | "Verified driver" | "Verified owner" | 3.8 fix 1 |
