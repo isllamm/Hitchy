@@ -32,8 +32,10 @@ import com.hitchy.core.platform.LanguageSwitcher
 import com.hitchy.core.ui.ErrorText
 import com.hitchy.core.ui.components.BackButton
 import com.hitchy.core.ui.components.BackButtonStyle
+import com.hitchy.core.ui.components.BannerVariant
 import com.hitchy.core.ui.components.ErrorState
 import com.hitchy.core.ui.components.FilterChip
+import com.hitchy.core.ui.components.HitchyBanner
 import com.hitchy.core.ui.components.HitchyButton
 import com.hitchy.core.ui.components.HitchyButtonVariant
 import com.hitchy.core.ui.components.HitchySwitch
@@ -108,15 +110,16 @@ fun PostRideScreen(
             postRideRouteItems(state, language, onOpenRoutePicker, viewModel::onAction)
             postRideWhenItems(state, viewModel::onAction)
             postRideOptionItems(state, viewModel::onAction)
-            postRideErrorItems(state, viewModel::onAction)
         }
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(colors.white)
                 .navigationBarsPadding()
                 .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
+            PostRideErrors(state, viewModel::onAction)
             OwnerGradientButton(
                 text = stringResource(Res.string.post_ride_submit),
                 onClick = { viewModel.onAction(PostRideAction.Submit) },
@@ -380,23 +383,21 @@ private fun PriceCard(
     }
 }
 
-private fun LazyListScope.postRideErrorItems(
+@Composable
+private fun PostRideErrors(
     state: PostRideState,
     onAction: (PostRideAction) -> Unit,
 ) {
     val validationError = state.validationError
     if (validationError != null) {
-        item {
-            ErrorState(
-                message = stringResource(validationError),
-                onRetry = { onAction(PostRideAction.DismissError) },
-            )
-        }
+        HitchyBanner(
+            text = stringResource(validationError),
+            variant = BannerVariant.Error,
+            onDismiss = { onAction(PostRideAction.DismissError) },
+        )
     }
     val error = state.error
     if (error != null) {
-        item {
-            ErrorText(error = error, style = HitchyTheme.typography.caption, color = HitchyTheme.colors.error)
-        }
+        ErrorText(error = error, style = HitchyTheme.typography.caption, color = HitchyTheme.colors.error)
     }
 }
