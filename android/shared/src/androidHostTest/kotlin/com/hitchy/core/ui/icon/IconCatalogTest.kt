@@ -91,4 +91,18 @@ class IconCatalogTest {
             }
         }
     }
+
+    @Test
+    fun testFigmaDrawingsExist() {
+        val drawableDir = findDrawableDir()
+        for (name in listOf("fig_driver", "fig_rider", "fig_arrow_forward")) {
+            val file = File(drawableDir, "$name.xml")
+            assertTrue(file.exists(), "Missing Figma drawing: ${file.absolutePath}")
+            assertTrue(file.readText().contains("<vector"), "$name.xml must be an Android vector drawable")
+        }
+        assertTrue(
+            File(drawableDir, "fig_arrow_forward.xml").readText().contains("android:autoMirrored=\"true\""),
+            "The onboarding arrow must mirror in right-to-left layouts",
+        )
+    }
 }

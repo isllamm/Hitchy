@@ -11,10 +11,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -33,13 +31,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hitchy.core.model.Role
@@ -50,9 +47,12 @@ import com.hitchy.core.ui.components.HitchyButton
 import com.hitchy.core.ui.components.OtpField
 import com.hitchy.core.ui.components.PhoneField
 import com.hitchy.core.ui.components.RoleCard
+import com.hitchy.core.ui.figmaBottom
+import com.hitchy.core.ui.figmaTop
 import com.hitchy.core.ui.icon.HitchyIcons
 import com.hitchy.core.ui.message
 import com.hitchy.core.ui.theme.HitchyTheme
+import com.hitchy.core.ui.withLinks
 import com.hitchy.feature.auth.presentation.OtpVerifyAction
 import com.hitchy.feature.auth.presentation.OtpVerifyEvent
 import com.hitchy.feature.auth.presentation.OtpVerifyViewModel
@@ -79,9 +79,12 @@ import hitchy.shared.generated.resources.otp_title
 import hitchy.shared.generated.resources.otp_verify_button
 import hitchy.shared.generated.resources.otp_verify_subtitle
 import hitchy.shared.generated.resources.phone_entry_create_account
+import hitchy.shared.generated.resources.phone_entry_create_account_link
+import hitchy.shared.generated.resources.phone_entry_privacy_link
 import hitchy.shared.generated.resources.phone_entry_privacy_note
 import hitchy.shared.generated.resources.phone_entry_subtitle
 import hitchy.shared.generated.resources.phone_entry_terms
+import hitchy.shared.generated.resources.phone_entry_terms_link
 import hitchy.shared.generated.resources.phone_entry_title
 import hitchy.shared.generated.resources.splash_logo_description
 import hitchy.shared.generated.resources.welcome_continue
@@ -127,7 +130,6 @@ fun OnboardingScreen(
     val colors = HitchyTheme.colors
     val typography = HitchyTheme.typography
     val spacing = HitchyTheme.spacing
-    val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     var currentPage by remember { mutableIntStateOf(0) }
 
     val photos = listOf(
@@ -172,8 +174,8 @@ fun OnboardingScreen(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
-                .navigationBarsPadding()
-                .padding(horizontal = spacing.space16, vertical = spacing.space24),
+                .padding(horizontal = spacing.space16)
+                .padding(bottom = figmaBottom(ONBOARDING_BOTTOM)),
             verticalArrangement = Arrangement.spacedBy(35.dp),
         ) {
             Column(
@@ -224,10 +226,10 @@ fun OnboardingScreen(
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
-                        painter = painterResource(HitchyIcons.Back),
+                        painter = painterResource(HitchyIcons.ArrowForward),
                         contentDescription = stringResource(Res.string.onboarding_next),
                         tint = colors.white,
-                        modifier = Modifier.size(12.dp).rotate(if (isRtl) 0f else HALF_TURN_DEGREES),
+                        modifier = Modifier.size(12.dp),
                     )
                 }
             }
@@ -256,11 +258,9 @@ fun WelcomeScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .statusBarsPadding()
-                .navigationBarsPadding()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = spacing.space16)
-                .padding(top = WELCOME_TOP_GAP, bottom = WELCOME_TOP_GAP),
+                .padding(top = figmaTop(WELCOME_TOP), bottom = figmaBottom(WELCOME_BOTTOM)),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Column(
@@ -371,89 +371,103 @@ fun PhoneEntryScreen(
         modifier = modifier.fillMaxSize(),
         color = colors.white,
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .statusBarsPadding()
-                .navigationBarsPadding()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = spacing.space16)
-                .padding(top = AUTH_TOP_GAP, bottom = AUTH_TOP_GAP),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
+        Box(modifier = Modifier.fillMaxSize()) {
             Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(spacing.space16),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = spacing.space16)
+                    .padding(top = figmaTop(AUTH_TOP)),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(spacing.space24),
+                    verticalArrangement = Arrangement.spacedBy(spacing.space16),
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Column(
                         modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(spacing.space16),
+                        verticalArrangement = Arrangement.spacedBy(spacing.space24),
                     ) {
                         Column(
                             modifier = Modifier.fillMaxWidth(),
-                            verticalArrangement = Arrangement.spacedBy(spacing.space32),
+                            verticalArrangement = Arrangement.spacedBy(spacing.space16),
                         ) {
-                            Column(verticalArrangement = Arrangement.spacedBy(spacing.space24)) {
-                                BackButton(
-                                    onClick = onBack,
-                                    style = BackButtonStyle.OutlinedCircle,
-                                    modifier = Modifier.size(44.dp),
-                                )
-                                Column(verticalArrangement = Arrangement.spacedBy(spacing.space8)) {
-                                    Text(
-                                        text = stringResource(Res.string.phone_entry_title),
-                                        style = typography.h1,
-                                        color = colors.navy,
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalArrangement = Arrangement.spacedBy(spacing.space32),
+                            ) {
+                                Column(verticalArrangement = Arrangement.spacedBy(spacing.space24)) {
+                                    BackButton(
+                                        onClick = onBack,
+                                        style = BackButtonStyle.OutlinedCircle,
+                                        modifier = Modifier.size(44.dp),
                                     )
-                                    Text(
-                                        text = stringResource(Res.string.phone_entry_subtitle),
-                                        style = typography.body,
-                                        color = colors.textSecondary,
-                                    )
+                                    Column(verticalArrangement = Arrangement.spacedBy(spacing.space8)) {
+                                        Text(
+                                            text = stringResource(Res.string.phone_entry_title),
+                                            style = typography.h1,
+                                            color = colors.navy,
+                                        )
+                                        Text(
+                                            text = stringResource(Res.string.phone_entry_subtitle),
+                                            style = typography.body,
+                                            color = colors.textSecondary,
+                                        )
+                                    }
                                 }
+
+                                PhoneField(
+                                    value = state.phoneInput,
+                                    onValueChange = { viewModel.onAction(PhoneEntryAction.UpdatePhone(it)) },
+                                    // The field's own error line carries Figma's copy for a bad number.
+                                    isError = state.error != null,
+                                )
                             }
 
-                            PhoneField(
-                                value = state.phoneInput,
-                                onValueChange = { viewModel.onAction(PhoneEntryAction.UpdatePhone(it)) },
-                                // The field's own error line carries Figma's copy for a bad number.
-                                isError = state.error != null,
-                            )
+                            HitchyButton(
+                                onClick = { viewModel.onAction(PhoneEntryAction.Submit) },
+                                // Figma's Invalid number frame keeps Continue active: Submit shows the error.
+                                enabled = state.phoneInput.isNotBlank(),
+                                modifier = Modifier.fillMaxWidth(),
+                            ) {
+                                Text(text = stringResource(Res.string.welcome_continue))
+                            }
                         }
 
-                        HitchyButton(
-                            onClick = { viewModel.onAction(PhoneEntryAction.Submit) },
-                            // Figma's Invalid number frame keeps Continue active: Submit shows the error.
-                            enabled = state.phoneInput.isNotBlank(),
-                            modifier = Modifier.fillMaxWidth(),
-                        ) {
-                            Text(text = stringResource(Res.string.welcome_continue))
-                        }
+                        PrivacyNotice(text = stringResource(Res.string.phone_entry_privacy_note))
                     }
 
-                    PrivacyNotice(text = stringResource(Res.string.phone_entry_privacy_note))
+                    Text(
+                        text = withLinks(
+                            template = stringResource(Res.string.phone_entry_create_account),
+                            links = listOf(stringResource(Res.string.phone_entry_create_account_link)),
+                            linkStyle = SpanStyle(fontWeight = FontWeight.Bold, color = colors.purple),
+                        ),
+                        style = typography.body,
+                        color = colors.navy,
+                        textAlign = TextAlign.Center,
+                    )
                 }
-
-                Text(
-                    text = stringResource(Res.string.phone_entry_create_account),
-                    style = typography.body,
-                    color = colors.navy,
-                    textAlign = TextAlign.Center,
-                )
             }
 
-            Spacer(modifier = Modifier.height(PHONE_TERMS_GAP))
-
+            // Figma: 311dp wide, so it wraps to two lines, 44dp above the screen bottom.
             Text(
-                text = stringResource(Res.string.phone_entry_terms),
+                text = withLinks(
+                    template = stringResource(Res.string.phone_entry_terms),
+                    links = listOf(
+                        stringResource(Res.string.phone_entry_terms_link),
+                        stringResource(Res.string.phone_entry_privacy_link),
+                    ),
+                    linkStyle = SpanStyle(fontWeight = FontWeight.Bold, color = colors.violet),
+                ),
                 style = typography.caption,
                 color = colors.textSecondary,
                 textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .width(TERMS_WIDTH)
+                    .padding(bottom = figmaBottom(TERMS_BOTTOM)),
             )
         }
     }
@@ -498,11 +512,9 @@ fun OtpVerifyScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .statusBarsPadding()
-                .navigationBarsPadding()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = spacing.space16)
-                .padding(top = AUTH_TOP_GAP, bottom = AUTH_TOP_GAP),
+                .padding(top = figmaTop(AUTH_TOP), bottom = spacing.space24),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(spacing.space24),
         ) {
@@ -649,16 +661,14 @@ private val SCRIM_HEIGHT = 401.dp
 private const val SCRIM_MID_STOP = 0.45f
 private const val SCRIM_MID_ALPHA = 0.55f
 
-// The back arrow, turned to point forward in left-to-right layouts.
-private const val HALF_TURN_DEGREES = 180f
-
-/** Figma centres the 682dp Welcome content in the 766dp between the system bars. */
-private val WELCOME_TOP_GAP = 42.dp
+// Offsets from the screen edges, read from the Figma frames (393x852).
+private val ONBOARDING_BOTTOM = 64.dp
+private val WELCOME_TOP = 132.dp
+private val WELCOME_BOTTOM = 38.dp
 private val WELCOME_BUTTON_GAP = 174.dp
-
-/** Figma's 748dp auth content leaves 9dp above and below. */
-private val AUTH_TOP_GAP = 9.dp
-private val PHONE_TERMS_GAP = 247.dp
+private val AUTH_TOP = 60.dp
+private val TERMS_BOTTOM = 44.dp
+private val TERMS_WIDTH = 311.dp
 
 private const val OTP_LENGTH = 6
 private const val EGYPT_NATIONAL_DIGITS = 10

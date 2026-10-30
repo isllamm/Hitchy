@@ -66,8 +66,8 @@ fun RoleCard(
         AppRoleType.Host -> stringResource(Res.string.role_host_desc)
     }
     val icon: DrawableResource = when (role) {
-        AppRoleType.Rider -> HitchyIcons.Person
-        AppRoleType.Host -> HitchyIcons.Car
+        AppRoleType.Rider -> HitchyIcons.Rider
+        AppRoleType.Host -> HitchyIcons.Driver
     }
 
     // Figma: 361x96, pad 16/24, r=16. Unselected white on a #E5E7EB stroke; selected #EDE9FE on purple.

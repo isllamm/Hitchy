@@ -238,8 +238,11 @@
     <string name="phone_field_prefix">+20</string>
     <string name="phone_field_placeholder">10 1234 5678</string>
     <string name="phone_entry_subtitle">We’ll text you a one-time code. No password needed.</string>
-    <string name="phone_entry_create_account">Don’t have an account? Create an account</string>
-    <string name="phone_entry_terms">By continuing, you agree to Hitchy’s Terms and Privacy Policy.</string>
+    <string name="phone_entry_create_account">Don’t have an account? %1$s</string>
+    <string name="phone_entry_terms">By continuing, you agree to Hitchy’s %1$s and %2$s.</string>
+    <string name="phone_entry_terms_link">Terms</string>
+    <string name="phone_entry_privacy_link">Privacy Policy</string>
+    <string name="phone_entry_create_account_link">Create an account</string>
     <string name="welcome_safety_note">Safe, verified daily rides</string>
     <string name="splash_logo_description">Hitchy</string>
     <string name="onboarding_next">Next</string>
