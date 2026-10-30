@@ -51,6 +51,7 @@ import com.hitchy.feature.booking.presentation.RiderHomeState
 import com.hitchy.feature.booking.presentation.RiderHomeViewModel
 import com.hitchy.feature.booking.presentation.RiderSearchValidationError
 import com.hitchy.feature.profile.ui.ProfileTabContent
+import com.hitchy.feature.rides.ui.OwnerHomeContent
 import hitchy.shared.generated.resources.Res
 import hitchy.shared.generated.resources.app_name
 import hitchy.shared.generated.resources.nav_home
@@ -102,10 +103,11 @@ fun HomeScreen(
                 when (selectedTab) {
                     BottomNavItem.Home -> {
                         if (activeRole == Role.HOST) {
-                            OwnerHomePreviewPlaceholder(
+                            OwnerHomeContent(
                                 onOpenNotifications = onOpenNotifications,
                                 onOpenPostRide = onOpenPostRide,
-                                onOpenRidesTab = { selectedTab = BottomNavItem.Rides },
+                                onOpenHostRideDetails = onOpenHostRideDetails,
+                                onOpenHostTrip = onOpenHostTrip,
                             )
                         } else {
                             RiderHomeContent(
@@ -385,46 +387,6 @@ private fun TimeSlotSelector(
                     selected = selectedMinutes == minutes,
                     onClick = { onSelectMinutes(minutes) },
                 )
-            }
-        }
-    }
-}
-
-/** Owner home arrives in P3-A10; until then the tab offers the two owner entry points. */
-@Composable
-private fun OwnerHomePreviewPlaceholder(
-    onOpenNotifications: () -> Unit,
-    onOpenPostRide: () -> Unit,
-    onOpenRidesTab: () -> Unit,
-) {
-    val spacing = HitchyTheme.spacing
-    Column(modifier = Modifier.fillMaxSize()) {
-        GreetingHeader(
-            firstName = stringResource(Res.string.role_host),
-            onNotificationsClick = onOpenNotifications,
-        )
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(spacing.screenPadding),
-            verticalArrangement = Arrangement.spacedBy(spacing.space16),
-        ) {
-            EmptyState(
-                title = stringResource(Res.string.role_host),
-                message = stringResource(Res.string.role_host_desc),
-                icon = HitchyIcons.Car,
-            )
-            HitchyButton(
-                onClick = onOpenRidesTab,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text(text = stringResource(Res.string.rides_tab_title))
-            }
-            HitchyButton(
-                onClick = onOpenPostRide,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text(text = stringResource(Res.string.nav_home))
             }
         }
     }

@@ -51,6 +51,9 @@ import com.hitchy.feature.inbox.ui.NotificationsScreen
 import com.hitchy.feature.places.ui.MapPointPickerScreen
 import com.hitchy.feature.places.ui.RoutePickerScreen
 import com.hitchy.feature.profile.ui.ProfileSetupScreen
+import com.hitchy.feature.rides.ui.HostRideDetailsScreen
+import com.hitchy.feature.rides.ui.PostRideScreen
+import com.hitchy.feature.trip.ui.HostTripScreen
 import com.hitchy.feature.trip.ui.RiderTripScreen
 import hitchy.shared.generated.resources.Res
 import hitchy.shared.generated.resources.app_name
@@ -169,9 +172,26 @@ fun HitchyNavHost(
         composable<HostApplication> { PlaceholderScreen("HostApplication") }
         composable<HostStatus> { PlaceholderScreen("HostStatus") }
         composable<AddVehicle> { PlaceholderScreen("AddVehicle") }
-        composable<PostRide> { PlaceholderScreen("PostRide") }
+        composable<PostRide> {
+            PostRideScreen(
+                onBack = { navController.popBackStack() },
+                onOpenRoutePicker = { field -> navController.navigate(RoutePicker(field)) },
+                onNavigateToRideDetails = { rideId ->
+                    navController.navigate(HostRideDetails(rideId)) {
+                        popUpTo<Home> { inclusive = false }
+                    }
+                },
+            )
+        }
         composable<MyRides> { PlaceholderScreen("MyRides") }
-        composable<HostRideDetails> { PlaceholderScreen("HostRideDetails") }
+        composable<HostRideDetails> { backStackEntry ->
+            val route = backStackEntry.toRoute<HostRideDetails>()
+            HostRideDetailsScreen(
+                rideId = route.rideId,
+                onBack = { navController.popBackStack() },
+                onOpenTrip = { rideId -> navController.navigate(HostTrip(rideId)) },
+            )
+        }
         composable<Search> { PlaceholderScreen("Search") }
         composable<SearchResults> { backStackEntry ->
             val route = backStackEntry.toRoute<SearchResults>()
@@ -208,7 +228,13 @@ fun HitchyNavHost(
                 onOpenHostTrip = { rideId -> navController.navigate(HostTrip(rideId)) },
             )
         }
-        composable<HostTrip> { PlaceholderScreen("HostTrip") }
+        composable<HostTrip> { backStackEntry ->
+            val route = backStackEntry.toRoute<HostTrip>()
+            HostTripScreen(
+                rideId = route.rideId,
+                onBack = { navController.popBackStack() },
+            )
+        }
         composable<RiderTrip> { backStackEntry ->
             val route = backStackEntry.toRoute<RiderTrip>()
             RiderTripScreen(

@@ -320,4 +320,72 @@
     <string name="profile_switch_to_rider">التحويل لوضع راكب</string>
     <string name="profile_sign_out">تسجيل الخروج</string>
     <string name="shop_coming_soon_body">باقات الرحلات والمكافآت هتكون متاحة هنا.</string>
+
+    <!-- Owner demo strings (P3-A10) -->
+    <string name="owner_home_title">وضع المالك</string>
+    <string name="owner_home_greeting">أهلاً، %1$s</string>
+    <string name="owner_home_post_cta">اعرض مشواراً</string>
+    <string name="owner_home_post_cta_subtitle">شارك مقاعدك الفاضية ووفر بنزين</string>
+    <string name="owner_home_upcoming_title">رحلاتك القادمة</string>
+    <string name="owner_home_no_rides_title">لم تقم بنشر أي مشاوير بعد</string>
+    <string name="owner_home_no_rides_body">اعرض مشوارك وتواصل مع الركاب.</string>
+    <string name="owner_home_pending_requests">%1$d طلبات جديدة</string>
+    <string name="owner_home_seats_booked">%1$d من %2$d محجوز</string>
+
+    <string name="post_ride_title">اعرض مشواراً</string>
+    <string name="post_ride_from_label">نقطة البداية</string>
+    <string name="post_ride_to_label">الوجهة</string>
+    <string name="post_ride_add_stop">+ إضافة نقطة التقاط</string>
+    <string name="post_ride_stop_label">نقطة توقف %1$d</string>
+    <string name="post_ride_stop_remove">حذف</string>
+    <string name="post_ride_stops_title">نقاط التوقف على الطريق</string>
+    <string name="post_ride_date_label">التاريخ</string>
+    <string name="post_ride_time_label">وقت التحرك</string>
+    <string name="post_ride_seats_label">المقاعد المتاحة</string>
+    <string name="post_ride_vehicle_label">السيارة</string>
+    <string name="post_ride_women_only">مشوار للسيدات فقط</string>
+    <string name="post_ride_price_title">سعر المقعد</string>
+    <string name="post_ride_price_range">%1$d – %2$d ج.م</string>
+    <string name="post_ride_expected_earnings">الأرباح المتوقعة</string>
+    <string name="post_ride_submit">نشر المشوار</string>
+    <string name="post_ride_quoting">جاري حساب نطاق السعر…</string>
+    <string name="post_ride_error_missing_route">يرجى تحديد نقطة البداية والوجهة.</string>
+    <string name="post_ride_error_same_zone">لا يمكن أن تكون البداية والوجهة في نفس المنطقة.</string>
+
+    <string name="host_ride_details_title">تفاصيل المشوار</string>
+    <string name="host_ride_details_expected">المتوقع %1$d ج.م · حتى %2$d ج.م</string>
+    <string name="host_ride_details_requests_section">الطلبات المعلقة (%1$d)</string>
+    <string name="host_ride_details_booked_section">الركاب المؤكدين (%1$d)</string>
+    <string name="host_ride_details_no_requests">لا توجد طلبات معلقة</string>
+    <string name="host_ride_details_no_booked">لم يحجز أي راكب بعد</string>
+    <string name="host_ride_details_start_trip">بدء المشوار</string>
+    <string name="host_ride_details_open_trip">متابعة المشوار الحالي</string>
+    <string name="host_ride_details_cancel">إلغاء المشوار</string>
+    <string name="host_ride_details_seats_count">%1$d مقاعد</string>
+    <string name="host_ride_details_pickup_label">الالتقاط من: %1$s</string>
+    <string name="host_ride_details_accepted_alert">تم قبول الطلب</string>
+    <string name="host_ride_details_declined_alert">تم رفض الطلب</string>
+
+    <string name="host_trip_title">يوم المشوار</string>
+    <string name="host_trip_status_leaving">التحرك قريباً</string>
+    <string name="host_trip_status_driving">في الطريق إلى %1$s</string>
+    <string name="host_trip_status_at_stop">وصلت إلى %1$s</string>
+    <string name="host_trip_status_in_progress">في الطريق إلى الوجهة</string>
+    <string name="host_trip_status_arrived">وصلت إلى الوجهة</string>
+    <string name="host_trip_status_completed">اكتمل المشوار</string>
+    <string name="host_trip_btn_start">بدء المشوار</string>
+    <string name="host_trip_btn_im_here">وصلت لنقطة الالتقاط</string>
+    <string name="host_trip_btn_boarded">%1$s ركب السيارة</string>
+    <string name="host_trip_btn_report_late">تسجيل تأخير (١٠ ج.م)</string>
+    <string name="host_trip_btn_next_stop">التحرك للنقطة التالية</string>
+    <string name="host_trip_btn_end_trip">إنهاء المشوار</string>
+    <string name="host_trip_btn_confirm_payment">تأكيد الدفع</string>
+    <string name="host_trip_btn_payment_done">تم</string>
+    <string name="host_trip_free_wait_timer">الانتظار المجاني: %1$02d:%2$02d</string>
+    <string name="host_trip_free_wait_over">انتهى الانتظار المجاني (+%1$02d:%2$02d)</string>
+    <string name="host_trip_boarded_count">%1$d من %2$d في السيارة</string>
+    <string name="host_trip_payment_done_title">تم تحصيل الأجرة بنجاح!</string>
+    <string name="host_trip_payment_done_total">إجمالي المحصل: %1$d ج.م</string>
+    <string name="host_trip_payment_done_bookings">%1$d ركاب تم الدفع لمحفظتك مباشرة</string>
+    <string name="host_trip_wallet_balance">رصيد المحفظة: %1$d ج.م</string>
 </resources>
