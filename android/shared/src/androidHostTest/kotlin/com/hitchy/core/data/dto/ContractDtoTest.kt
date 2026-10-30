@@ -176,6 +176,21 @@ class ContractDtoTest {
             inputSerializer = UpdateConfigInputDto.serializer(),
             outputSerializer = UpdateConfigOutputDto.serializer(),
         ),
+        CallableContract(
+            name = "arriveAtStop",
+            inputSerializer = ArriveAtStopInputDto.serializer(),
+            outputSerializer = ArriveAtStopOutputDto.serializer(),
+        ),
+        CallableContract(
+            name = "confirmRidePayment",
+            inputSerializer = ConfirmRidePaymentInputDto.serializer(),
+            outputSerializer = ConfirmRidePaymentOutputDto.serializer(),
+        ),
+        CallableContract(
+            name = "topUpWallet",
+            inputSerializer = TopUpWalletInputDto.serializer(),
+            outputSerializer = TopUpWalletOutputDto.serializer(),
+        ),
     )
 
     private fun findFixturesDir(): File {
@@ -266,6 +281,15 @@ class ContractDtoTest {
               "fairPrice": true,
               "seatsLeft": 2,
               "walkM": 250,
+              "pickup": {
+                "id": "s1",
+                "name": {
+                  "ar": "نقطة تجريبية 1",
+                  "en": "Test point 1"
+                },
+                "at": "2026-11-02T05:45:00.000Z",
+                "walkM": 120
+              },
               "bestMatch": true,
               "womenOnly": false,
               "vehicleType": "car",
@@ -301,6 +325,8 @@ class ContractDtoTest {
         assertEquals(RideStatusDto.OPEN, dto.status)
         assertEquals(30.01234, dto.fromPoint.lat)
         assertEquals("Corolla", dto.vehicle.model)
+        assertEquals("s1", dto.pickup.id)
+        assertEquals(120, dto.pickup.walkM)
     }
 
     private fun <I : Any, O : Any> testContract(

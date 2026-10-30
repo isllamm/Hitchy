@@ -4,6 +4,16 @@
       "collectionGroup": "rides",
       "queryScope": "COLLECTION",
       "fields": [
+        { "fieldPath": "pickupZones", "arrayConfig": "CONTAINS" },
+        { "fieldPath": "toZone", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "departAt", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "rides",
+      "queryScope": "COLLECTION",
+      "fields": [
         { "fieldPath": "fromZone", "order": "ASCENDING" },
         { "fieldPath": "toZone", "order": "ASCENDING" },
         { "fieldPath": "status", "order": "ASCENDING" },

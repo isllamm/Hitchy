@@ -231,6 +231,16 @@ export interface RouteDoc {
 
 export type RideStatus = "open" | "full" | "started" | "finished" | "cancelled" | "expired";
 
+// A pickup after the start point (v1.2, R24).
+export interface RideStop {
+  id: string; // "s1", "s2", "s3"
+  zone: string;
+  pointId: string;
+  pointName: LocalizedName;
+  point: GeoPointLite;
+  at: Timestamp; // pickup time at this stop
+}
+
 // rides/{rideId}. Read: host, riders with an accepted booking, admin. Written by functions.
 export interface RideDoc extends Base {
   hostId: string;
@@ -244,6 +254,8 @@ export interface RideDoc extends Base {
   toZone: string;
   toPointId: string;
   toPointName: LocalizedName;
+  stops: RideStop[]; // v1.2, R24: 0–3, in time order [DECISION-28]
+  pickupZones: string[]; // v1.2: fromZone plus each stop's zone, for search
   direction: Direction;
   departAt: Timestamp;
   dateKey: DateKey;
@@ -293,14 +305,19 @@ export interface BookingDoc extends Base {
   status: BookingStatus;
   seats: number; // 1 … seatsLeft at request time (R21)
   price: number; // per seat, copied at request time
-  total: number; // price × seats, paid to the host directly
+  total: number; // price × seats, paid from the rider's wallet (v1.2)
+  pickupId: string; // v1.2, R24: "start" or a stop id
+  pickupPointName: LocalizedName; // copy (v1.2)
+  pickupPoint: GeoPointLite; // copy (v1.2)
+  pickupAt: Timestamp; // copy (v1.2)
   expiresAt: Timestamp; // request deadline [DECISION-21]
   respondedAt: Timestamp | null; // when the host accepted or declined
   checkedInAt: Timestamp | null;
-  checkInDistanceM: number | null;
+  checkInDistanceM: number | null; // to pickupPoint (v1.2)
+  hostArrivedAt: Timestamp | null; // v1.2: the owner tapped "I'm here"; the free wait starts (R9)
   boardedAt: Timestamp | null;
   lateFeeId: string | null;
-  paymentConfirmedAt: Timestamp | null; // the host confirmed the rider paid (R22)
+  paymentConfirmedAt: Timestamp | null; // v1.2: Confirm Payment moved the money (R22)
   verifiedTogether: boolean;
   rewarded: boolean;
   lateCancel: boolean;
@@ -386,6 +403,24 @@ export interface PackageOrderDoc extends Base {
   note: string | null;
   confirmedAt: Timestamp | null;
   confirmedBy: string | null;
+}
+
+// wallets/{uid} (v1.2, R19). Read: that user, admin. Written by functions.
+export interface WalletDoc {
+  balance: number; // integer EGP; below 0 only through a late fee [DECISION-30]
+  updatedAt: Timestamp;
+}
+
+export type WalletEntryReason = "seed" | "top_up" | "ride_payment" | "ride_earning";
+
+// wallets/{uid}/entries/{entryId} (v1.2). Read: that user, admin. Written by functions.
+export interface WalletEntryDoc {
+  delta: number; // integer EGP: + in, − out
+  reason: WalletEntryReason;
+  refId: string | null; // rideId, or the top-up requestId
+  balanceAfter: number;
+  by: string; // uid of the admin or the owner who caused it
+  createdAt: Timestamp;
 }
 
 // ---- 6.7 Fixed Ride ----

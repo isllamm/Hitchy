@@ -200,6 +200,10 @@
     <string name="error_chat_closed">Chat for this ride is closed.</string>
     <string name="error_contact_not_allowed">You can call only after a booking is accepted.</string>
     <string name="error_payment_already_confirmed">This payment was already confirmed.</string>
+    <string name="error_insufficient_balance">Your wallet balance isn\'t enough for this ride.</string>
+    <string name="error_stops_invalid">Check the stops: each needs a pickup point and a later time.</string>
+    <string name="error_pickup_not_on_ride">This pickup point isn\'t on this ride.</string>
+    <string name="error_ride_not_finished">End the trip first.</string>
     <string name="error_otp_invalid">The code is wrong.</string>
     <string name="error_otp_expired">The code expired. Send a new one.</string>
     <string name="error_too_many_attempts">Too many tries. Try again later.</string>

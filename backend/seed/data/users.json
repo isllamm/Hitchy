@@ -7,7 +7,8 @@
     "lastName": "Test",
     "gender": "male",
     "activeRole": "rider",
-    "language": "ar"
+    "language": "ar",
+    "walletEgp": 250
   },
   {
     "uid": "rider-w-test-uid",
@@ -17,7 +18,8 @@
     "lastName": "Test",
     "gender": "female",
     "activeRole": "rider",
-    "language": "ar"
+    "language": "ar",
+    "walletEgp": 250
   },
   {
     "uid": "host-test-uid",
@@ -28,6 +30,7 @@
     "gender": "male",
     "activeRole": "host",
     "language": "ar",
+    "walletEgp": 0,
     "hostApproved": true,
     "vehicle": {
       "id": "vehicle-host-1",
@@ -50,6 +53,7 @@
     "gender": "female",
     "activeRole": "host",
     "language": "ar",
+    "walletEgp": 0,
     "hostApproved": true,
     "vehicle": {
       "id": "vehicle-host-w-1",
@@ -72,6 +76,7 @@
     "gender": "male",
     "activeRole": "rider",
     "language": "en",
+    "walletEgp": 0,
     "isAdmin": true
   },
   {
@@ -82,6 +87,7 @@
     "lastName": "Test",
     "gender": "male",
     "activeRole": "rider",
-    "language": "ar"
+    "language": "ar",
+    "walletEgp": 0
   }
 ]

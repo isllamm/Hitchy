@@ -20,6 +20,15 @@
       "fairPrice": true,
       "seatsLeft": 2,
       "walkM": 250,
+      "pickup": {
+        "id": "start",
+        "name": {
+          "ar": "نقطة تجريبية 1",
+          "en": "Test point 1"
+        },
+        "at": "2026-11-02T05:30:00.000Z",
+        "walkM": 250
+      },
       "bestMatch": true,
       "womenOnly": false,
       "vehicleType": "car",

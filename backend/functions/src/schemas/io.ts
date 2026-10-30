@@ -28,6 +28,9 @@ export interface RideCard {
   fairPrice: boolean; // pricePerSeat <= priceRange.recommended
   seatsLeft: number;
   walkM: number | null; // rider's chosen point → this pickup point (v1.1)
+  // v1.2, R24: the pickup this rider would use, the start point or the stop in their zone
+  // nearest to their point. The time window and the walk use this pickup (8.16).
+  pickup: { id: string; name: LocalizedName; at: string; walkM: number };
   bestMatch: boolean; // first card under "recommended" sort (v1.1)
   womenOnly: boolean;
   vehicleType: VehicleType;
@@ -161,3 +164,18 @@ export interface FinishRideOutput {
 
 // startRide, markBoarded, disputeFee, resolveFee, markFeePaid, confirmSeatPayment and
 // submitRating return EmptyOutput.
+
+// ---- 8.16 Demo changes (v1.2) ----
+
+export interface ArriveAtStopOutput {
+  bookings: number; // bookings at this pickup whose free wait just started
+}
+
+export interface ConfirmRidePaymentOutput {
+  paidBookings: number;
+  total: number; // integer EGP moved to the owner
+}
+
+export interface TopUpWalletOutput {
+  balance: number; // the user's balance after the top-up
+}

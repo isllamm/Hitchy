@@ -107,14 +107,14 @@ describe("backend/firestore.indexes.json", () => {
     }
   });
 
-  it("matches all 18 indexes and 2 field overrides defined in BUILD_PLAN section 10", () => {
+  it("matches all 19 indexes and 2 field overrides defined in BUILD_PLAN section 10 and 8.16", () => {
     const doc = loadIndexes();
-    expect(doc.indexes).toHaveLength(18);
+    expect(doc.indexes).toHaveLength(19);
     expect(doc.fieldOverrides).toHaveLength(2);
 
-    // Verify presence of rides indexes
+    // Verify presence of rides indexes (4 from section 10, 1 for the v1.2 pickup search)
     const ridesIndexes = doc.indexes.filter((i) => i.collectionGroup === "rides");
-    expect(ridesIndexes).toHaveLength(4);
+    expect(ridesIndexes).toHaveLength(5);
 
     // Verify presence of bookings collection group indexes
     const bookingsIndexes = doc.indexes.filter((i) => i.collectionGroup === "bookings");
@@ -134,5 +134,25 @@ describe("backend/firestore.indexes.json", () => {
     // Verify overrides
     const overrideGroups = doc.fieldOverrides?.map((o) => o.collectionGroup).sort();
     expect(overrideGroups).toEqual(["bookings", "vehicles"]);
+  });
+
+  it("has the v1.2 search index on pickupZones (BUILD_PLAN 8.16)", () => {
+    const { indexes } = loadIndexes();
+
+    const search = indexes.find(
+      (i) =>
+        i.collectionGroup === "rides" &&
+        i.queryScope === "COLLECTION" &&
+        i.fields[0]?.fieldPath === "pickupZones",
+    );
+
+    expect(search, "Missing the rides index on pickupZones").toBeDefined();
+    expect(search?.fields[0]?.arrayConfig).toBe("CONTAINS");
+    expect(search?.fields.map((f) => f.fieldPath)).toEqual([
+      "pickupZones",
+      "toZone",
+      "status",
+      "departAt",
+    ]);
   });
 });

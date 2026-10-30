@@ -30,6 +30,7 @@ import hitchy.shared.generated.resources.error_gender_locked
 import hitchy.shared.generated.resources.error_grace_not_over
 import hitchy.shared.generated.resources.error_host_not_approved
 import hitchy.shared.generated.resources.error_host_not_late
+import hitchy.shared.generated.resources.error_insufficient_balance
 import hitchy.shared.generated.resources.error_internal
 import hitchy.shared.generated.resources.error_invalid_input
 import hitchy.shared.generated.resources.error_invite_invalid
@@ -49,6 +50,7 @@ import hitchy.shared.generated.resources.error_package_not_found
 import hitchy.shared.generated.resources.error_payment_already_confirmed
 import hitchy.shared.generated.resources.error_permission_denied
 import hitchy.shared.generated.resources.error_phone_required
+import hitchy.shared.generated.resources.error_pickup_not_on_ride
 import hitchy.shared.generated.resources.error_price_out_of_range
 import hitchy.shared.generated.resources.error_profile_required
 import hitchy.shared.generated.resources.error_rating_exists
@@ -58,6 +60,7 @@ import hitchy.shared.generated.resources.error_request_expired
 import hitchy.shared.generated.resources.error_request_not_pending
 import hitchy.shared.generated.resources.error_ride_full
 import hitchy.shared.generated.resources.error_ride_has_started
+import hitchy.shared.generated.resources.error_ride_not_finished
 import hitchy.shared.generated.resources.error_ride_not_open
 import hitchy.shared.generated.resources.error_ride_not_started
 import hitchy.shared.generated.resources.error_ride_time_conflict
@@ -68,6 +71,7 @@ import hitchy.shared.generated.resources.error_seats_invalid
 import hitchy.shared.generated.resources.error_skip_too_late
 import hitchy.shared.generated.resources.error_sms_quota
 import hitchy.shared.generated.resources.error_start_window_closed
+import hitchy.shared.generated.resources.error_stops_invalid
 import hitchy.shared.generated.resources.error_suspended
 import hitchy.shared.generated.resources.error_time_conflict
 import hitchy.shared.generated.resources.error_too_late_to_book
@@ -156,6 +160,10 @@ fun AppError.message(): StringResource = when (this) {
             "CHAT_CLOSED" -> Res.string.error_chat_closed
             "CONTACT_NOT_ALLOWED" -> Res.string.error_contact_not_allowed
             "PAYMENT_ALREADY_CONFIRMED" -> Res.string.error_payment_already_confirmed
+            "INSUFFICIENT_BALANCE" -> Res.string.error_insufficient_balance
+            "STOPS_INVALID" -> Res.string.error_stops_invalid
+            "PICKUP_NOT_ON_RIDE" -> Res.string.error_pickup_not_on_ride
+            "RIDE_NOT_FINISHED" -> Res.string.error_ride_not_finished
             "OTP_INVALID" -> Res.string.error_otp_invalid
             "OTP_EXPIRED" -> Res.string.error_otp_expired
             "TOO_MANY_ATTEMPTS" -> Res.string.error_too_many_attempts

@@ -175,6 +175,14 @@ service cloud.firestore {
       allow read: if isAdmin() || (signedIn() && resource.data.hostId == request.auth.uid);
     }
 
+    // The wallet balance (v1.2, R19), written only by functions. wallets/{uid}/entries has no
+    // client access yet: rules v2 do not cascade, so the entries stay denied until a wallet
+    // history screen needs them, which will add its own rules and tests.
+    match /wallets/{uid} {
+      allow get: if isUser(uid) || isAdmin();
+      allow list: if isAdmin();
+    }
+
     // ---- Fixed rides ----
 
     // Queries must filter hostId == uid, or riderUids array-contains uid.

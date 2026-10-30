@@ -203,6 +203,10 @@ The backend TypeScript source of truth is `backend/functions/src/schemas/docs.ts
   - `toPointId`: `string`
   - `fromPoint`: `{ lat: number; lng: number }`
   - `toPoint`: `{ lat: number; lng: number }`
+  - `stops`: `RideStop[]` (v1.2, 0–3, in time order) — pickups after the start point. Each:
+    `{ id: "s1" | "s2" | "s3"; zone: string; pointId: string; pointName: { ar, en }; point: { lat, lng }; at: Timestamp }`
+  - `pickupZones`: `string[]` (v1.2) — `fromZone` plus each stop's zone, no repeats. Search queries
+    this with `array-contains`, so a ride is found from any zone it picks up in.
   - `seatsTotal`: `number` (1–6)
   - `seatsLeft`: `number`
   - `pricePerSeat`: `number` (integer EGP)
@@ -231,8 +235,15 @@ The backend TypeScript source of truth is `backend/functions/src/schemas/docs.ts
   - `dropoffPointId`: `string`
   - `status`: `"requested" | "booked" | "declined" | "cancelled" | "boarded" | "completed" | "no_show"`
   - `paymentConfirmed`: `boolean`
-  - `checkInDistanceM`: `number | null`
+  - `pickupId`: `string` (v1.2) — `"start"` or a stop id, the pickup the rider chose.
+  - `pickupPointName`: `{ ar: string; en: string }` (v1.2, copied from the ride)
+  - `pickupPoint`: `{ lat: number; lng: number }` (v1.2, copied from the ride)
+  - `pickupAt`: `Timestamp` (v1.2) — the pickup time at that point.
+  - `checkInDistanceM`: `number | null` (v1.2: measured to `pickupPoint`)
   - `checkInAt`: `Timestamp | null`
+  - `hostArrivedAt`: `Timestamp | null` (v1.2) — set by `arriveAtStop` when the owner taps
+    "I'm here". The 5 free minutes run from here, and a late fee exists only once the owner
+    reports it.
   - `boardedAt`: `Timestamp | null`
   - `cancelReason`: `string | null`
   - `cancelledBy`: `"rider" | "host" | "system" | null`
@@ -333,6 +344,34 @@ The backend TypeScript source of truth is `backend/functions/src/schemas/docs.ts
   - `confirmedAt`: `Timestamp | null`
   - `createdAt`: `Timestamp`
   - `updatedAt`: `Timestamp`
+
+#### `wallets/{uid}` (v1.2)
+
+Every user has one wallet in integer EGP (R19). Money comes in from the seed and from the
+admin-only `topUpWallet`; the owner's `confirmRidePayment` moves it from riders to the owner.
+Hitchy takes no cut. Paying in through a payment provider and owner withdrawals are `[LATER]`.
+
+- **Read**: That user (`get` only) or Admin (`get` and `list`).
+- **Write**: Server only.
+- **Fields**:
+  - `balance`: `number` (integer EGP; below 0 only through a late fee, which then blocks new
+    requests)
+  - `updatedAt`: `Timestamp`
+
+#### `wallets/{uid}/entries/{entryId}` (v1.2)
+
+One row per change, so a balance always equals the sum of its entries.
+
+- **Read**: No client access yet. Rules v2 do not cascade from `wallets/{uid}`, so these stay
+  closed until a wallet history screen needs them.
+- **Write**: Server only.
+- **Fields**:
+  - `delta`: `number` (integer EGP: positive in, negative out)
+  - `reason`: `"seed" | "top_up" | "ride_payment" | "ride_earning"`
+  - `refId`: `string | null` (the ride id, or the top-up `requestId`)
+  - `balanceAfter`: `number`
+  - `by`: `string` (the uid of the admin or owner who caused it; `"seed"` for a seeded wallet)
+  - `createdAt`: `Timestamp`
 
 #### `fixedRides/{fixedRideId}`
 

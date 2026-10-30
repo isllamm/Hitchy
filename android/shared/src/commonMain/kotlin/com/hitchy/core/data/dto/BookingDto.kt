@@ -7,6 +7,8 @@ import kotlinx.serialization.Serializable
 data class RequestSeatsInputDto(
     val rideId: String,
     val seats: Int,
+    /** "start" or a stop id ("s1".."s3"), the pickup the rider chose (v1.2, R24). */
+    val pickupId: String,
     val requestId: String,
 )
 

@@ -200,6 +200,10 @@
     <string name="error_chat_closed">الشات بتاع المشوار ده اتقفل.</string>
     <string name="error_contact_not_allowed">تقدر تتصل بس بعد ما الحجز يتقبل.</string>
     <string name="error_payment_already_confirmed">الدفع ده اتأكد قبل كده.</string>
+    <string name="error_insufficient_balance">رصيد محفظتك مش كفاية للمشوار ده.</string>
+    <string name="error_stops_invalid">راجع نقط الركوب: كل نقطة محتاجة مكان وميعاد بعد اللي قبلها.</string>
+    <string name="error_pickup_not_on_ride">نقطة الركوب دي مش في المشوار ده.</string>
+    <string name="error_ride_not_finished">خلّص المشوار الأول.</string>
     <string name="error_otp_invalid">الكود غلط.</string>
     <string name="error_otp_expired">الكود انتهى، ابعت كود جديد.</string>
     <string name="error_too_many_attempts">محاولات كتير، جرّب بعد شوية.</string>

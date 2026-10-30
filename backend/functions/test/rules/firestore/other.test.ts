@@ -62,6 +62,18 @@ beforeEach(async () => {
       status: "pending",
       createdAt: someTime,
     },
+    "wallets/rider1": {
+      balance: 250,
+      updatedAt: someTime,
+    },
+    "wallets/rider1/entries/seed": {
+      delta: 250,
+      reason: "seed",
+      refId: null,
+      balanceAfter: 250,
+      by: "seed",
+      createdAt: someTime,
+    },
     "fixedRides/fr1": {
       hostId: HOST,
       riderUids: [RIDER],
@@ -179,6 +191,41 @@ describe("packageOrders/{id}", () => {
 
   it("nobody can write package orders from a client", async () => {
     await assertFails(setDoc(doc(asUser(env, HOST), "packageOrders/po2"), { trips: 10 }));
+  });
+});
+
+describe("wallets/{uid} and its entries (v1.2)", () => {
+  it("the owner and an admin can get the wallet, and an admin can list wallets", async () => {
+    const walletPath = "wallets/rider1";
+    await assertSucceeds(getDoc(doc(asUser(env, RIDER), walletPath)));
+    await assertSucceeds(getDoc(doc(asAdmin(env), walletPath)));
+    await assertSucceeds(getDocs(collection(asAdmin(env), "wallets")));
+  });
+
+  it("another user, a host and an anonymous caller cannot read the wallet", async () => {
+    await assertFails(getDoc(doc(asUser(env, STRANGER), "wallets/rider1")));
+    await assertFails(getDoc(doc(asUser(env, HOST), "wallets/rider1")));
+    await assertFails(getDoc(doc(anon(env), "wallets/rider1")));
+  });
+
+  it("a user cannot list wallets", async () => {
+    await assertFails(getDocs(collection(asUser(env, RIDER), "wallets")));
+  });
+
+  // The entries have no client access yet: rules v2 do not cascade from wallets/{uid}.
+  it("nobody reads the wallet entries from a client, not even the owner or an admin", async () => {
+    const entryPath = "wallets/rider1/entries/seed";
+    await assertFails(getDoc(doc(asUser(env, RIDER), entryPath)));
+    await assertFails(getDoc(doc(asAdmin(env), entryPath)));
+    await assertFails(getDocs(collection(asUser(env, RIDER), "wallets/rider1/entries")));
+  });
+
+  it("nobody can write a wallet or an entry from a client", async () => {
+    await assertFails(setDoc(doc(asUser(env, RIDER), "wallets/rider1"), { balance: 9999 }));
+    await assertFails(updateDoc(doc(asUser(env, RIDER), "wallets/rider1"), { balance: 9999 }));
+    await assertFails(setDoc(doc(asAdmin(env), "wallets/rider1"), { balance: 9999 }));
+    await assertFails(setDoc(doc(asUser(env, RIDER), "wallets/rider1/entries/e2"), { delta: 100 }));
+    await assertFails(deleteDoc(doc(asUser(env, RIDER), "wallets/rider1")));
   });
 });
 

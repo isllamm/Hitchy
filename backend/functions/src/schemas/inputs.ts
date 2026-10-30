@@ -31,6 +31,10 @@ const requestId = z.uuid();
 const note = text(1, 500).nullable();
 const seats = z.int().min(1).max(3);
 
+// A booking's pickup (v1.2, R24): the ride's start point or one of its 0–3 stops [DECISION-28].
+// Whether the pickup belongs to this ride is checked in the handler (PICKUP_NOT_ON_RIDE).
+const pickupId = z.union([z.literal("start"), z.string().regex(/^s[1-3]$/)]);
+
 const gender = z.enum(["female", "male"]);
 const language = z.enum(["ar", "en"]);
 const role = z.enum(["rider", "host"]);
@@ -133,6 +137,10 @@ export const CreateRideInput = z.strictObject({
   fromPointId: id,
   toZone: id,
   toPointId: id,
+  // v1.2, R24: 0–3 stops. createRide checks that each point is active and that the times are
+  // after departAt, in order, 1 minute apart and inside the route's usual minutes (STOPS_INVALID,
+  // [DECISION-28]); those need Firestore, so only the shape is checked here.
+  stops: z.array(z.strictObject({ zone: id, pointId: id, at: isoUtc })).max(3),
   direction,
   departAt: isoUtc,
   seats,
@@ -166,7 +174,7 @@ export const SearchRidesInput = z.strictObject({
 });
 export type SearchRidesInput = z.infer<typeof SearchRidesInput>;
 
-export const RequestSeatsInput = z.strictObject({ rideId: id, seats, requestId });
+export const RequestSeatsInput = z.strictObject({ rideId: id, seats, pickupId, requestId });
 export type RequestSeatsInput = z.infer<typeof RequestSeatsInput>;
 
 export const RespondToRequestInput = z.strictObject({
@@ -218,6 +226,8 @@ export type ResolveFeeInput = z.infer<typeof ResolveFeeInput>;
 export const MarkFeePaidInput = z.strictObject({ feeId: id });
 export type MarkFeePaidInput = z.infer<typeof MarkFeePaidInput>;
 
+// @deprecated v1.2 replaced this with ConfirmRidePaymentInput (8.16). Kept so the contract still
+// describes v1.1 for the iOS app; no handler is built for it (8.7, P8-B08).
 export const ConfirmSeatPaymentInput = z.strictObject({ rideId: id, riderUid: id });
 export type ConfirmSeatPaymentInput = z.infer<typeof ConfirmSeatPaymentInput>;
 
@@ -246,3 +256,18 @@ export const SubmitRatingInput = z.strictObject({
     .refine((list) => new Set(list).size === list.length, "A tag twice"),
 });
 export type SubmitRatingInput = z.infer<typeof SubmitRatingInput>;
+
+// ---- 8.16 Demo changes (v1.2) ----
+
+export const ArriveAtStopInput = z.strictObject({ rideId: id, pickupId });
+export type ArriveAtStopInput = z.infer<typeof ArriveAtStopInput>;
+
+export const ConfirmRidePaymentInput = z.strictObject({ rideId: id, requestId });
+export type ConfirmRidePaymentInput = z.infer<typeof ConfirmRidePaymentInput>;
+
+export const TopUpWalletInput = z.strictObject({
+  uid: id,
+  amount: z.int().min(1).max(5000), // integer EGP [DECISION-32]
+  requestId,
+});
+export type TopUpWalletInput = z.infer<typeof TopUpWalletInput>;

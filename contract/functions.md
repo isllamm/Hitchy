@@ -206,6 +206,7 @@ Creates and posts a new carpool trip.
   - `fromPointId`: `string`
   - `toZone`: `string`
   - `toPointId`: `string`
+  - `stops`: `Array<{ zone: string; pointId: string; at: string }>` (0–3, v1.2) — pickups after the start point. Each point must be active, and the times must be after `departAt`, in order, at least 1 minute apart and inside the route's usual minutes, otherwise `STOPS_INVALID`.
   - `direction`: `"to_work" | "to_home"`
   - `departAt`: `string` (ISO timestamp)
   - `seats`: `number` (1–3)
@@ -214,7 +215,8 @@ Creates and posts a new carpool trip.
   - `requestId`: `string` (UUID)
 - **Output**:
   - `rideId`: `string`
-- **Errors**: `HOST_NOT_APPROVED`, `NO_CREDITS`, `DEPART_TOO_SOON`, `DEPART_TOO_FAR`, `PRICE_OUT_OF_RANGE`, `WOMEN_ONLY_HOST`, `DAILY_RIDE_LIMIT`, `RIDE_TIME_CONFLICT`.
+- **Errors**: `HOST_NOT_APPROVED`, `NO_CREDITS`, `DEPART_TOO_SOON`, `DEPART_TOO_FAR`, `PRICE_OUT_OF_RANGE`, `WOMEN_ONLY_HOST`, `DAILY_RIDE_LIMIT`, `RIDE_TIME_CONFLICT`, `STOPS_INVALID`.
+- **Writes (v1.2)**: `stops` with generated ids `s1`…`s3` (point names and coordinates copied) and `pickupZones` (`fromZone` plus each stop's zone, no repeats).
 
 ### `cancelRide`
 
@@ -253,6 +255,7 @@ Searches available open rides matching zone, date, and filter preferences.
 - **Output**:
   - `rides`: `RideCard[]`
 - **Errors**: `ROUTE_NOT_SUPPORTED`.
+- **Pickups (v1.2)**: the query matches `pickupZones array-contains fromZone` instead of `fromZone ==`, so rides whose stops reach the rider's zone are found too. Each card's `pickup` is the start point or the stop in the rider's zone nearest to `fromPointId`; the time window and the walk distance use that pickup's time and point.
 
 ### `requestSeats`
 
@@ -262,6 +265,7 @@ Rider initiates a booking request for one or more seats on an open ride.
 - **Input**:
   - `rideId`: `string`
   - `seats`: `number` (1–3)
+  - `pickupId`: `"start" | "s1" | "s2" | "s3"` (v1.2) — the ride's start point or one of its stops.
   - `requestId`: `string` (UUID)
 - **Output**:
   - `booking`:
@@ -272,7 +276,9 @@ Rider initiates a booking request for one or more seats on an open ride.
     - `total`: `number`
     - `expiresAt`: `string` (ISO UTC timestamp with milliseconds)
   - `ride`: `RideCard`
-- **Errors**: `RIDE_FULL`, `OWN_RIDE`, `ALREADY_BOOKED`, `UNPAID_FEE`, `WOMEN_ONLY`, `TIME_CONFLICT`, `TOO_LATE_TO_BOOK`.
+- **Errors**: `RIDE_FULL`, `OWN_RIDE`, `ALREADY_BOOKED`, `UNPAID_FEE`, `WOMEN_ONLY`, `TIME_CONFLICT`, `TOO_LATE_TO_BOOK`, `PICKUP_NOT_ON_RIDE`, `INSUFFICIENT_BALANCE`.
+- **Wallet (v1.2)**: the rider's balance, minus the totals of their other unpaid bookings (`requested`, `booked`, `boarded`, `completed`), must cover this booking's total, otherwise `INSUFFICIENT_BALANCE`.
+- **Writes (v1.2)**: the booking copies the pickup (`pickupId`, `pickupPointName`, `pickupPoint`, `pickupAt`).
 
 ### `respondToRequest`
 
@@ -326,6 +332,7 @@ Rider registers arrival at the pickup point via GPS.
 - **Output**:
   - `distanceM`: `number`
 - **Errors**: `NOT_ON_RIDE`, `RIDE_NOT_STARTED`, `CHECK_IN_CLOSED`.
+- **v1.2**: the distance is measured to the booking's own `pickupPoint`, and check-in stays open until `pickupAt + noShowMinutes`.
 
 ### `markBoarded`
 
@@ -350,6 +357,7 @@ Reports a no-show or late counterparty.
 - **Output**:
   - `feeId`: `string`
 - **Errors**: `PERMISSION_DENIED`, `GRACE_NOT_OVER`, `RIDER_WAS_ON_TIME`, `HOST_NOT_LATE`, `FEE_EXISTS`.
+- **v1.2**: the free wait starts at the booking's `hostArrivedAt`, not at `departAt`. The rider counts as on time when `checkedInAt <= hostArrivedAt + lateGraceMinutes`; `late` needs `hostArrivedAt != null` and `now >= hostArrivedAt + lateGraceMinutes`, and `no_show` needs `now >= hostArrivedAt + noShowMinutes`. Nothing is charged by itself: the fee exists only once the owner reports it.
 
 ### `disputeFee`
 
@@ -385,6 +393,10 @@ Admin callable marking an outstanding fee as settled.
 - **Errors**: `PERMISSION_DENIED`, `NOT_FOUND`.
 
 ### `confirmSeatPayment`
+
+> **Deprecated in v1.2.** Replaced by [`confirmRidePayment`](#confirmridepayment), which pays the
+> whole ride from the riders' wallets in one call. No handler is built for this one; it stays here
+> so the contract still describes v1.1. Do not call it.
 
 Host confirms receipt of direct cash/Instapay payment from a rider.
 
@@ -445,3 +457,64 @@ Submits a rating and structured feedback tags for a completed carpool trip.
   - `tags`: `string[]` (max 5 tags from allowed rating tags)
 - **Output**: `{}` (`EmptyOutput`)
 - **Errors**: `NOT_ON_RIDE`, `RATING_NOT_ALLOWED`, `RATING_EXISTS`, `RATING_WINDOW_CLOSED`.
+
+---
+
+## 7. v1.2 — Stops, the free wait and the wallet
+
+Added on 2026-10-30 for the demo build (BUILD_PLAN 2.2 and 8.16). `createRide`, `searchRides`,
+`requestSeats`, `checkIn` and `reportLate` also changed; their v1.2 notes are in their own sections
+above.
+
+### `arriveAtStop`
+
+Owner taps "I'm here" at a pickup, which starts the 5 free minutes for the riders waiting there.
+
+- **Caller**: Host owner of a started ride.
+- **Input**:
+  - `rideId`: `string`
+  - `pickupId`: `"start" | "s1" | "s2" | "s3"`
+- **Output**:
+  - `bookings`: `number` — the `booked` bookings at this pickup whose `hostArrivedAt` was just set.
+- **Errors**: `NOT_FOUND`, `RIDE_NOT_STARTED`, `PICKUP_NOT_ON_RIDE`.
+- **Notes**: there is no distance check yet (`[DECISION-31]`); the rider's own check-in still proves
+  they were at the pickup on time. It sends no push: the rider's trip screen reads `hostArrivedAt`
+  from the booking. Calling it twice for the same pickup leaves the first arrival time in place.
+
+### `confirmRidePayment`
+
+Owner taps Confirm Payment once after the trip; it moves every boarded rider's fare, plus any
+reported late fee, from the rider's wallet to the owner's.
+
+- **Caller**: Host owner of a finished ride.
+- **Input**:
+  - `rideId`: `string`
+  - `requestId`: `string` (UUID)
+- **Output**:
+  - `paidBookings`: `number`
+  - `total`: `number` (integer EGP moved to the owner)
+- **Errors**: `NOT_FOUND`, `RIDE_NOT_FINISHED`, `PAYMENT_ALREADY_CONFIRMED`.
+- **Money**: for each `completed` booking with `paymentConfirmedAt == null`, the amount is the
+  booking's `total` plus the amount of its `unpaid` late fee. One transaction, idempotent by
+  `requestId`: the rider's wallet goes down, the owner's up, one `WalletEntryDoc` on each side
+  (`ride_payment` and `ride_earning`, `refId` = the ride id), `paymentConfirmedAt` is set, and the
+  fee becomes `paid` with `rider.unpaidFees` reduced. A rider's balance may go below 0, but only
+  through a late fee, and a negative balance then blocks new requests (`[DECISION-30]`).
+  Hitchy takes no cut. Each paid rider gets `payment_confirmed` after the commit.
+
+### `topUpWallet`
+
+Admin adds balance to a user's wallet. For the demo and for support; paying in through a payment
+provider is `[LATER]`, after the legal check in R19.
+
+- **Caller**: Admin (`admin: true`).
+- **Input**:
+  - `uid`: `string`
+  - `amount`: `number` (integer EGP, 1–5000)
+  - `requestId`: `string` (UUID)
+- **Output**:
+  - `balance`: `number` — the user's balance after the top-up.
+- **Errors**: `PERMISSION_DENIED`, `NOT_FOUND`.
+- **Money**: one transaction, idempotent by `requestId`: the balance goes up, a `top_up`
+  `WalletEntryDoc` is written with `refId` = the `requestId`, and the call is audited in
+  `adminActions` (`[DECISION-32]`).

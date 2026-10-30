@@ -2,7 +2,13 @@ import { getApps, initializeApp } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
 import { beforeAll, describe, expect, it } from "vitest";
-import type { UserDoc, VehicleDoc, ZoneDoc } from "../../src/schemas/docs.js";
+import type {
+  UserDoc,
+  VehicleDoc,
+  WalletDoc,
+  WalletEntryDoc,
+  ZoneDoc,
+} from "../../src/schemas/docs.js";
 import { runSeed, validateProjectTarget } from "../../src/seed/seed.js";
 
 const PROJECT_ID = "demo-hitchy";
@@ -83,6 +89,7 @@ describe("runSeed on emulator", () => {
       users: 6,
       vehicles: 2,
       kyc: 2,
+      wallets: 6,
     });
 
     // Check config documents
@@ -130,8 +137,37 @@ describe("runSeed on emulator", () => {
     const adminAuthUser = await auth.getUser("admin-test-uid");
     expect(adminAuthUser.customClaims?.["admin"]).toBe(true);
 
+    // Check wallets (v1.2 [DECISION-32]): riders start with 250 EGP, owners with 0.
+    const riderWalletSnap = await db.doc("wallets/rider-test-uid").get();
+    expect(riderWalletSnap.exists).toBe(true);
+    expect((riderWalletSnap.data() as WalletDoc).balance).toBe(250);
+
+    const hostWalletSnap = await db.doc("wallets/host-test-uid").get();
+    expect(hostWalletSnap.exists).toBe(true);
+    expect((hostWalletSnap.data() as WalletDoc).balance).toBe(0);
+
+    // Every balance equals the sum of its entries.
+    for (const uid of ["rider-test-uid", "host-test-uid"]) {
+      const walletSnap = await db.doc(`wallets/${uid}`).get();
+      const entriesSnap = await db.collection(`wallets/${uid}/entries`).get();
+      const sum = entriesSnap.docs.reduce((acc, d) => acc + (d.data() as WalletEntryDoc).delta, 0);
+      expect(sum).toBe((walletSnap.data() as WalletDoc).balance);
+    }
+
+    const seedEntrySnap = await db.doc("wallets/rider-test-uid/entries/seed").get();
+    expect(seedEntrySnap.exists).toBe(true);
+    const seedEntry = seedEntrySnap.data() as WalletEntryDoc;
+    expect(seedEntry.reason).toBe("seed");
+    expect(seedEntry.delta).toBe(250);
+    expect(seedEntry.balanceAfter).toBe(250);
+    expect(seedEntry.refId).toBeNull();
+
     // Second run (idempotency verification: must succeed and produce identical stats)
     const stats2 = await runSeed({ project: "demo-hitchy", silent: true });
     expect(stats2).toEqual(stats1);
+
+    // The fixed entry id means re-seeding does not add a second seed entry.
+    const entriesAfterSnap = await db.collection("wallets/rider-test-uid/entries").get();
+    expect(entriesAfterSnap.size).toBe(1);
   });
 });
