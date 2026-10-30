@@ -34,6 +34,8 @@ kotlin {
             implementation(libs.firebase.config)
             implementation(libs.androidx.appcompat)
             implementation(libs.play.services.location)
+            implementation(libs.play.services.maps)
+            implementation(libs.maps.compose)
             implementation(libs.koin.android)
             implementation(libs.androidx.datastore.preferences)
         }

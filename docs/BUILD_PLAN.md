@@ -465,7 +465,7 @@ The server checks matching values in `config/limits` too, so a flag cannot be by
 - Route lines are a straight line from the pickup point to the drop-off point, like the straight-line ETA in Appendix F row 26. Places come from our own `points`, never from a Google search.
 - `maps-compose` is Android only. The map is an `expect` composable in `core/ui` with its `actual` in `androidMain`, like the pickers in P2-A10.
 - The key comes from `MAPS_API_KEY` in `android/local.properties` (git-ignored) or the CI environment variable, and reaches `com.google.android.geo.API_KEY` in the manifest through a manifest placeholder. A missing key gives an empty value: the build still passes and the map shows no tiles. Key restrictions: P0-H08.
-- P7-A02, the first screen with a map, adds the libraries with the versions from ADR 0002.
+- P3-A11 (v1.2, demo) adds the libraries with the versions from ADR 0002, the manifest key and the `HitchyMap` composable, because the demo screens in P3-A09 and P3-A10 need a map before P7-A02. P7-A02 and later screens build on `HitchyMap`.
 
 ---
 
@@ -2788,6 +2788,7 @@ Not designed yet, so still `[FIGMA]`: ProfileSetup, every owner screen (Become a
 | 1 Backend | P3-B01 → P3-B02 → P3-B03 → P3-B04 → P3-B05 → P3-B06 | `backend/`, `contract/` |
 | 2 Android data and rider | P3-A08 → P3-A09 | `core/data`, auth, profile, places, booking, inbox, the rider trip screen |
 | 3 Android owner | P3-A10 | host, rides, the owner trip screen. Starts with ViewModels and UI on the P3-A08 interfaces; wires the data when P3-A08 merges |
+| Shared | P3-A11 | build files, the manifest and `core/ui/map`. Small; merge it before the map screens of P3-A09 and P3-A10 |
 
 **Checkpoints.** S is the start time, T the demo time.
 
@@ -2848,8 +2849,15 @@ Not designed yet, so still `[FIGMA]`: ProfileSetup, every owner screen (Become a
 - **Verify:** `./gradlew check`; ViewModel tests for the offer form, the trip steps and the payment.
 - **Later:** P6-A02, P6-A03, P7-A07, P8-A03, P8-A05.
 
+#### P3-A11 · Maps SDK (added 2026-10-30)
+- **Why:** no demo task wired the map, and nothing read `MAPS_API_KEY`. The rider and owner screens both need a map.
+- **Spec:** 5.10. The libraries from ADR 0002; the manifest key from `MAPS_API_KEY` (environment variable, then `android/local.properties`; empty when missing); `HitchyMap(pins, route, onPinClick)` in `core/ui/map` (`expect` in common, `actual` in `androidMain`): fixed point pins and one straight route line, and the camera fits them. No free pin, no my-location dot, no layers button. Pins use Phase 3 tokens only. The dev gallery gets a Map section. The release steps in `android.yml` pass the environment secret.
+- **Verify:** `./gradlew check assembleDevDebug`; the merged dev manifest holds the key. Not checked in this task: that Google serves map tiles with the key on an emulator with Google Play services. Islam skipped that check on 2026-10-30; P3-H01 covers it.
+- **Later:** P7-A02 builds the point search and the point picker on `HitchyMap`; P0-H08 restricts the keys and adds the CI secrets.
+
 #### P3-H01 · Demo run (Islam)
 - **Before S + 8 h:** `[HUMAN]` real names and coordinates for the demo pickup points in the seed (never invented; today they are "Test point 1" and so on), and `MAPS_API_KEY` in `android/local.properties` (without it the map is blank; the point list still works).
+- **Map check:** open a screen with a map. Tiles must show. A grey map means the key is missing, the Maps SDK for Android is not enabled for it, or its app restriction does not list this Mac's debug SHA-1 (P0-H08). Use an emulator image with Google Play services.
 - **Run:** in `backend/functions`: `npm run build`, `npm run emulators`, then `npm run seed`. In `android/`: `./gradlew installDevDebug -Phitchy.emulator=true` with both Android emulators running. Sign in as the rider test user on one and the host test user on the other (code `123456`).
 - **Script:** the owner offers a ride leaving in 30 minutes with one stop → the rider searches, opens it, picks the stop and requests 1 seat → the owner accepts → the owner starts the trip, taps "I'm here", then "{name} is in the car" → End trip → Confirm Payment → show both wallet balances.
 - **Done when:** two clean runs in a row, and the backup video is saved.

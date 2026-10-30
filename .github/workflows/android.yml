@@ -117,6 +117,7 @@ jobs:
           HITCHY_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           HITCHY_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           HITCHY_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
         run: ./gradlew assembleDevRelease -Phitchy.versionCode=${{ github.run_number }}
       # firebase-tools comes from backend/functions (pinned there).
       - if: steps.secrets.outputs.ok == 'true'
@@ -208,6 +209,7 @@ jobs:
           HITCHY_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           HITCHY_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           HITCHY_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
         run: >-
           ./gradlew assembleProdRelease
           -Phitchy.versionCode=${{ github.run_number }}
