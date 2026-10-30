@@ -31,8 +31,12 @@ import com.hitchy.feature.profile.presentation.ProfileSetupViewModel
 import com.hitchy.feature.profile.presentation.ProfileTabViewModel
 import com.hitchy.feature.rides.data.RidesRepositoryImpl
 import com.hitchy.feature.rides.domain.RidesRepository
+import com.hitchy.feature.rides.presentation.HostRideDetailsViewModel
+import com.hitchy.feature.rides.presentation.OwnerHomeViewModel
+import com.hitchy.feature.rides.presentation.PostRideViewModel
 import com.hitchy.feature.trip.data.TripRepositoryImpl
 import com.hitchy.feature.trip.domain.TripRepository
+import com.hitchy.feature.trip.presentation.HostTripViewModel
 import com.hitchy.feature.trip.presentation.RiderTripViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -57,6 +61,9 @@ val hostModule = module {
 
 val ridesModule = module {
     single<RidesRepository> { RidesRepositoryImpl(get()) }
+    viewModel { OwnerHomeViewModel(get(), get(), get()) }
+    viewModel { PostRideViewModel(get(), get(), get(), get()) }
+    viewModel { HostRideDetailsViewModel(get(), get()) }
 }
 
 val bookingModule = module {
@@ -70,6 +77,7 @@ val bookingModule = module {
 val tripModule = module {
     single<TripRepository> { TripRepositoryImpl(get()) }
     viewModel { RiderTripViewModel(get(), get(), get(), get(), get()) }
+    viewModel { HostTripViewModel(get(), get(), get(), get()) }
 }
 
 val packagesModule = module { }

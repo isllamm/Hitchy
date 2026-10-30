@@ -3,6 +3,7 @@ package com.hitchy.feature.booking
 import com.hitchy.core.data.AppResult
 import com.hitchy.core.model.BookingStatus
 import com.hitchy.core.model.CancelBookingReason
+import com.hitchy.core.model.GeoPoint
 import com.hitchy.core.model.LocalizedName
 import com.hitchy.core.model.Tier
 import com.hitchy.core.model.VehicleType
@@ -130,6 +131,60 @@ class FakeBookingRepository : BookingRepository {
                 tier = Tier.SILVER,
                 sameCompany = false,
             ),
+        )
+
+        fun sampleBooking(
+            rideId: String = "ride-1",
+            riderUid: String = "rider-1",
+            hostId: String = "host-1",
+            departAt: String = "2026-10-30T08:00:00Z",
+            status: BookingStatus = BookingStatus.BOOKED,
+            seats: Int = 1,
+            price: Int = 35,
+            total: Int = 35,
+            pickupId: String = "start",
+            pickupPointName: LocalizedName = LocalizedName(ar = "دجلة", en = "Degla"),
+            pickupPoint: GeoPoint = GeoPoint(lat = 29.96, lng = 31.28),
+            pickupAt: String = "2026-10-30T08:00:00Z",
+            expiresAt: String = "2026-10-30T08:15:00Z",
+            respondedAt: String? = null,
+            checkedInAt: String? = null,
+            checkInDistanceM: Int? = null,
+            hostArrivedAt: String? = null,
+            boardedAt: String? = null,
+            lateFeeId: String? = null,
+            paymentConfirmedAt: String? = null,
+            verifiedTogether: Boolean = false,
+            rewarded: Boolean = false,
+            lateCancel: Boolean = false,
+            cancelledAt: String? = null,
+            cancelReason: String? = null,
+        ): Booking = Booking(
+            rideId = rideId,
+            riderUid = riderUid,
+            hostId = hostId,
+            departAt = departAt,
+            status = status,
+            seats = seats,
+            price = price,
+            total = total,
+            pickupId = pickupId,
+            pickupPointName = pickupPointName,
+            pickupPoint = pickupPoint,
+            pickupAt = pickupAt,
+            expiresAt = expiresAt,
+            respondedAt = respondedAt,
+            checkedInAt = checkedInAt,
+            checkInDistanceM = checkInDistanceM,
+            hostArrivedAt = hostArrivedAt,
+            boardedAt = boardedAt,
+            lateFeeId = lateFeeId,
+            paymentConfirmedAt = paymentConfirmedAt,
+            verifiedTogether = verifiedTogether,
+            rewarded = rewarded,
+            lateCancel = lateCancel,
+            cancelledAt = cancelledAt,
+            cancelReason = cancelReason,
         )
     }
 }

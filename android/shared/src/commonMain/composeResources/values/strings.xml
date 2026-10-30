@@ -323,4 +323,72 @@
     <string name="profile_switch_to_rider">Switch to Rider mode</string>
     <string name="profile_sign_out">Sign out</string>
     <string name="shop_coming_soon_body">Trip packages and rewards will be available here.</string>
+
+    <!-- Owner demo strings (P3-A10) -->
+    <string name="owner_home_title">Owner Mode</string>
+    <string name="owner_home_greeting">Hi, %1$s</string>
+    <string name="owner_home_post_cta">Offer a ride</string>
+    <string name="owner_home_post_cta_subtitle">Share empty seats, save fuel</string>
+    <string name="owner_home_upcoming_title">Upcoming trips</string>
+    <string name="owner_home_no_rides_title">No rides posted yet</string>
+    <string name="owner_home_no_rides_body">Offer a ride and connect with commuters.</string>
+    <string name="owner_home_pending_requests">%1$d new requests</string>
+    <string name="owner_home_seats_booked">%1$d of %2$d booked</string>
+
+    <string name="post_ride_title">Offer a ride</string>
+    <string name="post_ride_from_label">Starting point</string>
+    <string name="post_ride_to_label">Destination</string>
+    <string name="post_ride_add_stop">+ Add a pickup stop</string>
+    <string name="post_ride_stop_label">Stop %1$d</string>
+    <string name="post_ride_stop_remove">Remove</string>
+    <string name="post_ride_stops_title">Stops along the way</string>
+    <string name="post_ride_date_label">Date</string>
+    <string name="post_ride_time_label">Departure time</string>
+    <string name="post_ride_seats_label">Available seats</string>
+    <string name="post_ride_vehicle_label">Vehicle</string>
+    <string name="post_ride_women_only">Women-only ride</string>
+    <string name="post_ride_price_title">Price per seat</string>
+    <string name="post_ride_price_range">EGP %1$d – %2$d</string>
+    <string name="post_ride_expected_earnings">Expected earnings</string>
+    <string name="post_ride_submit">Offer ride</string>
+    <string name="post_ride_quoting">Calculating price range…</string>
+    <string name="post_ride_error_missing_route">Please choose start point and destination.</string>
+    <string name="post_ride_error_same_zone">Start and destination cannot be in the same zone.</string>
+
+    <string name="host_ride_details_title">Trip details</string>
+    <string name="host_ride_details_expected">Expected EGP %1$d · up to EGP %2$d</string>
+    <string name="host_ride_details_requests_section">Pending requests (%1$d)</string>
+    <string name="host_ride_details_booked_section">Booked riders (%1$d)</string>
+    <string name="host_ride_details_no_requests">No pending requests</string>
+    <string name="host_ride_details_no_booked">No riders booked yet</string>
+    <string name="host_ride_details_start_trip">Start trip</string>
+    <string name="host_ride_details_open_trip">Open trip in progress</string>
+    <string name="host_ride_details_cancel">Cancel ride</string>
+    <string name="host_ride_details_seats_count">%1$d seats</string>
+    <string name="host_ride_details_pickup_label">Pickup at: %1$s</string>
+    <string name="host_ride_details_accepted_alert">Request accepted</string>
+    <string name="host_ride_details_declined_alert">Request declined</string>
+
+    <string name="host_trip_title">Trip Day</string>
+    <string name="host_trip_status_leaving">Leaving soon</string>
+    <string name="host_trip_status_driving">Driving to %1$s</string>
+    <string name="host_trip_status_at_stop">Arrived at %1$s</string>
+    <string name="host_trip_status_in_progress">On the way to destination</string>
+    <string name="host_trip_status_arrived">Arrived at destination</string>
+    <string name="host_trip_status_completed">Trip completed</string>
+    <string name="host_trip_btn_start">Start trip</string>
+    <string name="host_trip_btn_im_here">I\'m here</string>
+    <string name="host_trip_btn_boarded">%1$s is in the car</string>
+    <string name="host_trip_btn_report_late">Report late (EGP 10)</string>
+    <string name="host_trip_btn_next_stop">Head to next stop</string>
+    <string name="host_trip_btn_end_trip">End trip</string>
+    <string name="host_trip_btn_confirm_payment">Confirm Payment</string>
+    <string name="host_trip_btn_payment_done">Done</string>
+    <string name="host_trip_free_wait_timer">Free wait: %1$02d:%2$02d</string>
+    <string name="host_trip_free_wait_over">Free wait over (+%1$02d:%2$02d)</string>
+    <string name="host_trip_boarded_count">%1$d of %2$d on board</string>
+    <string name="host_trip_payment_done_title">Payment collected!</string>
+    <string name="host_trip_payment_done_total">Total collected: EGP %1$d</string>
+    <string name="host_trip_payment_done_bookings">%1$d riders paid directly to your wallet</string>
+    <string name="host_trip_wallet_balance">Wallet balance: EGP %1$d</string>
 </resources>
