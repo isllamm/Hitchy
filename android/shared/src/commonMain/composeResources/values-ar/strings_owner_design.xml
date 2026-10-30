@@ -31,7 +31,7 @@
     <string name="owner_design_chip_on_board_late">في العربية · متأخر</string>
     <string name="owner_design_chip_dropped_off">نزل</string>
     <string name="owner_design_timer_label">الانتظار</string>
-    <string name="owner_design_timer_value">%1$02d:%2$02d</string>
+    <string name="owner_design_timer_value">%1$s:%2$s</string>
     <string name="owner_design_late_fee_applies">غرامة التأخير بدأت</string>
     <string name="owner_design_free_wait">انتظار مجاني · %1$d دقايق</string>
     <string name="owner_design_late_fee">غرامة تأخير ١٠ ج.م</string>

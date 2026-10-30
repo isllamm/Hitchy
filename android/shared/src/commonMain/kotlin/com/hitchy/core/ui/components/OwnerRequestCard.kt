@@ -43,6 +43,7 @@ fun OwnerRequestCard(
     onDecline: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    showReviewBadge: Boolean = true,
 ) {
     val colors = LocalHitchyColors.current
     val typography = LocalHitchyTypography.current
@@ -74,17 +75,19 @@ fun OwnerRequestCard(
                     color = colors.purple,
                 )
 
-                Box(
-                    modifier = Modifier
-                        .clip(pillShape)
-                        .background(colors.warningBg)
-                        .padding(horizontal = spacing.space8, vertical = 2.dp),
-                ) {
-                    Text(
-                        text = stringResource(Res.string.needs_design_review),
-                        style = typography.caption,
-                        color = colors.warningText,
-                    )
+                if (showReviewBadge) {
+                    Box(
+                        modifier = Modifier
+                            .clip(pillShape)
+                            .background(colors.warningBg)
+                            .padding(horizontal = spacing.space8, vertical = 2.dp),
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.needs_design_review),
+                            style = typography.caption,
+                            color = colors.warningText,
+                        )
+                    }
                 }
             }
 

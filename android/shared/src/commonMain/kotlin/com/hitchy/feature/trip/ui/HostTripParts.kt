@@ -332,8 +332,8 @@ internal fun WaitTimerCard(
         Text(
             text = stringResource(
                 Res.string.owner_design_timer_value,
-                elapsed / SECONDS_PER_MINUTE,
-                elapsed % SECONDS_PER_MINUTE,
+                (elapsed / SECONDS_PER_MINUTE).toString().padStart(2, '0'),
+                (elapsed % SECONDS_PER_MINUTE).toString().padStart(2, '0'),
             ),
             style = typography.h1,
             color = colors.white,

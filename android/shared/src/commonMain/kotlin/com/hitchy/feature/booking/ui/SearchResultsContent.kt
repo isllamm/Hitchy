@@ -371,7 +371,7 @@ private fun ResultRouteLines(
             Text(
                 text = stringResource(
                     Res.string.bk_pickup_walk,
-                    card.pickup.name.resolve(language),
+                    "\u2068${card.pickup.name.resolve(language)}\u2069",
                     card.pickup.walkM,
                 ),
                 style = typography.body,

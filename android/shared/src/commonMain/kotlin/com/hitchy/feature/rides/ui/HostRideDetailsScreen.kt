@@ -154,6 +154,7 @@ private fun LazyListScope.detailsItems(
                 deadlineRemaining = "10 min",
                 onAccept = { onRespond(booking.riderUid, true) },
                 onDecline = { onRespond(booking.riderUid, false) },
+                showReviewBadge = false,
             )
         }
     }
