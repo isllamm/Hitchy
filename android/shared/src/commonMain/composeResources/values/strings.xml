@@ -4,6 +4,9 @@
     <string name="format_egp">EGP %1$s</string>
     <string name="placeholder_screen">%1$s</string>
 
+    <!-- Map -->
+    <string name="map_content_description">Map</string>
+
     <!-- Common Actions -->
     <string name="action_ok">OK</string>
     <string name="action_cancel">Cancel</string>

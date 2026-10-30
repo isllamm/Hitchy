@@ -4,6 +4,9 @@
     <string name="format_egp">%1$s جنيه</string>
     <string name="placeholder_screen">%1$s</string>
 
+    <!-- Map -->
+    <string name="map_content_description">الخريطة</string>
+
     <!-- Common Actions -->
     <string name="action_ok">تمام</string>
     <string name="action_cancel">إلغاء</string>

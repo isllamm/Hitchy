@@ -49,6 +49,7 @@ enum class GalleryCategory(val label: String) {
     SelectionAndChips("Selection & Chips"),
     NavigationAndUser("Navigation & User"),
     CardsAndStates("Cards & States"),
+    Map("Map"),
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -164,6 +165,10 @@ fun ComponentGalleryScreen(
                         selectedCategory == GalleryCategory.CardsAndStates
                     ) {
                         GalleryCardsAndStatesSection()
+                    }
+
+                    if (selectedCategory == GalleryCategory.All || selectedCategory == GalleryCategory.Map) {
+                        GalleryMapSection()
                     }
 
                     Spacer(modifier = Modifier.height(spacing.space32))

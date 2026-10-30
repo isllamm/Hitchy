@@ -4,6 +4,7 @@ import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.getByType
 import org.jetbrains.kotlin.gradle.dsl.KotlinBaseExtension
+import java.util.Properties
 
 plugins {
     id("com.android.application")
@@ -91,6 +92,19 @@ if (!devGoogleServices.exists() || devGoogleServices.length() < 10) {
 val versionCodeProp = providers.gradleProperty("hitchy.versionCode").orNull?.toIntOrNull() ?: 1
 val versionNameProp = providers.gradleProperty("hitchy.versionName").orNull ?: "0.1.0"
 
+// BUILD_PLAN 5.10: the Maps key comes from the MAPS_API_KEY environment variable (CI) or from
+// android/local.properties (git-ignored). A missing key is an empty value: the build still passes.
+val mapsApiKey: String =
+    providers
+        .environmentVariable("MAPS_API_KEY")
+        .orElse(
+            providers
+                .fileContents(rootProject.layout.projectDirectory.file("local.properties"))
+                .asText
+                .map { text -> Properties().apply { load(text.reader()) }.getProperty("MAPS_API_KEY", "") },
+        ).map { it.trim() }
+        .getOrElse("")
+
 configure<ApplicationExtension> {
     namespace = "com.hitchy"
     compileSdk = 37
@@ -105,6 +119,7 @@ configure<ApplicationExtension> {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField("String", "FUNCTIONS_REGION", "\"europe-west1\"")
+        manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
     }
 
     val keystorePath = System.getenv("HITCHY_KEYSTORE_PATH")
