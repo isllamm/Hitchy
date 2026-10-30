@@ -117,6 +117,21 @@
     <string name="debug_max_seats">Max Seats</string>
     <string name="debug_disabled">Disabled</string>
     <string name="debug_test_crash">Test Crash</string>
+    <string name="debug_component_gallery">Component Gallery</string>
+
+    <!-- Component Gallery (P3-A06) -->
+    <string name="gallery_title">Component Gallery</string>
+    <string name="gallery_switch_lang">Language</string>
+    <string name="gallery_section_tokens">Tokens &amp; Foundations</string>
+    <string name="gallery_section_buttons">Buttons</string>
+    <string name="gallery_section_inputs">Inputs &amp; Fields</string>
+    <string name="gallery_section_selection">Selection Controls</string>
+    <string name="gallery_section_chips">Chips &amp; Badges</string>
+    <string name="gallery_section_headers">Headers &amp; Navigation</string>
+    <string name="gallery_section_user">User &amp; Ratings</string>
+    <string name="gallery_section_trip">Trip &amp; Ride Cards</string>
+    <string name="gallery_section_feedback">Feedback &amp; Status</string>
+    <string name="gallery_section_tiles">Tiles &amp; Communication</string>
 
     <!-- Error Catalog (contract/errors.md) -->
     <string name="error_unauthenticated">Please sign in again.</string>

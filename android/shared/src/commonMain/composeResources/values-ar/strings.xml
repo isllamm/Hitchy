@@ -117,6 +117,21 @@
     <string name="debug_max_seats">الحد الأقصى للمقاعد</string>
     <string name="debug_disabled">معطّل</string>
     <string name="debug_test_crash">اختبار الانهيار</string>
+    <string name="debug_component_gallery">معرض المكونات</string>
+
+    <!-- Component Gallery (P3-A06) -->
+    <string name="gallery_title">معرض المكونات</string>
+    <string name="gallery_switch_lang">اللغة</string>
+    <string name="gallery_section_tokens">السمات والأساسات</string>
+    <string name="gallery_section_buttons">الأزرار</string>
+    <string name="gallery_section_inputs">حقول الإدخال</string>
+    <string name="gallery_section_selection">عناصر الاختيار</string>
+    <string name="gallery_section_chips">الشرائح والشارات</string>
+    <string name="gallery_section_headers">الترويسات والتنقل</string>
+    <string name="gallery_section_user">المستخدم والتقييمات</string>
+    <string name="gallery_section_trip">بطاقات الرحلات والحجوزات</string>
+    <string name="gallery_section_feedback">التنبيهات وحالات الشاشة</string>
+    <string name="gallery_section_tiles">البلاطات والمحادثة</string>
 
     <!-- Error Catalog (contract/errors.md) -->
     <string name="error_unauthenticated">سجّل دخولك تاني من فضلك.</string>

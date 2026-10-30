@@ -34,6 +34,7 @@ import com.hitchy.feature.debug.presentation.DebugViewModel
 import hitchy.shared.generated.resources.Res
 import hitchy.shared.generated.resources.action_back
 import hitchy.shared.generated.resources.debug_car_consumption
+import hitchy.shared.generated.resources.debug_component_gallery
 import hitchy.shared.generated.resources.debug_disabled
 import hitchy.shared.generated.resources.debug_fuel_price
 import hitchy.shared.generated.resources.debug_label_app_check
@@ -69,6 +70,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun DebugScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    onNavigateToGallery: () -> Unit = {},
     viewModel: DebugViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
@@ -97,6 +99,7 @@ fun DebugScreen(
         DebugContent(
             state = state,
             onAction = viewModel::onAction,
+            onNavigateToGallery = onNavigateToGallery,
             modifier = Modifier.padding(innerPadding),
         )
     }
@@ -107,6 +110,7 @@ fun DebugContent(
     state: DebugState,
     onAction: (DebugAction) -> Unit,
     modifier: Modifier = Modifier,
+    onNavigateToGallery: () -> Unit = {},
 ) {
     val scrollState = rememberScrollState()
 
@@ -198,6 +202,13 @@ fun DebugContent(
         }
 
         // Section 4: Actions
+        Button(
+            onClick = onNavigateToGallery,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(text = stringResource(Res.string.debug_component_gallery))
+        }
+
         Button(
             onClick = { onAction(DebugAction.TestCrash) },
             colors = ButtonDefaults.buttonColors(
