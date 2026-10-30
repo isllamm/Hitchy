@@ -1,0 +1,28 @@
+<resources>
+    <string name="bk_finding_title">بندوّر لك على رحلات…</string>
+    <string name="bk_finding_body">بندوّر على أصحاب عربيات رايحين لوجهتك.</string>
+    <string name="bk_trip_meta">%1$s · %2$s · %3$s</string>
+    <string name="bk_rides_match_one">رحلة واحدة مناسبة لمشوارك</string>
+    <string name="bk_rides_match_many">%1$d رحلات مناسبة لمشوارك</string>
+    <string name="bk_prices_per_seat">الأسعار للكرسي الواحد</string>
+    <string name="bk_best_match">الأنسب ليك</string>
+    <string name="bk_arrival">وصول</string>
+    <string name="bk_pickup_walk">%1$s · %2$d متر مشي</string>
+    <string name="bk_verified_owner">صاحب عربية موثق</string>
+    <string name="bk_rating_line">%1$s · %2$d رحلة</string>
+    <string name="bk_total_per_seat">الإجمالي للكرسي</string>
+    <string name="bk_egp_amount">%1$d ج.م</string>
+    <string name="bk_view_ride">شوف الرحلة</string>
+    <string name="bk_empty_body">مفيش أصحاب عربيات رايحين من %1$s إلى %2$s حوالي %3$s يوم %4$s.</string>
+    <string name="bk_edit_route">تعديل مكان التحرك أو الوصول</string>
+    <string name="bk_search_again">ابحث تاني</string>
+    <string name="bk_your_owner">صاحب العربية بتاعك</string>
+    <string name="bk_vehicle_line_hidden">%1$s %2$s %3$s · رقم اللوحة بيظهر بعد القبول</string>
+    <string name="bk_pickup_location">مكان التحرك</string>
+    <string name="bk_pickup_location_walk">مكان التحرك · %1$d متر مشي</string>
+    <string name="bk_dropoff_location">مكان الوصول</string>
+    <string name="bk_available_seats">الكراسي المتاحة</string>
+    <string name="bk_price_title">السعر</string>
+    <string name="bk_total">الإجمالي</string>
+    <string name="bk_request_ride">اطلب المشوار</string>
+</resources>

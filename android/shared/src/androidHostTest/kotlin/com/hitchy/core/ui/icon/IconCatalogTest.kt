@@ -26,6 +26,7 @@ class IconCatalogTest {
         "camera",
         "car",
         "clock",
+        "calendar",
         "search",
         "close",
         "chevron_down",
@@ -58,7 +59,7 @@ class IconCatalogTest {
 
     @Test
     fun testAllExpectedIconsRegistered() {
-        assertEquals(32, HitchyIcons.all.size)
+        assertEquals(33, HitchyIcons.all.size)
         assertEquals(expectedIcons.sorted(), HitchyIcons.all.keys.sorted())
     }
 

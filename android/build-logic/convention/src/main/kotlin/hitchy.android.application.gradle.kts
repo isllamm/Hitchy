@@ -189,11 +189,15 @@ configure<ApplicationExtension> {
             buildConfigField("String", "ENV", "\"dev\"")
             val useEmulator = providers.gradleProperty("hitchy.emulator").orNull == "true"
             buildConfigField("boolean", "USE_EMULATOR", useEmulator.toString())
+            // -Phitchy.emulatorHost=<Mac address> for a real phone; the Android emulator reaches the Mac at 10.0.2.2.
+            val emulatorHost = providers.gradleProperty("hitchy.emulatorHost").orNull ?: "10.0.2.2"
+            buildConfigField("String", "EMULATOR_HOST", "\"$emulatorHost\"")
         }
         create("prod") {
             dimension = "env"
             buildConfigField("String", "ENV", "\"prod\"")
             buildConfigField("boolean", "USE_EMULATOR", "false")
+            buildConfigField("String", "EMULATOR_HOST", "\"10.0.2.2\"")
         }
     }
 

@@ -1,5 +1,6 @@
 package com.hitchy.feature.profile.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -15,26 +16,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hitchy.core.model.AppLanguage
 import com.hitchy.core.model.Gender
 import com.hitchy.core.model.Role
 import com.hitchy.core.platform.LanguageSwitcher
-import com.hitchy.core.ui.components.AppRoleType
-import com.hitchy.core.ui.components.Avatar
-import com.hitchy.core.ui.components.AvatarSize
-import com.hitchy.core.ui.components.BalanceCard
 import com.hitchy.core.ui.components.BannerVariant
 import com.hitchy.core.ui.components.HitchyBanner
 import com.hitchy.core.ui.components.HitchyButton
-import com.hitchy.core.ui.components.HitchyButtonVariant
 import com.hitchy.core.ui.components.HitchyTextField
-import com.hitchy.core.ui.components.RatingDisplay
-import com.hitchy.core.ui.components.RoleCard
 import com.hitchy.core.ui.components.SelectChip
 import com.hitchy.core.ui.components.TopBar
+import com.hitchy.core.ui.icon.HitchyIcons
 import com.hitchy.core.ui.message
 import com.hitchy.core.ui.theme.HitchyTheme
 import com.hitchy.feature.profile.presentation.ProfileSetupAction
@@ -44,11 +38,12 @@ import com.hitchy.feature.profile.presentation.ProfileTabAction
 import com.hitchy.feature.profile.presentation.ProfileTabEvent
 import com.hitchy.feature.profile.presentation.ProfileTabViewModel
 import hitchy.shared.generated.resources.Res
-import hitchy.shared.generated.resources.nav_rides
 import hitchy.shared.generated.resources.profile_company_label
 import hitchy.shared.generated.resources.profile_company_none
 import hitchy.shared.generated.resources.profile_company_other
 import hitchy.shared.generated.resources.profile_company_other_placeholder
+import hitchy.shared.generated.resources.profile_design_info_title
+import hitchy.shared.generated.resources.profile_design_settings_row
 import hitchy.shared.generated.resources.profile_first_name_label
 import hitchy.shared.generated.resources.profile_first_name_placeholder
 import hitchy.shared.generated.resources.profile_gender_female
@@ -61,7 +56,9 @@ import hitchy.shared.generated.resources.profile_save_continue
 import hitchy.shared.generated.resources.profile_setup_subtitle
 import hitchy.shared.generated.resources.profile_setup_title
 import hitchy.shared.generated.resources.profile_sign_out
-import hitchy.shared.generated.resources.profile_tab_title
+import hitchy.shared.generated.resources.profile_switch_to_owner
+import hitchy.shared.generated.resources.profile_switch_to_rider
+import hitchy.shared.generated.resources.rides_tab_title
 import hitchy.shared.generated.resources.settings_title
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
@@ -226,7 +223,6 @@ fun ProfileTabContent(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val colors = HitchyTheme.colors
-    val typography = HitchyTheme.typography
     val spacing = HitchyTheme.spacing
 
     LaunchedEffect(viewModel) {
@@ -240,102 +236,61 @@ fun ProfileTabContent(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(spacing.screenPadding),
-        verticalArrangement = Arrangement.spacedBy(spacing.space16),
+            .background(colors.white)
+            .verticalScroll(rememberScrollState()),
     ) {
-        Text(
-            text = stringResource(Res.string.profile_tab_title),
-            style = typography.h1,
-            color = colors.navy,
-        )
+        ProfileHeader(profile = state.profile)
 
-        val profile = state.profile
-        if (profile != null) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(spacing.space16),
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Avatar(
-                    initials = profile.firstName.take(1).uppercase(),
-                    size = AvatarSize.LG,
+        Column(
+            modifier = Modifier.padding(spacing.screenPadding),
+            verticalArrangement = Arrangement.spacedBy(spacing.space16),
+        ) {
+            val error = state.error
+            if (error != null) {
+                HitchyBanner(
+                    text = stringResource(error.message()),
+                    variant = BannerVariant.Error,
+                    onDismiss = { viewModel.onAction(ProfileTabAction.DismissError) },
                 )
-                Column(verticalArrangement = Arrangement.spacedBy(spacing.space4)) {
-                    Text(
-                        text = "${profile.firstName} ${profile.lastName}",
-                        style = typography.h2,
-                        color = colors.navy,
-                    )
-                    val ratingAvg = profile.rider.ratingAvg
-                    if (ratingAvg != null) {
-                        RatingDisplay(
-                            rating = ratingAvg,
-                            rideCount = profile.rider.ratingCount,
-                        )
-                    }
-                }
             }
-        }
 
-        val error = state.error
-        if (error != null) {
-            HitchyBanner(
-                text = stringResource(error.message()),
-                variant = BannerVariant.Error,
-                onDismiss = { viewModel.onAction(ProfileTabAction.DismissError) },
+            // Real wallet balance from users/{uid}/private/wallet.balanceEgp
+            WalletCard(balanceEgp = state.walletBalanceEgp)
+
+            val currentRole = state.profile?.activeRole ?: Role.RIDER
+            ProfileCard(title = stringResource(Res.string.profile_design_info_title)) {
+                ProfileRow(
+                    icon = HitchyIcons.Rides,
+                    label = stringResource(Res.string.rides_tab_title),
+                    onClick = onOpenMyRides,
+                )
+                ProfileRow(
+                    icon = HitchyIcons.Swap,
+                    label = if (currentRole == Role.RIDER) {
+                        stringResource(Res.string.profile_switch_to_owner)
+                    } else {
+                        stringResource(Res.string.profile_switch_to_rider)
+                    },
+                    enabled = !state.isSwitchingRole,
+                    onClick = {
+                        val target = if (currentRole == Role.RIDER) Role.HOST else Role.RIDER
+                        viewModel.onAction(ProfileTabAction.SwitchRole(target))
+                    },
+                )
+            }
+
+            ProfileCard(title = stringResource(Res.string.settings_title)) {
+                ProfileRow(
+                    icon = HitchyIcons.More,
+                    label = stringResource(Res.string.profile_design_settings_row),
+                    onClick = onOpenSettings,
+                )
+            }
+
+            SignOutRow(
+                label = stringResource(Res.string.profile_sign_out),
+                onClick = { viewModel.onAction(ProfileTabAction.SignOut) },
             )
-        }
-
-        // Real wallet balance from users/{uid}/private/wallet.balanceEgp
-        BalanceCard(
-            creditsEgp = state.walletBalanceEgp,
-            points = profile?.pointsBalance ?: 0,
-        )
-
-        // Role switch cards
-        val currentRole = profile?.activeRole ?: Role.RIDER
-        RoleCard(
-            role = AppRoleType.Rider,
-            selected = currentRole == Role.RIDER,
-            onClick = {
-                if (currentRole != Role.RIDER && !state.isSwitchingRole) {
-                    viewModel.onAction(ProfileTabAction.SwitchRole(Role.RIDER))
-                }
-            },
-        )
-        RoleCard(
-            role = AppRoleType.Host,
-            selected = currentRole == Role.HOST,
-            onClick = {
-                if (currentRole != Role.HOST && !state.isSwitchingRole) {
-                    viewModel.onAction(ProfileTabAction.SwitchRole(Role.HOST))
-                }
-            },
-        )
-
-        HitchyButton(
-            onClick = onOpenMyRides,
-            variant = HitchyButtonVariant.Tonal,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text(text = stringResource(Res.string.nav_rides))
-        }
-
-        HitchyButton(
-            onClick = onOpenSettings,
-            variant = HitchyButtonVariant.Outline,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text(text = stringResource(Res.string.settings_title))
-        }
-
-        HitchyButton(
-            onClick = { viewModel.onAction(ProfileTabAction.SignOut) },
-            variant = HitchyButtonVariant.Destructive,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text(text = stringResource(Res.string.profile_sign_out))
         }
     }
 }

@@ -1,0 +1,44 @@
+<resources>
+    <string name="rider_sheet_date_title">اختار اليوم</string>
+    <string name="rider_sheet_confirm_date">تأكيد اليوم</string>
+    <string name="rider_sheet_selected">اليوم المختار: %1$s · مينفعش تختار يوم فات</string>
+    <string name="rider_sheet_time_title">ميعاد الحركة</string>
+    <string name="rider_sheet_time_note">النهارده، المواعيد اللي فاتت مش متاحة.</string>
+    <string name="rider_sheet_confirm_time">تأكيد الميعاد · %1$s</string>
+    <string name="rider_sheet_am">ص</string>
+    <string name="rider_sheet_pm">م</string>
+    <string name="rider_sheet_month_year">%1$s %2$d</string>
+    <string name="rider_sheet_date_format">%1$s، %3$d %2$s</string>
+    <string-array name="rider_sheet_weekdays_sun_first">
+        <item>الأحد</item>
+        <item>الإثنين</item>
+        <item>الثلاثاء</item>
+        <item>الأربعاء</item>
+        <item>الخميس</item>
+        <item>الجمعة</item>
+        <item>السبت</item>
+    </string-array>
+    <string-array name="rider_sheet_weekdays_full">
+        <item>الإثنين</item>
+        <item>الثلاثاء</item>
+        <item>الأربعاء</item>
+        <item>الخميس</item>
+        <item>الجمعة</item>
+        <item>السبت</item>
+        <item>الأحد</item>
+    </string-array>
+    <string-array name="rider_sheet_months_full">
+        <item>يناير</item>
+        <item>فبراير</item>
+        <item>مارس</item>
+        <item>أبريل</item>
+        <item>مايو</item>
+        <item>يونيو</item>
+        <item>يوليو</item>
+        <item>أغسطس</item>
+        <item>سبتمبر</item>
+        <item>أكتوبر</item>
+        <item>نوفمبر</item>
+        <item>ديسمبر</item>
+    </string-array>
+</resources>

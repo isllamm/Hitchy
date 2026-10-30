@@ -29,6 +29,7 @@ class HitchyApplication : Application() {
             functionsRegion = BuildConfig.FUNCTIONS_REGION,
             useEmulator = BuildConfig.USE_EMULATOR,
             versionName = BuildConfig.VERSION_NAME,
+            emulatorHost = BuildConfig.EMULATOR_HOST,
         )
 
         FirebaseModule.init(this, appConfig)

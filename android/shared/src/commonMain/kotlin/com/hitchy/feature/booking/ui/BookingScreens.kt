@@ -1,25 +1,22 @@
 package com.hitchy.feature.booking.ui
 
-import androidx.compose.foundation.border
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -32,12 +29,8 @@ import com.hitchy.core.ui.components.EmptyState
 import com.hitchy.core.ui.components.HitchyBanner
 import com.hitchy.core.ui.components.HitchyButton
 import com.hitchy.core.ui.components.HitchyButtonVariant
-import com.hitchy.core.ui.components.HostRow
-import com.hitchy.core.ui.components.PassengersStepper
-import com.hitchy.core.ui.components.PriceSummary
 import com.hitchy.core.ui.components.RideCard
 import com.hitchy.core.ui.components.RideStatusVariant
-import com.hitchy.core.ui.components.RouteTimeline
 import com.hitchy.core.ui.components.TopBar
 import com.hitchy.core.ui.icon.HitchyIcons
 import com.hitchy.core.ui.message
@@ -46,6 +39,7 @@ import com.hitchy.core.util.isoToCairoDateKey
 import com.hitchy.core.util.isoToCairoTime
 import com.hitchy.feature.booking.domain.SearchInput
 import com.hitchy.feature.booking.presentation.RiderRideDetailsAction
+import com.hitchy.feature.booking.presentation.RiderRideDetailsState
 import com.hitchy.feature.booking.presentation.RiderRideDetailsViewModel
 import com.hitchy.feature.booking.presentation.RidesTabViewModel
 import com.hitchy.feature.booking.presentation.SearchResultsAction
@@ -55,28 +49,20 @@ import com.hitchy.feature.booking.presentation.opensOwnerTrip
 import com.hitchy.feature.booking.presentation.opensRiderTrip
 import hitchy.shared.generated.resources.Res
 import hitchy.shared.generated.resources.action_retry
+import hitchy.shared.generated.resources.bk_egp_amount
+import hitchy.shared.generated.resources.bk_request_ride
 import hitchy.shared.generated.resources.ride_details_booking_accepted_title
-import hitchy.shared.generated.resources.ride_details_late_fee_rule
 import hitchy.shared.generated.resources.ride_details_open_trip_button
-import hitchy.shared.generated.resources.ride_details_pickup_section
-import hitchy.shared.generated.resources.ride_details_request_button
 import hitchy.shared.generated.resources.ride_details_request_sent_body
 import hitchy.shared.generated.resources.ride_details_request_sent_title
-import hitchy.shared.generated.resources.ride_details_seats_section
 import hitchy.shared.generated.resources.ride_details_title
 import hitchy.shared.generated.resources.ride_details_vehicle_label
-import hitchy.shared.generated.resources.ride_details_wallet_note
 import hitchy.shared.generated.resources.rides_tab_empty_body
 import hitchy.shared.generated.resources.rides_tab_empty_title
 import hitchy.shared.generated.resources.rides_tab_role_owner_badge
 import hitchy.shared.generated.resources.rides_tab_role_rider_badge
 import hitchy.shared.generated.resources.rides_tab_title
-import hitchy.shared.generated.resources.search_results_change_time
-import hitchy.shared.generated.resources.search_results_empty_body
-import hitchy.shared.generated.resources.search_results_empty_title
-import hitchy.shared.generated.resources.search_results_loading
 import hitchy.shared.generated.resources.search_results_title
-import hitchy.shared.generated.resources.search_results_walk_distance
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -91,75 +77,55 @@ fun SearchResultsScreen(
     viewModel: SearchResultsViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val colors = HitchyTheme.colors
-    val typography = HitchyTheme.typography
-    val spacing = HitchyTheme.spacing
     val language: AppLanguage = languageSwitcher.getCurrentLanguage()
+    val summary = rememberSearchSummary(input, language)
 
     LaunchedEffect(input) { viewModel.onAction(SearchResultsAction.Search(input)) }
 
-    Surface(modifier = modifier.fillMaxSize(), color = colors.background) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            TopBar(title = stringResource(Res.string.search_results_title), onBackClick = onBack)
+    Surface(modifier = modifier.fillMaxSize(), color = HitchyTheme.colors.white) {
+        val error = state.error
+        when {
+            state.isLoading -> SearchFindingContent(summary = summary, onBack = onBack)
 
-            val error = state.error
-            when {
-                state.isLoading -> Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(spacing.space12),
-                    ) {
-                        CircularProgressIndicator(color = colors.purple)
-                        Text(
-                            text = stringResource(Res.string.search_results_loading),
-                            style = typography.body,
-                            color = colors.textSecondary,
-                        )
-                    }
-                }
+            error != null -> SearchErrorContent(
+                message = stringResource(error.message()),
+                onBack = onBack,
+                onRetry = { viewModel.onAction(SearchResultsAction.Retry) },
+            )
 
-                error != null -> Column(
-                    modifier = Modifier.fillMaxSize().padding(spacing.screenPadding),
-                    verticalArrangement = Arrangement.spacedBy(spacing.space16),
-                ) {
-                    HitchyBanner(text = stringResource(error.message()), variant = BannerVariant.Error)
-                    HitchyButton(
-                        onClick = { viewModel.onAction(SearchResultsAction.Retry) },
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Text(text = stringResource(Res.string.action_retry))
-                    }
-                }
+            state.rides.isEmpty() -> SearchEmptyContent(
+                summary = summary,
+                onBack = onBack,
+                onSearchAgain = { viewModel.onAction(SearchResultsAction.Retry) },
+            )
 
-                state.rides.isEmpty() -> EmptyState(
-                    title = stringResource(Res.string.search_results_empty_title),
-                    message = stringResource(Res.string.search_results_empty_body),
-                    icon = HitchyIcons.Search,
-                    actionLabel = stringResource(Res.string.search_results_change_time),
-                    onActionClick = onBack,
-                    modifier = Modifier.fillMaxSize(),
-                )
+            else -> SearchResultsBody(
+                summary = summary,
+                rides = state.rides,
+                language = language,
+                onBack = onBack,
+                onOpenRideDetails = onOpenRideDetails,
+            )
+        }
+    }
+}
 
-                else -> LazyColumn(
-                    modifier = Modifier.fillMaxSize().padding(horizontal = spacing.screenPadding),
-                    verticalArrangement = Arrangement.spacedBy(spacing.space12),
-                ) {
-                    items(state.rides, key = { it.rideId }) { card ->
-                        RideCard(
-                            departureText = isoToCairoDateKey(card.departAt),
-                            pickupTime = card.pickup.at,
-                            pickupLocation = card.pickup.name.resolve(language),
-                            dropOffTime = isoToCairoTime(card.arriveAt),
-                            dropOffLocation = card.toPointName.resolve(language),
-                            hostName = card.host.firstName,
-                            hostInitials = card.host.firstName.take(1).uppercase(),
-                            carModelColor = stringResource(Res.string.search_results_walk_distance, card.pickup.walkM),
-                            priceEgp = card.pricePerSeat,
-                            availableSeats = card.seatsLeft,
-                            onClick = { onOpenRideDetails(card.rideId) },
-                        )
-                    }
-                }
+@Composable
+private fun SearchErrorContent(
+    message: String,
+    onBack: () -> Unit,
+    onRetry: () -> Unit,
+) {
+    val spacing = HitchyTheme.spacing
+    Column(modifier = Modifier.fillMaxSize()) {
+        BookingHeaderBar(title = stringResource(Res.string.search_results_title), onBack = onBack)
+        Column(
+            modifier = Modifier.fillMaxSize().padding(spacing.screenPadding),
+            verticalArrangement = Arrangement.spacedBy(spacing.space16),
+        ) {
+            HitchyBanner(text = message, variant = BannerVariant.Error)
+            HitchyButton(onClick = onRetry, modifier = Modifier.fillMaxWidth()) {
+                Text(text = stringResource(Res.string.action_retry))
             }
         }
     }
@@ -175,150 +141,101 @@ fun RiderRideDetailsScreen(
     viewModel: RiderRideDetailsViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val colors = HitchyTheme.colors
-    val typography = HitchyTheme.typography
-    val spacing = HitchyTheme.spacing
     val language: AppLanguage = languageSwitcher.getCurrentLanguage()
 
     LaunchedEffect(rideId) { viewModel.onAction(RiderRideDetailsAction.Init(rideId)) }
 
-    Surface(modifier = modifier.fillMaxSize(), color = colors.background) {
+    Surface(modifier = modifier.fillMaxSize(), color = HitchyTheme.colors.white) {
         Column(modifier = Modifier.fillMaxSize()) {
-            TopBar(title = stringResource(Res.string.ride_details_title), onBackClick = onBack)
-
+            BookingHeaderBar(title = stringResource(Res.string.ride_details_title), onBack = onBack)
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .weight(1f)
                     .verticalScroll(rememberScrollState())
-                    .padding(spacing.screenPadding),
-                verticalArrangement = Arrangement.spacedBy(spacing.space16),
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                val error = state.error
-                if (error != null) {
+                state.error?.let { error ->
                     HitchyBanner(
                         text = stringResource(error.message()),
                         variant = BannerVariant.Error,
                         onDismiss = { viewModel.onAction(RiderRideDetailsAction.DismissError) },
                     )
                 }
+                RideDetailsSections(
+                    state = state,
+                    language = language,
+                    onSeatsChange = { viewModel.onAction(RiderRideDetailsAction.UpdateSeats(it)) },
+                )
+            }
+            RideDetailsFooter(
+                state = state,
+                onRequest = { viewModel.onAction(RiderRideDetailsAction.RequestRide) },
+                onOpenTrip = { onOpenTrip(rideId) },
+            )
+        }
+    }
+}
 
-                val card = state.rideCard
-                val ride = state.ride
-                val booking = state.booking
-                val pickupName = booking?.pickupPointName?.resolve(language)
-                    ?: card?.pickup?.name?.resolve(language).orEmpty()
-                val pickupTime = booking?.let { isoToCairoTime(it.pickupAt) } ?: card?.pickup?.at.orEmpty()
-                val dropName = ride?.toPointName?.resolve(language) ?: card?.toPointName?.resolve(language).orEmpty()
-                val dropTime = isoToCairoTime(card?.arriveAt)
-
-                Surface(
-                    modifier = Modifier.fillMaxWidth().border(1.dp, colors.border, RoundedCornerShape(16.dp)),
-                    shape = RoundedCornerShape(16.dp),
-                    color = colors.white,
-                ) {
-                    Column(
-                        modifier = Modifier.padding(spacing.space16),
-                        verticalArrangement = Arrangement.spacedBy(spacing.space12),
-                    ) {
+@Composable
+private fun RideDetailsFooter(
+    state: RiderRideDetailsState,
+    onRequest: () -> Unit,
+    onOpenTrip: () -> Unit,
+) {
+    val colors = HitchyTheme.colors
+    val typography = HitchyTheme.typography
+    val ride = state.ride
+    Column(modifier = Modifier.fillMaxWidth().background(colors.white)) {
+        HorizontalDivider(color = colors.border, thickness = 1.dp)
+        Column(
+            modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            when {
+                state.isAccepted -> {
+                    HitchyBanner(
+                        text = stringResource(Res.string.ride_details_booking_accepted_title),
+                        variant = BannerVariant.Success,
+                    )
+                    if (ride != null) {
                         Text(
-                            text = stringResource(Res.string.ride_details_pickup_section),
-                            style = typography.captionStrong,
-                            color = colors.textSecondary,
-                        )
-                        RouteTimeline(
-                            pickupTime = pickupTime,
-                            pickupLocation = pickupName,
-                            dropOffTime = dropTime,
-                            dropOffLocation = dropName,
-                        )
-                        if (card != null) {
-                            HostRow(
-                                name = card.host.firstName,
-                                initials = card.host.firstName.take(1).uppercase(),
-                                rating = card.host.rating ?: 0.0,
-                                isVerified = card.host.verified,
-                                rideCount = card.host.trips,
-                            )
-                        }
-                    }
-                }
-
-                if (state.canRequest) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            text = stringResource(Res.string.ride_details_seats_section),
+                            text = stringResource(
+                                Res.string.ride_details_vehicle_label,
+                                ride.vehicle.make,
+                                ride.vehicle.model,
+                                ride.vehicle.color,
+                                ride.vehicle.plate,
+                            ),
                             style = typography.bodyStrong,
                             color = colors.navy,
                         )
-                        PassengersStepper(
-                            count = state.seats,
-                            maxCount = state.maxSeats,
-                            onCountChange = { viewModel.onAction(RiderRideDetailsAction.UpdateSeats(it)) },
-                            enabled = !state.isRequesting,
-                        )
+                    }
+                    HitchyButton(onClick = onOpenTrip, modifier = Modifier.fillMaxWidth()) {
+                        Text(text = stringResource(Res.string.ride_details_open_trip_button))
                     }
                 }
 
-                PriceSummary(pricePerSeatEgp = state.pricePerSeat, seatsCount = state.bookedSeats)
-                Text(
-                    text = stringResource(Res.string.ride_details_wallet_note),
-                    style = typography.captionStrong,
-                    color = colors.purple,
-                )
-                Text(
-                    text = stringResource(Res.string.ride_details_late_fee_rule),
-                    style = typography.caption,
-                    color = colors.textSecondary,
-                )
+                state.isRequested -> {
+                    Text(
+                        text = stringResource(Res.string.ride_details_request_sent_title),
+                        style = typography.h3,
+                        color = colors.navy,
+                    )
+                    HitchyBanner(
+                        text = stringResource(Res.string.ride_details_request_sent_body),
+                        variant = BannerVariant.Info,
+                    )
+                }
 
-                when {
-                    state.isAccepted -> {
-                        HitchyBanner(
-                            text = stringResource(Res.string.ride_details_booking_accepted_title),
-                            variant = BannerVariant.Success,
-                        )
-                        if (ride != null) {
-                            Text(
-                                text = stringResource(
-                                    Res.string.ride_details_vehicle_label,
-                                    ride.vehicle.make,
-                                    ride.vehicle.model,
-                                    ride.vehicle.color,
-                                    ride.vehicle.plate,
-                                ),
-                                style = typography.bodyStrong,
-                                color = colors.navy,
-                            )
-                        }
-                        HitchyButton(onClick = { onOpenTrip(rideId) }, modifier = Modifier.fillMaxWidth()) {
-                            Text(text = stringResource(Res.string.ride_details_open_trip_button))
-                        }
-                    }
-
-                    state.isRequested -> Column(verticalArrangement = Arrangement.spacedBy(spacing.space4)) {
-                        Text(
-                            text = stringResource(Res.string.ride_details_request_sent_title),
-                            style = typography.h3,
-                            color = colors.navy,
-                        )
-                        HitchyBanner(
-                            text = stringResource(Res.string.ride_details_request_sent_body),
-                            variant = BannerVariant.Info,
-                        )
-                    }
-
-                    else -> HitchyButton(
-                        onClick = { viewModel.onAction(RiderRideDetailsAction.RequestRide) },
-                        enabled = card != null && !state.isRequesting,
-                        loading = state.isRequesting,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Text(text = stringResource(Res.string.ride_details_request_button, state.totalEgp))
-                    }
+                else -> HitchyButton(
+                    onClick = onRequest,
+                    enabled = state.rideCard != null && !state.isRequesting,
+                    loading = state.isRequesting,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(text = stringResource(Res.string.bk_request_ride), modifier = Modifier.weight(1f))
+                    Text(text = stringResource(Res.string.bk_egp_amount, state.totalEgp))
                 }
             }
         }

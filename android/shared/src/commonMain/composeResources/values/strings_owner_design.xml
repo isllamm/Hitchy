@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="owner_design_status_posted">Posted</string>
+    <string name="owner_design_route_start">Start</string>
+    <string name="owner_design_route_dropoff">Drop-off</string>
+    <string name="owner_design_riders_title">Riders</string>
+    <string name="owner_design_pickup_line">Pickup %1$s · %2$s</string>
+    <string name="owner_design_seats_open">Seats open: %1$d</string>
+    <string name="owner_design_requests_waiting">Requests waiting: %1$d</string>
+    <string name="owner_design_seat_price">Seat price</string>
+    <string name="owner_design_egp">EGP %1$d</string>
+    <string name="owner_design_expected">Expected</string>
+    <string name="owner_design_expected_range">EGP %1$d · up to EGP %2$d</string>
+    <string name="owner_design_step_leaving">Leaving</string>
+    <string name="owner_design_step_pickups">Pickups</string>
+    <string name="owner_design_step_on_the_way">On the way</string>
+    <string name="owner_design_step_completed">Completed</string>
+    <string name="owner_design_eyebrow_at_pickups">At pickups</string>
+    <string name="owner_design_eyebrow_arrived">Arrived</string>
+    <string name="owner_design_leave_at">Leave at %1$s</string>
+    <string name="owner_design_heading_to">Heading to %1$s</string>
+    <string name="owner_design_waiting_for">Waiting for %1$s</string>
+    <string name="owner_design_all_on_board">Everyone is on board</string>
+    <string name="owner_design_arrived_at">You arrived at %1$s</string>
+    <string name="owner_design_riders_count">Riders: %1$d</string>
+    <string name="owner_design_on_board_count">On board: %1$d</string>
+    <string name="owner_design_chip_waiting">Waiting</string>
+    <string name="owner_design_chip_next">Next</string>
+    <string name="owner_design_chip_here_now">Here now</string>
+    <string name="owner_design_chip_on_board">On board</string>
+    <string name="owner_design_chip_on_board_late">On board · late</string>
+    <string name="owner_design_chip_dropped_off">Dropped off</string>
+    <string name="owner_design_timer_label">Waiting</string>
+    <string name="owner_design_timer_value">%1$02d:%2$02d</string>
+    <string name="owner_design_late_fee_applies">Late fee applies</string>
+    <string name="owner_design_free_wait">Free wait · %1$d min</string>
+    <string name="owner_design_late_fee">EGP 10 late fee</string>
+    <string name="owner_design_report_late">Report %1$s late</string>
+</resources>

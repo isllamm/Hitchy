@@ -7,6 +7,7 @@ import hitchy.shared.generated.resources.fig_rider
 import hitchy.shared.generated.resources.ic_add_person
 import hitchy.shared.generated.resources.ic_back
 import hitchy.shared.generated.resources.ic_bell
+import hitchy.shared.generated.resources.ic_calendar
 import hitchy.shared.generated.resources.ic_camera
 import hitchy.shared.generated.resources.ic_car
 import hitchy.shared.generated.resources.ic_check
@@ -60,6 +61,7 @@ object HitchyIcons {
     val Camera: DrawableResource get() = Res.drawable.ic_camera
     val Car: DrawableResource get() = Res.drawable.ic_car
     val Clock: DrawableResource get() = Res.drawable.ic_clock
+    val Calendar: DrawableResource get() = Res.drawable.ic_calendar
     val Search: DrawableResource get() = Res.drawable.ic_search
     val Close: DrawableResource get() = Res.drawable.ic_close
     val ChevronDown: DrawableResource get() = Res.drawable.ic_chevron_down
@@ -105,6 +107,7 @@ object HitchyIcons {
         "camera" to Camera,
         "car" to Car,
         "clock" to Clock,
+        "calendar" to Calendar,
         "search" to Search,
         "close" to Close,
         "chevron_down" to ChevronDown,

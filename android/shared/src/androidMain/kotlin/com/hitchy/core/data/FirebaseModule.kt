@@ -16,7 +16,6 @@ import com.hitchy.core.model.AppConfig
 import com.hitchy.core.model.Env
 
 object FirebaseModule {
-    private const val EMULATOR_HOST = "10.0.2.2"
     private const val AUTH_PORT = 9099
     private const val FIRESTORE_PORT = 8080
     private const val FUNCTIONS_PORT = 5001
@@ -37,16 +36,16 @@ object FirebaseModule {
 
             if (config.useEmulator) {
                 // Connect emulators first in onCreate, before any other Firebase call, exactly once
-                FirebaseAuth.getInstance().useEmulator(EMULATOR_HOST, AUTH_PORT)
+                FirebaseAuth.getInstance().useEmulator(config.emulatorHost, AUTH_PORT)
 
                 val firestore = FirebaseFirestore.getInstance()
-                firestore.useEmulator(EMULATOR_HOST, FIRESTORE_PORT)
+                firestore.useEmulator(config.emulatorHost, FIRESTORE_PORT)
                 firestore.firestoreSettings = FirebaseFirestoreSettings.Builder()
                     .setLocalCacheSettings(MemoryCacheSettings.newBuilder().build())
                     .build()
 
-                FirebaseFunctions.getInstance(config.functionsRegion).useEmulator(EMULATOR_HOST, FUNCTIONS_PORT)
-                FirebaseStorage.getInstance().useEmulator(EMULATOR_HOST, STORAGE_PORT)
+                FirebaseFunctions.getInstance(config.functionsRegion).useEmulator(config.emulatorHost, FUNCTIONS_PORT)
+                FirebaseStorage.getInstance().useEmulator(config.emulatorHost, STORAGE_PORT)
 
                 // Crashlytics: collection off when USE_EMULATOR
                 FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(false)
