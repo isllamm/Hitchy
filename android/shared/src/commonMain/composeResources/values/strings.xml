@@ -19,6 +19,44 @@
     <string name="language_arabic">العربية</string>
     <string name="language_english">English</string>
 
+    <!-- Design System Components -->
+    <string name="phone_field_label">Mobile number</string>
+    <string name="phone_field_helper">We\'ll send a verification code</string>
+    <string name="phone_field_error">Enter a valid Egyptian mobile number</string>
+    <string name="search_field_placeholder">Search</string>
+    <string name="search_field_clear">Clear search</string>
+    <string name="location_pickup_label">Pickup</string>
+    <string name="location_dropoff_label">Drop-off</string>
+    <string name="location_swap">Swap pickup and drop-off</string>
+    <string name="location_clear">Clear location</string>
+    <string name="greeting_morning">Good morning</string>
+    <string name="seat_full">Full</string>
+    <string name="seat_left_1">1 seat left</string>
+    <string name="seat_left_2">2 seats left</string>
+    <string name="seat_left_3">3 seats left</string>
+    <string name="departure_label">Departure</string>
+    <string name="price_per_seat_large">EGP %1$d / seat</string>
+    <string name="price_per_seat_small">EGP %1$d per seat</string>
+    <string name="recurring_daily_default">Daily ride · Sun – Thu</string>
+    <string name="badge_verified">Verified</string>
+    <string name="badge_pending">Verification pending</string>
+    <string name="status_requested">Requested</string>
+    <string name="status_confirmed">Confirmed</string>
+    <string name="status_in_progress">In progress</string>
+    <string name="status_completed">Completed</string>
+    <string name="status_cancelled">Cancelled</string>
+    <string name="status_declined">Declined</string>
+    <string name="status_expired">Expired</string>
+    <string name="status_no_show">No show</string>
+    <string name="stepper_on_the_way">Owner on the way</string>
+    <string name="stepper_arrived">Arrived</string>
+    <string name="stepper_in_ride">In ride</string>
+    <string name="stepper_completed">Completed</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_rides">Rides</string>
+    <string name="nav_shop">Shop</string>
+    <string name="nav_profile">Profile</string>
+
     <!-- Debug Screen -->
     <string name="debug_title">Debug Menu</string>
     <string name="debug_refresh">Refresh</string>

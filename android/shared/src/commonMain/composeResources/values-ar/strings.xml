@@ -19,6 +19,44 @@
     <string name="language_arabic">العربية</string>
     <string name="language_english">English</string>
 
+    <!-- Design System Components -->
+    <string name="phone_field_label">رقم الموبايل</string>
+    <string name="phone_field_helper">هنبعتلك كود تأكيد</string>
+    <string name="phone_field_error">أدخل رقم موبايل مصري صحيح</string>
+    <string name="search_field_placeholder">بحث</string>
+    <string name="search_field_clear">مسح البحث</string>
+    <string name="location_pickup_label">مكان التحرك</string>
+    <string name="location_dropoff_label">مكان الوصول</string>
+    <string name="location_swap">تبديل نقطة التحرك والوصول</string>
+    <string name="location_clear">مسح المكان</string>
+    <string name="greeting_morning">صباح الخير</string>
+    <string name="seat_full">مكتمل</string>
+    <string name="seat_left_1">كرسي واحد متبقي</string>
+    <string name="seat_left_2">كرسيين متبقيين</string>
+    <string name="seat_left_3">3 كراسي متبقية</string>
+    <string name="departure_label">التحرك</string>
+    <string name="price_per_seat_large">%1$d ج.م / كرسي</string>
+    <string name="price_per_seat_small">%1$d ج.م لكل كرسي</string>
+    <string name="recurring_daily_default">رحلة يومية · الأحد – الخميس</string>
+    <string name="badge_verified">موثق</string>
+    <string name="badge_pending">قيد التحقق</string>
+    <string name="status_requested">قيد الطلب</string>
+    <string name="status_confirmed">مؤكد</string>
+    <string name="status_in_progress">في الطريق</string>
+    <string name="status_completed">مكتمل</string>
+    <string name="status_cancelled">ملغي</string>
+    <string name="status_declined">مرفوض</string>
+    <string name="status_expired">منتهي</string>
+    <string name="status_no_show">لم يحضر</string>
+    <string name="stepper_on_the_way">الكابتن في الطريق</string>
+    <string name="stepper_arrived">وصل</string>
+    <string name="stepper_in_ride">في الرحلة</string>
+    <string name="stepper_completed">اكتملت</string>
+    <string name="nav_home">الرئيسية</string>
+    <string name="nav_rides">رحلاتي</string>
+    <string name="nav_shop">المتجر</string>
+    <string name="nav_profile">حسابي</string>
+
     <!-- Debug Screen -->
     <string name="debug_title">قائمة تصحيح الأخطاء</string>
     <string name="debug_refresh">تحديث</string>
