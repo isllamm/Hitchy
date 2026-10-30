@@ -23,6 +23,7 @@ data class HitchyColors(
     val lavender: Color = Lavender,
     val lilac: Color = Lilac,
     val white: Color = White,
+    val scrim: Color = Scrim,
     val background: Color = Background,
     val border: Color = Border,
     val disabledSurface: Color = DisabledSurface,

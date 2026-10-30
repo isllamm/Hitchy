@@ -30,11 +30,13 @@ data class HitchyTypography(
     val h1: TextStyle,
     val h2: TextStyle,
     val h3: TextStyle,
+    val amount: TextStyle,
     val title: TextStyle,
     val bodyLarge: TextStyle,
     val bodyLargeStrong: TextStyle,
     val body: TextStyle,
     val bodyStrong: TextStyle,
+    val bodyBold: TextStyle,
     val caption: TextStyle,
     val captionStrong: TextStyle,
     val button: TextStyle,
@@ -68,9 +70,17 @@ data class HitchyTypography(
             lineHeight = 28.sp,
             platformStyle = DefaultPlatformTextStyle,
         ),
+        // Figma's Cairo 800 24/30: wallet amounts, seat prices and the owner's stat numbers.
+        amount = TextStyle(
+            fontFamily = fontFamily,
+            fontWeight = FontWeight.ExtraBold,
+            fontSize = 24.sp,
+            lineHeight = 30.sp,
+            platformStyle = DefaultPlatformTextStyle,
+        ),
         title = TextStyle(
             fontFamily = fontFamily,
-            fontWeight = FontWeight.SemiBold,
+            fontWeight = FontWeight.Bold,
             fontSize = 18.sp,
             lineHeight = 26.sp,
             platformStyle = DefaultPlatformTextStyle,
@@ -103,6 +113,14 @@ data class HitchyTypography(
             lineHeight = 22.sp,
             platformStyle = DefaultPlatformTextStyle,
         ),
+        // Figma's Cairo 700 14/22: field labels and inline emphasis.
+        bodyBold = TextStyle(
+            fontFamily = fontFamily,
+            fontWeight = FontWeight.Bold,
+            fontSize = 14.sp,
+            lineHeight = 22.sp,
+            platformStyle = DefaultPlatformTextStyle,
+        ),
         caption = TextStyle(
             fontFamily = fontFamily,
             fontWeight = FontWeight.Normal,
@@ -112,7 +130,7 @@ data class HitchyTypography(
         ),
         captionStrong = TextStyle(
             fontFamily = fontFamily,
-            fontWeight = FontWeight.SemiBold,
+            fontWeight = FontWeight.Bold,
             fontSize = 12.sp,
             lineHeight = 18.sp,
             platformStyle = DefaultPlatformTextStyle,

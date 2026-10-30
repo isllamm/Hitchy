@@ -6,8 +6,8 @@ import com.hitchy.feature.auth.FakeAuthRepository
 import com.hitchy.feature.auth.domain.AuthState
 import com.hitchy.feature.profile.FakeProfileRepository
 import com.hitchy.navigation.Home
+import com.hitchy.navigation.Onboarding
 import com.hitchy.navigation.ProfileSetup
-import com.hitchy.navigation.Welcome
 import com.hitchy.navigation.toStartDestination
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -52,7 +52,7 @@ class RootViewModelTest {
         authRepo.stateFlow.value = AuthState.SignedOut
         advanceUntilIdle()
         assertEquals(RootState.SignedOut, vm.state.value)
-        assertEquals(Welcome, vm.state.value.toStartDestination())
+        assertEquals(Onboarding, vm.state.value.toStartDestination())
 
         // 3. SignedIn without profile -> NeedsProfile
         authRepo.stateFlow.value = AuthState.SignedIn("rider-test-1")

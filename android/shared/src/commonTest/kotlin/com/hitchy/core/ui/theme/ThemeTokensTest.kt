@@ -27,6 +27,7 @@ class ThemeTokensTest {
 
         // Neutral
         assertEquals(Color(0xFFFFFFFF), colors.white)
+        assertEquals(Color(0xFF0F0F0F), colors.scrim)
         assertEquals(Color(0xFFF8F9FC), colors.background)
         assertEquals(Color(0xFFE5E7EB), colors.border)
         assertEquals(Color(0xFFF3F4F6), colors.disabledSurface)
@@ -117,10 +118,15 @@ class ThemeTokensTest {
         assertEquals(FontWeight.Bold, typography.h3.fontWeight)
         assertEquals(typography.h3, material.headlineSmall)
 
+        // Amount -> no Material slot; Figma's Cairo 800 24/30
+        assertEquals(24.sp, typography.amount.fontSize)
+        assertEquals(30.sp, typography.amount.lineHeight)
+        assertEquals(FontWeight.ExtraBold, typography.amount.fontWeight)
+
         // Title -> titleLarge
         assertEquals(18.sp, typography.title.fontSize)
         assertEquals(26.sp, typography.title.lineHeight)
-        assertEquals(FontWeight.SemiBold, typography.title.fontWeight)
+        assertEquals(FontWeight.Bold, typography.title.fontWeight)
         assertEquals(typography.title, material.titleLarge)
 
         // Body Large -> bodyLarge
@@ -153,10 +159,15 @@ class ThemeTokensTest {
         assertEquals(FontWeight.Normal, typography.caption.fontWeight)
         assertEquals(typography.caption, material.bodySmall)
 
-        // Caption SemiBold -> labelSmall
+        // Body Bold -> no Material slot; Figma's Cairo 700 14/22
+        assertEquals(14.sp, typography.bodyBold.fontSize)
+        assertEquals(22.sp, typography.bodyBold.lineHeight)
+        assertEquals(FontWeight.Bold, typography.bodyBold.fontWeight)
+
+        // Caption Bold -> labelSmall
         assertEquals(12.sp, typography.captionStrong.fontSize)
         assertEquals(18.sp, typography.captionStrong.lineHeight)
-        assertEquals(FontWeight.SemiBold, typography.captionStrong.fontWeight)
+        assertEquals(FontWeight.Bold, typography.captionStrong.fontWeight)
         assertEquals(typography.captionStrong, material.labelSmall)
 
         // Button -> labelLarge

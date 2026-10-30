@@ -60,6 +60,16 @@ class AuthViewModelsTest {
     }
 
     @Test
+    fun phoneEntryAcceptsTheNumberAfterTheFixedPrefix() = runTest(testDispatcher) {
+        val vm = PhoneEntryViewModel(FakePhoneAuth())
+
+        vm.onAction(PhoneEntryAction.UpdatePhone("1012345678"))
+
+        assertTrue(vm.state.value.isValid)
+        assertEquals("+201012345678", vm.state.value.normalizedPhone)
+    }
+
+    @Test
     fun phoneEntryRejectsInvalidNumber() = runTest(testDispatcher) {
         val phoneAuth = FakePhoneAuth()
         val vm = PhoneEntryViewModel(phoneAuth)

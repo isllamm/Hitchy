@@ -53,7 +53,7 @@ fun HitchyButton(
 ) {
     val colors = LocalHitchyColors.current
     val typography = LocalHitchyTypography.current
-    val buttonShape = RoundedCornerShape(24.dp)
+    val buttonShape = RoundedCornerShape(12.dp)
 
     val buttonColors = when (variant) {
         HitchyButtonVariant.Primary -> ButtonDefaults.buttonColors(
@@ -108,7 +108,7 @@ fun HitchyButton(
 
     Button(
         onClick = onClick,
-        modifier = modifier.defaultMinSize(minHeight = 48.dp),
+        modifier = modifier.defaultMinSize(minHeight = 52.dp),
         enabled = enabled && !loading,
         shape = buttonShape,
         colors = buttonColors,
