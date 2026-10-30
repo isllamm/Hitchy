@@ -25,6 +25,30 @@ const FCM_BATCH = 500;
 
 type DeviceSnap = QueryDocumentSnapshot<DeviceDoc>;
 
+export interface PushMessage {
+  token: string;
+  data: Record<string, string>;
+  android: { priority: "high" };
+}
+
+export interface PushResult {
+  responses: { error?: { code: string } }[];
+  failureCount: number;
+}
+
+// The only place that talks to FCM. Tests replace it with setPushSender(), the way lib/clock.ts
+// replaces the system clock.
+const fcmSender = (messages: PushMessage[]): Promise<PushResult> => messaging.sendEach(messages);
+let sendPush = fcmSender;
+
+export function setPushSender(fn: (messages: PushMessage[]) => Promise<PushResult>): void {
+  sendPush = fn;
+}
+
+export function resetPushSender(): void {
+  sendPush = fcmSender;
+}
+
 function devicesOf(uid: string) {
   return db
     .collection("users")
@@ -46,7 +70,7 @@ async function sendToDevices(
 ): Promise<void> {
   for (let i = 0; i < devices.length; i += FCM_BATCH) {
     const batch = devices.slice(i, i + FCM_BATCH);
-    const result = await messaging.sendEach(
+    const result = await sendPush(
       batch.map((d) => ({
         token: d.data().fcmToken,
         data: {
@@ -79,8 +103,16 @@ export async function sendToUser(
   params: TemplateParams = {},
 ): Promise<void> {
   const rendered = render(type, params, ADMIN_URL);
-  const devices = await devicesOf(uid).get();
-  await sendToDevices(type, rendered, devices.docs);
+
+  // The inbox is the record that must survive (P3-B06): FCM is not emulated, so a push can
+  // always fail locally, and that must never cost the user their notification.
+  try {
+    const devices = await devicesOf(uid).get();
+    await sendToDevices(type, rendered, devices.docs);
+  } catch (e) {
+    logger.warn("notify.pushFailed", { type, uid, error: String(e) });
+  }
+
   if (rendered.channel === "admin") return;
 
   const limits = await getConfig("limits");
