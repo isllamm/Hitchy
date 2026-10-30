@@ -1,10 +1,11 @@
 # Hitchy — End-to-End Build Plan (Android + Firebase backend)
 
 > **For:** Claude Code and the Hitchy team
-> **Version:** 1.1 · **Date:** 2026-10-29 · **Owner:** Islam
+> **Version:** 1.2 · **Date:** 2026-10-30 · **Owner:** Islam
 > **Scope:** the Android app (Kotlin + Compose Multiplatform), the admin web dashboard (React + TypeScript) and the Firebase backend. The iOS app is built separately in Swift by the iOS teammate, using only `contract/`.
 > **Based on:** Hitchy Feasibility Study v10, the "Hitchy — Android & Backend Build Plan" doc, and the app designs reviewed on 2026-10-29.
 > **Changes in 1.1:** the design review decisions in [2.1](#21-design-review-v11) (owner accepts bookings, several seats per booking, chat and calls, payment confirmation, fixed points with the designs' picker, one picked time, "Owner" wording, Shop tab, notification inbox) and the screen map in [3.8](#38-app-designs-screen-map-and-fix-list).
+> **Changes in 1.2:** the demo decisions in [2.2](#22-demo-decisions-v12) (a wallet that pays owners, ride stops, the free wait from the owner's arrival, one Rides list) and the demo build in [3.9](#39-demo-build-v12).
 
 ---
 
@@ -12,7 +13,7 @@
 
 0. [How to use this file](#0-how-to-use-this-file)
 1. [Rules for the agent](#1-rules-for-the-agent)
-2. [Product rules](#2-product-rules) · [2.1 Design review (v1.1)](#21-design-review-v11)
+2. [Product rules](#2-product-rules) · [2.1 Design review (v1.1)](#21-design-review-v11) · [2.2 Demo decisions (v1.2)](#22-demo-decisions-v12)
 3. [Architecture](#3-architecture)
 4. [Repo layout](#4-repo-layout)
 5. [Conventions](#5-conventions)
@@ -24,7 +25,7 @@
 11. [Phase 0 — Accounts, GitHub, Firebase](#phase-0--accounts-github-firebase)
 12. [Phase 1 — Backend foundation](#phase-1--backend-foundation)
 13. [Phase 2 — Android foundation](#phase-2--android-foundation)
-14. [Phase 3 — Design system](#phase-3--design-system)
+14. [Phase 3 — Design system](#phase-3--design-system) · [3.9 Demo build (v1.2)](#39-demo-build-v12)
 15. [Phase 4 — Sign-in, profile, roles](#phase-4--sign-in-profile-roles)
 16. [Phase 5 — Host verification and admin](#phase-5--host-verification-and-admin)
 17. [Phase 6 — Posting rides and pricing](#phase-6--posting-rides-and-pricing)
@@ -106,7 +107,7 @@ These rules are not negotiable. Every pull request is checked against them.
 
 ## 2. Product rules
 
-Hitchy matches commuters in Greater Cairo who drive to work with colleagues going the same way. Riders use the app for free. Hosts (car owners) buy trip packages. Seat money goes from rider to host directly (cash or InstaPay); Hitchy never holds it.
+Hitchy matches commuters in Greater Cairo who drive to work with colleagues going the same way. Riders use the app for free. Hosts (car owners) buy trip packages. From v1.2 seat money goes from the rider's wallet to the owner's wallet after the trip (2.2); Hitchy takes no cut.
 
 | # | Rule | Value | Enforced in |
 | --- | --- | --- | --- |
@@ -115,10 +116,10 @@ Hitchy matches commuters in Greater Cairo who drive to work with colleagues goin
 | R3 | A trip uses 1 credit only if at least 1 rider boarded | — | `finishRide` |
 | R4 | First month free | 30 days from host approval | `approveHost`, `finishRide`, `createRide` |
 | R5 | Max seats | car 3, scooter 1 | `addVehicle`, `createRide` |
-| R6 | Seat price range | min / recommended / max formula, [Pricing formula](#pricing-formula); the rider pays price × seats to the host directly and sees a receipt | `quotePrice`, `createRide` |
+| R6 | Seat price range | min / recommended / max formula, [Pricing formula](#pricing-formula); the rider pays price × seats to the host from the wallet (v1.2) and sees a receipt | `quotePrice`, `createRide` |
 | R7 | Max rides per host per day | 2, one each direction | `createRide`, `generateFixedRides` |
 | R8 | Women-only rides | only women hosts create them; only women riders see and request them; a rider asking for several seats confirms every passenger is a woman `[DECISION-24]` | `createRide`, `searchRides`, `requestSeats` |
-| R9 | Rider late fee | 10 EGP per booking after 5 minutes grace, paid to the host directly; an unpaid fee blocks new requests `[DECISION-24]` | `reportLate`, `requestSeats` |
+| R9 | Rider late fee | 10 EGP per booking. The 5 minutes grace start when the owner taps "I'm here" at the rider's pickup; the fee exists only when the owner then reports the rider late (v1.2). Confirm Payment takes it from the rider's wallet with the fare; an unpaid fee blocks new requests `[DECISION-24]` | `arriveAtStop`, `reportLate`, `confirmRidePayment`, `requestSeats` |
 | R10 | Host late | more than 10 minutes late → rider cancels free | `cancelBooking` |
 | R11 | Verified badge | optional criminal record → badge, booking priority, higher ranking | `setVerified`, `domain/ranking.ts` |
 | R12 | One account per phone, two roles | host mode only when `host.status == "approved"`; the Welcome screen's "I have a vehicle / I need a ride" only picks the starting path | `switchRole`, host functions |
@@ -128,11 +129,13 @@ Hitchy matches commuters in Greater Cairo who drive to work with colleagues goin
 | R16 | Points need proof | host and rider phones traveled together (GPS) | `onRideFinished` |
 | R17 | Fixed Ride | weekly plan turned into daily rides | Phase 12 |
 | R18 | Phone numbers stay private | only `getContactPhone` returns another user's phone, and only between a host and a rider with an accepted booking, from acceptance until the ride ends `[DECISION-22]` | `getContactPhone`, all |
-| R19 | No wallet | seat price and late fees are paid between people. `[LATER]` after launch: a rider wallet to pay deposits to owners (Islam, 2026-10-30), planned in its own plan update | — |
+| R19 | Wallet (v1.2) | every user has an EGP wallet. Money comes in from the seed and the admin-only `topUpWallet`; the owner's Confirm Payment moves it from riders to the owner; a request needs enough balance `[DECISION-29]` `[DECISION-30]`. `[LATER]`: top-up through a payment provider and owner withdrawals, after a legal check (holding user money may need a licence in Egypt) | `requestSeats`, `confirmRidePayment`, `topUpWallet` |
 | R20 | The host accepts each booking | a request holds its seats until the host accepts or declines, or the request expires `[DECISION-21]` | `requestSeats`, `respondToRequest`, `expireRequest` |
 | R21 | Several seats per booking | one booking holds 1 … seats left; price, cancel and late fee apply per booking | `requestSeats` |
-| R22 | Payment proof | after the trip the host marks each rider as paid; a record only, no money passes through Hitchy | `confirmSeatPayment` |
+| R22 | Payment | after the trip the owner taps Confirm Payment once; it pays every boarded rider's booking from their wallet, and the rider sees a receipt (v1.2) | `confirmRidePayment` |
 | R23 | Chat and calls | only between the host and riders with an accepted booking `[DECISION-22]` `[DECISION-23]` | `sendChatMessage`, `getContactPhone` |
+| R24 | Pickup stops | a ride has its start point plus 0–3 stops, each a fixed point with a time; the rider picks one when requesting (v1.2) `[DECISION-28]` | `createRide`, `searchRides`, `requestSeats` |
+| R25 | One Rides list | the Rides tab shows the user's bookings and own rides together (v1.2) | P6-A03, P7-A04 |
 
 **Pilot:** route Fifth Settlement / Rehab ↔ Smart Village, peak hours 07:00–10:00 and 16:00–19:00 Cairo time.
 
@@ -160,6 +163,21 @@ On 2026-10-29 the finished app designs (46 PNG exports: onboarding, sign-in, hom
 | 14 | Role | The Welcome choice only picks the starting path; one account, two roles (R12) | P4-A04 |
 
 The designs' Notifications screen needs a history, so every push is also stored in an inbox for 30 days (`users/{uid}/notifications`, 6.2) `[DECISION-27]`.
+
+### 2.2 Demo decisions (v1.2)
+
+On 2026-10-30 Islam shared the demo designs (26 rider and 11 owner files, mapped in `docs/design/demo-flow.md`) and set the goal: a working demo of the full rider and owner cycle on Friday 2026-10-30 evening. Islam decided the points below. Where an earlier part of this plan (2.1 included) disagrees, this table wins.
+
+| # | Topic | Decision | Where it changes the plan |
+| --- | --- | --- | --- |
+| 1 | Demo | The real screens on the real backend: the local emulators with seed data, happy path first. The tasks are in [3.9](#39-demo-build-v12) | 3.9 |
+| 2 | Wallet | Every user has a wallet in integer EGP. Money comes in from the seed and the admin-only `topUpWallet`. After the trip the owner taps Confirm Payment once; a function moves each boarded rider's total plus any reported late fee from the rider's wallet to the owner's. `requestSeats` fails with `INSUFFICIENT_BALANCE` when the balance is too low. Hitchy takes no cut (R1). Demo money is not real money | R6, R9, R19, R22, 6.6, 8.16 |
+| 3 | Rider designs | The decisions of 2026-10-30 (ADR 0004) stand: the plan's notification texts, "Verified owner", first names, fixed points only, a Settings row. Only the wallet changes | 3.8 fixes 2, 10, 18 |
+| 4 | Pickups | When offering a ride, the owner adds stops. Each stop is a fixed point with a time. The rider picks the start point or one stop when requesting | R24, 6.5, 8.16 |
+| 5 | Free wait | The 5 free minutes start when the owner taps "I'm here" at the rider's pickup. After them the owner may tap "Report late" to add the 10 EGP fee; nothing is added by itself | R9, 6.5, 8.16 |
+| 6 | Rides tab | One list with the user's bookings and own rides, sorted by time; each card shows which one it is | R25, P6-A03, P7-A04 |
+| 7 | Earnings line | Owner ride details show "Expected EGP x · up to EGP y": x is the total of accepted bookings, y is seats × price. The app computes it for display only | P6-A03 |
+| 8 | Tests for the demo | Each demo task's Verify runs lint, typecheck, build and tests for the happy path plus every money, permission and input check. Other edge cases move to the later task each demo task names. A one-time exception to rule 5 | 3.9 |
 
 ---
 
@@ -645,6 +663,13 @@ export interface RouteDoc { fromZone: string; toZone: string; distanceKm: number
 ```ts
 export type RideStatus = "open" | "full" | "started" | "finished" | "cancelled" | "expired";
 
+// v1.2 (R24). A pickup after the start point.
+export interface RideStop {
+  id: string;                            // "s1", "s2", "s3"
+  zone: string; pointId: string; pointName: LocalizedName; point: GeoPointLite;
+  at: Timestamp;                         // pickup time at this stop
+}
+
 // rides/{rideId}. Read: host, riders with a booking, admin. Written by functions.
 export interface RideDoc extends Base {
   hostId: string;
@@ -653,6 +678,8 @@ export interface RideDoc extends Base {
   vehicle: { type: VehicleType; make: string; model: string; color: string; plate: string };
   fromZone: string; fromPointId: string; fromPointName: LocalizedName; fromPoint: GeoPointLite;
   toZone: string;   toPointId: string;   toPointName: LocalizedName;
+  stops: RideStop[];                     // v1.2, R24: 0–3, in time order [DECISION-28]
+  pickupZones: string[];                 // v1.2: fromZone plus each stop's zone, for search
   direction: Direction;
   departAt: Timestamp;
   dateKey: DateKey;
@@ -687,14 +714,17 @@ export interface BookingDoc extends Base {
   status: BookingStatus;
   seats: number;                         // 1 … seatsLeft at request time (R21)
   price: number;                         // per seat, copied at request time
-  total: number;                         // price × seats, paid to the host directly
+  total: number;                         // price × seats, paid from the rider's wallet (v1.2)
+  pickupId: string;                      // v1.2, R24: "start" or a stop id
+  pickupPointName: LocalizedName; pickupPoint: GeoPointLite; pickupAt: Timestamp; // copies (v1.2)
   expiresAt: Timestamp;                  // request deadline [DECISION-21]
   respondedAt: Timestamp | null;         // when the host accepted or declined
   checkedInAt: Timestamp | null;
-  checkInDistanceM: number | null;
+  checkInDistanceM: number | null;       // to pickupPoint (v1.2)
+  hostArrivedAt: Timestamp | null;       // v1.2: the owner tapped "I'm here"; the free wait starts (R9)
   boardedAt: Timestamp | null;
   lateFeeId: string | null;
-  paymentConfirmedAt: Timestamp | null;  // the host confirmed the rider paid (R22)
+  paymentConfirmedAt: Timestamp | null;  // v1.2: Confirm Payment moved the money (R22)
   verifiedTogether: boolean;
   rewarded: boolean;
   lateCancel: boolean;
@@ -761,6 +791,22 @@ export interface PackageOrderDoc extends Base {
   note: string | null;
   confirmedAt: Timestamp | null;
   confirmedBy: string | null;
+}
+
+// wallets/{uid} (v1.2, R19). Read: that user, admin. Written by functions.
+export interface WalletDoc {
+  balance: number;                       // integer EGP; below 0 only through a late fee [DECISION-30]
+  updatedAt: Timestamp;
+}
+
+// wallets/{uid}/entries/{entryId} (v1.2). Read: that user, admin. Written by functions.
+export interface WalletEntryDoc {
+  delta: number;                         // integer EGP: + in, − out
+  reason: "seed" | "top_up" | "ride_payment" | "ride_earning";
+  refId: string | null;                  // rideId, or the top-up requestId
+  balanceAfter: number;
+  by: string;                            // uid of the admin or the owner who caused it
+  createdAt: Timestamp;
 }
 ```
 
@@ -1221,6 +1267,8 @@ output: QuoteResult
 
 #### `createRide` · callable · host
 
+> v1.2: also takes `stops` and writes `stops` and `pickupZones` (see [8.16](#816-demo-changes-v12)).
+
 ```ts
 input:  { vehicleId: string; fromZone: string; fromPointId: string; toZone: string; toPointId: string;
           direction: Direction; departAt: string; seats: number; pricePerSeat: number;
@@ -1258,6 +1306,8 @@ output: { cancelledBookings: number }
 
 #### `searchRides` · callable · rider
 
+> v1.2: matches pickups in the rider's zone, stops included (see [8.16](#816-demo-changes-v12)).
+
 ```ts
 input:  { fromZone: string; toZone: string; fromPointId: string | null; date: DateKey; time: HHmm;
           seats: number /*1–3*/; sort: "recommended" | "earliest" | "cheapest";
@@ -1285,6 +1335,8 @@ ties        → earlier departAt first
 ```
 
 #### `requestSeats` · callable · rider (v1.1; replaces `bookSeat`)
+
+> v1.2: also takes `pickupId` and checks the wallet (see [8.16](#816-demo-changes-v12)).
 
 ```ts
 input:  { rideId: string; seats: number /*1–3*/; requestId: string /*uuid*/ }
@@ -1367,6 +1419,8 @@ output: {}
 
 #### `checkIn` · callable · rider ("I'm at the pickup point")
 
+> v1.2: the distance and the window use the booking's pickup (see [8.16](#816-demo-changes-v12)).
+
 ```ts
 input:  { rideId: string; lat: number; lng: number; accuracyM: number }
 output: { distanceM: number }
@@ -1384,6 +1438,8 @@ output: {}
 Caller is the host, or the caller is `riderUid` → else `NOT_ON_RIDE`; ride `started` → else `RIDE_NOT_STARTED`; booking `booked` → else `BOOKING_NOT_FOUND`. Writes `status: "boarded"`, `boardedAt`. All seats of a booking board together.
 
 #### `reportLate` · callable · host
+
+> v1.2: the grace counts from `hostArrivedAt` (see [8.16](#816-demo-changes-v12)).
 
 ```ts
 input:  { rideId: string; riderUid: string; kind: "late" | "no_show" }
@@ -1425,6 +1481,8 @@ output: {}
 `fee.hostId == uid` and status `unpaid | disputed` → else `FEE_NOT_FOUND`. Writes `paid`, `rider.unpaidFees -= 1`. Rider gets `fee_paid`.
 
 #### `confirmSeatPayment` · callable · host (v1.1, R22)
+
+> v1.2: replaced by `confirmRidePayment` (see [8.16](#816-demo-changes-v12)). Do not build this one.
 
 ```ts
 input:  { rideId: string; riderUid: string }
@@ -1847,6 +1905,52 @@ All schedules use `timeZone: "Africa/Cairo"`.
 `{name}` is the other person's first name and `{seats}` the number of seats. The quick phrases from v1.0 (`quick_*`) are now chat chips, so they have no notification types of their own. Review the Arabic copy before release.
 
 `{admin}` is the admin dashboard URL (`ADMIN_URL` in `lib/app.ts`). `sendToAdmins` sends to the web push tokens of `config/admins.uids` and to the phones of `config/admins.notifyUids` (in English). On the phone, a link starting with `https://` opens in the browser.
+
+### 8.16 Demo changes (v1.2)
+
+The v1.2 function changes, from [2.2](#22-demo-decisions-v12). Every rule in 8.1 still applies: zod input, one transaction, and an idempotent `requestId` where the input has one.
+
+**`createRide`:** the input adds `stops: Array<{ zone: string; pointId: string; at: string }>` (0–3). A new check after check 3: every stop is an active point, and the stop times follow `[DECISION-28]` → else `STOPS_INVALID`. Writes `stops` (ids `s1` …, names and coordinates copied) and `pickupZones` (`fromZone` plus the stops' zones, no repeats).
+
+**`searchRides`:** query `pickupZones array-contains` the rider's zone instead of `fromZone ==`. The pickup is the start point or the stop in the rider's zone nearest to the rider's point; the time window and the walk distance use that pickup's time and point. `RideCard` adds `pickup: { id: string; name: LocalizedName; at: string; walkM: number }`. New index: `rides` (`pickupZones` array-contains, `toZone`, `status`, `departAt`).
+
+**`requestSeats`:** the input adds `pickupId: string` (`"start"` or a stop id). New checks: after check 1, the pickup is on the ride → else `PICKUP_NOT_ON_RIDE`; after check 7, the wallet check `[DECISION-29]` → else `INSUFFICIENT_BALANCE`. The booking copies the pickup (`pickupId`, `pickupPointName`, `pickupPoint`, `pickupAt`).
+
+#### `arriveAtStop` · callable · host (v1.2)
+
+```ts
+input:  { rideId: string; pickupId: string }
+output: { bookings: number }
+```
+
+`ride.hostId == uid` → else `NOT_FOUND`; ride `started` → else `RIDE_NOT_STARTED`; the pickup is on the ride → else `PICKUP_NOT_ON_RIDE`. One transaction: sets `hostArrivedAt = now` on every `booked` booking with that `pickupId` and `hostArrivedAt == null`, and returns how many. No distance check yet `[DECISION-31]`. No push: the rider's trip screen reads `hostArrivedAt` from the booking.
+
+**`checkIn`:** the distance is to the booking's `pickupPoint`; check-in stays open until `pickupAt + noShowMinutes`.
+
+**`reportLate`:** check 2 uses `checkedInAt <= hostArrivedAt + lateGraceMinutes`. Check 3: `hostArrivedAt != null` and `now >= hostArrivedAt + lateGraceMinutes` → else `GRACE_NOT_OVER`. Check 4 (`no_show`): `now >= hostArrivedAt + noShowMinutes`.
+
+#### `confirmRidePayment` · callable · host (v1.2, replaces `confirmSeatPayment`)
+
+```ts
+input:  { rideId: string; requestId: string /*uuid*/ }
+output: { paidBookings: number; total: number }
+```
+
+1. `ride.hostId == uid` → else `NOT_FOUND`; ride `finished` → else `RIDE_NOT_FINISHED`.
+2. The `completed` bookings with `paymentConfirmedAt == null`; none → `PAYMENT_ALREADY_CONFIRMED`.
+3. One transaction, idempotent by `requestId`. For each booking: amount = `total`, plus the fee amount when `lateFeeId` points to an `unpaid` fee. The rider's wallet `-= amount` (it may go below 0 `[DECISION-30]`), the owner's wallet `+= amount`, one `WalletEntryDoc` on each side (`ride_payment`, `ride_earning`, `refId: rideId`), `paymentConfirmedAt = now`; the fee → `paid` and `rider.unpaidFees -= 1`.
+4. After commit: each rider gets `payment_confirmed`.
+
+#### `topUpWallet` · callable · admin (v1.2)
+
+```ts
+input:  { uid: string; amount: number /*integer 1–5000*/; requestId: string /*uuid*/ }
+output: { balance: number }
+```
+
+The user exists → else `NOT_FOUND`. One transaction, idempotent by `requestId`: balance `+= amount`, a `top_up` entry, and an audit entry (`lib/audit.ts`) `[DECISION-32]`.
+
+**Rules and seed:** `wallets/{uid}` and its `entries` are read by that user and admins, and written only by functions. The seed gives each test rider 250 EGP and each test host 0, each with a `seed` entry `[DECISION-32]`.
 
 ---
 
@@ -2640,7 +2744,7 @@ Not designed yet, so still `[FIGMA]`: ProfileSetup, every owner screen (Become a
 **Fix list for the designer.** The code already follows these; the designs should catch up:
 
 1. Words: "Owner" in English everywhere, never "driver" ("Verified driver" → "Verified owner").
-2. Remove "Pay the Hitchy fee to lock it in": riders pay Hitchy nothing. Show "Pay the owner directly by cash or InstaPay" on the request sheet and the receipt.
+2. Remove "Pay the Hitchy fee to lock it in": riders pay Hitchy nothing. Show "Paid from your wallet after the trip" on the request sheet and the receipt (v1.2).
 3. Places are fixed points only: no free addresses ("Street 9, Maadi"), no free map pin; the map shows point pins to tap. Sample places should come from the pilot zones (Fifth Settlement, Rehab, Smart Village).
 4. Date sheet: days after today + 7 are disabled; the "For today…" note shows only for today.
 5. Ride cards and details: first name only ("Omar", not "Omar Hassan"), a photo or matching initials, and the plan's badges (Fair price, Women-only, tier, Same company, Fixed Ride, vehicle type).
@@ -2648,7 +2752,7 @@ Not designed yet, so still `[FIGMA]`: ProfileSetup, every owner screen (Become a
 7. Cancel sheet: reasons Change of plans, Found another ride, Other, plus "Owner is late" when allowed; drop "Owner changed the time" (owners can't change a ride's time); say whether the cancel is free or late (60 minutes).
 8. Rider trip screen: add "I'm on my way", "I'm at the pickup point" and "I'm in the car"; Emergency opens the SOS sheet (police 122, ambulance 123, emergency contact).
 9. Rating: tags On time, Safe driving, Clean car, Friendly, Followed the route, Late, Unsafe driving, Rude; no comment box; "Submit rating" turns on once stars are picked; the thank-you screen ends with "Done", not "Track ride".
-10. Receipt: distance, price per seat, seats, total, "Paid directly to the owner", and "Payment confirmed by {name}" once confirmed. No fuel-share split.
+10. Receipt: distance, price per seat, seats, total, "Paid from your wallet" (v1.2), and "Payment confirmed by {name}" once confirmed. No fuel-share split.
 11. Notifications: the texts in 8.15. No "Booking request sent" line; add accepted, declined, expired, payment confirmed and chat.
 12. Filters: add "Verified only" and "Women-only" (shown to women only); move "Ride reminders" to Settings.
 13. Sign-in note: "Your number is shared only with your owner or riders after a booking is accepted."
@@ -2656,9 +2760,99 @@ Not designed yet, so still `[FIGMA]`: ProfileSetup, every owner screen (Become a
 15. Fix the word breaks on onboarding ("co mmute", "wit h"), show disabled states for Continue, Verify and Submit, and use Android system bars instead of iOS ones.
 16. Make every screen in Arabic (RTL) too.
 17. Saved places: "Add" opens the point search and the point-pin map (fix 3); no address fields. Labels Home, Work or Other. Fix the five "Home Area" labels and add a Save button.
-18. Profile tab: no wallet balance (R19). Add a Settings row; move the notification toggle and the language choice into Settings.
+18. Profile tab: keep the wallet balance (v1.2, R19). Add a Settings row; move the notification toggle and the language choice into Settings.
 19. Settings: hide Privacy Settings and Safety Center for now `[LATER]`. Identity Verification shows only in owner mode.
 20. About: real text instead of the placeholder. The other design bugs are listed in `docs/design/rider-flow.md`.
+
+### 3.9 Demo build (v1.2)
+
+**Goal:** on Friday 2026-10-30 evening, on Islam's Mac, two Android emulators (one rider, one owner) on the local Firebase emulators run one full cycle. The owner offers a ride with a stop. The rider finds it, picks the stop and requests. The owner accepts, starts the trip, taps "I'm here", boards the rider (and may report late), ends the trip and taps Confirm Payment. Both wallets change. Decisions: [2.2](#22-demo-decisions-v12). Screens and flows: `docs/design/demo-flow.md`.
+
+**How to work (one-day build):**
+
+1. Contract first. P3-B01 merges before any other demo task codes against the new fields.
+2. One thin slice end to end first, then polish. The cycle must work once before any screen gets extra states.
+3. Real code only: real functions, repositories, ViewModels and screens, no demo-only shortcuts. Each task names the later task that finishes it.
+4. Money is never "happy path only". Wallet changes run in one transaction, idempotent by `requestId`, with a test for every money check.
+5. Small pull requests, one task each, green CI; Islam merges. P3-B01 first, then each lane in order.
+6. Seed data only: the test users from 7.6. No real phone numbers, names or places.
+7. Shared files (routes, Koin modules, string files) change in small commits; rebase on `main` often.
+8. Record a backup video of the cycle as soon as it works once.
+9. Freeze 2 hours before the demo: fixes only, no new screens.
+10. If a live wait is too long (the 5 free minutes, the 30-minute start window), change `config/limits` on the emulator through the seed, never in code.
+
+**Lanes.** Three agents work at the same time, one lane each, never two on the same files.
+
+| Lane | Tasks in order | Owns |
+| --- | --- | --- |
+| 1 Backend | P3-B01 → P3-B02 → P3-B03 → P3-B04 → P3-B05 → P3-B06 | `backend/`, `contract/` |
+| 2 Android data and rider | P3-A08 → P3-A09 | `core/data`, auth, profile, places, booking, inbox, the rider trip screen |
+| 3 Android owner | P3-A10 | host, rides, the owner trip screen. Starts with ViewModels and UI on the P3-A08 interfaces; wires the data when P3-A08 merges |
+
+**Checkpoints.** S is the start time, T the demo time.
+
+| When | Done |
+| --- | --- |
+| S + 1.5 h | P3-B01 merged: the contract, rules, index and seed |
+| S + 5 h | P3-B02, P3-B03 and P3-A08 merged: sign-in works, an owner offers a ride, a rider requests, the owner accepts |
+| S + 8 h | P3-B04, P3-B05, and the core screens of P3-A09 and P3-A10: the first full cycle; record the backup video |
+| T − 2 h | Freeze |
+| T − 1 h | P3-H01: two rehearsals with the script |
+
+**Cut list.** If time runs short, drop these in this order. Never cut the core cycle or the wallet.
+
+1. P3-B06 inbox (Notifications shows its empty state).
+2. Onboarding pages (Splash goes straight to Welcome).
+3. Cancel booking.
+4. No rides found and the validation states.
+5. Report late (its money rule stays tested in P3-B05).
+
+#### P3-B01 · Demo contract (v1.2)
+- **Spec:** 2.2; the v1.2 parts of 6.5 and 6.6; 8.16; the 4 new reasons in Appendix D; Appendix F 28–32.
+- **Files:** `schemas/docs.ts`, `inputs.ts`, `io.ts`, `lib/errors.ts`, `firestore.rules` (wallets), `firestore.indexes.json` (`pickupZones`), the seed (wallets and their `seed` entries), `contract/` docs and fixtures for the changed and new callables.
+- **Verify:** `npm run lint`, `npm run typecheck`, `npm run build`, `npm test`.
+
+#### P3-B02 · Offer a ride
+- **Spec:** `quotePrice` and `createRide` (8.5) with stops (8.16).
+- **Later:** P6-B01 and P6-B02 add the remaining tests; P6-B03 builds `cancelRide`.
+
+#### P3-B03 · Search, request, accept, cancel
+- **Spec:** `searchRides` and `requestSeats` (8.6) with the v1.2 changes (8.16), `respondToRequest`, and `cancelBooking` for a rider's free cancel.
+- **Later:** P7-B01 to P7-B03, including `expireRequest` (until then a request waits until the owner answers).
+
+#### P3-B04 · Trip day
+- **Spec:** `startRide`, `arriveAtStop`, `checkIn`, `markBoarded`, `reportLate` (`late` only) and `finishRide` (8.7, 8.16).
+- **Later:** P8-B01 to P8-B04 and P8-B06 (`no_show`, disputes, `onRideFinished`, `closeStaleRides`).
+
+#### P3-B05 · Wallet payments
+- **Spec:** `confirmRidePayment` and `topUpWallet` (8.16).
+- **Verify adds:** tests for paying one and several riders, with and without a late fee; the same `requestId` twice pays once; a second call → `PAYMENT_ALREADY_CONFIRMED`; not the owner → `NOT_FOUND`; not finished → `RIDE_NOT_FINISHED`; a non-admin top-up is refused; every balance equals the sum of its entries.
+- **Later:** `[LATER]` top-up through a payment provider and owner withdrawals, after the legal check (R19).
+
+#### P3-B06 · Demo inbox
+- **Spec:** `onBookingChanged` and `lib/notify.ts` (8.6, 8.15) for requested, accepted, declined and cancelled, and `payment_confirmed` after P3-B05. The inbox write must work on the emulator even when the push fails.
+- **Later:** P7-B04.
+
+#### P3-A08 · Demo data and sign-in
+- **Spec:** phone sign-in on the Auth emulator with the 7.6 test users; auth and profile repositories; root navigation by active role; DTOs for the v1.2 contract; repositories for points, rides, bookings, trip, wallet and inbox (Firestore listeners and `FunctionsClient`); the 4 new error strings in English and Arabic.
+- **Verify:** `./gradlew check` (the DTO fixture test reads the new fixtures).
+- **Later:** P4-A01 to P4-A03, P6-A01, P7-A01, P8-A01.
+
+#### P3-A09 · Rider demo screens
+- **Spec:** the 26 rider files in `demo-flow.md` with the 3.8 fixes. `[FIGMA]` for the pickup choice on Ride details, Request sent, "I'm at the pickup point" and Payment done. The Profile tab shows the wallet balance and a Settings row.
+- **Verify:** `./gradlew check`; ViewModel tests for Home validation, the request (sent, `INSUFFICIENT_BALANCE`) and the trip steps.
+- **Later:** P4-A04, P7-A02 to P7-A05, P8-A04, P8-A10.
+
+#### P3-A10 · Owner demo screens
+- **Spec:** the 11 owner files in `demo-flow.md`. `[FIGMA]` for Owner home, Offer a ride (start point, stops with times through MapPointPicker, seats, the price slider from `quotePrice`), the Requests list with Accept and Decline, and Payment done. Ride details show the Expected line (2.2 #7). Trip day: Start trip, "I'm here" with the wait timer from `hostArrivedAt`, "{name} is in the car", Report late after 5 minutes, End trip, Confirm Payment.
+- **Verify:** `./gradlew check`; ViewModel tests for the offer form, the trip steps and the payment.
+- **Later:** P6-A02, P6-A03, P7-A07, P8-A03, P8-A05.
+
+#### P3-H01 · Demo run (Islam)
+- **Before S + 8 h:** `[HUMAN]` real names and coordinates for the demo pickup points in the seed (never invented; today they are "Test point 1" and so on), and `MAPS_API_KEY` in `android/local.properties` (without it the map is blank; the point list still works).
+- **Run:** in `backend/functions`: `npm run build`, `npm run emulators`, then `npm run seed`. In `android/`: `./gradlew installDevDebug -Phitchy.emulator=true` with both Android emulators running. Sign in as the rider test user on one and the host test user on the other (code `123456`).
+- **Script:** the owner offers a ride leaving in 30 minutes with one stop → the rider searches, opens it, picks the stop and requests 1 seat → the owner accepts → the owner starts the trip, taps "I'm here", then "{name} is in the car" → End trip → Confirm Payment → show both wallet balances.
+- **Done when:** two clean runs in a row, and the backup video is saved.
 
 ---
 
@@ -2991,7 +3185,7 @@ interface InboxRepository {                       // feature/inbox
 | P8-B05 | `sendChatMessage`, `getContactPhone` | only the host and riders with an accepted booking; chat closes `chatOpenHoursAfterRide` after the ride; the text is never logged and the push never carries it; a phone only while the ride is open, full or started |
 | P8-B06 | `finishRide`, `onRideFinished`, `closeStaleRides`, `domain/together.ts` | exactly one credit even if called twice; none in the free month or without boarded riders; `verifiedTogether` true for matching sample sets and false for far ones; `postProcessed` prevents double work; stale and expired rides closed |
 | P8-B07 | `submitRating` | allowed pairs only; once per pair; 7-day window; averages correct; low ratings create a report |
-| P8-B08 | `confirmSeatPayment` | host only; `boarded` or `completed` bookings; once per booking (`PAYMENT_ALREADY_CONFIRMED`); the rider gets `payment_confirmed` |
+| P8-B08 | `confirmSeatPayment` (v1.2: replaced by `confirmRidePayment`, built in P3-B05) | host only; `boarded` or `completed` bookings; once per booking (`PAYMENT_ALREADY_CONFIRMED`); the rider gets `payment_confirmed` |
 
 Rewards and impact steps in `onRideFinished` are empty functions until Phases 10 and 14.
 
@@ -3057,7 +3251,7 @@ interface ChatRepository {                        // feature/chat
 - One thread per booking (`rides/{rideId}/chats/{riderUid}/messages`), newest at the bottom; the old quick messages as one-tap chips above the input (500 characters); Call in the top bar; "Chat closed" once `CHAT_CLOSED`. `chat_message` opens it.
 
 #### P8-A10 · Receipt (designed, see 3.8)
-- Design "Fuel Share Receipt", with the plan's numbers: route distance, price per seat, seats, total, "Paid directly to the owner", and "Payment confirmed by {name}" when `paymentConfirmedAt` is set. `payment_confirmed` opens it.
+- Design "Fuel Share Receipt", with the plan's numbers: route distance, price per seat, seats, total, "Paid from your wallet" (v1.2), and "Payment confirmed by {name}" when `paymentConfirmedAt` is set. `payment_confirmed` opens it.
 
 **E2E check:** see Appendix C, steps 10–19.
 
@@ -3412,6 +3606,10 @@ List files changed, test results, and any [HUMAN] or [DECISION] items.
 | `CHAT_CLOSED` | failed-precondition | Chat for this ride is closed. | الشات بتاع المشوار ده اتقفل. |
 | `CONTACT_NOT_ALLOWED` | permission-denied | You can call only after a booking is accepted. | تقدر تتصل بس بعد ما الحجز يتقبل. |
 | `PAYMENT_ALREADY_CONFIRMED` | already-exists | This payment was already confirmed. | الدفع ده اتأكد قبل كده. |
+| `INSUFFICIENT_BALANCE` | failed-precondition | Your wallet balance isn't enough for this ride. | رصيد محفظتك مش كفاية للمشوار ده. |
+| `STOPS_INVALID` | invalid-argument | Check the stops: each needs a pickup point and a later time. | راجع نقط الركوب: كل نقطة محتاجة مكان وميعاد بعد اللي قبلها. |
+| `PICKUP_NOT_ON_RIDE` | failed-precondition | This pickup point isn't on this ride. | نقطة الركوب دي مش في المشوار ده. |
+| `RIDE_NOT_FINISHED` | failed-precondition | End the trip first. | خلّص المشوار الأول. |
 | `OTP_INVALID` (app only) | — | The code is wrong. | الكود غلط. |
 | `OTP_EXPIRED` (app only) | — | The code expired. Send a new one. | الكود انتهى، ابعت كود جديد. |
 | `TOO_MANY_ATTEMPTS` (app only) | — | Too many tries. Try again later. | محاولات كتير، جرّب بعد شوية. |
@@ -3483,3 +3681,8 @@ Until Islam decides, the agent uses the default and leaves `TODO(DECISION-NN)` w
 | 25 | Search window | The picked time ± 60 minutes; the time chips split it into before, the first hour after, and later | Phase 7 |
 | 26 | Arrived and ETA | "Arrived" when the host is within 300 m of the pickup point; ETA = straight-line distance at 25 km/h | Phase 8 |
 | 27 | Notification inbox | Every push except admin alerts is also stored for 30 days (Firestore TTL) | Phase 7 |
+| 28 | Ride stops | Up to 3 stops besides the start point. Each is an active point in any active zone. Stop times are after `departAt`, in order, at least 1 minute apart, and before `departAt` + the route's usual minutes. Search uses the pickup in the rider's zone nearest to the rider's point | Demo (P3-B01) |
+| 29 | Wallet check | A request needs: balance − the totals of the rider's other `requested`, `booked`, `boarded` or `completed` bookings not yet paid ≥ its total | Demo (P3-B03) |
+| 30 | Payment shortfall | Confirm Payment always moves the money. The balance may go below 0 only through a late fee, and then blocks new requests | Demo (P3-B05) |
+| 31 | Owner arrival | "I'm here" has no distance check yet; the rider's check-in at the pickup still proves they were on time | Demo (P3-B04) |
+| 32 | Top-up and seed | Admin only, 1–5,000 EGP per call, audited. The seed gives each test rider 250 EGP and each test host 0 | Demo (P3-B05) |
