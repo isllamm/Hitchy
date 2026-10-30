@@ -38,7 +38,7 @@ val isProdPlaceholder =
                   "oauth_client": [],
                   "api_key": [
                     {
-                      "current_key": "AIzaSyDummyPlaceholderKeyForLocalBuildsOnly"
+                      "current_key": "AIzaSyDummyPlaceholderKeyForLocalBuilds"
                     }
                   ],
                   "services": {}
@@ -76,7 +76,7 @@ if (!devGoogleServices.exists() || devGoogleServices.length() < 10) {
               "oauth_client": [],
               "api_key": [
                 {
-                  "current_key": "AIzaSyDummyPlaceholderKeyForLocalBuildsOnly"
+                  "current_key": "AIzaSyDummyPlaceholderKeyForLocalBuilds"
                 }
               ],
               "services": {}
