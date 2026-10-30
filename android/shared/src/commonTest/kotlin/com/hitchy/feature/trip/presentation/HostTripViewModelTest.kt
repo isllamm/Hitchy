@@ -3,6 +3,7 @@ package com.hitchy.feature.trip.presentation
 import com.hitchy.core.model.BookingStatus
 import com.hitchy.core.platform.TestClock
 import com.hitchy.feature.booking.FakeBookingRepository
+import com.hitchy.feature.profile.FakeProfileRepository
 import com.hitchy.feature.profile.FakeWalletRepository
 import com.hitchy.feature.rides.FakeRidesRepository
 import com.hitchy.feature.trip.FakeTripRepository
@@ -54,13 +55,16 @@ class HostTripViewModelTest {
         ridesRepo.ridesById.value = mapOf("ride-1" to ride)
         ridesRepo.bookingsByRideId.value = mapOf("ride-1" to listOf(booking))
 
-        val vm = HostTripViewModel(ridesRepo, tripRepo, walletRepo, clock)
+        val profileRepo = FakeProfileRepository()
+        profileRepo.putPublicProfile("rider-1", "Mona")
+        val vm = HostTripViewModel(ridesRepo, tripRepo, walletRepo, profileRepo, clock)
         vm.onAction(HostTripAction.Init("ride-1"))
         advanceUntilIdle()
 
         // 1. Initial phase
         assertEquals(HostTripPhase.LEAVING, vm.state.value.phase)
         assertEquals(1, vm.state.value.bookings.size)
+        assertEquals("Mona", vm.state.value.riderNames["rider-1"])
 
         // 2. Start Trip -> DRIVING_TO_STOP
         vm.onAction(HostTripAction.StartTrip)

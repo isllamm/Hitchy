@@ -126,12 +126,16 @@ class OwnerViewModelsTest {
         )
         ridesRepo.bookingsByRideId.value = mapOf("ride-1" to listOf(b1))
 
-        val vm = HostRideDetailsViewModel(ridesRepo, bookingRepo)
+        val profileRepo = FakeProfileRepository()
+        profileRepo.putPublicProfile("rider-1", "Mona")
+        val vm = HostRideDetailsViewModel(ridesRepo, bookingRepo, profileRepo)
         vm.onAction(HostRideDetailsAction.Init("ride-1"))
         advanceUntilIdle()
 
         assertEquals("ride-1", vm.state.value.ride?.id)
         assertEquals(1, vm.state.value.pendingBookings.size)
+        // The owner sees the rider's first name, not a piece of the user id.
+        assertEquals("Mona", vm.state.value.riderNames["rider-1"])
         assertEquals(150, vm.state.value.expectedMaxEarnings)
 
         // Accept request

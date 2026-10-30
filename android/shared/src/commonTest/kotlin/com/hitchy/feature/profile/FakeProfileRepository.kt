@@ -42,6 +42,23 @@ class FakeProfileRepository(
 
     override fun observePublicProfile(uid: String): Flow<PublicProfile?> = publicProfilesFlow.map { it[uid] }
 
+    fun putPublicProfile(uid: String, firstName: String) {
+        val profile = PublicProfile(
+            uid = uid,
+            firstName = firstName,
+            photoPath = null,
+            hostRatingAvg = null,
+            hostRatingCount = 0,
+            hostTrips = 0,
+            riderRatingAvg = null,
+            riderRatingCount = 0,
+            verified = false,
+            hostTier = Tier.SILVER,
+            riderTier = Tier.SILVER,
+        )
+        publicProfilesFlow.value = publicProfilesFlow.value + (uid to profile)
+    }
+
     override fun observeCompanies(): Flow<List<Company>> = companiesFlow
 
     override suspend fun completeProfile(input: CompleteProfileInput): AppResult<CompleteProfileResult> {

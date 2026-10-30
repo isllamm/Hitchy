@@ -7,6 +7,7 @@ import com.hitchy.core.model.BookingStatus
 import com.hitchy.core.model.LateKind
 import com.hitchy.core.model.RideStatus
 import com.hitchy.core.ui.MviViewModel
+import com.hitchy.feature.profile.domain.ProfileRepository
 import com.hitchy.feature.profile.domain.WalletRepository
 import com.hitchy.feature.rides.domain.Booking
 import com.hitchy.feature.rides.domain.Ride
@@ -35,6 +36,7 @@ data class HostTripState(
     val rideId: String = "",
     val ride: Ride? = null,
     val bookings: List<Booking> = emptyList(),
+    val riderNames: Map<String, String> = emptyMap(),
     val phase: HostTripPhase = HostTripPhase.LEAVING,
     val currentStopIndex: Int = 0,
     val currentStopName: String = "",
@@ -75,15 +77,18 @@ sealed interface HostTripEvent {
     data object TripFinished : HostTripEvent
 }
 
+@Suppress("TooManyFunctions")
 @OptIn(ExperimentalTime::class, ExperimentalUuidApi::class)
 class HostTripViewModel(
     private val ridesRepository: RidesRepository,
     private val tripRepository: TripRepository,
     private val walletRepository: WalletRepository,
+    private val profileRepository: ProfileRepository,
     private val clock: Clock,
 ) : MviViewModel<HostTripState, HostTripAction, HostTripEvent>(HostTripState()) {
 
     private var timerJob: Job? = null
+    private val namesRequested = mutableSetOf<String>()
 
     override fun onAction(action: HostTripAction) {
         when (action) {
@@ -144,6 +149,7 @@ class HostTripViewModel(
 
         ridesRepository.observeBookings(rideId)
             .onEach { allBookings ->
+                loadRiderNames(allBookings.map { it.riderUid })
                 val active = allBookings.filter {
                     it.status == BookingStatus.BOOKED || it.status == BookingStatus.COMPLETED
                 }
@@ -154,6 +160,17 @@ class HostTripViewModel(
         walletRepository.observeBalance()
             .onEach { balance -> setState { copy(walletBalance = balance) } }
             .launchIn(viewModelScope)
+    }
+
+    private fun loadRiderNames(uids: List<String>) {
+        for (uid in uids) {
+            if (!namesRequested.add(uid)) continue
+            profileRepository.observePublicProfile(uid)
+                .onEach { profile ->
+                    if (profile != null) setState { copy(riderNames = riderNames + (uid to profile.firstName)) }
+                }
+                .launchIn(viewModelScope)
+        }
     }
 
     private fun startTrip() {
