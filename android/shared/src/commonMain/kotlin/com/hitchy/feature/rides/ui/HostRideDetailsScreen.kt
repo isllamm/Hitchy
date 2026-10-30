@@ -215,7 +215,7 @@ fun HostRideDetailsScreen(
                 }
             } else {
                 items(state.pendingBookings, key = { it.riderUid }) { booking ->
-                    val shortName = booking.riderUid.take(6).replaceFirstChar { it.uppercase() }
+                    val shortName = booking.riderUid.take(PENDING_NAME_LENGTH).replaceFirstChar { it.uppercase() }
                     OwnerRequestCard(
                         riderName = shortName,
                         riderInitials = shortName.take(2).uppercase(),
@@ -273,7 +273,8 @@ fun HostRideDetailsScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(spacing.space12),
                         ) {
-                            val shortName = booking.riderUid.take(8).replaceFirstChar { it.uppercase() }
+                            val idStart = booking.riderUid.take(BOOKED_NAME_LENGTH)
+                            val shortName = idStart.replaceFirstChar { it.uppercase() }
                             Avatar(initials = shortName.take(2).uppercase())
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
@@ -351,3 +352,6 @@ fun HostRideDetailsScreen(
         }
     }
 }
+
+private const val PENDING_NAME_LENGTH = 6
+private const val BOOKED_NAME_LENGTH = 8

@@ -280,7 +280,8 @@ fun PostRideScreen(
                                     selected = false,
                                     label = "+15m",
                                     onClick = {
-                                        val next = (state.departTimeMinutes + MINUTES_STEP).coerceAtMost(MAX_DAY_MINUTES)
+                                        val stepped = state.departTimeMinutes + MINUTES_STEP
+                                        val next = stepped.coerceAtMost(MAX_DAY_MINUTES)
                                         viewModel.onAction(PostRideAction.SelectTime(next))
                                     },
                                 )

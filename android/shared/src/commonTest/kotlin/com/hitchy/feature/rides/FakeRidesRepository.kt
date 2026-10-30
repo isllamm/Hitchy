@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.map
 
 class FakeRidesRepository : RidesRepository {
     val myRidesFlow = MutableStateFlow<List<Ride>>(emptyList())
+    var lastCreateInput: CreateRideInput? = null
     val ridesById = MutableStateFlow<Map<String, Ride>>(emptyMap())
     val bookingsByRideId = MutableStateFlow<Map<String, List<Booking>>>(emptyMap())
 
@@ -39,6 +40,7 @@ class FakeRidesRepository : RidesRepository {
     )
 
     override suspend fun create(input: CreateRideInput): AppResult<String> {
+        lastCreateInput = input
         val rideId = "ride-new"
         return AppResult.Ok(rideId)
     }

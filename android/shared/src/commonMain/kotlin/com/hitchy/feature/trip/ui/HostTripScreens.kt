@@ -203,6 +203,9 @@ private fun ActivePhaseCard(
             modifier = Modifier.padding(spacing.space16),
             verticalArrangement = Arrangement.spacedBy(spacing.space12),
         ) {
+            val fromName = state.ride?.fromPointName?.resolve(language).orEmpty()
+            val toName = state.ride?.toPointName?.resolve(language).orEmpty()
+            val routeText = "$fromName → $toName"
             when (state.phase) {
                 HostTripPhase.LEAVING -> {
                     StatusChip(
@@ -210,7 +213,7 @@ private fun ActivePhaseCard(
                         customLabel = stringResource(Res.string.host_trip_status_leaving),
                     )
                     Text(
-                        text = "${state.ride?.fromPointName?.resolve(language).orEmpty()} → ${state.ride?.toPointName?.resolve(language).orEmpty()}",
+                        text = routeText,
                         style = typography.title,
                         color = colors.textPrimary,
                     )
@@ -371,7 +374,7 @@ private fun HostRiderBoardingCard(
     val spacing = HitchyTheme.spacing
     val typography = HitchyTheme.typography
     val cardShape = RoundedCornerShape(12.dp)
-    val shortName = booking.riderUid.take(8).replaceFirstChar { it.uppercase() }
+    val shortName = booking.riderUid.take(RIDER_NAME_LENGTH).replaceFirstChar { it.uppercase() }
 
     Surface(
         modifier = modifier
@@ -504,3 +507,5 @@ private fun PaymentDoneCard(
         }
     }
 }
+
+private const val RIDER_NAME_LENGTH = 8

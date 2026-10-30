@@ -19,6 +19,8 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 enum class HostTripPhase {
     LEAVING,
@@ -73,7 +75,7 @@ sealed interface HostTripEvent {
     data object TripFinished : HostTripEvent
 }
 
-@OptIn(ExperimentalTime::class)
+@OptIn(ExperimentalTime::class, ExperimentalUuidApi::class)
 class HostTripViewModel(
     private val ridesRepository: RidesRepository,
     private val tripRepository: TripRepository,
@@ -213,7 +215,7 @@ class HostTripViewModel(
         timerJob = viewModelScope.launch {
             while (state.value.phase == HostTripPhase.AT_STOP) {
                 delay(HostTripState.TIMER_DELAY_MS)
-                val elapsedSec = ((clock.now().toEpochMilliseconds() - startMs) / 1000).toInt()
+                val elapsedSec = ((clock.now().toEpochMilliseconds() - startMs) / MILLIS_PER_SECOND).toInt()
                 val remaining = HostTripState.FREE_WAIT_SECONDS - elapsedSec
                 if (remaining >= 0) {
                     setState {
@@ -313,7 +315,8 @@ class HostTripViewModel(
 
     private fun confirmPayment() {
         val rideId = state.value.rideId
-        val reqId = "confirm-payment-${clock.now().toEpochMilliseconds()}"
+        // The server needs a UUID request id; it makes a repeated tap pay only once.
+        val reqId = Uuid.random().toString()
         setState { copy(isLoading = true, error = null) }
         viewModelScope.launch {
             when (val res = tripRepository.confirmRidePayment(rideId, reqId)) {
@@ -333,3 +336,5 @@ class HostTripViewModel(
         }
     }
 }
+
+private const val MILLIS_PER_SECOND = 1000L
