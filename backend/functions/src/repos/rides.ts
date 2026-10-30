@@ -36,5 +36,35 @@ export function writeRide(tx: Transaction, ref: DocumentReference, ride: RideDoc
   tx.set(ref, ride);
 }
 
+export function updateRide(tx: Transaction, rideId: string, fields: Partial<RideDoc>): void {
+  tx.update(collection().doc(rideId), fields);
+}
+
+export interface SearchQuery {
+  pickupZone: string;
+  toZone: string;
+  departFrom: Date;
+  departTo: Date;
+  limit: number;
+}
+
+/**
+ * Open rides that pick up in the rider's zone (v1.2: `pickupZones array-contains`, so a ride is
+ * found from any zone it stops in). The composite index is in firestore.indexes.json.
+ */
+export async function searchOpenRides(q: SearchQuery): Promise<RideWithId[]> {
+  const snap = await collection()
+    .where("pickupZones", "array-contains", q.pickupZone)
+    .where("toZone", "==", q.toZone)
+    .where("status", "==", "open")
+    .where("departAt", ">=", q.departFrom)
+    .where("departAt", "<=", q.departTo)
+    .orderBy("departAt")
+    .limit(q.limit)
+    .get();
+
+  return snap.docs.map((d) => ({ rideId: d.id, ...(d.data() as RideDoc) }));
+}
+
 // The statuses that still hold a seat, a credit or a slot in the host's day (6.5).
 export const LIVE_RIDE_STATUSES: readonly RideStatus[] = ["open", "full", "started"];

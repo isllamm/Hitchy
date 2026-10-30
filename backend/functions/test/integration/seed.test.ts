@@ -90,6 +90,7 @@ describe("runSeed on emulator", () => {
       vehicles: 2,
       kyc: 2,
       wallets: 6,
+      profiles: 6,
     });
 
     // Check config documents

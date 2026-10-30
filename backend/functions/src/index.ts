@@ -2,3 +2,7 @@
 // Each callable, trigger, job and task is re-exported here when its task adds it.
 export { quotePrice } from "./handlers/rides/quotePrice.js";
 export { createRide } from "./handlers/rides/createRide.js";
+export { searchRides } from "./handlers/booking/searchRides.js";
+export { requestSeats } from "./handlers/booking/requestSeats.js";
+export { respondToRequest } from "./handlers/booking/respondToRequest.js";
+export { cancelBooking } from "./handlers/booking/cancelBooking.js";

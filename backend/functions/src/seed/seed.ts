@@ -14,6 +14,7 @@ import type {
   CompanyDoc,
   KycDoc,
   PointDoc,
+  ProfileDoc,
   RouteDoc,
   UserDoc,
   VehicleDoc,
@@ -37,6 +38,7 @@ export interface SeedStats {
   vehicles: number;
   kyc: number;
   wallets: number;
+  profiles: number;
 }
 
 interface ZoneWithPoints extends ZoneDoc {
@@ -154,6 +156,7 @@ export async function runSeed(opts: SeedOptions = {}): Promise<SeedStats> {
     vehicles: 0,
     kyc: 0,
     wallets: 0,
+    profiles: 0,
   };
 
   const log = (msg: string) => {
@@ -309,6 +312,23 @@ export async function runSeed(opts: SeedOptions = {}): Promise<SeedStats> {
       await db.doc(`users/${u.uid}`).set(userDoc);
       stats.users += 1;
 
+      // The public card. syncPublicProfile (P4-B03) writes this in production; the seed writes
+      // it here so search and ride cards have an owner before that trigger exists (ADR row 87).
+      const profileDoc: ProfileDoc = {
+        schemaVersion: 1,
+        firstName: u.firstName,
+        photoPath: null,
+        hostRating: { avg: null, count: 0 },
+        hostTrips: 0,
+        riderRating: { avg: null, count: 0 },
+        verified: Boolean(u.hostApproved),
+        hostTier: "bronze",
+        riderTier: "bronze",
+        updatedAt: deterministicTime,
+      };
+      await db.doc(`profiles/${u.uid}`).set(profileDoc);
+      stats.profiles += 1;
+
       // Wallet (v1.2, R19) with its one `seed` entry, so every balance equals the sum of its
       // entries. The entry id is fixed, so re-seeding does not add a second one.
       const walletDoc: WalletDoc = {
@@ -388,10 +408,10 @@ export async function runSeed(opts: SeedOptions = {}): Promise<SeedStats> {
       }
     }
     log(
-      `✔ Users seeded (${String(stats.users)}), Vehicles (${String(stats.vehicles)}), KYC (${String(stats.kyc)}), Wallets (${String(stats.wallets)})`,
+      `✔ Users seeded (${String(stats.users)}), Profiles (${String(stats.profiles)}), Vehicles (${String(stats.vehicles)}), KYC (${String(stats.kyc)}), Wallets (${String(stats.wallets)})`,
     );
   } else {
-    log("ℹ Dev target: Users, Vehicles, KYC and Wallets are skipped as intended.");
+    log("ℹ Dev target: Users, Profiles, Vehicles, KYC and Wallets are skipped as intended.");
   }
 
   log("🎉 Database seeding completed successfully!");
