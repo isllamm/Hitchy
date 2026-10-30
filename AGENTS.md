@@ -122,6 +122,7 @@ List files changed, test results, and any [HUMAN] or [DECISION] items.
 | 2026-10-30 | P2-A13 Contract DTO tests: 30 callable DTOs, encodeDefaults = false, ContractDtoTest 60 fixtures | PR #33 |
 | 2026-10-30 | P2-A14 Android CI: ready gate removed, workflow_dispatch, placeholder fallback for PRs | PR #34 |
 | 2026-10-30 | P3-A01 Tokens and theme: Color, HitchyColors, Type, Shape, Spacing, HitchyTheme, ThemeTokensTest | PR #35 |
+| 2026-10-30 | P3-A02 Cairo font: Regular, SemiBold, Bold with OFL license, English/Arabic previews | PR #36 |
 
 Deploy jobs skip until each GitHub environment has its Phase 0 secrets (ADR 0003 row 18).
 
