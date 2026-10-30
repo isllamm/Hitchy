@@ -17,6 +17,8 @@ import type {
   RouteDoc,
   UserDoc,
   VehicleDoc,
+  WalletDoc,
+  WalletEntryDoc,
   ZoneDoc,
 } from "../schemas/docs.js";
 
@@ -34,6 +36,7 @@ export interface SeedStats {
   users: number;
   vehicles: number;
   kyc: number;
+  wallets: number;
 }
 
 interface ZoneWithPoints extends ZoneDoc {
@@ -50,6 +53,7 @@ interface TestUserSeed {
   gender: "male" | "female";
   activeRole: "rider" | "host";
   language: "ar" | "en";
+  walletEgp: number; // v1.2 [DECISION-32]: riders start with 250 EGP, owners with 0
   isAdmin?: boolean;
   hostApproved?: boolean;
   vehicle?: {
@@ -149,6 +153,7 @@ export async function runSeed(opts: SeedOptions = {}): Promise<SeedStats> {
     users: 0,
     vehicles: 0,
     kyc: 0,
+    wallets: 0,
   };
 
   const log = (msg: string) => {
@@ -304,6 +309,25 @@ export async function runSeed(opts: SeedOptions = {}): Promise<SeedStats> {
       await db.doc(`users/${u.uid}`).set(userDoc);
       stats.users += 1;
 
+      // Wallet (v1.2, R19) with its one `seed` entry, so every balance equals the sum of its
+      // entries. The entry id is fixed, so re-seeding does not add a second one.
+      const walletDoc: WalletDoc = {
+        balance: u.walletEgp,
+        updatedAt: deterministicTime,
+      };
+      await db.doc(`wallets/${u.uid}`).set(walletDoc);
+
+      const seedEntry: WalletEntryDoc = {
+        delta: u.walletEgp,
+        reason: "seed",
+        refId: null,
+        balanceAfter: u.walletEgp,
+        by: "seed",
+        createdAt: deterministicTime,
+      };
+      await db.doc(`wallets/${u.uid}/entries/seed`).set(seedEntry);
+      stats.wallets += 1;
+
       if (u.vehicle) {
         const vehicleDoc: VehicleDoc = {
           schemaVersion: 1,
@@ -364,10 +388,10 @@ export async function runSeed(opts: SeedOptions = {}): Promise<SeedStats> {
       }
     }
     log(
-      `✔ Users seeded (${String(stats.users)}), Vehicles (${String(stats.vehicles)}), KYC (${String(stats.kyc)})`,
+      `✔ Users seeded (${String(stats.users)}), Vehicles (${String(stats.vehicles)}), KYC (${String(stats.kyc)}), Wallets (${String(stats.wallets)})`,
     );
   } else {
-    log("ℹ Dev target: Users, Vehicles and KYC are skipped as intended.");
+    log("ℹ Dev target: Users, Vehicles, KYC and Wallets are skipped as intended.");
   }
 
   log("🎉 Database seeding completed successfully!");

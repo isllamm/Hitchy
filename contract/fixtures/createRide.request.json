@@ -4,6 +4,13 @@
   "fromPointId": "p1",
   "toZone": "smart_village",
   "toPointId": "p2",
+  "stops": [
+    {
+      "zone": "rehab",
+      "pointId": "p1",
+      "at": "2026-11-02T05:45:00.000Z"
+    }
+  ],
   "direction": "to_work",
   "departAt": "2026-11-02T05:30:00.000Z",
   "seats": 3,

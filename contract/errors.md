@@ -92,6 +92,10 @@ Both Android and iOS apps map these reasons to local resource strings (`error_<r
 | `CHAT_CLOSED`               | `failed-precondition` | Chat for this ride is closed.                             | الشات بتاع المشوار ده اتقفل.                   |
 | `CONTACT_NOT_ALLOWED`       | `permission-denied`   | You can call only after a booking is accepted.            | تقدر تتصل بس بعد ما الحجز يتقبل.               |
 | `PAYMENT_ALREADY_CONFIRMED` | `already-exists`      | This payment was already confirmed.                       | الدفع ده اتأكد قبل كده.                        |
+| `INSUFFICIENT_BALANCE`      | `failed-precondition` | Your wallet balance isn't enough for this ride.            | رصيد محفظتك مش كفاية للمشوار ده.               |
+| `STOPS_INVALID`             | `invalid-argument`    | Check the stops: each needs a pickup point and a later time. | راجع نقط الركوب: كل نقطة محتاجة مكان وميعاد بعد اللي قبلها. |
+| `PICKUP_NOT_ON_RIDE`        | `failed-precondition` | This pickup point isn't on this ride.                      | نقطة الركوب دي مش في المشوار ده.               |
+| `RIDE_NOT_FINISHED`         | `failed-precondition` | End the trip first.                                        | خلّص المشوار الأول.                            |
 
 ---
 

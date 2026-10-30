@@ -7,10 +7,12 @@ import * as inputs from "../../src/schemas/inputs.js";
 import type {
   AddVehicleOutput,
   ApproveHostOutput,
+  ArriveAtStopOutput,
   CancelBookingOutput,
   CancelRideOutput,
   CheckInOutput,
   CompleteProfileOutput,
+  ConfirmRidePaymentOutput,
   CreateRideOutput,
   EmptyOutput,
   FinishRideOutput,
@@ -24,6 +26,7 @@ import type {
   SendChatMessageOutput,
   SubmitHostApplicationOutput,
   SwitchRoleOutput,
+  TopUpWalletOutput,
   UpdateConfigOutput,
 } from "../../src/schemas/io.js";
 
@@ -104,6 +107,12 @@ const RideCardSchema: z.ZodType<RideCard> = z.strictObject({
   fairPrice: z.boolean(),
   seatsLeft: z.number().int().nonnegative(),
   walkM: z.number().int().nonnegative().nullable(),
+  pickup: z.strictObject({
+    id: z.string().min(1),
+    name: LocalizedNameSchema,
+    at: isoUtcWithMs,
+    walkM: z.number().int().nonnegative(),
+  }),
   bestMatch: z.boolean(),
   womenOnly: z.boolean(),
   vehicleType: z.enum(["car", "scooter"]),
@@ -166,6 +175,19 @@ const FinishRideOutputSchema: z.ZodType<FinishRideOutput> = z.strictObject({
   creditUsed: z.boolean(),
 });
 
+const ArriveAtStopOutputSchema: z.ZodType<ArriveAtStopOutput> = z.strictObject({
+  bookings: z.number().int().nonnegative(),
+});
+
+const ConfirmRidePaymentOutputSchema: z.ZodType<ConfirmRidePaymentOutput> = z.strictObject({
+  paidBookings: z.number().int().nonnegative(),
+  total: z.number().int().nonnegative(),
+});
+
+const TopUpWalletOutputSchema: z.ZodType<TopUpWalletOutput> = z.strictObject({
+  balance: z.number().int(),
+});
+
 // Map of output schemas by callable name
 const outputSchemas: Record<string, z.ZodType> = {
   completeProfile: CompleteProfileOutputSchema,
@@ -198,6 +220,9 @@ const outputSchemas: Record<string, z.ZodType> = {
   getContactPhone: GetContactPhoneOutputSchema,
   finishRide: FinishRideOutputSchema,
   submitRating: EmptyOutputSchema,
+  arriveAtStop: ArriveAtStopOutputSchema,
+  confirmRidePayment: ConfirmRidePaymentOutputSchema,
+  topUpWallet: TopUpWalletOutputSchema,
 };
 
 function inputExportToCallableName(exportName: string): string {

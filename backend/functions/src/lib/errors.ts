@@ -69,6 +69,10 @@ export const REASON_CODES = {
   CHAT_CLOSED: "failed-precondition",
   CONTACT_NOT_ALLOWED: "permission-denied",
   PAYMENT_ALREADY_CONFIRMED: "already-exists",
+  INSUFFICIENT_BALANCE: "failed-precondition",
+  STOPS_INVALID: "invalid-argument",
+  PICKUP_NOT_ON_RIDE: "failed-precondition",
+  RIDE_NOT_FINISHED: "failed-precondition",
 } as const satisfies Record<string, FunctionsErrorCode>;
 
 export type Reason = keyof typeof REASON_CODES;

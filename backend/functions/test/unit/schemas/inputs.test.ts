@@ -112,6 +112,7 @@ const cases: [string, z.ZodType, unknown, unknown][] = [
       fromPointId: "gate_1",
       toZone: "smart_village",
       toPointId: "gate_2",
+      stops: [{ zone: "rehab", pointId: "gate_3", at: "2026-11-02T05:45:00Z" }],
       direction: "to_work",
       departAt: DEPART_AT,
       seats: 3,
@@ -125,6 +126,7 @@ const cases: [string, z.ZodType, unknown, unknown][] = [
       fromPointId: "gate_1",
       toZone: "smart_village",
       toPointId: "gate_2",
+      stops: [],
       direction: "to_work",
       departAt: "2026-11-02T07:30:00+02:00",
       seats: 3,
@@ -174,8 +176,8 @@ const cases: [string, z.ZodType, unknown, unknown][] = [
   [
     "RequestSeatsInput",
     inputs.RequestSeatsInput,
-    { rideId: "r1", seats: 2, requestId: REQUEST_ID },
-    { rideId: "r1", seats: 2, requestId: "abc" },
+    { rideId: "r1", seats: 2, pickupId: "s1", requestId: REQUEST_ID },
+    { rideId: "r1", seats: 2, pickupId: "s1", requestId: "abc" },
   ],
   [
     "RespondToRequestInput",
@@ -246,6 +248,24 @@ const cases: [string, z.ZodType, unknown, unknown][] = [
     { rideId: "r1", toUid: "u1", stars: 5, tags: ["on_time", "followed_route"] },
     { rideId: "r1", toUid: "u1", stars: 6, tags: [] },
   ],
+  [
+    "ArriveAtStopInput",
+    inputs.ArriveAtStopInput,
+    { rideId: "r1", pickupId: "start" },
+    { rideId: "r1", pickupId: "s4" },
+  ],
+  [
+    "ConfirmRidePaymentInput",
+    inputs.ConfirmRidePaymentInput,
+    { rideId: "r1", requestId: REQUEST_ID },
+    { rideId: "r1", requestId: REQUEST_ID, riderUid: "u2" },
+  ],
+  [
+    "TopUpWalletInput",
+    inputs.TopUpWalletInput,
+    { uid: "u1", amount: 250, requestId: REQUEST_ID },
+    { uid: "u1", amount: 0, requestId: REQUEST_ID },
+  ],
 ];
 
 describe("callable input schemas", () => {
@@ -301,6 +321,36 @@ describe("callable input schemas", () => {
   it("accepts only 4.5 or 4.8 as a minimum rating", () => {
     expect(inputs.SearchRidesInput.shape.minRating.safeParse(4.8).success).toBe(true);
     expect(inputs.SearchRidesInput.shape.minRating.safeParse(4.6).success).toBe(false);
+  });
+
+  it("accepts 0 to 3 ride stops and refuses a fourth (v1.2 [DECISION-28])", () => {
+    const stop = { zone: "rehab", pointId: "gate_3", at: DEPART_AT };
+    const stops = inputs.CreateRideInput.shape.stops;
+
+    expect(stops.safeParse([]).success).toBe(true);
+    expect(stops.safeParse([stop, stop, stop]).success).toBe(true);
+    expect(stops.safeParse([stop, stop, stop, stop]).success).toBe(false);
+  });
+
+  it("accepts only the start point or a stop id as a pickup (v1.2)", () => {
+    const pickupId = inputs.RequestSeatsInput.shape.pickupId;
+
+    for (const value of ["start", "s1", "s2", "s3"]) {
+      expect(pickupId.safeParse(value).success).toBe(true);
+    }
+    for (const value of ["s0", "s4", "stop1", "START", ""]) {
+      expect(pickupId.safeParse(value).success).toBe(false);
+    }
+  });
+
+  it("accepts a top-up of 1 to 5000 whole EGP (v1.2 [DECISION-32])", () => {
+    const amount = inputs.TopUpWalletInput.shape.amount;
+
+    expect(amount.safeParse(1).success).toBe(true);
+    expect(amount.safeParse(5000).success).toBe(true);
+    for (const value of [0, -250, 5001, 250.5]) {
+      expect(amount.safeParse(value).success).toBe(false);
+    }
   });
 
   it("rejects a document or tag listed twice", () => {
