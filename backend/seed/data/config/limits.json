@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "minLeadMinutes": 30,
+  "minLeadMinutes": 5,
   "maxDaysAhead": 7,
-  "rideGapMinutes": 90,
-  "maxRidesPerHostPerDay": 2,
+  "rideGapMinutes": 5,
+  "maxRidesPerHostPerDay": 10,
   "bookingCutoffMinutes": 15,
   "freeCancelMinutes": 60,
   "hostLateCancelMinutes": 60,
