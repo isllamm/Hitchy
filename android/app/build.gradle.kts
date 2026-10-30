@@ -3,6 +3,26 @@ plugins {
     id("hitchy.quality")
 }
 
+// `:shared` generates its Compose resources but cannot package them itself — see
+// the note in `shared/build.gradle.kts`. They are added here as an assets
+// directory so they reach the APK, with the generating task as the dependency so
+// asset merging never runs before they exist.
+android {
+    sourceSets.named("main") {
+        // A plain path, not a Provider: AGP rejects Providers in the source-set
+        // API because it cannot tell generated directories from hand-written ones.
+        // The task dependency below is what guarantees it exists in time.
+        assets.srcDir(
+            project(":shared").layout.buildDirectory
+                .dir("generated/composeResourcesAssets").get().asFile
+        )
+    }
+}
+
+tasks.matching { it.name.matches(Regex("merge.*Assets")) }.configureEach {
+    dependsOn(":shared:copyAndroidMainComposeResourcesToAndroidAssets")
+}
+
 dependencies {
     implementation(project(":shared"))
     implementation(libs.androidx.appcompat)
