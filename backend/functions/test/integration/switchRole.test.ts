@@ -13,7 +13,7 @@ const UID_PENDING_HOST = "p4b02-user-pending";
 const UID_PLAIN_RIDER = "p4b02-user-rider";
 
 function ctxFor(uid: string, user: UserDoc | null = null): CallCtx {
-  return { uid, phone: "+201000000001", isAdmin: false, user, now: FIXED_NOW };
+  return { uid, phone: "test-phone", isAdmin: false, user, now: FIXED_NOW };
 }
 
 describe("switchRole", () => {

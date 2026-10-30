@@ -9,8 +9,8 @@ import type { CodeDoc, CompanyDoc, KycDoc, UserDoc } from "../../src/schemas/doc
 import type { CompleteProfileInput } from "../../src/schemas/inputs.js";
 import { FIXED_NOW } from "../helpers/docs.js";
 
-const TEST_PHONE = "+201000000099";
-const INVITER_PHONE = "+201000000098";
+const TEST_PHONE = "test-phone-1";
+const INVITER_PHONE = "test-phone-2";
 const UID_NEW = "p4b01-user-new";
 const UID_INVITER = "p4b01-user-inviter";
 const UID_SEEDED = "p4b01-user-seeded";
@@ -25,8 +25,8 @@ function ctxFor(uid: string, phone: string | null = TEST_PHONE): CallCtx {
 
 function baseInput(overrides: Partial<CompleteProfileInput> = {}): CompleteProfileInput {
   return {
-    firstName: "Amr",
-    lastName: "Diab",
+    firstName: "Ramy",
+    lastName: "Test",
     gender: "male",
     companyId: null,
     companyOther: null,
@@ -43,7 +43,7 @@ describe("completeProfile", () => {
 
     // Seed companies
     const activeComp: CompanyDoc = {
-      name: { ar: "شركة فودافون", en: "Vodafone" },
+      name: { ar: "شركة اختبار", en: "Test Co" },
       zoneId: "smart-village",
       active: true,
     };
@@ -68,8 +68,8 @@ describe("completeProfile", () => {
     // Seed a user with referralCode directly (like seed.ts)
     const seededUserDoc: Partial<UserDoc> = {
       schemaVersion: 1,
-      firstName: "Hany",
-      lastName: "Shaker",
+      firstName: "Nour",
+      lastName: "Test",
       phone: INVITER_PHONE,
       gender: "male",
       referralCode: SEEDED_CODE,
@@ -133,8 +133,8 @@ describe("completeProfile", () => {
 
     expect(u.schemaVersion).toBe(1);
     expect(u.phone).toBe(TEST_PHONE);
-    expect(u.firstName).toBe("Amr");
-    expect(u.lastName).toBe("Diab");
+    expect(u.firstName).toBe("Ramy");
+    expect(u.lastName).toBe("Test");
     expect(u.gender).toBe("male");
     expect(u.companyId).toBe(COMPANY_ACTIVE);
     expect(u.companyOther).toBeNull();
@@ -224,8 +224,8 @@ describe("completeProfile", () => {
 
     const out = await completeProfileCore(
       baseInput({
-        firstName: "Amr Mohamed",
-        lastName: "Diab Abdelbasset",
+        firstName: "Ramy Updated",
+        lastName: "Test Updated",
         workHours: { start: "09:00", end: "18:00" },
         language: "en",
         companyOther: "Freelancer",
@@ -241,8 +241,8 @@ describe("completeProfile", () => {
 
     const userSnap = await db.collection("users").doc(UID_NEW).get();
     const u = userSnap.data() as UserDoc;
-    expect(u.firstName).toBe("Amr Mohamed");
-    expect(u.lastName).toBe("Diab Abdelbasset");
+    expect(u.firstName).toBe("Ramy Updated");
+    expect(u.lastName).toBe("Test Updated");
     expect(u.workHours).toEqual({ start: "09:00", end: "18:00" });
     expect(u.language).toBe("en");
     expect(u.companyOther).toBe("Freelancer");
