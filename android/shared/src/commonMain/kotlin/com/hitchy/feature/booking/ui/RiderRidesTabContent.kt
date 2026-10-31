@@ -48,6 +48,8 @@ import com.hitchy.core.ui.components.BackButton
 import com.hitchy.core.ui.components.BackButtonStyle
 import com.hitchy.core.ui.components.EmptyState
 import com.hitchy.core.ui.components.RideStatusVariant
+import com.hitchy.core.ui.components.Skeleton
+import com.hitchy.core.ui.components.SkeletonRideCard
 import com.hitchy.core.ui.components.StatusPill
 import com.hitchy.core.ui.figmaTop
 import com.hitchy.core.ui.icon.HitchyIcons
@@ -121,6 +123,15 @@ fun RiderRidesTabContent(
         Column(modifier = Modifier.fillMaxSize()) {
             RidesHeader(onBack = onBack)
 
+            if (shown.isEmpty() && state.isLoading) {
+                Skeleton(
+                    modifier = Modifier.fillMaxSize().padding(start = 16.dp, end = 16.dp, top = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
+                    repeat(SKELETON_CARDS) { SkeletonRideCard() }
+                }
+                return@Column
+            }
             if (shown.isEmpty() && !state.isLoading) {
                 EmptyState(
                     title = stringResource(Res.string.rides_tab_empty_title),
@@ -294,3 +305,5 @@ private fun UnifiedRideItem.filter(): RidesFilter {
         else -> RidesFilter.Upcoming
     }
 }
+
+private const val SKELETON_CARDS = 3

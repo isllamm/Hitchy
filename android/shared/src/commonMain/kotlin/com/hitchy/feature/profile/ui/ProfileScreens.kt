@@ -302,6 +302,16 @@ fun ProfileTabContent(
                     // No edit screen yet.
                     onEditProfile = null,
                 )
+            } else {
+                MoreHeader(
+                    initials = "",
+                    photoPath = null,
+                    name = "",
+                    verified = false,
+                    ratingLine = null,
+                    onEditProfile = null,
+                    loading = true,
+                )
             }
             Column(
                 modifier = Modifier

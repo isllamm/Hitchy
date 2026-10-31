@@ -36,6 +36,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hitchy.core.model.AppLanguage
 import com.hitchy.core.ui.components.AvatarImage
+import com.hitchy.core.ui.components.Skeleton
+import com.hitchy.core.ui.components.SkeletonCircle
+import com.hitchy.core.ui.components.SkeletonLine
+import com.hitchy.core.ui.components.SkeletonTone
 import com.hitchy.core.ui.figmaLinearGradient
 import com.hitchy.core.ui.figmaShadow
 import com.hitchy.core.ui.figmaTop
@@ -90,6 +94,7 @@ internal fun MoreHeader(
     verified: Boolean,
     ratingLine: String?,
     onEditProfile: (() -> Unit)?,
+    loading: Boolean = false,
 ) {
     val colors = HitchyTheme.colors
     val typography = HitchyTheme.typography
@@ -118,6 +123,28 @@ internal fun MoreHeader(
                 .clip(CircleShape)
                 .background(colors.steel.copy(alpha = DECOR_ALPHA)),
         )
+        if (loading) {
+            // The profile has not answered yet: the photo and the two lines as a skeleton on the gradient.
+            Skeleton(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 16.dp, top = figmaTop(STATUS_BAR) + 16.dp),
+                tone = SkeletonTone.OnBrand,
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    SkeletonCircle(size = 56.dp)
+                    Column(
+                        modifier = Modifier.padding(start = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        SkeletonLine(width = 140.dp, height = 18.dp)
+                        SkeletonLine(width = 96.dp)
+                    }
+                }
+            }
+            return@Box
+        }
         Row(
             modifier = Modifier
                 .align(Alignment.TopStart)
