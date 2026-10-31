@@ -254,7 +254,7 @@ internal fun RiderStatusCard(
             // Figma's card ends with the ride's summary row, as on the Ride Card.
             Box(Modifier.padding(top = 4.dp, bottom = 12.dp)) {
                 RideSummaryRow(
-                    tileIcon = HitchyIcons.Car,
+                    tileIcon = HitchyIcons.Person,
                     title = stringResource(
                         Res.string.rides_t14_seats_booked,
                         state.bookings.sumOf { it.seats },
