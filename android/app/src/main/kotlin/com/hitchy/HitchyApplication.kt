@@ -7,6 +7,7 @@ import com.hitchy.core.data.FirebaseModule
 import com.hitchy.core.model.AppConfig
 import com.hitchy.core.model.Env
 import com.hitchy.core.platform.AndroidActivityProvider
+import com.hitchy.core.ui.map.warmUpMaps
 import com.hitchy.di.appModule
 import com.hitchy.di.coreModule
 import com.hitchy.di.featureModules
@@ -18,6 +19,9 @@ import org.koin.core.logger.Level
 class HitchyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
+        // Light mode only (the designs have no dark theme).
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        warmUpMaps(this)
 
         // TODO(DECISION-04): default language Arabic
         if (AppCompatDelegate.getApplicationLocales().isEmpty) {

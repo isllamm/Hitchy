@@ -90,14 +90,6 @@ internal fun TripSheet(
                 .clip(CircleShape)
                 .background(colors.border),
         )
-        val error = state.error
-        if (error != null) {
-            HitchyBanner(
-                text = stringResource(error.message()),
-                variant = BannerVariant.Error,
-                onDismiss = { onAction(RiderTripAction.DismissError) },
-            )
-        }
         if (booking != null) {
             TripStatusRow(state = state, booking = booking)
         }

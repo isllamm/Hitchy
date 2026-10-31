@@ -246,7 +246,8 @@ describe("the inbox", () => {
     const host = await inboxOf(HOST);
     expect(host).toHaveLength(1);
     expect(host[0]?.type).toBe("booking_requested");
-    expect(host[0]?.title.en).toBe("Mona asked for 2 seat(s)");
+    expect(host[0]?.title.en).toBe("Mona asked for 2 seats");
+    expect(host[0]?.body.en).toBe("Open the ride to accept or decline.");
     expect(host[0]?.title.ar).toContain("Mona");
     expect(host[0]?.deepLink).toBe("hitchy://ride/ride-1");
     expect(host[0]?.readAt).toBeNull();
@@ -261,7 +262,8 @@ describe("the inbox", () => {
 
     const rider = await inboxOf(RIDER);
     expect(rider).toHaveLength(1);
-    expect(rider[0]?.title.en).toBe("Omar accepted your request. Your seat is confirmed");
+    expect(rider[0]?.title.en).toBe("Omar accepted your request");
+    expect(rider[0]?.body.en).toBe("Your seat is confirmed. See you at the pickup point.");
     expect(rider[0]?.title.ar.length).toBeGreaterThan(0);
 
     const created = rider[0]?.createdAt.toDate().getTime() ?? 0;

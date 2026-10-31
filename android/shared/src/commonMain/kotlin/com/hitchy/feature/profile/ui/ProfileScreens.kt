@@ -126,124 +126,124 @@ fun ProfileSetupScreen(
         modifier = modifier.fillMaxSize(),
         color = colors.background,
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            TopBar(title = stringResource(Res.string.profile_setup_title))
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                TopBar(title = stringResource(Res.string.profile_setup_title))
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(spacing.screenPadding),
-                verticalArrangement = Arrangement.spacedBy(spacing.space16),
-            ) {
-                Text(
-                    text = stringResource(Res.string.profile_setup_subtitle),
-                    style = typography.body,
-                    color = colors.textSecondary,
-                )
-
-                val error = state.error
-                if (error != null) {
-                    HitchyBanner(
-                        text = stringResource(error.message()),
-                        variant = BannerVariant.Error,
-                    )
-                }
-
-                HitchyTextField(
-                    value = state.firstName,
-                    onValueChange = { viewModel.onAction(ProfileSetupAction.UpdateFirstName(it)) },
-                    label = stringResource(Res.string.profile_first_name_label),
-                    placeholder = stringResource(Res.string.profile_first_name_placeholder),
-                    enabled = !state.isSaving,
-                )
-
-                HitchyTextField(
-                    value = state.lastName,
-                    onValueChange = { viewModel.onAction(ProfileSetupAction.UpdateLastName(it)) },
-                    label = stringResource(Res.string.profile_last_name_label),
-                    placeholder = stringResource(Res.string.profile_last_name_placeholder),
-                    enabled = !state.isSaving,
-                )
-
-                Column(verticalArrangement = Arrangement.spacedBy(spacing.space8)) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(spacing.screenPadding),
+                    verticalArrangement = Arrangement.spacedBy(spacing.space16),
+                ) {
                     Text(
-                        text = stringResource(Res.string.profile_gender_label),
-                        style = typography.captionStrong,
-                        color = colors.textPrimary,
-                    )
-                    Row(horizontalArrangement = Arrangement.spacedBy(spacing.space12)) {
-                        SelectChip(
-                            label = stringResource(Res.string.profile_gender_male),
-                            selected = state.gender == Gender.MALE,
-                            onClick = { viewModel.onAction(ProfileSetupAction.SelectGender(Gender.MALE)) },
-                            enabled = !state.isSaving,
-                        )
-                        SelectChip(
-                            label = stringResource(Res.string.profile_gender_female),
-                            selected = state.gender == Gender.FEMALE,
-                            onClick = { viewModel.onAction(ProfileSetupAction.SelectGender(Gender.FEMALE)) },
-                            enabled = !state.isSaving,
-                        )
-                    }
-                    Text(
-                        text = stringResource(Res.string.profile_gender_locked_note),
-                        style = typography.caption,
+                        text = stringResource(Res.string.profile_setup_subtitle),
+                        style = typography.body,
                         color = colors.textSecondary,
                     )
-                }
 
-                Column(verticalArrangement = Arrangement.spacedBy(spacing.space8)) {
-                    Text(
-                        text = stringResource(Res.string.profile_company_label),
-                        style = typography.captionStrong,
-                        color = colors.textPrimary,
+                    HitchyTextField(
+                        value = state.firstName,
+                        onValueChange = { viewModel.onAction(ProfileSetupAction.UpdateFirstName(it)) },
+                        label = stringResource(Res.string.profile_first_name_label),
+                        placeholder = stringResource(Res.string.profile_first_name_placeholder),
+                        enabled = !state.isSaving,
                     )
-                    FlowRow(
-                        horizontalArrangement = Arrangement.spacedBy(spacing.space8),
-                        verticalArrangement = Arrangement.spacedBy(spacing.space8),
-                    ) {
-                        SelectChip(
-                            label = stringResource(Res.string.profile_company_none),
-                            selected = state.selectedCompanyId == null && !state.isOtherCompany,
-                            onClick = { viewModel.onAction(ProfileSetupAction.SelectCompany(null)) },
-                            enabled = !state.isSaving,
+
+                    HitchyTextField(
+                        value = state.lastName,
+                        onValueChange = { viewModel.onAction(ProfileSetupAction.UpdateLastName(it)) },
+                        label = stringResource(Res.string.profile_last_name_label),
+                        placeholder = stringResource(Res.string.profile_last_name_placeholder),
+                        enabled = !state.isSaving,
+                    )
+
+                    Column(verticalArrangement = Arrangement.spacedBy(spacing.space8)) {
+                        Text(
+                            text = stringResource(Res.string.profile_gender_label),
+                            style = typography.captionStrong,
+                            color = colors.textPrimary,
                         )
-                        state.companies.forEach { company ->
+                        Row(horizontalArrangement = Arrangement.spacedBy(spacing.space12)) {
                             SelectChip(
-                                label = company.name.resolve(currentLanguage),
-                                selected = state.selectedCompanyId == company.id && !state.isOtherCompany,
-                                onClick = {
-                                    viewModel.onAction(ProfileSetupAction.SelectCompany(company.id))
-                                },
+                                label = stringResource(Res.string.profile_gender_male),
+                                selected = state.gender == Gender.MALE,
+                                onClick = { viewModel.onAction(ProfileSetupAction.SelectGender(Gender.MALE)) },
+                                enabled = !state.isSaving,
+                            )
+                            SelectChip(
+                                label = stringResource(Res.string.profile_gender_female),
+                                selected = state.gender == Gender.FEMALE,
+                                onClick = { viewModel.onAction(ProfileSetupAction.SelectGender(Gender.FEMALE)) },
                                 enabled = !state.isSaving,
                             )
                         }
-                        SelectChip(
-                            label = stringResource(Res.string.profile_company_other),
-                            selected = state.isOtherCompany,
-                            onClick = { viewModel.onAction(ProfileSetupAction.SelectOtherCompany) },
-                            enabled = !state.isSaving,
+                        Text(
+                            text = stringResource(Res.string.profile_gender_locked_note),
+                            style = typography.caption,
+                            color = colors.textSecondary,
                         )
                     }
-                    if (state.isOtherCompany) {
-                        HitchyTextField(
-                            value = state.companyOther,
-                            onValueChange = { viewModel.onAction(ProfileSetupAction.UpdateCompanyOther(it)) },
-                            placeholder = stringResource(Res.string.profile_company_other_placeholder),
-                            enabled = !state.isSaving,
-                        )
-                    }
-                }
 
-                HitchyButton(
-                    onClick = { viewModel.onAction(ProfileSetupAction.Submit) },
-                    enabled = state.canSubmit && !state.isSaving,
-                    loading = state.isSaving,
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Text(text = stringResource(Res.string.profile_save_continue))
+                    Column(verticalArrangement = Arrangement.spacedBy(spacing.space8)) {
+                        Text(
+                            text = stringResource(Res.string.profile_company_label),
+                            style = typography.captionStrong,
+                            color = colors.textPrimary,
+                        )
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(spacing.space8),
+                            verticalArrangement = Arrangement.spacedBy(spacing.space8),
+                        ) {
+                            SelectChip(
+                                label = stringResource(Res.string.profile_company_none),
+                                selected = state.selectedCompanyId == null && !state.isOtherCompany,
+                                onClick = { viewModel.onAction(ProfileSetupAction.SelectCompany(null)) },
+                                enabled = !state.isSaving,
+                            )
+                            state.companies.forEach { company ->
+                                SelectChip(
+                                    label = company.name.resolve(currentLanguage),
+                                    selected = state.selectedCompanyId == company.id && !state.isOtherCompany,
+                                    onClick = {
+                                        viewModel.onAction(ProfileSetupAction.SelectCompany(company.id))
+                                    },
+                                    enabled = !state.isSaving,
+                                )
+                            }
+                            SelectChip(
+                                label = stringResource(Res.string.profile_company_other),
+                                selected = state.isOtherCompany,
+                                onClick = { viewModel.onAction(ProfileSetupAction.SelectOtherCompany) },
+                                enabled = !state.isSaving,
+                            )
+                        }
+                        if (state.isOtherCompany) {
+                            HitchyTextField(
+                                value = state.companyOther,
+                                onValueChange = { viewModel.onAction(ProfileSetupAction.UpdateCompanyOther(it)) },
+                                placeholder = stringResource(Res.string.profile_company_other_placeholder),
+                                enabled = !state.isSaving,
+                            )
+                        }
+                    }
+
+                    HitchyButton(
+                        onClick = { viewModel.onAction(ProfileSetupAction.Submit) },
+                        enabled = state.canSubmit && !state.isSaving,
+                        loading = state.isSaving,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(text = stringResource(Res.string.profile_save_continue))
+                    }
                 }
+            }
+            state.error?.let { error ->
+                FloatingBanner(
+                    text = stringResource(error.message()),
+                    onDismiss = { viewModel.onAction(ProfileSetupAction.DismissError) },
+                )
             }
         }
     }

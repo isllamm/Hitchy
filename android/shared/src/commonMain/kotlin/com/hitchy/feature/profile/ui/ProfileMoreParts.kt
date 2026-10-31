@@ -40,6 +40,7 @@ import com.hitchy.core.ui.figmaLinearGradient
 import com.hitchy.core.ui.figmaShadow
 import com.hitchy.core.ui.figmaTop
 import com.hitchy.core.ui.theme.HitchyTheme
+import com.hitchy.core.ui.tightLine
 import hitchy.shared.generated.resources.Res
 import hitchy.shared.generated.resources.fig_more_chevron
 import hitchy.shared.generated.resources.fig_more_edit
@@ -139,7 +140,7 @@ internal fun MoreHeader(
             }
             Column(
                 modifier = Modifier.weight(1f).padding(start = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(2.dp),
+                verticalArrangement = Arrangement.spacedBy(0.dp),
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -148,6 +149,7 @@ internal fun MoreHeader(
                     Text(
                         text = name,
                         style = typography.h2.copy(lineHeight = 24.sp),
+                        modifier = Modifier.tightLine(typography.h2.fontSize),
                         color = colors.white,
                         maxLines = 1,
                     )

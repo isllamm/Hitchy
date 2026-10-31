@@ -49,6 +49,7 @@ import com.hitchy.core.ui.components.StatusPill
 import com.hitchy.core.ui.figmaTop
 import com.hitchy.core.ui.icon.HitchyIcons
 import com.hitchy.core.ui.theme.HitchyTheme
+import com.hitchy.core.ui.tightLine
 import com.hitchy.core.util.dateKey
 import com.hitchy.core.util.isoToCairoDateKey
 import com.hitchy.feature.booking.presentation.RidesTabViewModel
@@ -59,6 +60,7 @@ import hitchy.shared.generated.resources.Res
 import hitchy.shared.generated.resources.format_egp
 import hitchy.shared.generated.resources.location_dropoff_label
 import hitchy.shared.generated.resources.location_pickup_label
+import hitchy.shared.generated.resources.owner_design_status_posted
 import hitchy.shared.generated.resources.price_per_seat_large
 import hitchy.shared.generated.resources.rider_home_date_format
 import hitchy.shared.generated.resources.rider_home_date_today
@@ -89,6 +91,25 @@ private val CardRadius = 16.dp
 private const val DATE_MONTH_START = 5
 private const val DATE_MONTH_END = 7
 private const val DATE_DAY_START = 8
+
+/**
+ * The owner's ride pill, one rule for the Rides list and the ride details (Figma uses both words for the same
+ * card): "Confirmed" once a seat is booked, "Posted" before that, then the ride's own status.
+ */
+@Composable
+internal fun ownerRidePill(status: RideStatus, bookedSeats: Int): Pair<RideStatusVariant, String?> = when {
+    status != RideStatus.OPEN && status != RideStatus.FULL -> status.toPillVariant() to null
+    bookedSeats > 0 -> RideStatusVariant.Confirmed to null
+    else -> RideStatusVariant.InProgress to stringResource(Res.string.owner_design_status_posted)
+}
+
+private fun RideStatus.toPillVariant(): RideStatusVariant = when (this) {
+    RideStatus.OPEN, RideStatus.FULL -> RideStatusVariant.Confirmed
+    RideStatus.STARTED -> RideStatusVariant.InProgress
+    RideStatus.FINISHED -> RideStatusVariant.Completed
+    RideStatus.CANCELLED -> RideStatusVariant.Cancelled
+    RideStatus.EXPIRED -> RideStatusVariant.Expired
+}
 
 /** What one card shows. Built from a booking (rider) or an offered ride (owner). */
 internal data class RideCardData(
@@ -211,9 +232,9 @@ internal fun RideSummaryRow(
     ) {
         IconTile(icon = tileIcon, tileColor = colors.lavender, iconColor = colors.purple)
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = title, style = typography.title, color = colors.navy, maxLines = 1)
+            Text(text = title, style = typography.title, color = colors.navy, maxLines = 1, modifier = Modifier.tightLine(typography.title.fontSize))
             if (subtitle != null) {
-                Text(text = subtitle, style = typography.body, color = colors.textSecondary, maxLines = 1)
+                Text(text = subtitle, style = typography.body, color = colors.textSecondary, maxLines = 1, modifier = Modifier.tightLine(typography.body.fontSize))
             }
         }
         Text(

@@ -19,4 +19,11 @@ class InMemoryAppSettings(
     override suspend fun setLastRole(role: Role) {
         _lastRole.value = role
     }
+
+    private val _onboardingSeen = MutableStateFlow(false)
+    override val onboardingSeen: Flow<Boolean> = _onboardingSeen.asStateFlow()
+
+    override suspend fun setOnboardingSeen() {
+        _onboardingSeen.value = true
+    }
 }

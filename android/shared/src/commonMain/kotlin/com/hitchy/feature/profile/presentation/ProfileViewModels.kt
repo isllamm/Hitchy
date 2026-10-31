@@ -46,6 +46,7 @@ sealed interface ProfileSetupAction {
     data object SelectOtherCompany : ProfileSetupAction
     data class UpdateCompanyOther(val value: String) : ProfileSetupAction
     data object Submit : ProfileSetupAction
+    data object DismissError : ProfileSetupAction
 }
 
 sealed interface ProfileSetupEvent {
@@ -87,6 +88,8 @@ class ProfileSetupViewModel(
             is ProfileSetupAction.UpdateCompanyOther -> setState { copy(companyOther = action.value, error = null) }
 
             ProfileSetupAction.Submit -> submit()
+
+            ProfileSetupAction.DismissError -> setState { copy(error = null) }
         }
     }
 

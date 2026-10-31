@@ -37,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hitchy.core.model.AppLanguage
@@ -46,7 +47,6 @@ import com.hitchy.core.platform.LanguageSwitcher
 import com.hitchy.core.ui.cairoTime12
 import com.hitchy.core.ui.components.BackButton
 import com.hitchy.core.ui.components.BackButtonStyle
-import com.hitchy.core.ui.components.EmptyState
 import com.hitchy.core.ui.components.RideStatusVariant
 import com.hitchy.core.ui.components.StatusPill
 import com.hitchy.core.ui.figmaTop
@@ -61,6 +61,7 @@ import com.hitchy.feature.booking.presentation.opensRiderTrip
 import hitchy.shared.generated.resources.Res
 import hitchy.shared.generated.resources.fig_rides_search
 import hitchy.shared.generated.resources.format_egp
+import hitchy.shared.generated.resources.img_empty_rides
 import hitchy.shared.generated.resources.location_dropoff_label
 import hitchy.shared.generated.resources.location_pickup_label
 import hitchy.shared.generated.resources.owner_design_route_start
@@ -122,12 +123,7 @@ fun RiderRidesTabContent(
             RidesHeader(onBack = onBack)
 
             if (shown.isEmpty() && !state.isLoading) {
-                EmptyState(
-                    title = stringResource(Res.string.rides_tab_empty_title),
-                    message = stringResource(Res.string.rides_tab_empty_body),
-                    icon = HitchyIcons.Rides,
-                    modifier = Modifier.fillMaxSize(),
-                )
+                RidesEmpty()
                 return@Column
             }
             LazyColumn(
@@ -154,6 +150,31 @@ fun RiderRidesTabContent(
                     RideDesignCard(data = data, todayKey = todayKey, tomorrowKey = tomorrowKey)
                 }
             }
+        }
+    }
+}
+
+/** The empty list, laid out like the Shop's Coming Soon: the 300x200 car picture, the Bold 28/36 title and line. */
+@Composable
+private fun RidesEmpty() {
+    val colors = HitchyTheme.colors
+    val typography = HitchyTheme.typography
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+        // 30.5dp more than the Shop's 145dp: this header is shorter, so the picture lands where the Shop's does.
+        Column(modifier = Modifier.padding(top = 175.5.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Image(
+                painter = painterResource(Res.drawable.img_empty_rides),
+                contentDescription = null,
+                modifier = Modifier.size(width = 300.dp, height = 200.dp),
+            )
+            Text(text = stringResource(Res.string.rides_tab_empty_title), style = typography.h1, color = colors.navy)
+            Text(
+                text = stringResource(Res.string.rides_tab_empty_body),
+                style = typography.bodyLarge,
+                color = colors.textSecondary,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.width(290.dp).padding(top = 8.78.dp),
+            )
         }
     }
 }
@@ -225,17 +246,27 @@ private fun UnifiedRideItem.toCardData(
         },
     )
 
-    is UnifiedRideItem.AsOwner -> RideCardData(
-        status = ride.status.toVariant(),
+    is UnifiedRideItem.AsOwner -> ownerCardData(this, language, onOpenHostRideDetails, onOpenHostTrip)
+}
+
+@Composable
+private fun ownerCardData(
+    item: UnifiedRideItem.AsOwner,
+    language: AppLanguage,
+    onOpenHostRideDetails: (String) -> Unit,
+    onOpenHostTrip: (String) -> Unit,
+): RideCardData {
+    val ride = item.ride
+    val booked = (ride.seatsTotal - ride.seatsLeft).coerceAtLeast(0)
+    val (pill, pillLabel) = ownerRidePill(ride.status, booked)
+    return RideCardData(
+        status = pill,
+        statusLabel = pillLabel,
         dateKey = isoToCairoDateKey(ride.departAt),
         time = cairoTime12(ride.departAt),
         pickupName = ride.fromPointName.resolve(language),
         dropOffName = ride.toPointName.resolve(language),
-        title = stringResource(
-            Res.string.rides_t14_seats_booked,
-            (ride.seatsTotal - ride.seatsLeft).coerceAtLeast(0),
-            ride.seatsTotal,
-        ),
+        title = stringResource(Res.string.rides_t14_seats_booked, booked, ride.seatsTotal),
         subtitle = stringResource(
             Res.string.rides_design_vehicle,
             ride.vehicle.make,

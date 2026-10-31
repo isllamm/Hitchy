@@ -19,13 +19,16 @@ import com.hitchy.core.model.GeoPoint
 import com.hitchy.core.platform.LanguageSwitcher
 import com.hitchy.core.ui.components.BackButton
 import com.hitchy.core.ui.components.BackButtonStyle
+import com.hitchy.core.ui.components.FloatingBanner
 import com.hitchy.core.ui.figmaTop
 import com.hitchy.core.ui.map.HitchyMap
 import com.hitchy.core.ui.map.MapPin
+import com.hitchy.core.ui.message
 import com.hitchy.core.ui.theme.HitchyTheme
 import com.hitchy.feature.trip.presentation.RiderTripAction
 import com.hitchy.feature.trip.presentation.RiderTripState
 import com.hitchy.feature.trip.presentation.RiderTripViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -72,6 +75,12 @@ fun RiderTripScreen(
             onAction = viewModel::onAction,
             modifier = Modifier.fillMaxSize().padding(top = SheetTopOffset),
         )
+        state.error?.let { error ->
+            FloatingBanner(
+                text = stringResource(error.message()),
+                onDismiss = { viewModel.onAction(RiderTripAction.DismissError) },
+            )
+        }
     }
 
     if (state.showCancelSheet && !state.isCancelled) {

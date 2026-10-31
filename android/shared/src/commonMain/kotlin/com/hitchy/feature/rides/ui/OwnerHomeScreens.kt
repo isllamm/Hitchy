@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -41,6 +42,8 @@ import com.hitchy.core.ui.components.AvatarImage
 import com.hitchy.core.ui.figmaLinearGradient
 import com.hitchy.core.ui.figmaTop
 import com.hitchy.core.ui.theme.HitchyTheme
+import com.hitchy.core.ui.tight
+import com.hitchy.core.ui.tightLine
 import com.hitchy.core.util.dateKey
 import com.hitchy.feature.host.domain.HostRepository
 import com.hitchy.feature.rides.presentation.OwnerHomeAction
@@ -52,11 +55,14 @@ import hitchy.shared.generated.resources.Res
 import hitchy.shared.generated.resources.fig_oh_chevron
 import hitchy.shared.generated.resources.fig_oh_gift
 import hitchy.shared.generated.resources.fig_oh_plan_chevron
+import hitchy.shared.generated.resources.img_home_coins
 import hitchy.shared.generated.resources.owner_home_currency
 import hitchy.shared.generated.resources.owner_home_days_left
 import hitchy.shared.generated.resources.owner_home_free_month
 import hitchy.shared.generated.resources.owner_home_free_until
+import hitchy.shared.generated.resources.owner_home_fuel_body
 import hitchy.shared.generated.resources.owner_home_fuel_covered
+import hitchy.shared.generated.resources.owner_home_fuel_title
 import hitchy.shared.generated.resources.owner_home_months_full
 import hitchy.shared.generated.resources.owner_home_seat_payments
 import hitchy.shared.generated.resources.owner_home_setup_body
@@ -117,6 +123,7 @@ fun OwnerHomeContent(
     onOpenHostTrip: (String) -> Unit,
     onOpenRidesTab: () -> Unit,
     onOpenEarnings: () -> Unit,
+    onOpenProfile: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: OwnerHomeViewModel = koinViewModel(),
     clock: Clock = koinInject(),
@@ -150,13 +157,17 @@ fun OwnerHomeContent(
                 .padding(start = 16.dp, end = 16.dp, top = figmaTop(if (isNewOwner) 68.dp else 56.dp), bottom = 24.dp),
         ) {
             if (isNewOwner) {
-                WelcomeTopBar(state, onOpenNotifications)
+                WelcomeTopBar(state, onOpenNotifications, onOpenProfile)
                 Box(Modifier.height(24.dp))
             } else {
-                OwnerTopBar(state, onOpenNotifications)
+                OwnerTopBar(state, onOpenNotifications, onOpenProfile)
                 Box(Modifier.height(16.dp))
             }
-            EarningsCard(monthKey = monthKey, stats = stats, onOpenEarnings = onOpenEarnings)
+            if (stats.monthEarningsEgp == 0) {
+                FuelMoneyCard(onClick = onOpenPostRide)
+            } else {
+                EarningsCard(monthKey = monthKey, stats = stats, onOpenEarnings = onOpenEarnings)
+            }
             Box(Modifier.height(if (isNewOwner) 24.dp else 20.dp))
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 state.freeUntil?.let { PlanCard(freeUntilIso = it, now = now) }
@@ -219,53 +230,88 @@ private fun HeaderBackground() {
     )
 }
 
-/** Figma's top bar (52dp): the 48dp avatar, "Welcome back," over the name, and the bell. */
+/**
+ * Figma's top bar: the avatar with its top on the bell's top, "Welcome back," over the name in a block as tall
+ * as the avatar, and the bell.
+ */
 @Composable
-private fun OwnerTopBar(state: OwnerHomeState, onOpenNotifications: () -> Unit) {
+private fun OwnerTopBar(state: OwnerHomeState, onOpenNotifications: () -> Unit, onOpenProfile: () -> Unit) {
     val colors = HitchyTheme.colors
     val typography = HitchyTheme.typography
-    Row(modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp), verticalAlignment = Alignment.CenterVertically) {
-        OwnerAvatar(state)
-        Column(modifier = Modifier.weight(1f).padding(start = 12.dp)) {
-            Text(text = stringResource(Res.string.owner_home_welcome), style = typography.body, color = colors.white)
-            Text(text = fullName(state), style = typography.h3, color = colors.white, maxLines = 1)
-        }
+    HeaderRow(state, onOpenNotifications, onOpenProfile) {
+        Text(
+            text = stringResource(Res.string.owner_home_welcome),
+            style = typography.body,
+            color = colors.white,
+            modifier = Modifier.tightLine(typography.body.fontSize),
+        )
+        Text(
+            text = fullName(state),
+            style = typography.h3,
+            color = colors.white,
+            maxLines = 1,
+            modifier = Modifier.tightLine(typography.h3.fontSize),
+        )
+    }
+}
+
+/** Figma 832:14186: "Welcome, Omar" over the three-steps line, in the same header row. */
+@Composable
+private fun WelcomeTopBar(state: OwnerHomeState, onOpenNotifications: () -> Unit, onOpenProfile: () -> Unit) {
+    val colors = HitchyTheme.colors
+    val typography = HitchyTheme.typography
+    HeaderRow(state, onOpenNotifications, onOpenProfile) {
+        Text(
+            text = stringResource(Res.string.owner_home_welcome_name, state.firstName),
+            style = typography.h3,
+            color = colors.white,
+            maxLines = 1,
+            modifier = Modifier.tightLine(typography.h3.fontSize),
+        )
+        Text(
+            text = stringResource(Res.string.owner_home_setup_body),
+            style = typography.caption,
+            color = colors.white,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.tightLine(typography.caption.fontSize),
+        )
+    }
+}
+
+/** The avatar and the bell share one top line; the two text lines sit centred in the avatar's height. */
+@Composable
+private fun HeaderRow(
+    state: OwnerHomeState,
+    onOpenNotifications: () -> Unit,
+    onOpenProfile: () -> Unit,
+    lines: @Composable () -> Unit,
+) {
+    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+        Box(Modifier.padding(top = BELL_TOP)) { OwnerAvatar(state, onOpenProfile) }
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 12.dp, end = 8.dp, top = BELL_TOP)
+                .heightIn(min = AvatarSize),
+            verticalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterVertically),
+        ) { lines() }
         HomeBell(unreadCount = state.unreadCount, onClick = onOpenNotifications)
     }
 }
 
-/** Figma 832:14186: "Welcome, Omar" (800 24/30) over the three-steps line, and the bell. */
-@Composable
-private fun WelcomeTopBar(state: OwnerHomeState, onOpenNotifications: () -> Unit) {
-    val colors = HitchyTheme.colors
-    val typography = HitchyTheme.typography
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-        Row(modifier = Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            OwnerAvatar(state)
-            Column {
-                Text(
-                    text = stringResource(Res.string.owner_home_welcome_name, state.firstName),
-                    style = typography.amount,
-                    color = colors.white,
-                )
-                Text(
-                    text = stringResource(Res.string.owner_home_setup_body),
-                    style = typography.body,
-                    color = colors.white,
-                )
-            }
-        }
-        HomeBell(unreadCount = state.unreadCount, onClick = onOpenNotifications)
-    }
-}
+// The bell's circle starts 2.4dp into its 52dp box (HomeBell) and is 49.6dp wide.
+private val BELL_TOP = 2.4.dp
+private val AvatarSize = 49.6.dp
 
 @Composable
-private fun OwnerAvatar(state: OwnerHomeState) {
+private fun OwnerAvatar(state: OwnerHomeState, onClick: () -> Unit) {
     val colors = HitchyTheme.colors
     Box(
         modifier = Modifier
-            .size(48.dp)
+            .size(AvatarSize)
             .clip(CircleShape)
+            .clickable(onClick = onClick)
             .background(colors.white)
             .border(2.dp, colors.white.copy(alpha = AVATAR_RING_ALPHA), CircleShape),
         contentAlignment = Alignment.Center,
@@ -284,6 +330,51 @@ private fun fullName(state: OwnerHomeState): String {
     return parts.filter { it.isNotBlank() }.joinToString(" ")
 }
 
+// Figma's earnings card is 361x120; the empty-month card takes the same space so nothing below moves.
+private val EarningsCardHeight = 120.dp
+
+/**
+ * Shown instead of the earnings card while this month's earnings are 0 (design from Islam, 2026-10-31): the
+ * earnings card's glass background with "Turn your empty seats into fuel money" (Bold 20/28), the 14/22 line and
+ * the coins picture on the end side. A tap opens Add ride.
+ */
+@Composable
+private fun FuelMoneyCard(onClick: () -> Unit) {
+    val colors = HitchyTheme.colors
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(CardShape)
+            .height(EarningsCardHeight)
+            .background(colors.white.copy(alpha = CARD_FILL_ALPHA))
+            .border(1.dp, colors.white.copy(alpha = CARD_STROKE_ALPHA), CardShape)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(
+                text = stringResource(Res.string.owner_home_fuel_title),
+                style = HitchyTheme.typography.h3.tight(),
+                color = colors.white,
+                maxLines = 2,
+            )
+            Text(
+                text = stringResource(Res.string.owner_home_fuel_body),
+                style = HitchyTheme.typography.caption.tight(),
+                color = colors.white,
+                maxLines = 2,
+            )
+        }
+        Image(
+            painter = painterResource(Res.drawable.img_home_coins),
+            contentDescription = null,
+            modifier = Modifier.size(width = 89.dp, height = 87.dp),
+        )
+    }
+}
+
 /**
  * Figma's "Monthly earnings" glass card (361x120, r20, padding 12/16, gap 4): "October · seat payments" with
  * "View earnings ›", the amount (Bold 32/40) and EGP, a 6dp bar of the trip cost covered, and the summary.
@@ -298,6 +389,7 @@ private fun EarningsCard(monthKey: String, stats: OwnerHomeStats, onOpenEarnings
         modifier = Modifier
             .fillMaxWidth()
             .clip(CardShape)
+            .heightIn(min = EarningsCardHeight)
             .background(colors.white.copy(alpha = CARD_FILL_ALPHA))
             .border(1.dp, colors.white.copy(alpha = CARD_STROKE_ALPHA), CardShape)
             .padding(horizontal = 16.dp, vertical = 12.dp),

@@ -2,6 +2,8 @@ package com.hitchy.feature.rides.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,9 +25,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hitchy.core.platform.LanguageSwitcher
 import com.hitchy.core.platform.Sharer
-import com.hitchy.core.ui.ErrorText
 import com.hitchy.core.ui.StepBackHandler
+import com.hitchy.core.ui.components.FloatingBanner
 import com.hitchy.core.ui.components.HitchyButton
+import com.hitchy.core.ui.message
 import com.hitchy.core.ui.theme.HitchyTheme
 import com.hitchy.feature.booking.ui.ErrorToast
 import com.hitchy.feature.profile.domain.ProfileRepository
@@ -97,54 +100,65 @@ fun PostRideScreen(
     val openRides = { onOpenMyRides?.invoke() ?: liveRideId?.let(onNavigateToRideDetails) ?: onBack() }
     StepBackHandler(enabled = step == STEP_LIVE) { openRides() }
 
-    Column(modifier = modifier.fillMaxSize().background(HitchyTheme.colors.white)) {
-        when (step) {
-            STEP_ROUTE -> OfferTopBar(stringResource(Res.string.offer_title_route), onBack)
-            STEP_REVIEW -> OfferTopBar(stringResource(Res.string.offer_title_review), onBack = { step = STEP_ROUTE })
-            else -> Column(Modifier.statusBarsPadding()) {}
-        }
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
-                .padding(start = 16.dp, end = 16.dp, top = if (step == STEP_LIVE) 32.dp else 8.dp, bottom = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
+    Box(modifier = modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize().background(HitchyTheme.colors.white)) {
             when (step) {
-                STEP_ROUTE -> {
-                    OfferStepHeader(stringResource(Res.string.offer_step_route), HALF)
-                    OfferRouteStep(state, language, onOpenRoutePicker, viewModel::onAction)
-                }
+                STEP_ROUTE -> OfferTopBar(stringResource(Res.string.offer_title_route), onBack)
 
-                STEP_REVIEW -> {
-                    OfferStepHeader(stringResource(Res.string.offer_step_review), 1f)
-                    OfferReviewStep(state, language, onEdit = { step = STEP_ROUTE }, onAction = viewModel::onAction)
-                }
-
-                else -> OfferLiveContent(
-                    state = state,
-                    language = language,
-                    onShareInvite = inviteText.value
-                        .takeIf { it.isNotBlank() }
-                        ?.let { text -> { sharer.shareText(text) } },
+                STEP_REVIEW -> OfferTopBar(
+                    stringResource(Res.string.offer_title_review),
+                    onBack = { step = STEP_ROUTE },
                 )
+
+                else -> Column(Modifier.statusBarsPadding()) {}
+            }
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .padding(start = 16.dp, end = 16.dp, top = if (step == STEP_LIVE) 32.dp else 8.dp, bottom = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                when (step) {
+                    STEP_ROUTE -> {
+                        OfferStepHeader(stringResource(Res.string.offer_step_route), HALF)
+                        OfferRouteStep(state, language, onOpenRoutePicker, viewModel::onAction)
+                    }
+
+                    STEP_REVIEW -> {
+                        OfferStepHeader(stringResource(Res.string.offer_step_review), 1f)
+                        OfferReviewStep(state, language, onEdit = { step = STEP_ROUTE }, onAction = viewModel::onAction)
+                    }
+
+                    else -> OfferLiveContent(
+                        state = state,
+                        language = language,
+                        onShareInvite = inviteText.value
+                            .takeIf { it.isNotBlank() }
+                            ?.let { text -> { sharer.shareText(text) } },
+                    )
+                }
+            }
+            OfferFooter {
+                when (step) {
+                    STEP_ROUTE -> MainButton(stringResource(Res.string.offer_continue), loading = false) {
+                        viewModel.onAction(PostRideAction.Continue)
+                    }
+
+                    STEP_REVIEW -> MainButton(stringResource(Res.string.offer_publish), loading = state.isSubmitting) {
+                        viewModel.onAction(PostRideAction.Submit)
+                    }
+
+                    else -> MainButton(
+                        stringResource(Res.string.offer_go_to_rides),
+                        loading = false,
+                        onClick = openRides,
+                    )
+                }
             }
         }
-        OfferFooter {
-            OfferErrors(state, viewModel::onAction)
-            when (step) {
-                STEP_ROUTE -> MainButton(stringResource(Res.string.offer_continue), loading = false) {
-                    viewModel.onAction(PostRideAction.Continue)
-                }
-
-                STEP_REVIEW -> MainButton(stringResource(Res.string.offer_publish), loading = state.isSubmitting) {
-                    viewModel.onAction(PostRideAction.Submit)
-                }
-
-                else -> MainButton(stringResource(Res.string.offer_go_to_rides), loading = false, onClick = openRides)
-            }
-        }
+        OfferErrors(state, viewModel::onAction)
     }
 }
 
@@ -155,15 +169,9 @@ private fun MainButton(text: String, loading: Boolean, onClick: () -> Unit) {
     }
 }
 
-/** The route checks and server errors, as Figma's red toast over the main button. */
+/** The route checks and server errors, floating over the top of the screen so nothing moves. */
 @Composable
-private fun OfferErrors(state: PostRideState, onAction: (PostRideAction) -> Unit) {
-    val validationError = state.validationError
-    if (validationError != null) {
-        ErrorToast(text = stringResource(validationError), onDismiss = { onAction(PostRideAction.DismissError) })
-    }
-    val error = state.error
-    if (error != null) {
-        ErrorText(error = error, style = HitchyTheme.typography.caption, color = HitchyTheme.colors.error)
-    }
+private fun BoxScope.OfferErrors(state: PostRideState, onAction: (PostRideAction) -> Unit) {
+    val text = state.validationError?.let { stringResource(it) } ?: state.error?.let { stringResource(it.message()) }
+    if (text != null) FloatingBanner(text = text, onDismiss = { onAction(PostRideAction.DismissError) })
 }

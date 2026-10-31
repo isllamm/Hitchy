@@ -1863,32 +1863,32 @@ All schedules use `timeZone: "Africa/Cairo"`.
 
 `lib/notify.ts` sends to every device token of a user (`users/{uid}/devices`) and deletes tokens FCM reports as unregistered. The text uses the device's `language`. Every message carries `data: { type, deepLink }` so the app can route a tap. From v1.1 it also writes each message to the user's inbox (`users/{uid}/notifications`, both languages) `[DECISION-27]`; admin alerts are not stored. Text that riders read says "owner", not "host" `[DECISION-20]`.
 
-| Type | To | Android channel | Deep link | English | Arabic |
+| Type | To | Android channel | Deep link | English (title<br>line under it) | Arabic (title<br>line under it) |
 | --- | --- | --- | --- | --- | --- |
 | `new_host_application` | admins | admin | `{admin}/hosts` | New host application to review | فيه طلب صاحب عربية جديد للمراجعة |
-| `host_approved` | user | account | `hitchy://host/status` | You're approved. Your first month is free! | اتوافق عليك! أول شهر ببلاش |
-| `host_rejected` | user | account | `hitchy://host/status` | Some documents need fixing | فيه ورق محتاج يتعدل |
+| `host_approved` | user | account | `hitchy://host/status` | You're approved<br>Your first month is free. Post your first ride. | اتوافق عليك<br>أول شهر ببلاش. انشر أول مشوار ليك. |
+| `host_rejected` | user | account | `hitchy://host/status` | Some documents need fixing<br>Open your application to upload them again. | فيه ورق محتاج يتعدل<br>افتح طلبك وارفعهم تاني. |
 | `vehicle_reviewed` | user | account | `hitchy://host/status` | Your vehicle was reviewed | عربيتك اتراجعت |
 | `verified_granted` | user | account | `hitchy://profile` | You're now Verified | بقيت Verified |
-| `account_ready` | user, after the first `completeProfile` | account | `hitchy://home` | Your Hitchy account is ready | حسابك على Hitchy جاهز |
+| `account_ready` | user, after the first `completeProfile` | account | `hitchy://home` | Your Hitchy account is ready<br>You can now book rides. | حسابك على Hitchy جاهز<br>تقدر تحجز مشاوير دلوقتي. |
 | `verify_request` | admins | admin | `{admin}/hosts` | A host asked for Verified | صاحب عربية طالب علامة Verified |
-| `booking_requested` | host | bookings | `hitchy://ride/{rideId}` | {name} asked for {seats} seat(s) | {name} طلب يحجز {seats} كرسي |
-| `booking_accepted` | rider | bookings | `hitchy://trip/{rideId}` | {name} accepted your request. Your seat is confirmed | {name} وافق على طلبك، كرسيك اتأكد |
-| `booking_declined` | rider | bookings | `hitchy://search` | {name} couldn't take your request | {name} مقدرش ياخد طلبك |
-| `request_expired` | rider | bookings | `hitchy://search` | Your request wasn't answered in time | طلبك متردش عليه في الوقت |
-| `booking_cancelled` | host | bookings | `hitchy://ride/{rideId}` | {name} cancelled their booking | {name} لغى الحجز |
-| `ride_cancelled` | rider | bookings | `hitchy://trips` | Your ride was cancelled | مشوارك اتلغى |
-| `ride_reminder` | host, riders | trips | `hitchy://trip/{rideId}` | Your ride leaves in 30 minutes | مشوارك هيتحرك كمان نص ساعة |
-| `ride_started` | riders | trips | `hitchy://trip/{rideId}` | Your owner is on the way | صاحب العربية في الطريق |
-| `rider_at_pickup` | host | trips | `hitchy://trip/{rideId}` | {name} is at the pickup point | {name} وصل مكان الركوب |
+| `booking_requested` | host | bookings | `hitchy://ride/{rideId}` | {name} asked for {seatWord}<br>Open the ride to accept or decline. | {name} طلب يحجز {seatWord}<br>افتح المشوار عشان توافق أو ترفض. |
+| `booking_accepted` | rider | bookings | `hitchy://trip/{rideId}` | {name} accepted your request<br>Your seat is confirmed. See you at the pickup point. | {name} وافق على طلبك<br>كرسيك اتأكد. نشوفك في مكان الركوب. |
+| `booking_declined` | rider | bookings | `hitchy://search` | {name} couldn't take your request<br>Search again to find another ride. | {name} مقدرش ياخد طلبك<br>دوّر تاني على مشوار تاني. |
+| `request_expired` | rider | bookings | `hitchy://search` | Your request wasn't answered in time<br>Search again to find another ride. | طلبك متردش عليه في الوقت<br>دوّر تاني على مشوار تاني. |
+| `booking_cancelled` | host | bookings | `hitchy://ride/{rideId}` | {name} cancelled their booking<br>The seat is open again for other riders. | {name} لغى الحجز<br>الكرسي بقى متاح لركاب تانيين. |
+| `ride_cancelled` | rider | bookings | `hitchy://trips` | Your ride was cancelled<br>Search again to find another ride. | مشوارك اتلغى<br>دوّر تاني على مشوار تاني. |
+| `ride_reminder` | host, riders | trips | `hitchy://trip/{rideId}` | Your ride leaves in 30 minutes<br>Be at your pickup point a few minutes early. | مشوارك هيتحرك كمان نص ساعة<br>خليك في مكان الركوب قبلها بكام دقيقة. |
+| `ride_started` | riders | trips | `hitchy://trip/{rideId}` | Your owner is on the way<br>Open the trip to follow the ride. | صاحب العربية في الطريق<br>افتح الرحلة عشان تتابع المشوار. |
+| `rider_at_pickup` | host | trips | `hitchy://trip/{rideId}` | {name} is at the pickup point<br>Open the trip to mark them on board. | {name} وصل مكان الركوب<br>افتح الرحلة وسجّل إنه ركب. |
 | `fee_created` | rider | account | `hitchy://fees` | A 10 EGP late fee was recorded | اتسجلت عليك غرامة تأخير 10 جنيه |
 | `fee_paid` | rider | account | `hitchy://fees` | Your late fee is marked as paid | الغرامة اتسجلت إنها اتدفعت |
 | `fee_resolved` | rider, host | account | `hitchy://fees` | The fee dispute was resolved | الاعتراض على الغرامة اتحسم |
 | `fee_disputed` | admins | admin | `{admin}/disputes` | A fee was disputed | فيه اعتراض على غرامة |
 | `chat_message` | other side | trips | `hitchy://chat/{rideId}/{riderUid}` | New message from {name} | رسالة جديدة من {name} |
-| `rate_trip` | rider | trips | `hitchy://rate/{rideId}` | How was your ride? | المشوار كان عامل إزاي؟ |
+| `rate_trip` | rider | trips | `hitchy://rate/{rideId}` | How was your ride?<br>Rate your trip to help other riders. | المشوار كان عامل إزاي؟<br>قيّم المشوار عشان تساعد الركاب التانيين. |
 | `rate_riders` | host | trips | `hitchy://rate/{rideId}` | Rate your riders | قيّم الركاب |
-| `payment_confirmed` | rider | account | `hitchy://receipt/{rideId}` | {name} confirmed your payment | {name} أكد إنك دفعت |
+| `payment_confirmed` | rider | account | `hitchy://receipt/{rideId}` | {name} confirmed your payment<br>Your receipt for this ride is ready. | {name} أكد إنك دفعت<br>إيصال المشوار ده جاهز. |
 | `low_balance` | host | account | `hitchy://packages` | You have 2 trips left | فاضلك رحلتين |
 | `free_month_ending` | host | account | `hitchy://packages` | Your free month ends soon | الشهر المجاني قرب يخلص |
 | `package_confirmed` | host | account | `hitchy://packages` | Your package is active | الباكدج اتفعّل |

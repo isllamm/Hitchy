@@ -28,6 +28,7 @@ import com.hitchy.core.ui.cairoTime12
 import com.hitchy.core.ui.components.Avatar
 import com.hitchy.core.ui.icon.HitchyIcons
 import com.hitchy.core.ui.theme.HitchyTheme
+import com.hitchy.core.ui.tightLine
 import com.hitchy.feature.booking.ui.RideSummaryRow
 import com.hitchy.feature.rides.domain.Booking
 import com.hitchy.feature.trip.presentation.HostTripPhase
@@ -296,11 +297,12 @@ private fun RiderStatusRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Avatar(initials = name.take(2).uppercase(), photoPath = photoPath)
-        Column(modifier = Modifier.weight(1f)) {
-            Text(text = name, style = typography.bodyStrong, color = colors.navy, maxLines = 1)
+        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(text = name, style = typography.bodyStrong, color = colors.navy, maxLines = 1, modifier = Modifier.tightLine(typography.bodyStrong.fontSize))
             Text(
                 text = "${booking.pickupPointName.resolve(language)} · ${cairoTime12(booking.pickupAt)}",
                 style = typography.caption,
+                modifier = Modifier.tightLine(typography.caption.fontSize),
                 color = colors.textSecondary,
                 maxLines = 1,
             )

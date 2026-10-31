@@ -2,6 +2,7 @@ package com.hitchy.core.platform
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.hitchy.core.model.Role
@@ -20,6 +21,13 @@ class DataStoreAppSettings(
     private object PreferencesKeys {
         val LAST_ROLE = stringPreferencesKey("last_role")
         val INSTALL_ID = stringPreferencesKey("install_id")
+        val ONBOARDING_SEEN = booleanPreferencesKey("onboarding_seen")
+    }
+
+    override val onboardingSeen: Flow<Boolean> = dataStore.data.map { it[PreferencesKeys.ONBOARDING_SEEN] ?: false }
+
+    override suspend fun setOnboardingSeen() {
+        dataStore.edit { preferences -> preferences[PreferencesKeys.ONBOARDING_SEEN] = true }
     }
 
     override val lastRole: Flow<Role?> = dataStore.data.map { preferences ->

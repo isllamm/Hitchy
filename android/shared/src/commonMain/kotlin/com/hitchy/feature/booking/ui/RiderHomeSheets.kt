@@ -120,7 +120,10 @@ private fun SheetFrame(
     }
 }
 
-/** "Select date": Today and Tomorrow chips, a month calendar (today to 7 days ahead), and Confirm. */
+/**
+ * "Select date": Today and Tomorrow chips, a month calendar (today to 7 days ahead), and Confirm. Offer a ride's
+ * Custom pill hides the chips ([showDayChips] false): it already has Today and Tomorrow.
+ */
 @Composable
 fun DateSheet(
     todayKey: String,
@@ -130,6 +133,7 @@ fun DateSheet(
     onConfirm: () -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier,
+    showDayChips: Boolean = true,
 ) {
     val colors = HitchyTheme.colors
     val typography = HitchyTheme.typography
@@ -137,23 +141,25 @@ fun DateSheet(
     var shown by remember { mutableStateOf(monthOf(selectedKey)) }
 
     SheetFrame(title = stringResource(Res.string.rider_sheet_date_title), onClose = onClose, modifier = modifier) {
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            DayChip(
-                label = stringResource(Res.string.rider_home_date_today),
-                selected = selectedKey == todayKey,
-                onClick = {
-                    onPick(todayKey)
-                    shown = monthOf(todayKey)
-                },
-            )
-            DayChip(
-                label = stringResource(Res.string.rider_home_date_tomorrow),
-                selected = selectedKey == tomorrowKey,
-                onClick = {
-                    onPick(tomorrowKey)
-                    shown = monthOf(tomorrowKey)
-                },
-            )
+        if (showDayChips) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                DayChip(
+                    label = stringResource(Res.string.rider_home_date_today),
+                    selected = selectedKey == todayKey,
+                    onClick = {
+                        onPick(todayKey)
+                        shown = monthOf(todayKey)
+                    },
+                )
+                DayChip(
+                    label = stringResource(Res.string.rider_home_date_tomorrow),
+                    selected = selectedKey == tomorrowKey,
+                    onClick = {
+                        onPick(tomorrowKey)
+                        shown = monthOf(tomorrowKey)
+                    },
+                )
+            }
         }
         MonthHeader(
             shown = shown,

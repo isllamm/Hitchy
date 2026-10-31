@@ -50,10 +50,12 @@ import com.hitchy.core.ui.components.RideStatusVariant
 import com.hitchy.core.ui.icon.HitchyIcons
 import com.hitchy.core.ui.message
 import com.hitchy.core.ui.theme.HitchyTheme
+import com.hitchy.core.ui.tightLine
 import com.hitchy.core.util.dateKey
 import com.hitchy.core.util.isoToCairoDateKey
 import com.hitchy.feature.booking.ui.RideCardData
 import com.hitchy.feature.booking.ui.RideDesignCard
+import com.hitchy.feature.booking.ui.ownerRidePill
 import com.hitchy.feature.rides.domain.Booking
 import com.hitchy.feature.rides.presentation.HostRideDetailsAction
 import com.hitchy.feature.rides.presentation.HostRideDetailsEvent
@@ -243,11 +245,11 @@ private fun OwnerRideCard(
     val now = clock.now()
     val waiting = state.pendingBookings.size
     val booked = state.confirmedBookings.sumOf { it.seats }
-    val posted = ride.status == RideStatus.OPEN || ride.status == RideStatus.FULL
+    val (pill, pillLabel) = ownerRidePill(ride.status, booked)
     RideDesignCard(
         data = RideCardData(
-            status = if (posted) RideStatusVariant.InProgress else ride.status.toVariant(),
-            statusLabel = if (posted) stringResource(Res.string.owner_design_status_posted) else null,
+            status = pill,
+            statusLabel = pillLabel,
             dateKey = isoToCairoDateKey(ride.departAt),
             time = cairoTime12(ride.departAt),
             pickupName = ride.fromPointName.resolve(language),
@@ -272,14 +274,6 @@ private fun OwnerRideCard(
         todayKey = dateKey(now),
         tomorrowKey = dateKey(now + 1.days),
     )
-}
-
-private fun RideStatus.toVariant(): RideStatusVariant = when (this) {
-    RideStatus.OPEN, RideStatus.FULL -> RideStatusVariant.Confirmed
-    RideStatus.STARTED -> RideStatusVariant.InProgress
-    RideStatus.FINISHED -> RideStatusVariant.Completed
-    RideStatus.CANCELLED -> RideStatusVariant.Cancelled
-    RideStatus.EXPIRED -> RideStatusVariant.Expired
 }
 
 /**
@@ -367,8 +361,8 @@ private fun RiderRow(booking: Booking, name: String, photoPath: String?, languag
                     textColor = colors.purple,
                 )
             }
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(text = name, style = typography.bodyStrong, color = colors.navy)
+            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(text = name, style = typography.bodyStrong, color = colors.navy, modifier = Modifier.tightLine(typography.bodyStrong.fontSize))
                 Text(
                     text = stringResource(
                         Res.string.owner_design_pickup_line,
@@ -376,6 +370,7 @@ private fun RiderRow(booking: Booking, name: String, photoPath: String?, languag
                         booking.pickupPointName.resolve(language),
                     ),
                     style = typography.caption,
+                    modifier = Modifier.tightLine(typography.caption.fontSize),
                     color = colors.purple,
                 )
             }

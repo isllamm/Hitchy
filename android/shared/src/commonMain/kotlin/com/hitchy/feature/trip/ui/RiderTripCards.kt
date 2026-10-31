@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import com.hitchy.core.ui.components.AvatarImage
 import com.hitchy.core.ui.icon.HitchyIcons
 import com.hitchy.core.ui.theme.HitchyTheme
+import com.hitchy.core.ui.tightLine
 import com.hitchy.feature.profile.domain.PublicProfile
 import com.hitchy.feature.rides.domain.RideVehicle
 import hitchy.shared.generated.resources.Res
@@ -137,9 +138,15 @@ internal fun TripHostCard(host: PublicProfile?, vehicle: RideVehicle) {
                 textColor = colors.purple,
             )
         }
-        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(text = host?.firstName.orEmpty(), style = typography.bodyStrong, color = colors.navy, maxLines = 1)
+                Text(
+                    text = host?.firstName.orEmpty(),
+                    style = typography.bodyStrong,
+                    modifier = Modifier.tightLine(typography.bodyStrong.fontSize),
+                    color = colors.navy,
+                    maxLines = 1,
+                )
                 if (host?.verified == true) {
                     Image(
                         painter = painterResource(Res.drawable.fig_trip_verified),
