@@ -288,6 +288,7 @@ fun ProfileTabContent(
             }
             MoreHeader(
                 initials = "${profile.firstName.take(1)}${profile.lastName.take(1)}".uppercase(),
+                photoPath = profile.photoPath,
                 name = "${profile.firstName} ${profile.lastName}",
                 verified = profile.host.verified,
                 ratingLine = stringResource(

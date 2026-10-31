@@ -34,6 +34,7 @@ fun RideCard(
     dropOffLocation: String,
     hostName: String,
     hostInitials: String,
+    hostPhotoPath: String? = null,
     carModelColor: String,
     priceEgp: Int,
     availableSeats: Int,
@@ -93,7 +94,7 @@ fun RideCard(
                     horizontalArrangement = Arrangement.spacedBy(spacing.space8),
                     modifier = Modifier.weight(1f),
                 ) {
-                    Avatar(initials = hostInitials, size = AvatarSize.SM)
+                    Avatar(initials = hostInitials, size = AvatarSize.SM, photoPath = hostPhotoPath)
                     Column {
                         Text(
                             text = hostName,

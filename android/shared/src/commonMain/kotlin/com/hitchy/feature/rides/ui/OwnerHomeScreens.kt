@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hitchy.core.model.RideStatus
 import com.hitchy.core.ui.WhiteStatusBarIcons
+import com.hitchy.core.ui.components.AvatarImage
 import com.hitchy.core.ui.figmaLinearGradient
 import com.hitchy.core.ui.figmaTop
 import com.hitchy.core.ui.theme.HitchyTheme
@@ -268,10 +269,11 @@ private fun OwnerAvatar(state: OwnerHomeState) {
             .border(2.dp, colors.white.copy(alpha = AVATAR_RING_ALPHA), CircleShape),
         contentAlignment = Alignment.Center,
     ) {
-        Text(
-            text = "${state.firstName.take(1)}${state.lastName.take(1)}".uppercase(),
-            style = HitchyTheme.typography.bodyBold,
-            color = colors.purple,
+        AvatarImage(
+            photoPath = state.photoPath,
+            initials = "${state.firstName.take(1)}${state.lastName.take(1)}".uppercase(),
+            textStyle = HitchyTheme.typography.bodyBold,
+            textColor = colors.purple,
         )
     }
 }

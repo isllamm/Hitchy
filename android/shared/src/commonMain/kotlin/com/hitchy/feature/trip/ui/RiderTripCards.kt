@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hitchy.core.ui.components.AvatarImage
 import com.hitchy.core.ui.icon.HitchyIcons
 import com.hitchy.core.ui.theme.HitchyTheme
 import com.hitchy.feature.profile.domain.PublicProfile
@@ -129,10 +130,11 @@ internal fun TripHostCard(host: PublicProfile?, vehicle: RideVehicle) {
             modifier = Modifier.size(48.dp).clip(CircleShape).background(colors.lavender),
             contentAlignment = Alignment.Center,
         ) {
-            Text(
-                text = host?.firstName?.take(2)?.uppercase().orEmpty(),
-                style = typography.bodyBold,
-                color = colors.purple,
+            AvatarImage(
+                photoPath = host?.photoPath,
+                initials = host?.firstName?.take(2)?.uppercase().orEmpty(),
+                textStyle = typography.bodyBold,
+                textColor = colors.purple,
             )
         }
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {

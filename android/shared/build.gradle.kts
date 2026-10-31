@@ -19,6 +19,7 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
+            implementation(libs.coil.compose)
         }
         androidMain.dependencies {
             implementation(project.dependencies.platform(libs.firebase.android.bom.get()))
@@ -36,6 +37,7 @@ kotlin {
             implementation(libs.play.services.location)
             implementation(libs.play.services.maps)
             implementation(libs.maps.compose)
+            implementation(libs.coil.network.okhttp)
             implementation(libs.koin.android)
             implementation(libs.androidx.datastore.preferences)
         }

@@ -65,6 +65,7 @@ fun BottomNav(
     onItemSelected: (BottomNavItem) -> Unit,
     modifier: Modifier = Modifier,
     userInitials: String? = null,
+    userPhotoPath: String? = null,
     onAddRide: (() -> Unit)? = null,
 ) {
     val colors = LocalHitchyColors.current
@@ -91,6 +92,7 @@ fun BottomNav(
                     isSelected = item == selectedItem,
                     onSelect = { onItemSelected(item) },
                     userInitials = userInitials,
+                    userPhotoPath = userPhotoPath,
                 )
             }
         }
@@ -135,6 +137,7 @@ private fun RowScope.NavItemCell(
     isSelected: Boolean,
     onSelect: () -> Unit,
     userInitials: String?,
+    userPhotoPath: String?,
 ) {
     val colors = LocalHitchyColors.current
     val typography = LocalHitchyTypography.current
@@ -171,7 +174,12 @@ private fun RowScope.NavItemCell(
                     contentAlignment = Alignment.Center,
                 ) {
                     if (!userInitials.isNullOrBlank()) {
-                        Text(text = userInitials, style = typography.captionStrong, color = colors.purple)
+                        AvatarImage(
+                            photoPath = userPhotoPath,
+                            initials = userInitials,
+                            textStyle = typography.captionStrong,
+                            textColor = colors.purple,
+                        )
                     } else {
                         Icon(
                             painter = painterResource(icon),

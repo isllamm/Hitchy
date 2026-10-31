@@ -38,6 +38,7 @@ fun Avatar(
     initials: String,
     modifier: Modifier = Modifier,
     size: AvatarSize = AvatarSize.MD,
+    photoPath: String? = null,
 ) {
     val colors = LocalHitchyColors.current
     val typography = LocalHitchyTypography.current
@@ -49,10 +50,11 @@ fun Avatar(
             .background(colors.lavender),
         contentAlignment = Alignment.Center,
     ) {
-        Text(
-            text = initials.take(2).uppercase(),
-            style = typography.captionStrong.copy(fontSize = size.fontSize.sp),
-            color = colors.purple,
+        AvatarImage(
+            photoPath = photoPath,
+            initials = initials.take(2).uppercase(),
+            textStyle = typography.captionStrong.copy(fontSize = size.fontSize.sp),
+            textColor = colors.purple,
         )
     }
 }

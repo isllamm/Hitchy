@@ -31,6 +31,7 @@ import com.hitchy.core.model.AppLanguage
 import com.hitchy.core.model.GeoPoint
 import com.hitchy.core.ui.cairoTime12
 import com.hitchy.core.ui.components.Avatar
+import com.hitchy.core.ui.components.AvatarImage
 import com.hitchy.core.ui.components.AvatarSize
 import com.hitchy.core.ui.components.Badge
 import com.hitchy.core.ui.components.BadgeVariant
@@ -201,14 +202,15 @@ private fun DetailsHostCard(
                     .background(colors.lavender),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(
-                    text = host.firstName.take(2).uppercase(),
-                    style = typography.caption.copy(
+                AvatarImage(
+                    photoPath = host.photoPath,
+                    initials = host.firstName.take(2).uppercase(),
+                    textStyle = typography.caption.copy(
                         fontSize = 13.sp,
                         lineHeight = 20.sp,
                         fontWeight = FontWeight.ExtraBold,
                     ),
-                    color = colors.purple,
+                    textColor = colors.purple,
                 )
             }
             Column(modifier = Modifier.weight(1f)) {

@@ -28,6 +28,7 @@ fun HostRow(
     rating: Double,
     modifier: Modifier = Modifier,
     isVerified: Boolean = true,
+    photoPath: String? = null,
     rideCount: Int? = null,
     onClick: (() -> Unit)? = null,
 ) {
@@ -54,6 +55,7 @@ fun HostRow(
         Avatar(
             initials = initials,
             size = AvatarSize.MD,
+            photoPath = photoPath,
         )
 
         Column(modifier = Modifier.weight(1f)) {

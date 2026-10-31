@@ -41,6 +41,7 @@ import com.hitchy.core.model.RideStatus
 import com.hitchy.core.platform.LanguageSwitcher
 import com.hitchy.core.ui.ErrorText
 import com.hitchy.core.ui.cairoTime12
+import com.hitchy.core.ui.components.AvatarImage
 import com.hitchy.core.ui.components.HitchyBanner
 import com.hitchy.core.ui.components.HitchyButton
 import com.hitchy.core.ui.components.HitchyButtonVariant
@@ -198,6 +199,7 @@ private fun LazyListScope.detailsItems(
             OwnerRequestCard(
                 riderName = shortName,
                 riderInitials = shortName.take(2).uppercase(),
+                riderPhotoPath = state.riderPhotos[booking.riderUid],
                 riderRating = 5.0,
                 seatsRequested = booking.seats,
                 deadlineRemaining = "10 min",
@@ -326,6 +328,7 @@ private fun RidersSection(state: HostRideDetailsState, language: AppLanguage) {
                 RiderRow(
                     booking = booking,
                     name = riderName(state, booking.riderUid, BOOKED_NAME_LENGTH),
+                    photoPath = state.riderPhotos[booking.riderUid],
                     language = language,
                     divider = index < rows - 1,
                 )
@@ -337,7 +340,7 @@ private fun RidersSection(state: HostRideDetailsState, language: AppLanguage) {
 
 /** Figma's rider row: a 48dp lavender avatar with Bold 14/24 initials, the 600 14/22 name, the purple pickup line. */
 @Composable
-private fun RiderRow(booking: Booking, name: String, language: AppLanguage, divider: Boolean) {
+private fun RiderRow(booking: Booking, name: String, photoPath: String?, language: AppLanguage, divider: Boolean) {
     val colors = HitchyTheme.colors
     val typography = HitchyTheme.typography
     Column {
@@ -350,7 +353,12 @@ private fun RiderRow(booking: Booking, name: String, language: AppLanguage, divi
                 modifier = Modifier.size(48.dp).clip(CircleShape).background(colors.lavender),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(text = name.take(2).uppercase(), style = typography.bodyBold, color = colors.purple)
+                AvatarImage(
+                    photoPath = photoPath,
+                    initials = name.take(2).uppercase(),
+                    textStyle = typography.bodyBold,
+                    textColor = colors.purple,
+                )
             }
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(text = name, style = typography.bodyStrong, color = colors.navy)
