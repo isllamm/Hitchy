@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -44,7 +45,7 @@ import com.hitchy.feature.auth.ui.WelcomeScreen
 import com.hitchy.feature.booking.domain.SearchInput
 import com.hitchy.feature.booking.ui.HomeScreen
 import com.hitchy.feature.booking.ui.RiderRideDetailsScreen
-import com.hitchy.feature.booking.ui.RidesTabContent
+import com.hitchy.feature.booking.ui.RiderRidesTabContent
 import com.hitchy.feature.booking.ui.SearchResultsScreen
 import com.hitchy.feature.debug.ui.DebugScreen
 import com.hitchy.feature.debug.ui.gallery.ComponentGalleryScreen
@@ -94,7 +95,10 @@ fun HitchyNavHost(
 
     LaunchedEffect(targetRoot) {
         val dest = targetRoot ?: return@LaunchedEffect
-        if (dest != initialDestination || rootState is RootState.SignedOut) {
+        // After a sign-out and a new sign-in, the root is the start destination again but the screen
+        // on top is still the code screen, so compare with what is shown too.
+        val shown = navController.currentBackStackEntry?.destination?.hasRoute(dest::class) ?: true
+        if (dest != initialDestination || rootState is RootState.SignedOut || !shown) {
             navController.navigate(dest) {
                 popUpTo(0) { inclusive = true }
                 launchSingleTop = true
@@ -160,7 +164,6 @@ fun HitchyNavHost(
                 onOpenHostRideDetails = { rideId -> navController.navigate(HostRideDetails(rideId)) },
                 onOpenHostTrip = { rideId -> navController.navigate(HostTrip(rideId)) },
                 onOpenPostRide = { navController.navigate(PostRide) },
-                onOpenSettings = { navController.navigate(Settings) },
                 onOpenHostApplication = { navController.navigate(HostApplication) },
             )
         }
@@ -178,6 +181,11 @@ fun HitchyNavHost(
                 onOpenRoutePicker = { field -> navController.navigate(RoutePicker(field)) },
                 onNavigateToRideDetails = { rideId ->
                     navController.navigate(HostRideDetails(rideId)) {
+                        popUpTo<Home> { inclusive = false }
+                    }
+                },
+                onOpenMyRides = {
+                    navController.navigate(MyTrips) {
                         popUpTo<Home> { inclusive = false }
                     }
                 },
@@ -220,7 +228,7 @@ fun HitchyNavHost(
             )
         }
         composable<MyTrips> {
-            RidesTabContent(
+            RiderRidesTabContent(
                 onBack = { navController.popBackStack() },
                 onOpenRiderRideDetails = { rideId -> navController.navigate(RiderRideDetails(rideId)) },
                 onOpenRiderTrip = { rideId -> navController.navigate(RiderTrip(rideId)) },

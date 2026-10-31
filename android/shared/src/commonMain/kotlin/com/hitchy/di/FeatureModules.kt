@@ -2,6 +2,7 @@ package com.hitchy.di
 
 import com.hitchy.feature.auth.data.AuthRepositoryImpl
 import com.hitchy.feature.auth.domain.AuthRepository
+import com.hitchy.feature.auth.domain.SignUpNameHolder
 import com.hitchy.feature.auth.presentation.OtpVerifyViewModel
 import com.hitchy.feature.auth.presentation.PhoneEntryViewModel
 import com.hitchy.feature.auth.presentation.RootViewModel
@@ -51,7 +52,7 @@ val authModule = module {
 val profileModule = module {
     single<ProfileRepository> { ProfileRepositoryImpl(get()) }
     single<WalletRepository> { WalletRepositoryImpl() }
-    viewModel { ProfileSetupViewModel(get(), get()) }
+    viewModel { ProfileSetupViewModel(get(), get(), get()) }
     viewModel { ProfileTabViewModel(get(), get(), get()) }
 }
 
@@ -94,6 +95,7 @@ val debugModule = module {
 val placesModule = module {
     single<PlacesRepository> { PlacesRepositoryImpl() }
     single { PointSelectionHolder() }
+    single { SignUpNameHolder() }
     viewModel { PlacesPickerViewModel(get(), get()) }
 }
 

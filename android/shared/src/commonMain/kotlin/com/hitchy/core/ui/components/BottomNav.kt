@@ -1,5 +1,6 @@
 package com.hitchy.core.ui.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -22,6 +24,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
@@ -32,6 +35,8 @@ import com.hitchy.core.ui.theme.HitchyTheme
 import com.hitchy.core.ui.theme.LocalHitchyColors
 import com.hitchy.core.ui.theme.LocalHitchyTypography
 import hitchy.shared.generated.resources.Res
+import hitchy.shared.generated.resources.fig_oh_tab_plus
+import hitchy.shared.generated.resources.nav_add_ride
 import hitchy.shared.generated.resources.nav_home
 import hitchy.shared.generated.resources.nav_profile
 import hitchy.shared.generated.resources.nav_rides
@@ -60,6 +65,7 @@ fun BottomNav(
     onItemSelected: (BottomNavItem) -> Unit,
     modifier: Modifier = Modifier,
     userInitials: String? = null,
+    onAddRide: (() -> Unit)? = null,
 ) {
     val colors = LocalHitchyColors.current
 
@@ -79,6 +85,7 @@ fun BottomNav(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             BottomNavItem.entries.forEach { item ->
+                if (item == BottomNavItem.Shop && onAddRide != null) AddRideCell(onClick = onAddRide)
                 NavItemCell(
                     item = item,
                     isSelected = item == selectedItem,
@@ -92,6 +99,35 @@ fun BottomNav(
 
 /** Figma's tab bar shadow: black at 10%. */
 private const val SHADOW_ALPHA = 0.10f
+
+/** Figma's owner "+" button shadow: purple at 35%. */
+private const val ADD_SHADOW_ALPHA = 0.35f
+
+/**
+ * The owner tab bar's middle "Add ride" cell (Owner Home 726:11671): 64x66, a 52dp gradient circle
+ * (#A855F7 to #4F46E5) with a purple shadow and a white 26dp plus.
+ */
+@Composable
+private fun AddRideCell(onClick: () -> Unit) {
+    val colors = LocalHitchyColors.current
+    Box(modifier = Modifier.width(64.dp).height(66.dp), contentAlignment = Alignment.Center) {
+        Box(
+            modifier = Modifier
+                .size(52.dp)
+                .figmaShadow(CircleShape, colors.purple.copy(alpha = ADD_SHADOW_ALPHA), blur = 14.dp, y = 6.dp)
+                .clip(CircleShape)
+                .background(Brush.horizontalGradient(listOf(colors.violet, colors.deepPurple)))
+                .clickable(onClick = onClick),
+            contentAlignment = Alignment.Center,
+        ) {
+            Image(
+                painter = painterResource(Res.drawable.fig_oh_tab_plus),
+                contentDescription = stringResource(Res.string.nav_add_ride),
+                modifier = Modifier.size(26.dp),
+            )
+        }
+    }
+}
 
 @Composable
 private fun RowScope.NavItemCell(

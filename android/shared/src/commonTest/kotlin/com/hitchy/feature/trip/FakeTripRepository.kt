@@ -15,7 +15,12 @@ class FakeTripRepository : TripRepository {
 
     override suspend fun start(rideId: String): AppResult<Unit> = AppResult.Ok(Unit)
 
-    override suspend fun arriveAtStop(rideId: String, pickupId: String): AppResult<Int> = AppResult.Ok(1)
+    val arrivedPickups = mutableListOf<String>()
+
+    override suspend fun arriveAtStop(rideId: String, pickupId: String): AppResult<Int> {
+        arrivedPickups += pickupId
+        return AppResult.Ok(1)
+    }
 
     override suspend fun checkIn(rideId: String, at: GeoPoint, accuracyM: Double): AppResult<Int> {
         lastCheckedInRideId = rideId

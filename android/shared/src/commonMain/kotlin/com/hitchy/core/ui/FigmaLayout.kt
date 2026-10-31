@@ -7,6 +7,9 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.dropShadow
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.shadow.Shadow
@@ -58,3 +61,23 @@ fun Modifier.figmaShadow(
     y: Dp = 0.dp,
     spread: Dp = 0.dp,
 ): Modifier = dropShadow(shape, Shadow(radius = blur, color = color, spread = spread, offset = DpOffset(0.dp, y)))
+
+/**
+ * A Figma linear gradient for a box of [size]. Figma gives three handles as fractions of the box: the start,
+ * the end, and a third one along the colour bands. Compose bands run square to start→end, so the end is moved
+ * onto the line through the start that is square to the bands; the colours then land where Figma puts them.
+ */
+fun figmaLinearGradient(
+    colorStops: Array<Pair<Float, Color>>,
+    start: Offset,
+    end: Offset,
+    band: Offset,
+    size: Size,
+): Brush {
+    val p0 = Offset(start.x * size.width, start.y * size.height)
+    val a = Offset(end.x * size.width, end.y * size.height) - p0
+    val b = Offset(band.x * size.width, band.y * size.height) - p0
+    val bLen2 = b.x * b.x + b.y * b.y
+    val along = if (bLen2 == 0f) Offset.Zero else b * ((a.x * b.x + a.y * b.y) / bLen2)
+    return Brush.linearGradient(colorStops = colorStops, start = p0, end = p0 + (a - along))
+}

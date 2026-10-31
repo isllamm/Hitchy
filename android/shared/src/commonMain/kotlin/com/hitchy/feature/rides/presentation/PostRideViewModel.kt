@@ -94,11 +94,15 @@ sealed interface PostRideAction {
     data class RemoveStop(val index: Int) : PostRideAction
     data object SwapRoute : PostRideAction
     data object DismissError : PostRideAction
+
+    /** Step 1 (route and schedule) to step 2 (price and review): checks the route first. */
+    data object Continue : PostRideAction
     data object Submit : PostRideAction
 }
 
 sealed interface PostRideEvent {
     data class NavigateToRideDetails(val rideId: String) : PostRideEvent
+    data object ShowReview : PostRideEvent
 }
 
 @OptIn(ExperimentalTime::class, ExperimentalUuidApi::class)
@@ -179,18 +183,7 @@ class PostRideViewModel(
                 setState { copy(pricePerSeat = clamped) }
             }
 
-            PostRideAction.AddStop -> {
-                val current = state.value.stops
-                if (current.size < PostRideState.MAX_STOPS) {
-                    val nextIdx = current.size
-                    val newStop = PostRideStopState(
-                        index = nextIdx,
-                        point = null,
-                        minutesFromDepart = (nextIdx + 1) * PostRideState.STOP_OFFSET_MINUTES,
-                    )
-                    setState { copy(stops = current + newStop) }
-                }
-            }
+            PostRideAction.AddStop -> addStop()
 
             is PostRideAction.RemoveStop -> {
                 pointSelectionHolder.clear("${PostRideState.FIELD_STOP_PREFIX}${action.index}")
@@ -206,8 +199,39 @@ class PostRideViewModel(
 
             PostRideAction.DismissError -> setState { copy(validationError = null, error = null) }
 
+            PostRideAction.Continue -> continueToReview()
+
             PostRideAction.Submit -> submit()
         }
+    }
+
+    private fun addStop() {
+        val current = state.value.stops
+        if (current.size < PostRideState.MAX_STOPS) {
+            val nextIdx = current.size
+            val newStop = PostRideStopState(
+                index = nextIdx,
+                point = null,
+                minutesFromDepart = (nextIdx + 1) * PostRideState.STOP_OFFSET_MINUTES,
+            )
+            setState { copy(stops = current + newStop) }
+        }
+    }
+
+    private fun continueToReview() {
+        if (validateRoute()) viewModelScope.launch { emit(PostRideEvent.ShowReview) }
+    }
+
+    private fun validateRoute(): Boolean {
+        val from = state.value.fromPoint
+        val to = state.value.toPoint
+        val error = when {
+            from == null || to == null -> Res.string.post_ride_error_missing_route
+            from.zoneId == to.zoneId -> Res.string.post_ride_error_same_zone
+            else -> null
+        }
+        setState { copy(validationError = error) }
+        return error == null
     }
 
     private fun requestQuote() {

@@ -53,6 +53,7 @@ import com.hitchy.feature.booking.presentation.RiderSearchValidationError
 import com.hitchy.feature.profile.domain.ProfileRepository
 import com.hitchy.feature.profile.ui.ProfileTabContent
 import com.hitchy.feature.rides.ui.OwnerHomeContent
+import com.hitchy.feature.shop.ui.ShopTabContent
 import hitchy.shared.generated.resources.Res
 import hitchy.shared.generated.resources.app_name
 import hitchy.shared.generated.resources.nav_home
@@ -88,7 +89,6 @@ fun HomeScreen(
     onOpenHostRideDetails: (String) -> Unit,
     onOpenHostTrip: (String) -> Unit,
     onOpenPostRide: () -> Unit,
-    onOpenSettings: () -> Unit,
     onOpenHostApplication: () -> Unit,
     modifier: Modifier = Modifier,
     profileRepository: ProfileRepository = koinInject(),
@@ -111,6 +111,8 @@ fun HomeScreen(
                             OwnerHomeContent(
                                 onOpenNotifications = onOpenNotifications,
                                 onOpenPostRide = onOpenPostRide,
+                                onOpenRidesTab = { selectedTab = BottomNavItem.Rides },
+                                onOpenEarnings = { selectedTab = BottomNavItem.Profile },
                                 onOpenHostRideDetails = onOpenHostRideDetails,
                                 onOpenHostTrip = onOpenHostTrip,
                             )
@@ -133,20 +135,12 @@ fun HomeScreen(
                         )
                     }
 
-                    BottomNavItem.Shop -> {
-                        EmptyState(
-                            title = stringResource(Res.string.nav_shop),
-                            message = stringResource(Res.string.shop_coming_soon_body),
-                            icon = HitchyIcons.Star,
-                            modifier = Modifier.fillMaxSize(),
-                        )
-                    }
+                    BottomNavItem.Shop -> ShopTabContent()
 
                     BottomNavItem.Profile -> {
                         ProfileTabContent(
                             onOpenMyRides = { selectedTab = BottomNavItem.Rides },
                             onOpenNotifications = onOpenNotifications,
-                            onOpenSettings = onOpenSettings,
                             onOpenHostApplication = onOpenHostApplication,
                         )
                     }
@@ -157,6 +151,7 @@ fun HomeScreen(
                 selectedItem = selectedTab,
                 onItemSelected = { selectedTab = it },
                 userInitials = initials,
+                onAddRide = if (activeRole == Role.HOST) onOpenPostRide else null,
             )
         }
     }
