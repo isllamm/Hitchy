@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Figma node 832:14244 (icon/chevronRight), exported from its vector geometry. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="18dp"
+    android:height="18dp"
+    android:viewportWidth="18"
+    android:viewportHeight="18">
+    <path
+        android:fillColor="#FF9CA3AF"
+        android:pathData="M 6.043,12.793 C 5.652,13.183 5.652,13.817 6.043,14.207 C 6.433,14.598 7.067,14.598 7.457,14.207 L 6.75,13.5 L 6.043,12.793Z M 11.25,9 L 11.957,9.707 C 12.348,9.317 12.348,8.683 11.957,8.293 L 11.25,9Z M 7.457,3.793 C 7.067,3.402 6.433,3.402 6.043,3.793 C 5.652,4.183 5.652,4.817 6.043,5.207 L 6.75,4.5 L 7.457,3.793Z M 6.75,13.5 L 7.457,14.207 L 11.957,9.707 L 11.25,9 L 10.543,8.293 L 6.043,12.793 L 6.75,13.5Z M 11.25,9 L 11.957,8.293 L 7.457,3.793 L 6.75,4.5 L 6.043,5.207 L 10.543,9.707 L 11.25,9Z" />
+</vector>

@@ -1,5 +1,6 @@
 package com.hitchy.core.ui.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -34,6 +35,7 @@ import com.hitchy.core.ui.theme.HitchyTheme
 import com.hitchy.core.ui.theme.LocalHitchyColors
 import com.hitchy.core.ui.theme.LocalHitchyTypography
 import hitchy.shared.generated.resources.Res
+import hitchy.shared.generated.resources.fig_oh_tab_plus
 import hitchy.shared.generated.resources.nav_add_ride
 import hitchy.shared.generated.resources.nav_home
 import hitchy.shared.generated.resources.nav_profile
@@ -114,14 +116,13 @@ private fun AddRideCell(onClick: () -> Unit) {
                 .size(52.dp)
                 .figmaShadow(CircleShape, colors.purple.copy(alpha = ADD_SHADOW_ALPHA), blur = 14.dp, y = 6.dp)
                 .clip(CircleShape)
-                .background(Brush.linearGradient(listOf(colors.violet, colors.deepPurple)))
+                .background(Brush.horizontalGradient(listOf(colors.violet, colors.deepPurple)))
                 .clickable(onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
-            Icon(
-                painter = painterResource(HitchyIcons.PlusWhite),
+            Image(
+                painter = painterResource(Res.drawable.fig_oh_tab_plus),
                 contentDescription = stringResource(Res.string.nav_add_ride),
-                tint = colors.white,
                 modifier = Modifier.size(26.dp),
             )
         }

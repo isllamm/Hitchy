@@ -584,4 +584,26 @@
     <string name="profile_about">عن Hitchy</string>
     <string name="profile_terms">الشروط وسياسة الخصوصية</string>
     <string name="profile_rating_rides">%1$s · %2$d رحلة</string>
+    <string name="owner_home_seat_payments">%1$s · مدفوعات الكراسي</string>
+    <string name="owner_home_view_earnings">عرض الأرباح</string>
+    <string name="owner_home_fuel_covered">%1$s من بنزينك اتغطى · %2$d كرسي في %3$d مشوار</string>
+    <string name="owner_home_free_month">شهر مجاني</string>
+    <string name="owner_home_days_left">باقي %1$d يوم</string>
+    <string name="owner_home_free_until">المشاوير مجانية لحد %1$s</string>
+    <string name="owner_home_pts">نقطة</string>
+    <string name="owner_home_points_tier">النقاط · %1$s</string>
+    <string name="owner_home_reply_by">رد قبل %1$s</string>
+    <string name="owner_home_next_ride">%1$s %2$s</string>
+    <string name="owner_home_welcome_name">أهلاً، %1$s</string>
+    <string name="owner_home_setup_body">تلات خطوات سريعة وعربيتك تبقى جاهزة للمشاركة.</string>
+    <string name="owner_setup_car">عربيتك</string>
+    <string name="owner_setup_car_sub">%1$s · اتضافت وقت التسجيل</string>
+    <string name="owner_setup_done">تم</string>
+    <string name="owner_setup_next">التالي</string>
+    <string name="owner_setup_workplace">مكان شغلك</string>
+    <string name="owner_setup_workplace_sub">اختياري · زمايلك يشوفوك الأول</string>
+    <string name="owner_setup_commute">مشوارك اليومي</string>
+    <string name="owner_setup_commute_sub">الطريق والأيام والوقت</string>
+    <string name="owner_setup_package">السعر والباقة</string>
+    <string name="owner_setup_package_sub">أول شهر مجاني</string>
 </resources>

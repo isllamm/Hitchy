@@ -44,7 +44,13 @@ class OwnerHomeStatsTest {
 
         val stats = ownerHomeStats(rides, monthKey = "2026-10")
 
-        assertEquals(OwnerHomeStats(monthEarningsEgp = 70, monthSeats = 2, activeRides = 1, bookedSeats = 3), stats)
+        assertEquals(70, stats.monthEarningsEgp)
+        assertEquals(2, stats.monthSeats)
+        assertEquals(1, stats.monthTrips)
+        assertEquals(1, stats.activeRides)
+        assertEquals(3, stats.bookedSeats)
+        assertEquals(1, stats.openSeats)
+        assertEquals("b", stats.nextRide?.id)
         assertEquals(0, ownerHomeStats(rides, monthKey = "2026-11").monthEarningsEgp)
     }
 

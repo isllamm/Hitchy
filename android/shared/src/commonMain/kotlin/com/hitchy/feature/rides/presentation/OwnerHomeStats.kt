@@ -9,7 +9,18 @@ data class OwnerHomeStats(
     val monthSeats: Int,
     val activeRides: Int,
     val bookedSeats: Int,
-)
+    val monthTrips: Int = 0,
+    /** This month's full-car trip cost (recommended seat price x seats), what the earnings cover. */
+    val monthTripCostEgp: Int = 0,
+    val openSeats: Int = 0,
+    val nextRide: Ride? = null,
+) {
+    /** Share of the month's trip cost the seat payments covered, 0 to 100. */
+    val coveredPercent: Int
+        get() = if (monthTripCostEgp <= 0) 0 else (monthEarningsEgp * PERCENT / monthTripCostEgp).coerceIn(0, PERCENT)
+}
+
+private const val PERCENT = 100
 
 /**
  * Builds the Owner Home numbers from the owner's rides. [monthKey] is the Cairo month, "YYYY-MM".
@@ -25,12 +36,17 @@ fun ownerHomeStats(
     val active = rides.filter {
         it.status == RideStatus.OPEN || it.status == RideStatus.FULL || it.status == RideStatus.STARTED
     }
+    // A request holds its seats until the owner answers; those are not booked yet.
+    val booked = active.associate { it.id to (it.bookedSeats() - (pendingSeatsByRide[it.id] ?: 0)).coerceAtLeast(0) }
     return OwnerHomeStats(
         monthEarningsEgp = finished.sumOf { it.bookedSeats() * it.pricePerSeat },
         monthSeats = finished.sumOf { it.bookedSeats() },
         activeRides = active.size,
-        // A request holds its seats until the owner answers; those are not booked yet.
-        bookedSeats = active.sumOf { (it.bookedSeats() - (pendingSeatsByRide[it.id] ?: 0)).coerceAtLeast(0) },
+        bookedSeats = booked.values.sum(),
+        monthTrips = finished.size,
+        monthTripCostEgp = finished.sumOf { it.priceRange.recommended * it.seatsTotal },
+        openSeats = active.sumOf { (it.seatsTotal - (booked[it.id] ?: 0)).coerceAtLeast(0) },
+        nextRide = active.minByOrNull { it.departAt },
     )
 }
 

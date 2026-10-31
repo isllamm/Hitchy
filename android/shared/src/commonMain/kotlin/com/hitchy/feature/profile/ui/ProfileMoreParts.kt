@@ -35,6 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hitchy.core.model.AppLanguage
+import com.hitchy.core.ui.figmaLinearGradient
 import com.hitchy.core.ui.figmaShadow
 import com.hitchy.core.ui.figmaTop
 import com.hitchy.core.ui.theme.HitchyTheme
@@ -68,6 +69,9 @@ private const val GRAD_START_X = -0.12f
 private const val GRAD_START_Y = 0.16f
 private const val GRAD_END_X = 0.68f
 private const val GRAD_END_Y = 0.76f
+private const val GRAD_BAND_X = -0.42f
+private const val GRAD_BAND_Y = 0.56f
+private const val HALF = 0.5f
 
 /** Figma's status bar height: the header starts its content 16dp under it. */
 private val STATUS_BAR = 52.dp
@@ -93,10 +97,12 @@ internal fun MoreHeader(
             .clip(HeaderShape)
             .drawBehind {
                 drawRect(
-                    Brush.linearGradient(
-                        colors = listOf(colors.violet, colors.purple, colors.deepPurple),
-                        start = Offset(GRAD_START_X * size.width, GRAD_START_Y * size.height),
-                        end = Offset(GRAD_END_X * size.width, GRAD_END_Y * size.height),
+                    figmaLinearGradient(
+                        colorStops = arrayOf(0f to colors.violet, HALF to colors.purple, 1f to colors.deepPurple),
+                        start = Offset(GRAD_START_X, GRAD_START_Y),
+                        end = Offset(GRAD_END_X, GRAD_END_Y),
+                        band = Offset(GRAD_BAND_X, GRAD_BAND_Y),
+                        size = size,
                     ),
                 )
             }

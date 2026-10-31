@@ -6,6 +6,7 @@ import com.hitchy.core.data.AppResult
 import com.hitchy.core.model.BookingStatus
 import com.hitchy.core.model.RideStatus
 import com.hitchy.core.model.Role
+import com.hitchy.core.model.Tier
 import com.hitchy.core.ui.MviViewModel
 import com.hitchy.feature.inbox.domain.InboxRepository
 import com.hitchy.feature.profile.domain.ProfileRepository
@@ -23,6 +24,12 @@ data class OwnerHomeState(
     val firstName: String = "",
     val lastName: String = "",
     val pointsBalance: Int = 0,
+    val hostTier: Tier = Tier.BRONZE,
+    /** The end of the owner's free month (ISO), or null. */
+    val freeUntil: String? = null,
+    val hasWorkplace: Boolean = false,
+    /** When the oldest waiting request expires (ISO): Owner Home's "reply by". */
+    val firstRequestExpiresAt: String? = null,
     val hasUnreadNotifications: Boolean = false,
     val unreadCount: Int = 0,
     val isSwitchingRole: Boolean = false,
@@ -55,7 +62,14 @@ class OwnerHomeViewModel(
             .onEach { me ->
                 if (me != null) {
                     setState {
-                        copy(firstName = me.firstName, lastName = me.lastName, pointsBalance = me.pointsBalance)
+                        copy(
+                            firstName = me.firstName,
+                            lastName = me.lastName,
+                            pointsBalance = me.pointsBalance,
+                            hostTier = me.host.tier,
+                            freeUntil = me.host.freeUntil,
+                            hasWorkplace = me.companyId != null || me.companyOther != null,
+                        )
                     }
                 }
             }
@@ -96,6 +110,7 @@ class OwnerHomeViewModel(
                     copy(
                         pendingRequestsCountByRide = pending.associate { (id, list) -> id to list.size },
                         pendingSeatsByRide = pending.associate { (id, list) -> id to list.sumOf { it.seats } },
+                        firstRequestExpiresAt = pending.flatMap { it.second }.minOfOrNull { it.expiresAt },
                     )
                 }
             }

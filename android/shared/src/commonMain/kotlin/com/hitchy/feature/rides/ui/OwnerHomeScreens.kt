@@ -2,6 +2,7 @@
 
 package com.hitchy.feature.rides.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -9,90 +10,101 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hitchy.core.model.RideStatus
 import com.hitchy.core.ui.WhiteStatusBarIcons
-import com.hitchy.core.ui.figmaShadow
+import com.hitchy.core.ui.figmaLinearGradient
 import com.hitchy.core.ui.figmaTop
-import com.hitchy.core.ui.icon.HitchyIcons
 import com.hitchy.core.ui.theme.HitchyTheme
 import com.hitchy.core.util.dateKey
+import com.hitchy.feature.host.domain.HostRepository
 import com.hitchy.feature.rides.presentation.OwnerHomeAction
 import com.hitchy.feature.rides.presentation.OwnerHomeState
 import com.hitchy.feature.rides.presentation.OwnerHomeStats
 import com.hitchy.feature.rides.presentation.OwnerHomeViewModel
 import com.hitchy.feature.rides.presentation.ownerHomeStats
 import hitchy.shared.generated.resources.Res
-import hitchy.shared.generated.resources.owner_home_action_add
-import hitchy.shared.generated.resources.owner_home_action_earnings
-import hitchy.shared.generated.resources.owner_home_action_request_ride
-import hitchy.shared.generated.resources.owner_home_action_requests
+import hitchy.shared.generated.resources.fig_oh_chevron
+import hitchy.shared.generated.resources.fig_oh_gift
+import hitchy.shared.generated.resources.fig_oh_plan_chevron
 import hitchy.shared.generated.resources.owner_home_currency
-import hitchy.shared.generated.resources.owner_home_month_earnings
-import hitchy.shared.generated.resources.owner_home_month_seats
+import hitchy.shared.generated.resources.owner_home_days_left
+import hitchy.shared.generated.resources.owner_home_free_month
+import hitchy.shared.generated.resources.owner_home_free_until
+import hitchy.shared.generated.resources.owner_home_fuel_covered
 import hitchy.shared.generated.resources.owner_home_months_full
-import hitchy.shared.generated.resources.owner_home_quick_actions
-import hitchy.shared.generated.resources.owner_home_stat_points
-import hitchy.shared.generated.resources.owner_home_stat_requests
-import hitchy.shared.generated.resources.owner_home_stat_rides
-import hitchy.shared.generated.resources.owner_home_stat_seats
-import hitchy.shared.generated.resources.owner_home_view_details
+import hitchy.shared.generated.resources.owner_home_seat_payments
+import hitchy.shared.generated.resources.owner_home_setup_body
+import hitchy.shared.generated.resources.owner_home_view_earnings
 import hitchy.shared.generated.resources.owner_home_welcome
-import org.jetbrains.compose.resources.DrawableResource
+import hitchy.shared.generated.resources.owner_home_welcome_name
+import hitchy.shared.generated.resources.rider_home_months
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringArrayResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Instant
 
+// Figma DEMO 813:13739 (an active owner), 832:14288 (the same with no numbers yet) and 832:14156 (a new
+// owner with no ride: the welcome and the setup checklist).
+private val HeaderHeight = 444.dp
 private val HeaderShape = RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
-private val StatShape = RoundedCornerShape(18.dp)
-private val ActionShape = RoundedCornerShape(18.dp)
+private val CardShape = RoundedCornerShape(20.dp)
 
-/** Figma's glass layers on the purple header: white at 14% (card), 22% (card stroke), 15% (bell), 50% (avatar ring). */
+/** Figma's header gradient: violet, purple at 56%, then deep purple fading out at 88%; handles in fractions. */
+private const val STOP_PURPLE = 0.5625f
+private const val STOP_FADE = 0.8808f
+private const val GRAD_START_X = 0.4506f
+private const val GRAD_START_Y = -0.0664f
+private const val GRAD_END_X = 0.7045f
+private const val GRAD_END_Y = 1.1063f
+private const val GRAD_BAND_X = 0.0243f
+private const val GRAD_BAND_Y = -0.0735f
+
+/** Figma's glass card: white at 14% with a white 22% stroke; the progress track is white at 49%. */
 private const val CARD_FILL_ALPHA = 0.14f
 private const val CARD_STROKE_ALPHA = 0.22f
-private const val BELL_FILL_ALPHA = 0.15f
-private const val BELL_SHADOW_ALPHA = 0.15f
-private const val AVATAR_RING_ALPHA = 0.50f
-
-/** Figma's stat card shadows (#0C0C0D at 5% and 10%) and the "Add a ride" tile shadow (purple at 30%). */
-private const val STAT_SHADOW_SOFT = 0.05f
-private const val STAT_SHADOW_ALPHA = 0.10f
-private const val ADD_SHADOW_ALPHA = 0.30f
+private const val TRACK_ALPHA = 0.49f
+private const val AVATAR_RING_ALPHA = 0.5f
+private const val PERCENT = 100f
 
 private const val MONTH_START = 5
 private const val MONTH_END = 7
+private const val DAY_START = 8
 private const val THOUSAND = 1000
+private const val DAY_SECONDS = 86_400L
+private const val PLACEHOLDER = "\u0000"
 
 /**
- * Owner Home, Figma DEMO 726:11671: a purple header with the owner, the bell and this month's earnings,
- * four stat cards and four quick actions. The tab bar's "+" (BottomNav) also opens Offer a ride.
+ * Owner Home, Figma DEMO 813:13739: the gradient header with the owner, the bell and this month's seat
+ * payments, the free-month card, four stat cards and the quick actions. A new owner with no ride sees
+ * 832:14156 instead: the welcome and the setup checklist. The tab bar's "+" (BottomNav) opens Offer a ride.
  */
 @Suppress("LongParameterList")
 @Composable
@@ -106,13 +118,14 @@ fun OwnerHomeContent(
     modifier: Modifier = Modifier,
     viewModel: OwnerHomeViewModel = koinViewModel(),
     clock: Clock = koinInject(),
+    hostRepository: HostRepository = koinInject(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val vehicles by hostRepository.observeVehicles().collectAsStateWithLifecycle(initialValue = emptyList())
     WhiteStatusBarIcons()
-    val monthKey = dateKey(clock.now()).take(MONTH_END)
+    val now = clock.now()
+    val monthKey = dateKey(now).take(MONTH_END)
     val stats = ownerHomeStats(state.upcomingRides, monthKey, state.pendingSeatsByRide)
-    val months = stringArrayResource(Res.array.owner_home_months_full)
-    val monthName = months.getOrElse(monthKey.substring(MONTH_START).toInt() - 1) { "" }
     val requestsRideId = state.pendingRequestsCountByRide.entries.firstOrNull { it.value > 0 }?.key
     val newRequests = state.pendingRequestsCountByRide.values.sum()
     val openRequests = { requestsRideId?.let(onOpenHostRideDetails) ?: onOpenRidesTab() }
@@ -120,407 +133,297 @@ fun OwnerHomeContent(
         state.upcomingRides.firstOrNull { it.status == RideStatus.STARTED }?.let { onOpenHostTrip(it.id) }
             ?: onOpenRidesTab()
     }
+    val isNewOwner = state.upcomingRides.isEmpty()
 
-    Column(
+    Box(
         modifier = modifier
             .fillMaxSize()
             .background(HitchyTheme.colors.white)
             .verticalScroll(rememberScrollState()),
     ) {
-        OwnerHeader(
-            state = state,
-            monthName = monthName,
-            stats = stats,
-            onOpenNotifications = onOpenNotifications,
-            onOpenEarnings = onOpenEarnings,
-        )
-        Spacer(Modifier.height(20.dp))
-        OwnerStats(
-            points = state.pointsBalance,
-            newRequests = newRequests,
-            stats = stats,
-            onOpenRequests = openRequests,
-            onOpenRides = openRides,
-        )
-        Spacer(Modifier.height(24.dp))
-        OwnerQuickActions(
-            newRequests = newRequests,
-            onAddRide = onOpenPostRide,
-            onOpenRequests = openRequests,
-            onRequestRide = { viewModel.onAction(OwnerHomeAction.SwitchToRider) },
-            onOpenEarnings = onOpenEarnings,
-        )
-        Spacer(Modifier.height(24.dp))
+        HeaderBackground()
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 16.dp, top = figmaTop(if (isNewOwner) 68.dp else 56.dp), bottom = 24.dp),
+        ) {
+            if (isNewOwner) {
+                WelcomeTopBar(state, onOpenNotifications)
+                Box(Modifier.height(24.dp))
+            } else {
+                OwnerTopBar(state, onOpenNotifications)
+                Box(Modifier.height(16.dp))
+            }
+            EarningsCard(monthKey = monthKey, stats = stats, onOpenEarnings = onOpenEarnings)
+            Box(Modifier.height(if (isNewOwner) 24.dp else 20.dp))
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                state.freeUntil?.let { PlanCard(freeUntilIso = it, now = now) }
+                if (isNewOwner) {
+                    SetupChecklist(
+                        vehicleName = vehicles.firstOrNull()?.let { "${it.make} ${it.model}" },
+                        hasWorkplace = state.hasWorkplace,
+                        onOpenPostRide = onOpenPostRide,
+                    )
+                } else {
+                    OwnerStats(
+                        state = state,
+                        stats = stats,
+                        newRequests = newRequests,
+                        todayKey = dateKey(now),
+                        tomorrowKey = dateKey(now + 1.days),
+                        onOpenRequests = openRequests,
+                        onOpenRides = openRides,
+                    )
+                }
+            }
+            if (!isNewOwner) {
+                Box(Modifier.height(24.dp))
+                OwnerQuickActions(
+                    newRequests = newRequests,
+                    onAddRide = onOpenPostRide,
+                    onOpenRequests = openRequests,
+                    onRequestRide = { viewModel.onAction(OwnerHomeAction.SwitchToRider) },
+                    onOpenEarnings = onOpenEarnings,
+                )
+            }
+        }
     }
 }
 
+/** Figma's 444dp header: the brand gradient fading out at the bottom, with 16dp bottom corners. */
 @Composable
-private fun OwnerHeader(
-    state: OwnerHomeState,
-    monthName: String,
-    stats: OwnerHomeStats,
-    onOpenNotifications: () -> Unit,
-    onOpenEarnings: () -> Unit,
-) {
-    Column(
+private fun HeaderBackground() {
+    val colors = HitchyTheme.colors
+    Box(
         modifier = Modifier
             .fillMaxWidth()
+            .height(HeaderHeight)
             .clip(HeaderShape)
-            .background(HitchyTheme.colors.purple)
-            .padding(start = 16.dp, end = 16.dp, top = figmaTop(68.dp), bottom = 42.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp),
-    ) {
-        OwnerTopBar(
-            firstName = state.firstName,
-            initials = "${state.firstName.take(1)}${state.lastName.take(1)}".uppercase(),
-            fullName = listOf(state.firstName, state.lastName).filter { it.isNotBlank() }.joinToString(" "),
-            unreadCount = state.unreadCount,
-            onOpenNotifications = onOpenNotifications,
-        )
-        EarningsCard(monthName = monthName, stats = stats, onOpenDetails = onOpenEarnings)
+            .drawBehind {
+                drawRect(
+                    figmaLinearGradient(
+                        colorStops = arrayOf(
+                            0f to colors.violet,
+                            STOP_PURPLE to colors.purple,
+                            STOP_FADE to colors.deepPurple.copy(alpha = 0f),
+                        ),
+                        start = Offset(GRAD_START_X, GRAD_START_Y),
+                        end = Offset(GRAD_END_X, GRAD_END_Y),
+                        band = Offset(GRAD_BAND_X, GRAD_BAND_Y),
+                        size = size,
+                    ),
+                )
+            },
+    )
+}
+
+/** Figma's top bar (52dp): the 48dp avatar, "Welcome back," over the name, and the bell. */
+@Composable
+private fun OwnerTopBar(state: OwnerHomeState, onOpenNotifications: () -> Unit) {
+    val colors = HitchyTheme.colors
+    val typography = HitchyTheme.typography
+    Row(modifier = Modifier.fillMaxWidth().height(52.dp), verticalAlignment = Alignment.CenterVertically) {
+        OwnerAvatar(state)
+        Column(modifier = Modifier.weight(1f).padding(start = 12.dp)) {
+            Text(text = stringResource(Res.string.owner_home_welcome), style = typography.body, color = colors.white)
+            Text(text = fullName(state), style = typography.h3, color = colors.white, maxLines = 1)
+        }
+        HomeBell(unreadCount = state.unreadCount, onClick = onOpenNotifications)
     }
 }
 
+/** Figma 832:14186: "Welcome, Omar" (800 24/30) over the three-steps line, and the bell. */
 @Composable
-private fun OwnerTopBar(
-    firstName: String,
-    initials: String,
-    fullName: String,
-    unreadCount: Int,
-    onOpenNotifications: () -> Unit,
-) {
+private fun WelcomeTopBar(state: OwnerHomeState, onOpenNotifications: () -> Unit) {
     val colors = HitchyTheme.colors
     val typography = HitchyTheme.typography
-    Row(
-        modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        Row(
-            modifier = Modifier.weight(1f),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
-                    .background(colors.white)
-                    .border(2.dp, colors.white.copy(alpha = AVATAR_RING_ALPHA), CircleShape),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(text = initials, style = typography.bodyBold, color = colors.purple)
-            }
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+        Row(modifier = Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            OwnerAvatar(state)
             Column {
                 Text(
-                    text = stringResource(Res.string.owner_home_welcome),
+                    text = stringResource(Res.string.owner_home_welcome_name, state.firstName),
+                    style = typography.amount,
+                    color = colors.white,
+                )
+                Text(
+                    text = stringResource(Res.string.owner_home_setup_body),
                     style = typography.body,
                     color = colors.white,
                 )
-                Text(
-                    text = fullName.ifBlank { firstName },
-                    style = typography.h3,
-                    color = colors.white,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
             }
         }
-        HeaderBell(unreadCount = unreadCount, onClick = onOpenNotifications)
-    }
-}
-
-/** Figma's "Notifications" group: a 40dp white-15% circle with a shadow, the linear bell and a pink count. */
-@Composable
-private fun HeaderBell(unreadCount: Int, onClick: () -> Unit) {
-    val colors = HitchyTheme.colors
-    Box(modifier = Modifier.size(width = 40.dp, height = 44.dp)) {
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .size(40.dp)
-                .figmaShadow(CircleShape, Color.Black.copy(alpha = BELL_SHADOW_ALPHA), blur = 10.dp, y = 4.dp)
-                .clip(CircleShape)
-                .background(colors.white.copy(alpha = BELL_FILL_ALPHA))
-                .clickable(onClick = onClick),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                painter = painterResource(HitchyIcons.BellLinear),
-                contentDescription = null,
-                tint = colors.white,
-                modifier = Modifier.size(20.dp),
-            )
-        }
-        if (unreadCount > 0) {
-            CountBadge(
-                count = unreadCount,
-                size = 18,
-                modifier = Modifier.align(Alignment.TopEnd).offset(x = 4.dp),
-            )
-        }
+        HomeBell(unreadCount = state.unreadCount, onClick = onOpenNotifications)
     }
 }
 
 @Composable
-private fun CountBadge(count: Int, size: Int, modifier: Modifier = Modifier, ring: Boolean = false) {
+private fun OwnerAvatar(state: OwnerHomeState) {
     val colors = HitchyTheme.colors
     Box(
-        modifier = modifier
-            .size(size.dp)
+        modifier = Modifier
+            .size(48.dp)
             .clip(CircleShape)
-            .background(colors.pin)
-            .then(if (ring) Modifier.border(2.dp, colors.white, CircleShape) else Modifier),
+            .background(colors.white)
+            .border(2.dp, colors.white.copy(alpha = AVATAR_RING_ALPHA), CircleShape),
         contentAlignment = Alignment.Center,
     ) {
-        Text(text = count.toString(), style = HitchyTheme.typography.captionStrong, color = colors.white)
+        Text(
+            text = "${state.firstName.take(1)}${state.lastName.take(1)}".uppercase(),
+            style = HitchyTheme.typography.bodyBold,
+            color = colors.purple,
+        )
     }
 }
 
-/** Figma's "Monthly earnings" glass card: r20, white 14% with a white 22% stroke, padding 12/16, gap 4. */
+private fun fullName(state: OwnerHomeState): String {
+    val parts = listOf(state.firstName, state.lastName)
+    return parts.filter { it.isNotBlank() }.joinToString(" ")
+}
+
+/**
+ * Figma's "Monthly earnings" glass card (361x120, r20, padding 12/16, gap 4): "October · seat payments" with
+ * "View earnings ›", the amount (Bold 32/40) and EGP, a 6dp bar of the trip cost covered, and the summary.
+ */
 @Composable
-private fun EarningsCard(monthName: String, stats: OwnerHomeStats, onOpenDetails: () -> Unit) {
+private fun EarningsCard(monthKey: String, stats: OwnerHomeStats, onOpenEarnings: () -> Unit) {
     val colors = HitchyTheme.colors
     val typography = HitchyTheme.typography
-    val shape = RoundedCornerShape(20.dp)
+    val months = stringArrayResource(Res.array.owner_home_months_full)
+    val monthName = months.getOrElse(monthKey.substring(MONTH_START).toInt() - 1) { "" }
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(shape)
+            .clip(CardShape)
             .background(colors.white.copy(alpha = CARD_FILL_ALPHA))
-            .border(1.dp, colors.white.copy(alpha = CARD_STROKE_ALPHA), shape)
+            .border(1.dp, colors.white.copy(alpha = CARD_STROKE_ALPHA), CardShape)
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        Text(
-            text = stringResource(Res.string.owner_home_month_earnings, monthName),
-            style = typography.body,
-            color = colors.white,
-        )
-        Row(
-            modifier = Modifier.fillMaxWidth().height(40.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Row(
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = stringResource(Res.string.owner_home_seat_payments, monthName),
+                style = typography.caption,
+                color = colors.white,
                 modifier = Modifier.weight(1f),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-            ) {
-                Text(
-                    text = groupDigits(stats.monthEarningsEgp),
-                    style = typography.display,
-                    color = colors.white,
-                    modifier = Modifier.alignByBaseline(),
-                )
-                Text(
-                    text = stringResource(Res.string.owner_home_currency),
-                    style = typography.bodyBold,
-                    color = colors.white,
-                    modifier = Modifier.alignByBaseline(),
-                )
-            }
+            )
             Row(
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .background(colors.white)
-                    .clickable(onClick = onOpenDetails)
-                    .padding(horizontal = 12.dp, vertical = 6.dp),
+                modifier = Modifier.clip(RoundedCornerShape(6.dp)).clickable(onClick = onOpenEarnings),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 Text(
-                    text = stringResource(Res.string.owner_home_view_details),
+                    text = stringResource(Res.string.owner_home_view_earnings),
                     style = typography.captionStrong,
-                    color = colors.purple,
+                    color = colors.white,
                 )
-                Icon(
-                    painter = painterResource(HitchyIcons.ChevronRightSmall),
+                Image(
+                    painter = painterResource(Res.drawable.fig_oh_chevron),
                     contentDescription = null,
-                    tint = colors.purple,
                     modifier = Modifier.size(14.dp),
                 )
             }
         }
+        Row(modifier = Modifier.height(40.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text(
+                text = groupDigits(stats.monthEarningsEgp),
+                style = typography.display,
+                color = colors.white,
+                modifier = Modifier.alignByBaseline(),
+            )
+            Text(
+                text = stringResource(Res.string.owner_home_currency),
+                style = typography.bodyBold,
+                color = colors.white,
+                modifier = Modifier.alignByBaseline(),
+            )
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(6.dp)
+                .clip(CircleShape)
+                .background(colors.white.copy(alpha = TRACK_ALPHA)),
+        ) {
+            Box(
+                Modifier
+                    .fillMaxWidth(stats.coveredPercent / PERCENT)
+                    .height(6.dp)
+                    .clip(CircleShape)
+                    .background(colors.white),
+            )
+        }
         Text(
-            text = stringResource(Res.string.owner_home_month_seats, stats.monthSeats),
+            text = stringResource(
+                Res.string.owner_home_fuel_covered,
+                "${stats.coveredPercent}%",
+                stats.monthSeats,
+                stats.monthTrips,
+            ),
             style = typography.caption,
             color = colors.white,
         )
     }
 }
 
-@Composable
-private fun OwnerStats(
-    points: Int,
-    newRequests: Int,
-    stats: OwnerHomeStats,
-    onOpenRequests: () -> Unit,
-    onOpenRides: () -> Unit,
-) {
-    val colors = HitchyTheme.colors
-    Column(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            StatCard(HitchyIcons.Star, points, stringResource(Res.string.owner_home_stat_points), onClick = null)
-            // Figma draws this one label in navy; the other three are gray.
-            StatCard(
-                icon = HitchyIcons.Users20,
-                value = newRequests,
-                label = stringResource(Res.string.owner_home_stat_requests),
-                onClick = onOpenRequests,
-                labelColor = colors.navy,
-            )
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            StatCard(HitchyIcons.Car, stats.activeRides, stringResource(Res.string.owner_home_stat_rides), onOpenRides)
-            StatCard(
-                HitchyIcons.Calendar,
-                stats.bookedSeats,
-                stringResource(Res.string.owner_home_stat_seats),
-                onOpenRides,
-            )
-        }
-    }
-}
-
 /**
- * Figma's "Stat" card: 174x108, r18, white, two soft shadows, padding 12, gap 10, a 40dp picture,
- * the number in Cairo 800 24/30 and a 12/18 label. Figma's pictures are 3D renders; until they are
- * exported, a lavender tile with the matching icon stands in.
+ * Figma's "Current plan" card (353x62, lilac, r16, padding 8/16): the gift, "Free month" (Bold 18/26),
+ * "N days left ›" (600 14/22 purple), and "Trips are free until **30 Nov**" (12/18 gray, the date Bold).
  */
 @Composable
-private fun RowScope.StatCard(
-    icon: DrawableResource,
-    value: Int,
-    label: String,
-    onClick: (() -> Unit)?,
-    labelColor: Color = HitchyTheme.colors.textSecondary,
-) {
+private fun PlanCard(freeUntilIso: String, now: Instant) {
+    val until = runCatching { Instant.parse(freeUntilIso) }.getOrNull() ?: return
+    if (until <= now) return
     val colors = HitchyTheme.colors
-    Row(
+    val typography = HitchyTheme.typography
+    val daysLeft = ((until.epochSeconds - now.epochSeconds + DAY_SECONDS - 1) / DAY_SECONDS).toInt()
+    val key = dateKey(until)
+    val shortMonths = stringArrayResource(Res.array.rider_home_months)
+    val month = shortMonths.getOrElse(key.substring(MONTH_START, MONTH_END).toInt() - 1) { "" }
+    val dateText = "${key.substring(DAY_START).toInt()} $month"
+    val template = stringResource(Res.string.owner_home_free_until, PLACEHOLDER)
+    Column(
         modifier = Modifier
-            .weight(1f)
-            .height(108.dp)
-            .figmaShadow(StatShape, colors.scrim.copy(alpha = STAT_SHADOW_SOFT), blur = 4.dp, y = 1.dp)
-            .figmaShadow(StatShape, colors.scrim.copy(alpha = STAT_SHADOW_ALPHA), blur = 4.dp, y = 1.dp)
-            .clip(StatShape)
-            .background(colors.white)
-            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
-            .padding(12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
+            .fillMaxWidth()
+            .padding(end = 8.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(colors.lilac)
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
-        Box(
-            modifier = Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)).background(colors.lavender),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                painter = painterResource(icon),
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Image(
+                painter = painterResource(Res.drawable.fig_oh_gift),
                 contentDescription = null,
-                tint = colors.purple,
-                modifier = Modifier.size(22.dp),
+                modifier = Modifier.size(18.dp),
             )
-        }
-        Column {
-            Text(text = value.toString(), style = HitchyTheme.typography.amount, color = colors.navy)
-            Text(text = label, style = HitchyTheme.typography.caption, color = labelColor, maxLines = 2)
-        }
-    }
-}
-
-@Composable
-private fun OwnerQuickActions(
-    newRequests: Int,
-    onAddRide: () -> Unit,
-    onOpenRequests: () -> Unit,
-    onRequestRide: () -> Unit,
-    onOpenEarnings: () -> Unit,
-) {
-    Column(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-    ) {
-        Text(
-            text = stringResource(Res.string.owner_home_quick_actions),
-            style = HitchyTheme.typography.h3,
-            color = HitchyTheme.colors.navy,
-        )
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            QuickAction(
-                HitchyIcons.PlusWhite,
-                stringResource(Res.string.owner_home_action_add),
-                onAddRide,
-                primary = true,
+            Text(
+                text = stringResource(Res.string.owner_home_free_month),
+                style = typography.title,
+                color = colors.navy,
+                modifier = Modifier.weight(1f),
             )
-            QuickAction(
-                icon = HitchyIcons.Users20,
-                label = stringResource(Res.string.owner_home_action_requests),
-                onClick = onOpenRequests,
-                badge = newRequests,
-            )
-            QuickAction(HitchyIcons.Pin20, stringResource(Res.string.owner_home_action_request_ride), onRequestRide)
-            QuickAction(HitchyIcons.Wallet20, stringResource(Res.string.owner_home_action_earnings), onOpenEarnings)
-        }
-    }
-}
-
-/**
- * Figma's "Action" cell: 84x94, padding 4 top and bottom, gap 8, a 60dp r18 tile and a 12/18 label.
- * The first tile is the purple gradient with a purple shadow; the others are lilac.
- */
-@Composable
-private fun RowScope.QuickAction(
-    icon: DrawableResource,
-    label: String,
-    onClick: () -> Unit,
-    primary: Boolean = false,
-    badge: Int = 0,
-) {
-    val colors = HitchyTheme.colors
-    val tile = if (primary) {
-        Modifier
-            .figmaShadow(ActionShape, colors.purple.copy(alpha = ADD_SHADOW_ALPHA), blur = 14.dp, y = 6.dp)
-            .clip(ActionShape)
-            .background(Brush.linearGradient(listOf(colors.violet, colors.deepPurple)))
-    } else {
-        Modifier.clip(ActionShape).background(colors.lilac)
-    }
-    Column(
-        modifier = Modifier
-            .weight(1f)
-            .height(94.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .clickable(onClick = onClick)
-            .padding(vertical = 4.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        Box {
-            Box(modifier = Modifier.size(60.dp).then(tile), contentAlignment = Alignment.Center) {
-                Icon(
-                    painter = painterResource(icon),
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(
+                    text = stringResource(Res.string.owner_home_days_left, daysLeft),
+                    style = typography.bodyStrong,
+                    color = colors.purple,
+                )
+                Image(
+                    painter = painterResource(Res.drawable.fig_oh_plan_chevron),
                     contentDescription = null,
-                    tint = if (primary) colors.white else colors.purple,
-                    modifier = Modifier.size(24.dp),
-                )
-            }
-            if (badge > 0) {
-                CountBadge(
-                    count = badge,
-                    size = 20,
-                    ring = true,
-                    modifier = Modifier.align(Alignment.TopEnd).offset(x = 4.dp, y = (-4).dp),
+                    modifier = Modifier.size(14.dp),
                 )
             }
         }
         Text(
-            text = label,
-            style = if (primary) HitchyTheme.typography.captionStrong else HitchyTheme.typography.caption,
-            color = if (primary) colors.purple else colors.navy,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
+            text = buildAnnotatedString {
+                val at = template.indexOf(PLACEHOLDER)
+                append(template.substring(0, at.coerceAtLeast(0)))
+                withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(dateText) }
+                if (at >= 0) append(template.substring(at + PLACEHOLDER.length))
+            },
+            style = typography.caption,
+            color = colors.textSecondary,
         )
     }
 }
