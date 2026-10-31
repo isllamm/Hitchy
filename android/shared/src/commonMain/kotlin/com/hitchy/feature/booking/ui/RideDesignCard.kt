@@ -232,9 +232,21 @@ internal fun RideSummaryRow(
     ) {
         IconTile(icon = tileIcon, tileColor = colors.lavender, iconColor = colors.purple)
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = title, style = typography.title, color = colors.navy, maxLines = 1, modifier = Modifier.tightLine(typography.title.fontSize))
+            Text(
+                text = title,
+                style = typography.title,
+                color = colors.navy,
+                maxLines = 1,
+                modifier = Modifier.tightLine(typography.title.fontSize),
+            )
             if (subtitle != null) {
-                Text(text = subtitle, style = typography.body, color = colors.textSecondary, maxLines = 1, modifier = Modifier.tightLine(typography.body.fontSize))
+                Text(
+                    text = subtitle,
+                    style = typography.body,
+                    color = colors.textSecondary,
+                    maxLines = 1,
+                    modifier = Modifier.tightLine(typography.body.fontSize),
+                )
             }
         }
         Text(

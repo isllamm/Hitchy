@@ -371,8 +371,11 @@ private fun ActionBar(
                 MainAction(Res.string.host_trip_btn_end_trip, state.isLoading) { onAction(HostTripAction.FinishTrip) }
 
             HostTripPhase.ARRIVED ->
-                MainAction(Res.string.host_trip_btn_confirm_payment, state.isLoading) {
-                    onAction(HostTripAction.ConfirmPayment)
+                // Hidden once every rider's payment is confirmed.
+                if (!state.allPaymentsConfirmed) {
+                    MainAction(Res.string.host_trip_btn_confirm_payment, state.isLoading) {
+                        onAction(HostTripAction.ConfirmPayment)
+                    }
                 }
 
             HostTripPhase.PAYMENT_DONE -> MainAction(Res.string.host_trip_btn_payment_done, false, onDone)

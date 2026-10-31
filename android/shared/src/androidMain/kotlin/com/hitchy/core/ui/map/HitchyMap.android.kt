@@ -5,6 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -68,6 +69,12 @@ actual fun HitchyMap(
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(MapDefaults.center.toLatLng(), MapDefaults.ZOOM)
     }
+    // The route follows the streets when the routing service answers; until then, or without it, a straight line.
+    val streetRouteProvider = LocalStreetRouteProvider.current
+    val streetRoute by produceState<List<GeoPoint>?>(initialValue = null, route, streetRouteProvider) {
+        value = null
+        value = if (route.size >= 2 && streetRouteProvider != null) streetRouteProvider.routeThrough(route) else null
+    }
     var mapLoaded by remember { mutableStateOf(false) }
     var fitted by remember { mutableStateOf(false) }
     val focus = remember(pins, route) { mapFocusFor(pins.map { it.point } + route) }
@@ -96,7 +103,7 @@ actual fun HitchyMap(
     ) {
         if (route.size >= 2) {
             Polyline(
-                points = route.map { it.toLatLng() },
+                points = (streetRoute ?: route).map { it.toLatLng() },
                 color = colors.purple,
                 width = with(density) { RouteWidth.toPx() },
                 jointType = JointType.ROUND,

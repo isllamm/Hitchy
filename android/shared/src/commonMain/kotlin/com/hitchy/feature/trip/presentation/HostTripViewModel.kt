@@ -56,6 +56,10 @@ data class HostTripState(
     val totalBookedSeats: Int
         get() = bookings.sumOf { it.seats }
 
+    /** True when every rider's payment is already confirmed: the Confirm Payment button is then hidden. */
+    val allPaymentsConfirmed: Boolean
+        get() = bookings.isNotEmpty() && bookings.all { it.paymentConfirmedAt != null }
+
     /** The ride's pickups in driving order: the start point ("start"), then each stop. */
     val pickupIds: List<String>
         get() = listOf(START_PICKUP) + ride?.stops.orEmpty().map { it.id }

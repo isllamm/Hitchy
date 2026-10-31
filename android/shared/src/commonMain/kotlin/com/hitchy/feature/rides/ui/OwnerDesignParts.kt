@@ -30,11 +30,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.hitchy.core.model.AppLanguage
 import com.hitchy.core.model.RideStatus
+import com.hitchy.core.ui.TightTextGap
 import com.hitchy.core.ui.cairoTime12
 import com.hitchy.core.ui.components.RideStatusVariant
 import com.hitchy.core.ui.components.StatusChip
 import com.hitchy.core.ui.icon.HitchyIcons
 import com.hitchy.core.ui.theme.HitchyTheme
+import com.hitchy.core.ui.tight
 import com.hitchy.core.util.isoToCairoDateKey
 import com.hitchy.feature.rides.domain.Ride
 import hitchy.shared.generated.resources.Res
@@ -307,14 +309,14 @@ private fun OwnerRideFooter(ride: Ride) {
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         OwnerIconTile(icon = HitchyIcons.Car)
-        Column(modifier = Modifier.weight(1f)) {
+        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(TightTextGap)) {
             Text(
                 text = stringResource(
                     Res.string.rides_t14_seats_booked,
                     (ride.seatsTotal - ride.seatsLeft).coerceAtLeast(0),
                     ride.seatsTotal,
                 ),
-                style = typography.bodyStrong,
+                style = typography.bodyStrong.tight(),
                 color = colors.navy,
                 maxLines = 1,
             )
@@ -325,7 +327,7 @@ private fun OwnerRideFooter(ride: Ride) {
                     ride.vehicle.model,
                     ride.vehicle.color,
                 ),
-                style = typography.caption,
+                style = typography.caption.tight(),
                 color = colors.textSecondary,
                 maxLines = 1,
             )

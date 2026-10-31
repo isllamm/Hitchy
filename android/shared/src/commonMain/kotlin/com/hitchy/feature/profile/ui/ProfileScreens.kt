@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.hitchy.core.AppReset
 import com.hitchy.core.model.AppLanguage
 import com.hitchy.core.model.Gender
 import com.hitchy.core.model.Role
@@ -262,6 +263,7 @@ fun ProfileTabContent(
     onOpenNotifications: () -> Unit = {},
     viewModel: ProfileTabViewModel = koinViewModel(),
     languageSwitcher: LanguageSwitcher = koinInject(),
+    appReset: AppReset = koinInject(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val colors = HitchyTheme.colors
@@ -272,6 +274,7 @@ fun ProfileTabContent(
         viewModel.events.collect { event ->
             when (event) {
                 ProfileTabEvent.NavigateToHostApplication -> onOpenHostApplication()
+                ProfileTabEvent.RoleSwitched -> appReset.reset()
             }
         }
     }
@@ -366,7 +369,12 @@ fun ProfileTabContent(
                         icon = Res.drawable.fig_more_language,
                         label = stringResource(Res.string.profile_language),
                         onClick = null,
-                        trailing = { LanguageToggle(current = language) { languageSwitcher.setLanguage(it) } },
+                        trailing = {
+                            LanguageToggle(current = language) {
+                                languageSwitcher.setLanguage(it)
+                                appReset.reset()
+                            }
+                        },
                     )
                 }
                 MoreSection(title = stringResource(Res.string.profile_section_support)) {

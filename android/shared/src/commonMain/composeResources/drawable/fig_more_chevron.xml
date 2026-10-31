@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Figma node 676:10802 (Icon), exported from its vector geometry. -->
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
+<vector android:autoMirrored="true" xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="17.999dp"
     android:height="17.999dp"
     android:viewportWidth="17.999"

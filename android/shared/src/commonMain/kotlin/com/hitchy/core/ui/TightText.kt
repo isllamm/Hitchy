@@ -5,13 +5,19 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
+
+/** The space between two stacked texts when a screen asks for them close together (4dp, Islam 2026-10-31). */
+val TightTextGap = 4.dp
 
 // Cairo's font box is about 1.87x its size; the designs' text boxes are about 1.2x. Each side loses the half.
 private const val CAIRO_EXTRA_PER_SIDE = 0.33f
 
 /** The same style with the space above the first line and below the last one trimmed, where the font allows it. */
-fun TextStyle.tight(): TextStyle = copy(lineHeightStyle = LineHeightStyle(LineHeightStyle.Alignment.Center, LineHeightStyle.Trim.Both))
+fun TextStyle.tight(): TextStyle = copy(
+    lineHeightStyle = LineHeightStyle(LineHeightStyle.Alignment.Center, LineHeightStyle.Trim.Both),
+)
 
 /**
  * Cuts Cairo's extra space above and below a one-line text of [fontSize], so a name and the line under it sit

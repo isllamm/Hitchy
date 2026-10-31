@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -87,6 +88,7 @@ import hitchy.shared.generated.resources.fig_result_best
 import hitchy.shared.generated.resources.fig_result_dest
 import hitchy.shared.generated.resources.fig_result_pickup
 import hitchy.shared.generated.resources.fig_result_verified
+import hitchy.shared.generated.resources.img_empty_rides
 import hitchy.shared.generated.resources.search_results_change_time
 import hitchy.shared.generated.resources.search_results_empty_title
 import hitchy.shared.generated.resources.search_results_title
@@ -459,7 +461,13 @@ private fun ResultHostRow(host: RideHost) {
             )
         }
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = host.firstName, style = typography.bodyBold, color = colors.navy, maxLines = 1, modifier = Modifier.tightLine(typography.bodyBold.fontSize))
+            Text(
+                text = host.firstName,
+                style = typography.bodyBold,
+                color = colors.navy,
+                maxLines = 1,
+                modifier = Modifier.tightLine(typography.bodyBold.fontSize),
+            )
             host.rating?.let { rating ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -549,25 +557,16 @@ internal fun SearchEmptyContent(
 private fun SearchEmptyMessage(summary: SearchSummary) {
     val colors = HitchyTheme.colors
     val typography = HitchyTheme.typography
-    Column(
-        modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        Box(
-            modifier = Modifier.size(96.dp).clip(CircleShape).background(colors.lavender),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                painter = painterResource(HitchyIcons.NoRides),
-                contentDescription = null,
-                tint = colors.purple,
-                modifier = Modifier.size(44.dp),
-            )
-        }
+    // The same picture, title and line as the empty Rides tab and the Shop tab.
+    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+        Image(
+            painter = painterResource(Res.drawable.img_empty_rides),
+            contentDescription = null,
+            modifier = Modifier.size(width = 300.dp, height = 200.dp),
+        )
         Text(
             text = stringResource(Res.string.search_results_empty_title),
-            style = typography.heroTitle(),
+            style = typography.h1,
             color = colors.navy,
             textAlign = TextAlign.Center,
         )
@@ -579,9 +578,10 @@ private fun SearchEmptyMessage(summary: SearchSummary) {
                 bookingTime12(summary.input.time),
                 bookingDateLabel(summary.input.date),
             ),
-            style = typography.body,
+            style = typography.bodyLarge,
             color = colors.textSecondary,
             textAlign = TextAlign.Center,
+            modifier = Modifier.width(290.dp).padding(top = 8.78.dp),
         )
     }
 }

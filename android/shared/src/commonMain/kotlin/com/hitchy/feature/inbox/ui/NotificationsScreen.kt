@@ -103,7 +103,7 @@ private const val DATE_DAY_START = 8
 private data class TileLook(val icon: DrawableResource, val background: Color)
 
 private val GroupShape = RoundedCornerShape(16.dp)
-private val CardShape = RoundedCornerShape(4.dp)
+private val CardShape = RoundedCornerShape(16.dp)
 
 /**
  * The demo's Notifications (676:10912): the 44dp header (back, the 18/26 title), "TODAY" with "Mark all as
@@ -254,7 +254,7 @@ private fun NotificationCard(item: InboxItem, language: AppLanguage, nowMs: Long
                 if (unread) {
                     Modifier.clip(CardShape).background(colors.lilac).border(1.dp, colors.lavender, CardShape)
                 } else {
-                    Modifier.background(colors.white).border(1.dp, colors.border)
+                    Modifier.clip(CardShape).background(colors.white).border(1.dp, colors.border, CardShape)
                 },
             )
             .clickable(onClick = onClick)

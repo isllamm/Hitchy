@@ -139,6 +139,9 @@ sealed interface ProfileTabAction {
 
 sealed interface ProfileTabEvent {
     data object NavigateToHostApplication : ProfileTabEvent
+
+    /** The role changed: the app restarts from the root on the new role. */
+    data object RoleSwitched : ProfileTabEvent
 }
 
 class ProfileTabViewModel(
@@ -169,7 +172,10 @@ class ProfileTabViewModel(
         setState { copy(isSwitchingRole = true, error = null) }
         viewModelScope.launch {
             when (val result = profileRepository.switchRole(role)) {
-                is AppResult.Ok -> setState { copy(isSwitchingRole = false) }
+                is AppResult.Ok -> {
+                    setState { copy(isSwitchingRole = false) }
+                    emit(ProfileTabEvent.RoleSwitched)
+                }
 
                 is AppResult.Err -> {
                     val notApproved = (result.error as? AppError.Reason)?.code == HOST_NOT_APPROVED

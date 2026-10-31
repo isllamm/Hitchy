@@ -1,5 +1,6 @@
 package com.hitchy.di
 
+import com.hitchy.core.AppReset
 import com.hitchy.core.data.FunctionsClient
 import com.hitchy.core.data.GitLiveFunctionsClient
 import com.hitchy.core.data.StoragePhotoUrlResolver
@@ -12,6 +13,7 @@ import kotlin.time.Clock
 
 val coreModule = module {
     single<Clock> { Clock.System }
+    single { AppReset() }
     single<PhotoUrlResolver> { StoragePhotoUrlResolver() }
     single<FunctionsClient> {
         val config = get<AppConfig>()

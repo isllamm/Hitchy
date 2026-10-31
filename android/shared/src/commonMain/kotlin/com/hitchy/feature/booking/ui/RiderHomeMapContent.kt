@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hitchy.core.model.AppLanguage
 import com.hitchy.core.platform.LanguageSwitcher
+import com.hitchy.core.ui.TightTextGap
 import com.hitchy.core.ui.figmaShadow
 import com.hitchy.core.ui.figmaTop
 import com.hitchy.core.ui.icon.HitchyIcons
@@ -51,6 +52,7 @@ import com.hitchy.core.ui.map.HitchyMap
 import com.hitchy.core.ui.map.MapPin
 import com.hitchy.core.ui.theme.HitchyTheme
 import com.hitchy.core.ui.tight
+import com.hitchy.core.ui.tightLine
 import com.hitchy.feature.booking.presentation.RiderHomeAction
 import com.hitchy.feature.booking.presentation.RiderHomeEvent
 import com.hitchy.feature.booking.presentation.RiderHomeState
@@ -494,11 +496,15 @@ private fun PassengersCard(
                 modifier = Modifier.size(HomeIconSize),
             )
         }
-        Column(modifier = Modifier.weight(1f).padding(start = 14.dp)) {
+        Column(
+            modifier = Modifier.weight(1f).padding(start = 14.dp),
+            verticalArrangement = Arrangement.spacedBy(TightTextGap),
+        ) {
             Text(
                 text = stringResource(Res.string.rider_home_passengers_label),
                 style = typography.body,
                 color = colors.textSecondary,
+                modifier = Modifier.tightLine(typography.body.fontSize),
             )
             Text(
                 text = if (seats == 1) {
@@ -508,6 +514,7 @@ private fun PassengersCard(
                 },
                 style = typography.bodyStrong,
                 color = colors.navy,
+                modifier = Modifier.tightLine(typography.bodyStrong.fontSize),
             )
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -518,7 +525,12 @@ private fun PassengersCard(
                 onClick = { onSeatsChange(seats - 1) },
             )
             Box(modifier = Modifier.size(32.dp), contentAlignment = Alignment.Center) {
-                Text(text = seats.toString(), style = typography.title, color = colors.navy)
+                Text(
+                    text = seats.toString(),
+                    style = typography.title.tight(),
+                    color = colors.navy,
+                    textAlign = TextAlign.Center,
+                )
             }
             StepperButton(
                 icon = HitchyIcons.Plus,

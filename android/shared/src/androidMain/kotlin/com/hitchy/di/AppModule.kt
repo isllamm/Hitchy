@@ -14,6 +14,7 @@ import com.hitchy.core.platform.AndroidLanguageSwitcher
 import com.hitchy.core.platform.AndroidLocationProvider
 import com.hitchy.core.platform.AndroidPhoneAuth
 import com.hitchy.core.platform.AndroidSharer
+import com.hitchy.core.platform.AndroidStreetRouteProvider
 import com.hitchy.core.platform.AppSettings
 import com.hitchy.core.platform.DataStoreAppSettings
 import com.hitchy.core.platform.Dialer
@@ -23,6 +24,7 @@ import com.hitchy.core.platform.LocationProvider
 import com.hitchy.core.platform.NoOpAnalytics
 import com.hitchy.core.platform.PhoneAuth
 import com.hitchy.core.platform.Sharer
+import com.hitchy.core.platform.StreetRouteProvider
 import com.hitchy.feature.debug.data.AndroidDebugInfo
 import com.hitchy.feature.debug.domain.DebugInfo
 import org.koin.android.ext.koin.androidContext
@@ -36,6 +38,7 @@ fun appModule(appConfig: AppConfig): Module = module {
     single<DataStore<Preferences>> { androidContext().hitchyDataStore }
     single<AppSettings> { DataStoreAppSettings(get()) }
     single<LanguageSwitcher> { AndroidLanguageSwitcher() }
+    single<StreetRouteProvider> { AndroidStreetRouteProvider() }
 
     single { AndroidActivityProvider() }
     single<ActivityProvider> { get<AndroidActivityProvider>() }

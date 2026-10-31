@@ -29,6 +29,7 @@ import com.hitchy.core.ui.cairoTime12
 import com.hitchy.core.ui.components.BannerVariant
 import com.hitchy.core.ui.components.EmptyState
 import com.hitchy.core.ui.components.FloatingBanner
+import com.hitchy.core.ui.components.FloatingError
 import com.hitchy.core.ui.components.HitchyBanner
 import com.hitchy.core.ui.components.HitchyButton
 import com.hitchy.core.ui.components.HitchyButtonVariant
@@ -126,7 +127,7 @@ private fun SearchErrorContent(
             modifier = Modifier.fillMaxSize().padding(spacing.screenPadding),
             verticalArrangement = Arrangement.spacedBy(spacing.space16),
         ) {
-            HitchyBanner(text = message, variant = BannerVariant.Error)
+            FloatingError(text = message)
             HitchyButton(onClick = onRetry, modifier = Modifier.fillMaxWidth()) {
                 Text(text = stringResource(Res.string.action_retry))
             }

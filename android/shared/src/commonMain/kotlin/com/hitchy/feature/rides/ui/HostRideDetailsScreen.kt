@@ -368,7 +368,12 @@ private fun RiderRow(booking: Booking, name: String, photoPath: String?, languag
                 )
             }
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(text = name, style = typography.bodyStrong, color = colors.navy, modifier = Modifier.tightLine(typography.bodyStrong.fontSize))
+                Text(
+                    text = name,
+                    style = typography.bodyStrong,
+                    color = colors.navy,
+                    modifier = Modifier.tightLine(typography.bodyStrong.fontSize),
+                )
                 Text(
                     text = stringResource(
                         Res.string.owner_design_pickup_line,

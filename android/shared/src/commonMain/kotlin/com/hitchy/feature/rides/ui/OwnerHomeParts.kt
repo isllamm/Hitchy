@@ -94,6 +94,8 @@ import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
+/** The four Home stat cards share this height, so the two rows and both columns line up. */
+private val StatCardHeight = 84.dp
 private val StatShape = RoundedCornerShape(18.dp)
 private val ActionShape = RoundedCornerShape(18.dp)
 
@@ -187,9 +189,9 @@ internal fun OwnerStats(
         }
         stringResource(Res.string.owner_home_next_ride, day, cairoTime12(ride.departAt))
     }
-    // Each row is as tall as its tallest card, so the four cards line up (IntrinsicSize.Min).
+    // All four cards have the same height (StatCardHeight), in both rows.
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Row(modifier = Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             StatCard(
                 image = Res.drawable.img_stat_gift,
                 value = state.pointsBalance,
@@ -207,7 +209,7 @@ internal fun OwnerStats(
                 onClick = onOpenRequests,
             )
         }
-        Row(modifier = Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             StatCard(
                 image = Res.drawable.img_stat_calendar,
                 value = stats.bookedSeats,
@@ -252,8 +254,7 @@ private fun RowScope.StatCard(
     Row(
         modifier = Modifier
             .weight(1f)
-            .fillMaxHeight()
-            .heightIn(min = 76.dp)
+            .height(StatCardHeight)
             .figmaShadow(StatShape, colors.scrim.copy(alpha = STAT_SHADOW_SOFT), blur = 4.dp, y = 1.dp)
             .figmaShadow(StatShape, colors.scrim.copy(alpha = STAT_SHADOW), blur = 4.dp, y = 1.dp)
             .clip(StatShape)

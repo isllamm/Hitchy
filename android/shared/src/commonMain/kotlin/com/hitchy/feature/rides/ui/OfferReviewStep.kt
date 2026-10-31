@@ -23,9 +23,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.hitchy.core.model.AppLanguage
 import com.hitchy.core.model.TrafficLevel
+import com.hitchy.core.ui.components.Skeleton
+import com.hitchy.core.ui.components.SkeletonBlock
+import com.hitchy.core.ui.components.SkeletonLine
 import com.hitchy.core.ui.figmaShadow
 import com.hitchy.core.ui.icon.HitchyIcons
 import com.hitchy.core.ui.theme.HitchyTheme
+import com.hitchy.core.ui.tight
 import com.hitchy.feature.rides.presentation.PostRideAction
 import com.hitchy.feature.rides.presentation.PostRideState
 import hitchy.shared.generated.resources.Res
@@ -73,7 +77,11 @@ internal fun OfferReviewStep(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         PriceHero(state, onAction)
-        state.quote?.let { Breakdown(state) }
+        if (state.quote != null) {
+            Breakdown(state)
+        } else if (state.isQuoting) {
+            BreakdownSkeleton()
+        }
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
@@ -93,6 +101,26 @@ internal fun OfferReviewStep(
         }
     }
 }
+
+/** The cost breakdown card as grey blocks, while the quote is on its way. */
+@Composable
+private fun BreakdownSkeleton() {
+    val colors = HitchyTheme.colors
+    Skeleton(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(OfferCardShape)
+            .background(colors.white)
+            .border(1.dp, colors.hairline, OfferCardShape)
+            .padding(horizontal = 12.dp, vertical = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        SkeletonLine(width = 180.dp, height = 16.dp)
+        repeat(SKELETON_BREAKDOWN_ROWS) { SkeletonLine(width = 260.dp) }
+    }
+}
+
+private const val SKELETON_BREAKDOWN_ROWS = 3
 
 /** The posted route as Figma's timeline rows: start, the stops, then the drop-off (no arrival time yet). */
 @Composable
@@ -155,6 +183,15 @@ private fun PriceHero(state: PostRideState, onAction: (PostRideAction) -> Unit) 
                 modifier = Modifier.weight(1f),
             )
             if (quote != null) FairPriceBadge()
+        }
+        if (quote == null && state.isQuoting) {
+            // The real price is still coming from the server: the figure and the slider shimmer.
+            Skeleton(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                SkeletonBlock(modifier = Modifier.size(width = 140.dp, height = 30.dp))
+                SkeletonBlock(modifier = Modifier.fillMaxWidth().height(24.dp), shape = CircleShape)
+                SkeletonLine(width = 200.dp)
+            }
+            return@Column
         }
         Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(
@@ -238,8 +275,9 @@ private fun FairPriceBadge() {
         Box(Modifier.size(6.dp).clip(CircleShape).background(colors.successText))
         Text(
             text = stringResource(Res.string.offer_fair_price),
-            style = HitchyTheme.typography.captionStrong,
+            style = HitchyTheme.typography.captionStrong.tight(),
             color = colors.successText,
+            textAlign = TextAlign.Center,
         )
     }
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Figma node 813:13807 (icon/chevron), exported from its vector geometry. -->
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
+<vector android:autoMirrored="true" xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="14dp"
     android:height="14dp"
     android:viewportWidth="14"

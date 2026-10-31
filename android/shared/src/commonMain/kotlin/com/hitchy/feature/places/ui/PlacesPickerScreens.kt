@@ -122,13 +122,13 @@ fun RoutePickerScreen(
     }
 
     Surface(modifier = modifier.fillMaxSize(), color = colors.white) {
-        LazyColumn(
-            // The app draws edge to edge, so the window no longer shrinks for the keyboard: without imePadding
-            // the last points sit under the keyboard and the list cannot scroll up to them.
-            modifier = Modifier.fillMaxSize().imePadding(),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = figmaTop(CONTENT_TOP), bottom = 24.dp),
-        ) {
-            item {
+        // The title, the two fields, "Choose on map" and the list header stay in place: only the points scroll.
+        // The app draws edge to edge, so the window no longer shrinks for the keyboard: without imePadding
+        // the last points sit under the keyboard and the list cannot scroll up to them.
+        Column(modifier = Modifier.fillMaxSize().imePadding()) {
+            Column(
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = figmaTop(CONTENT_TOP)),
+            ) {
                 Row(modifier = Modifier.fillMaxWidth().height(44.dp), verticalAlignment = Alignment.CenterVertically) {
                     BackButton(
                         onClick = onBack,
@@ -144,8 +144,6 @@ fun RoutePickerScreen(
                     )
                     Box(modifier = Modifier.size(44.dp))
                 }
-            }
-            item {
                 RouteFieldsCard(
                     state = state,
                     language = language,
@@ -155,8 +153,6 @@ fun RoutePickerScreen(
                     onSwap = { viewModel.onAction(PlacesPickerAction.Swap) },
                     modifier = Modifier.padding(top = 16.dp),
                 )
-            }
-            item {
                 LocationRow(
                     icon = HitchyIcons.MapFold,
                     title = stringResource(Res.string.picker_choose_on_map),
@@ -166,11 +162,7 @@ fun RoutePickerScreen(
                     onClick = { onOpenMapPicker(state.field) },
                     modifier = Modifier.padding(top = 16.dp),
                 )
-            }
-            item {
                 Box(modifier = Modifier.padding(top = 16.dp).fillMaxWidth().height(1.dp).background(colors.border))
-            }
-            item {
                 val header = when {
                     state.query.isNotBlank() -> stringResource(Res.string.picker_results_for, state.query.trim())
                     pickingFrom -> stringResource(Res.string.picker_pickup_points)
@@ -183,21 +175,28 @@ fun RoutePickerScreen(
                     modifier = Modifier.padding(top = 16.dp),
                 )
             }
-            if (!state.pointsLoaded) {
-                item {
-                    Skeleton(modifier = Modifier.padding(top = 8.dp)) {
-                        repeat(SKELETON_ROWS) { SkeletonListRow(titleWidth = 180.dp) }
+            LazyColumn(
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 24.dp),
+            ) {
+                if (!state.pointsLoaded) {
+                    item {
+                        Skeleton(modifier = Modifier.padding(top = 8.dp)) {
+                            repeat(SKELETON_ROWS) { SkeletonListRow(titleWidth = 180.dp) }
+                        }
                     }
                 }
-            }
-            // Point ids repeat across zones ("p1" in each), so the key carries the zone too.
-            items(state.filteredPoints, key = { "${it.zoneId}/${it.id}" }) { point ->
-                LocationRow(
-                    icon = HitchyIcons.Place,
-                    title = point.name.resolve(language),
-                    subtitle = zonesById[point.zoneId]?.name?.resolve(language).orEmpty(),
-                    onClick = { viewModel.onAction(PlacesPickerAction.ConfirmPoint(point, moveToEmptyField = true)) },
-                )
+                // Point ids repeat across zones ("p1" in each), so the key carries the zone too.
+                items(state.filteredPoints, key = { "${it.zoneId}/${it.id}" }) { point ->
+                    LocationRow(
+                        icon = HitchyIcons.Place,
+                        title = point.name.resolve(language),
+                        subtitle = zonesById[point.zoneId]?.name?.resolve(language).orEmpty(),
+                        onClick = {
+                            viewModel.onAction(PlacesPickerAction.ConfirmPoint(point, moveToEmptyField = true))
+                        },
+                    )
+                }
             }
         }
     }

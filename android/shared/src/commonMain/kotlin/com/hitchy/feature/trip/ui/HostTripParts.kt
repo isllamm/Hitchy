@@ -298,7 +298,13 @@ private fun RiderStatusRow(
     ) {
         Avatar(initials = name.take(2).uppercase(), photoPath = photoPath)
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(text = name, style = typography.bodyStrong, color = colors.navy, maxLines = 1, modifier = Modifier.tightLine(typography.bodyStrong.fontSize))
+            Text(
+                text = name,
+                style = typography.bodyStrong,
+                color = colors.navy,
+                maxLines = 1,
+                modifier = Modifier.tightLine(typography.bodyStrong.fontSize),
+            )
             Text(
                 text = "${booking.pickupPointName.resolve(language)} · ${cairoTime12(booking.pickupAt)}",
                 style = typography.caption,

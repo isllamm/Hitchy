@@ -44,6 +44,7 @@ import com.hitchy.core.model.Role
 import com.hitchy.core.ui.components.AppRoleType
 import com.hitchy.core.ui.components.BackButton
 import com.hitchy.core.ui.components.BackButtonStyle
+import com.hitchy.core.ui.components.FloatingError
 import com.hitchy.core.ui.components.HitchyButton
 import com.hitchy.core.ui.components.IdentityField
 import com.hitchy.core.ui.components.OtpField
@@ -628,14 +629,7 @@ fun OtpVerifyScreen(
                             enabled = !state.isVerifying,
                         )
 
-                        if (error != null && !expired) {
-                            Text(
-                                text = stringResource(error.message()),
-                                style = typography.body,
-                                color = colors.errorText,
-                                textAlign = TextAlign.Center,
-                            )
-                        }
+                        if (error != null && !expired) FloatingError(error = error)
 
                         if (!expired) {
                             Text(
