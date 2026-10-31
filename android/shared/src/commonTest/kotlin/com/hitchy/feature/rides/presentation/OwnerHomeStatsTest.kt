@@ -3,6 +3,7 @@ package com.hitchy.feature.rides.presentation
 import com.hitchy.core.model.BookingStatus
 import com.hitchy.core.model.RideStatus
 import com.hitchy.feature.booking.FakeBookingRepository
+import com.hitchy.feature.host.FakeHostRepository
 import com.hitchy.feature.inbox.FakeInboxRepository
 import com.hitchy.feature.profile.FakeProfileRepository
 import com.hitchy.feature.rides.FakeRidesRepository
@@ -87,7 +88,7 @@ class OwnerHomeStatsTest {
             ),
         )
 
-        val vm = OwnerHomeViewModel(profileRepo, ridesRepo, FakeInboxRepository())
+        val vm = OwnerHomeViewModel(profileRepo, ridesRepo, FakeInboxRepository(), FakeHostRepository())
         advanceUntilIdle()
 
         assertEquals(200, vm.state.value.pointsBalance)

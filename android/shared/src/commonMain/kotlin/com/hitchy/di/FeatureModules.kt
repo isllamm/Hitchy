@@ -46,7 +46,7 @@ import org.koin.dsl.module
 
 val authModule = module {
     single<AuthRepository> { AuthRepositoryImpl() }
-    viewModel { RootViewModel(get(), get()) }
+    viewModel { RootViewModel(get(), get(), get(), get()) }
     viewModel { PhoneEntryViewModel(get()) }
     viewModel { OtpVerifyViewModel(get(), get()) }
 }
@@ -64,7 +64,7 @@ val hostModule = module {
 
 val ridesModule = module {
     single<RidesRepository> { RidesRepositoryImpl(get()) }
-    viewModel { OwnerHomeViewModel(get(), get(), get()) }
+    viewModel { OwnerHomeViewModel(get(), get(), get(), get()) }
     viewModel { PostRideViewModel(get(), get(), get(), get()) }
     viewModel { HostRideDetailsViewModel(get(), get(), get()) }
 }
