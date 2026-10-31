@@ -2,6 +2,7 @@ package com.hitchy.core.ui
 
 import android.Manifest
 import android.app.Activity
+import android.graphics.Bitmap
 import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -17,6 +18,7 @@ import com.hitchy.core.model.AppPermission
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
 
 @Composable
 actual fun rememberImagePicker(onImagePicked: (ByteArray?) -> Unit): () -> Unit {
@@ -100,3 +102,26 @@ actual fun WhiteStatusBarIcons() {
         onDispose { controller?.isAppearanceLightStatusBars = true }
     }
 }
+
+@Composable
+actual fun rememberCameraCapture(onPhoto: (ByteArray?) -> Unit): () -> Unit {
+    val scope = rememberCoroutineScope()
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
+        if (bitmap == null) {
+            onPhoto(null)
+            return@rememberLauncherForActivityResult
+        }
+        scope.launch {
+            val bytes = withContext(Dispatchers.Default) {
+                ByteArrayOutputStream().use { out ->
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, CAMERA_JPEG_QUALITY, out)
+                    out.toByteArray()
+                }
+            }
+            onPhoto(bytes)
+        }
+    }
+    return { launcher.launch(null) }
+}
+
+private const val CAMERA_JPEG_QUALITY = 80

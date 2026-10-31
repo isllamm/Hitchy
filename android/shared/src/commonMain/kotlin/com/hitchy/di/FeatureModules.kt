@@ -16,7 +16,9 @@ import com.hitchy.feature.debug.data.DebugRepositoryImpl
 import com.hitchy.feature.debug.domain.DebugRepository
 import com.hitchy.feature.debug.presentation.DebugViewModel
 import com.hitchy.feature.host.data.HostRepositoryImpl
+import com.hitchy.feature.host.domain.HostDraft
 import com.hitchy.feature.host.domain.HostRepository
+import com.hitchy.feature.host.presentation.HostApplicationViewModel
 import com.hitchy.feature.inbox.data.InboxRepositoryImpl
 import com.hitchy.feature.inbox.domain.InboxRepository
 import com.hitchy.feature.inbox.presentation.InboxViewModel
@@ -96,6 +98,8 @@ val placesModule = module {
     single<PlacesRepository> { PlacesRepositoryImpl() }
     single { PointSelectionHolder() }
     single { SignUpNameHolder() }
+    single { HostDraft() }
+    viewModel { HostApplicationViewModel(get(), get(), get(), get()) }
     viewModel { PlacesPickerViewModel(get(), get()) }
 }
 

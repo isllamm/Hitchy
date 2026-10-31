@@ -49,6 +49,9 @@ import com.hitchy.feature.booking.ui.RiderRidesTabContent
 import com.hitchy.feature.booking.ui.SearchResultsScreen
 import com.hitchy.feature.debug.ui.DebugScreen
 import com.hitchy.feature.debug.ui.gallery.ComponentGalleryScreen
+import com.hitchy.feature.host.domain.HostDraft
+import com.hitchy.feature.host.ui.HostApplicationScreen
+import com.hitchy.feature.host.ui.HostStatusScreen
 import com.hitchy.feature.inbox.ui.NotificationsScreen
 import com.hitchy.feature.places.ui.MapPointPickerScreen
 import com.hitchy.feature.places.ui.RoutePickerScreen
@@ -83,6 +86,7 @@ fun HitchyNavHost(
     startDestination: Any? = null,
     appConfig: AppConfig = koinInject(),
     rootViewModel: RootViewModel = koinViewModel(),
+    hostDraft: HostDraft = koinInject(),
 ) {
     val rootState by rootViewModel.state.collectAsStateWithLifecycle()
     val targetRoot = startDestination ?: rootState.toStartDestination()
@@ -114,6 +118,7 @@ fun HitchyNavHost(
         composable<Welcome> {
             WelcomeScreen(
                 onContinueToPhone = { navController.navigate(PhoneEntry) },
+                onRoleChosen = { role -> hostDraft.wantsToHost = role == Role.HOST },
             )
         }
         composable<PhoneEntry> {
@@ -138,6 +143,8 @@ fun HitchyNavHost(
                     navController.navigate(Home) {
                         popUpTo(0) { inclusive = true }
                     }
+                    // "I have a vehicle" on Welcome: the owner application follows Complete profile (Figma DEMO).
+                    if (hostDraft.wantsToHost) navController.navigate(HostApplication)
                 },
             )
         }
@@ -172,8 +179,27 @@ fun HitchyNavHost(
                 onNavigateToDebug = { navController.navigate(Debug) },
             )
         }
-        composable<HostApplication> { PlaceholderScreen("HostApplication") }
-        composable<HostStatus> { PlaceholderScreen("HostStatus") }
+        composable<HostApplication> {
+            HostApplicationScreen(
+                onExit = { navController.popBackStack() },
+                onSubmitted = {
+                    navController.navigate(HostStatus) {
+                        popUpTo<HostApplication> { inclusive = true }
+                    }
+                },
+            )
+        }
+        composable<HostStatus> {
+            HostStatusScreen(
+                onBack = { navController.popBackStack() },
+                onFix = {
+                    navController.navigate(HostApplication) {
+                        popUpTo<HostStatus> { inclusive = true }
+                    }
+                },
+                onDone = { navController.popBackStack() },
+            )
+        }
         composable<AddVehicle> { PlaceholderScreen("AddVehicle") }
         composable<PostRide> {
             PostRideScreen(
