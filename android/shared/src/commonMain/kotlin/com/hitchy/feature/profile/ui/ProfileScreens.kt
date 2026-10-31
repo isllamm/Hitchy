@@ -26,6 +26,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hitchy.core.model.AppLanguage
 import com.hitchy.core.model.Gender
 import com.hitchy.core.model.Role
+import com.hitchy.core.model.SavedPlaceLabel
 import com.hitchy.core.platform.LanguageSwitcher
 import com.hitchy.core.ui.components.BannerVariant
 import com.hitchy.core.ui.components.HitchyBanner
@@ -36,6 +37,7 @@ import com.hitchy.core.ui.components.TopBar
 import com.hitchy.core.ui.icon.HitchyIcons
 import com.hitchy.core.ui.message
 import com.hitchy.core.ui.theme.HitchyTheme
+import com.hitchy.feature.places.domain.PlacesRepository
 import com.hitchy.feature.profile.presentation.ProfileSetupAction
 import com.hitchy.feature.profile.presentation.ProfileSetupEvent
 import com.hitchy.feature.profile.presentation.ProfileSetupViewModel
@@ -55,14 +57,20 @@ import hitchy.shared.generated.resources.profile_gender_female
 import hitchy.shared.generated.resources.profile_gender_label
 import hitchy.shared.generated.resources.profile_gender_locked_note
 import hitchy.shared.generated.resources.profile_gender_male
+import hitchy.shared.generated.resources.profile_info_commute
 import hitchy.shared.generated.resources.profile_info_company
+import hitchy.shared.generated.resources.profile_info_home_area
 import hitchy.shared.generated.resources.profile_info_phone
 import hitchy.shared.generated.resources.profile_last_name_label
 import hitchy.shared.generated.resources.profile_last_name_placeholder
+import hitchy.shared.generated.resources.profile_menu_help
+import hitchy.shared.generated.resources.profile_menu_my_rides
 import hitchy.shared.generated.resources.profile_menu_notifications
+import hitchy.shared.generated.resources.profile_menu_saved_places
 import hitchy.shared.generated.resources.profile_mode_driver
 import hitchy.shared.generated.resources.profile_mode_label
 import hitchy.shared.generated.resources.profile_mode_passenger
+import hitchy.shared.generated.resources.profile_not_set
 import hitchy.shared.generated.resources.profile_save_continue
 import hitchy.shared.generated.resources.profile_setup_subtitle
 import hitchy.shared.generated.resources.profile_setup_title
@@ -238,6 +246,8 @@ fun ProfileTabContent(
     modifier: Modifier = Modifier,
     onOpenNotifications: () -> Unit = {},
     viewModel: ProfileTabViewModel = koinViewModel(),
+    placesRepository: PlacesRepository = koinInject(),
+    languageSwitcher: LanguageSwitcher = koinInject(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val colors = HitchyTheme.colors
@@ -252,19 +262,25 @@ fun ProfileTabContent(
         }
     }
 
+    val currentRole = profile?.activeRole ?: Role.RIDER
+    val modeLabel = stringResource(
+        if (currentRole == Role.RIDER) Res.string.profile_mode_passenger else Res.string.profile_mode_driver,
+    )
+    val zones by placesRepository.observeZones().collectAsStateWithLifecycle(initialValue = emptyList())
+    val language = languageSwitcher.getCurrentLanguage()
+    val notSet = stringResource(Res.string.profile_not_set)
+    fun placeName(label: SavedPlaceLabel): String {
+        val zoneId = profile?.savedPlaces?.firstOrNull { it.label == label }?.zoneId ?: return notSet
+        return zones.firstOrNull { it.id == zoneId }?.name?.resolve(language) ?: notSet
+    }
+
     Column(modifier = modifier.fillMaxSize().background(colors.white)) {
-        // Figma's 60dp header bar under the status bar, #773BEC drawn with the brand purple.
-        Box(
-            modifier = Modifier.fillMaxWidth().background(colors.purple).statusBarsPadding().height(60.dp),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(text = stringResource(Res.string.profile_tab_title), style = typography.title, color = colors.white)
-        }
+        ProfileHeaderBar(title = stringResource(Res.string.profile_tab_title), onOpenSettings = onOpenSettings)
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 24.dp),
+                .padding(start = 20.dp, end = 20.dp, top = 23.dp, bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             val error = state.error
@@ -276,35 +292,46 @@ fun ProfileTabContent(
                 )
             }
             if (profile != null) {
+                val roleStats = if (currentRole == Role.HOST) {
+                    profile.host.ratingAvg to profile.host.tripsCompleted
+                } else {
+                    profile.rider.ratingAvg to profile.rider.tripsCompleted
+                }
                 AvatarCard(
                     initials = "${profile.firstName.take(1)}${profile.lastName.take(1)}".uppercase(),
                     name = "${profile.firstName} ${profile.lastName}",
                     detail = formatPhone(profile.phone),
+                    verified = profile.host.verified,
+                    stats = ProfileStats(
+                        rating = roleStats.first?.toString() ?: "—",
+                        rides = roleStats.second,
+                        mode = modeLabel,
+                    ),
                 )
                 FigmaSection {
                     Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
-                        val company = profile.companyOther ?: profile.companyId
                         InfoRow(
                             icon = HitchyIcons.Person22,
                             label = stringResource(Res.string.profile_info_phone),
                             value = formatPhone(profile.phone),
-                            divider = company != null,
+                            divider = true,
                         )
-                        if (company != null) {
-                            InfoRow(
-                                icon = HitchyIcons.Destination22,
-                                label = stringResource(Res.string.profile_info_company),
-                                value = company,
-                                divider = false,
-                            )
-                        }
+                        InfoRow(
+                            icon = HitchyIcons.Home22,
+                            label = stringResource(Res.string.profile_info_home_area),
+                            value = placeName(SavedPlaceLabel.HOME),
+                            divider = true,
+                        )
+                        InfoRow(
+                            icon = HitchyIcons.Destination22,
+                            label = stringResource(Res.string.profile_info_commute),
+                            value = placeName(SavedPlaceLabel.WORK),
+                            divider = false,
+                        )
                     }
                 }
             }
 
-            WalletCard(balanceEgp = state.walletBalanceEgp)
-
-            val currentRole = profile?.activeRole ?: Role.RIDER
             FigmaSection {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
@@ -317,17 +344,7 @@ fun ProfileTabContent(
                             style = typography.caption,
                             color = colors.textSecondary,
                         )
-                        Text(
-                            text = stringResource(
-                                if (currentRole == Role.RIDER) {
-                                    Res.string.profile_mode_passenger
-                                } else {
-                                    Res.string.profile_mode_driver
-                                },
-                            ),
-                            style = typography.button,
-                            color = colors.navy,
-                        )
+                        Text(text = modeLabel, style = typography.button, color = colors.navy)
                     }
                     ModeSwitch(
                         options = listOf(
@@ -343,13 +360,23 @@ fun ProfileTabContent(
                 }
             }
 
+            SafetyRow()
+
             FigmaSection {
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                     MenuRow(
                         HitchyIcons.MenuRides,
-                        stringResource(Res.string.rides_tab_title),
+                        stringResource(Res.string.profile_menu_my_rides),
                         onOpenMyRides,
+                        true,
+                    )
+                    // Saved Places and Help & Support have no screen yet.
+                    MenuRow(
+                        HitchyIcons.MenuPlaces,
+                        stringResource(Res.string.profile_menu_saved_places),
+                        onClick = {},
                         divider = true,
+                        enabled = false,
                     )
                     MenuRow(
                         HitchyIcons.MenuBell,
@@ -357,12 +384,21 @@ fun ProfileTabContent(
                         onOpenNotifications,
                         divider = true,
                     )
+                    MenuRow(HitchyIcons.MenuSettings, stringResource(Res.string.settings_title), onOpenSettings, true)
                     MenuRow(
-                        HitchyIcons.MenuSettings,
-                        stringResource(Res.string.settings_title),
-                        onOpenSettings,
-                        divider = true,
+                        HitchyIcons.MenuHelp,
+                        stringResource(Res.string.profile_menu_help),
+                        onClick = {},
+                        divider = false,
+                        enabled = false,
                     )
+                }
+            }
+
+            // Not in the frame: the demo's wallet (plan 2.2) and Sign out, under Figma's sections.
+            WalletCard(balanceEgp = state.walletBalanceEgp)
+            FigmaSection {
+                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                     MenuRow(
                         icon = HitchyIcons.Back,
                         label = stringResource(Res.string.profile_sign_out),

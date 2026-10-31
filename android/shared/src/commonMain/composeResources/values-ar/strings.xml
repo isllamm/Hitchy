@@ -563,4 +563,16 @@
     <string name="owner_one_request_waiting">طلب واحد مستني</string>
     <string name="owner_one_seat_open">كرسي واحد فاضي</string>
     <string name="owner_one_rider">راكب واحد</string>
+    <string name="profile_identity_verified">الهوية متحققة</string>
+    <string name="profile_edit">تعديل الملف</string>
+    <string name="profile_stat_rides">رحلات</string>
+    <string name="profile_stat_mode">الوضع</string>
+    <string name="profile_info_home_area">منطقة السكن</string>
+    <string name="profile_info_commute">وجهة المشوار</string>
+    <string name="profile_not_set">غير محدد</string>
+    <string name="profile_travel_safely">اركب بأمان</string>
+    <string name="profile_travel_safely_sub">اطّلع على إرشادات الأمان</string>
+    <string name="profile_menu_my_rides">رحلاتي</string>
+    <string name="profile_menu_saved_places">الأماكن المحفوظة</string>
+    <string name="profile_menu_help">المساعدة والدعم</string>
 </resources>

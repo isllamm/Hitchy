@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package com.hitchy.feature.profile.ui
 
 import androidx.compose.foundation.background
@@ -8,10 +10,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -24,11 +29,20 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.hitchy.core.ui.figmaShadow
 import com.hitchy.core.ui.icon.HitchyIcons
 import com.hitchy.core.ui.theme.HitchyTheme
+import hitchy.shared.generated.resources.Res
+import hitchy.shared.generated.resources.profile_edit
+import hitchy.shared.generated.resources.profile_identity_verified
+import hitchy.shared.generated.resources.profile_stat_mode
+import hitchy.shared.generated.resources.profile_stat_rides
+import hitchy.shared.generated.resources.profile_travel_safely
+import hitchy.shared.generated.resources.profile_travel_safely_sub
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 // Figma frames 398:6594 "profile 2" and 398:5806 (the avatar card).
 private val CardShape = RoundedCornerShape(16.dp)
@@ -52,40 +66,221 @@ internal fun FigmaSection(
     )
 }
 
-/** The avatar card: a 72dp gradient circle with a white ring, the name at 20/28 and a 12/18 line. */
+/** What the profile card's stats row shows: the rating ("—" without one), finished rides and the mode. */
+internal data class ProfileStats(val rating: String, val rides: Int, val mode: String)
+
+/**
+ * Figma's profile card (398:6705, 354x220): a white-to-lilac gradient, the 72dp gradient avatar with a white
+ * ring and a lavender halo, the name (Bold 20/28), a 12/18 line, the green "Identity verified" badge (only
+ * for a verified account) and "Edit Profile" on the end side; under a rule, three stat columns split by
+ * lines: rating with its star, rides, and the mode.
+ */
 @Composable
 internal fun AvatarCard(
     initials: String,
     name: String,
     detail: String,
+    verified: Boolean,
+    stats: ProfileStats,
 ) {
     val colors = HitchyTheme.colors
     val typography = HitchyTheme.typography
     FigmaSection(background = Brush.linearGradient(listOf(colors.white.copy(alpha = HALF), colors.lilac))) {
         Row(
-            modifier = Modifier.padding(20.dp),
+            modifier = Modifier.fillMaxWidth().height(148.dp).padding(start = 21.dp, end = 12.dp, top = 21.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
                 modifier = Modifier
+                    .padding(top = 2.dp)
                     .size(76.dp)
                     .clip(CircleShape)
                     .background(colors.lavender)
                     .padding(2.dp)
                     .clip(CircleShape)
                     .background(colors.white)
-                    .padding(2.dp)
+                    .padding(AVATAR_RING)
                     .clip(CircleShape)
                     .background(colors.brandGradient),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(text = initials, style = typography.h3, color = colors.white)
             }
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(text = name, style = typography.h3, color = colors.navy, maxLines = 1)
-                Text(text = detail, style = typography.caption, color = colors.textSecondary, maxLines = 1)
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 25.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = detail,
+                        style = typography.caption,
+                        color = colors.textSecondary,
+                        maxLines = 1,
+                        modifier = Modifier.weight(1f),
+                    )
+                    EditProfileLink()
+                }
+                if (verified) VerifiedBadge(modifier = Modifier.padding(top = 7.dp))
             }
+        }
+        Box(Modifier.fillMaxWidth().height(1.dp).background(colors.border))
+        StatsRow(stats)
+    }
+}
+
+/** Figma's "Edit Profile": a 14dp pen and Bold 13/24 purple. No edit screen yet, so it does nothing. */
+@Composable
+private fun EditProfileLink() {
+    val colors = HitchyTheme.colors
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        Icon(
+            painter = painterResource(HitchyIcons.Edit14),
+            contentDescription = null,
+            tint = colors.purple,
+            modifier = Modifier.size(14.dp),
+        )
+        Text(
+            text = stringResource(Res.string.profile_edit),
+            style = HitchyTheme.typography.captionStrong.copy(fontSize = 13.sp, lineHeight = 24.sp),
+            color = colors.purple,
+        )
+    }
+}
+
+/** Figma's badge: #DCFCE7, padding 3/9, a 13dp check and SemiBold 11/18 #166534. */
+@Composable
+private fun VerifiedBadge(modifier: Modifier = Modifier) {
+    val colors = HitchyTheme.colors
+    Row(
+        modifier = modifier.clip(CircleShape).background(colors.successBg).padding(horizontal = 9.dp, vertical = 3.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(3.dp),
+    ) {
+        Icon(
+            painter = painterResource(HitchyIcons.Check13),
+            contentDescription = null,
+            tint = colors.successText,
+            modifier = Modifier.size(13.dp),
+        )
+        Text(
+            text = stringResource(Res.string.profile_identity_verified),
+            style = HitchyTheme.typography.caption.copy(fontSize = 11.sp, fontWeight = FontWeight.SemiBold),
+            color = colors.successText,
+        )
+    }
+}
+
+/** Figma's stats row: 72dp tall, columns 98 / 130 / 126 wide split by 1dp lines, Bold 16/26 over 12/18 gray. */
+@Composable
+private fun StatsRow(stats: ProfileStats) {
+    val colors = HitchyTheme.colors
+    val typography = HitchyTheme.typography
+    val value = typography.bodyLarge.copy(fontWeight = FontWeight.Bold, lineHeight = 26.sp)
+    Row(modifier = Modifier.fillMaxWidth().height(72.dp), verticalAlignment = Alignment.CenterVertically) {
+        Column(modifier = Modifier.weight(RATING_WEIGHT), horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(text = stats.rating, style = value, color = colors.navy)
+            Icon(
+                painter = painterResource(HitchyIcons.Star20),
+                contentDescription = null,
+                tint = colors.warningText,
+                modifier = Modifier.size(20.dp),
+            )
+        }
+        Box(Modifier.width(1.dp).fillMaxHeight().background(colors.border))
+        Column(modifier = Modifier.weight(RIDES_WEIGHT), horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(text = stats.rides.toString(), style = value, color = colors.navy)
+            Text(
+                text = stringResource(Res.string.profile_stat_rides),
+                style = typography.caption,
+                color = colors.textSecondary,
+            )
+        }
+        Box(Modifier.width(1.dp).fillMaxHeight().background(colors.border))
+        Column(modifier = Modifier.weight(MODE_WEIGHT), horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(text = stats.mode, style = value, color = colors.navy)
+            Text(
+                text = stringResource(Res.string.profile_stat_mode),
+                style = typography.caption,
+                color = colors.textSecondary,
+            )
+        }
+    }
+}
+
+/**
+ * Figma's "Travel safely" button (398:6694): 64dp, r16, a #E5E7EB stroke, padding 10/16, a 20dp green
+ * shield, Bold 14/22 over 12/18 gray, an 18dp chevron. There is no safety screen yet, so it does nothing.
+ */
+@Composable
+internal fun SafetyRow() {
+    val colors = HitchyTheme.colors
+    val typography = HitchyTheme.typography
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(64.dp)
+            .clip(CardShape)
+            .border(1.dp, colors.border, CardShape)
+            .padding(horizontal = 16.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Icon(
+            painter = painterResource(HitchyIcons.Shield20),
+            contentDescription = null,
+            tint = colors.success,
+            modifier = Modifier.size(20.dp),
+        )
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = stringResource(Res.string.profile_travel_safely),
+                style = typography.bodyBold,
+                color = colors.navy,
+            )
+            Text(
+                text = stringResource(Res.string.profile_travel_safely_sub),
+                style = typography.caption,
+                color = colors.textSecondary,
+            )
+        }
+        Icon(
+            painter = painterResource(HitchyIcons.Chevron18),
+            contentDescription = null,
+            tint = colors.navy,
+            modifier = Modifier.size(18.dp),
+        )
+    }
+}
+
+/** Figma's header bar: 60dp, #773BEC (the brand purple), the title (Bold 18/26 white) and a 44dp gear button. */
+@Composable
+internal fun ProfileHeaderBar(title: String, onOpenSettings: () -> Unit) {
+    val colors = HitchyTheme.colors
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(colors.purple)
+            .statusBarsPadding()
+            .height(60.dp)
+            .padding(horizontal = 12.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(text = title, style = HitchyTheme.typography.title, color = colors.white)
+        Box(
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .size(44.dp)
+                .clip(CircleShape)
+                .clickable(onClick = onOpenSettings),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                painter = painterResource(HitchyIcons.Gear22),
+                contentDescription = null,
+                tint = colors.white,
+                modifier = Modifier.size(22.dp),
+            )
         }
     }
 }
@@ -136,7 +331,10 @@ internal fun MenuRow(
     val colors = HitchyTheme.colors
     Column {
         Row(
-            modifier = Modifier.fillMaxWidth().height(56.dp).clickable(enabled = enabled, onClick = onClick),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp)
+                .then(if (enabled) Modifier.clickable(onClick = onClick) else Modifier),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -220,3 +418,7 @@ internal fun ModeSwitch(
 private const val SHADOW_ALPHA = 0.04f
 private const val SEGMENT_SHADOW = 0.10f
 private const val HALF = 0.5f
+private val AVATAR_RING = 3.9.dp
+private const val RATING_WEIGHT = 98f
+private const val RIDES_WEIGHT = 130f
+private const val MODE_WEIGHT = 126f

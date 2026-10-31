@@ -8,6 +8,7 @@ import hitchy.shared.generated.resources.fig_bell
 import hitchy.shared.generated.resources.fig_calendar_small
 import hitchy.shared.generated.resources.fig_cancelled
 import hitchy.shared.generated.resources.fig_car_28
+import hitchy.shared.generated.resources.fig_check_13
 import hitchy.shared.generated.resources.fig_check_small
 import hitchy.shared.generated.resources.fig_chevron_18
 import hitchy.shared.generated.resources.fig_chevron_left_month
@@ -20,11 +21,15 @@ import hitchy.shared.generated.resources.fig_close_small
 import hitchy.shared.generated.resources.fig_destination
 import hitchy.shared.generated.resources.fig_destination_22
 import hitchy.shared.generated.resources.fig_driver
+import hitchy.shared.generated.resources.fig_edit_14
+import hitchy.shared.generated.resources.fig_gear_22
 import hitchy.shared.generated.resources.fig_home_22
 import hitchy.shared.generated.resources.fig_info_16
 import hitchy.shared.generated.resources.fig_info_small
 import hitchy.shared.generated.resources.fig_map
 import hitchy.shared.generated.resources.fig_menu_bell
+import hitchy.shared.generated.resources.fig_menu_help
+import hitchy.shared.generated.resources.fig_menu_places
 import hitchy.shared.generated.resources.fig_menu_rides
 import hitchy.shared.generated.resources.fig_menu_settings
 import hitchy.shared.generated.resources.fig_minus
@@ -39,6 +44,8 @@ import hitchy.shared.generated.resources.fig_plus
 import hitchy.shared.generated.resources.fig_plus_white
 import hitchy.shared.generated.resources.fig_rider
 import hitchy.shared.generated.resources.fig_search_small
+import hitchy.shared.generated.resources.fig_shield_20
+import hitchy.shared.generated.resources.fig_star_20
 import hitchy.shared.generated.resources.fig_swap
 import hitchy.shared.generated.resources.fig_tab_home_off
 import hitchy.shared.generated.resources.fig_tab_home_on
@@ -217,6 +224,15 @@ object HitchyIcons {
     val Pin20: DrawableResource get() = Res.drawable.fig_pin_20
     val Wallet20: DrawableResource get() = Res.drawable.fig_wallet_20
     val PlusWhite: DrawableResource get() = Res.drawable.fig_plus_white
+
+    /** Profile (Figma 398:6594): header gear, badge check, edit pen, rating star, menu and safety icons. */
+    val Gear22: DrawableResource get() = Res.drawable.fig_gear_22
+    val Check13: DrawableResource get() = Res.drawable.fig_check_13
+    val Edit14: DrawableResource get() = Res.drawable.fig_edit_14
+    val Star20: DrawableResource get() = Res.drawable.fig_star_20
+    val MenuPlaces: DrawableResource get() = Res.drawable.fig_menu_places
+    val MenuHelp: DrawableResource get() = Res.drawable.fig_menu_help
+    val Shield20: DrawableResource get() = Res.drawable.fig_shield_20
 
     val all: Map<String, DrawableResource> get() = mapOf(
         "back" to Back,

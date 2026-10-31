@@ -563,4 +563,16 @@
     <string name="owner_one_request_waiting">1 request waiting</string>
     <string name="owner_one_seat_open">1 seat open</string>
     <string name="owner_one_rider">1 rider</string>
+    <string name="profile_identity_verified">Identity verified</string>
+    <string name="profile_edit">Edit Profile</string>
+    <string name="profile_stat_rides">Rides</string>
+    <string name="profile_stat_mode">Mode</string>
+    <string name="profile_info_home_area">Home area</string>
+    <string name="profile_info_commute">Commute destination</string>
+    <string name="profile_not_set">Not set</string>
+    <string name="profile_travel_safely">Travel safely</string>
+    <string name="profile_travel_safely_sub">Review our safety guidance</string>
+    <string name="profile_menu_my_rides">My Rides</string>
+    <string name="profile_menu_saved_places">Saved Places</string>
+    <string name="profile_menu_help">Help &amp; Support</string>
 </resources>
