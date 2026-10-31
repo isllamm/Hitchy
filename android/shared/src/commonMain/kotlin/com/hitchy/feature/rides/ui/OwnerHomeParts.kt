@@ -31,6 +31,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hitchy.core.model.Tier
 import com.hitchy.core.ui.cairoTime12
+import com.hitchy.core.ui.components.Skeleton
+import com.hitchy.core.ui.components.SkeletonBlock
+import com.hitchy.core.ui.components.SkeletonCard
+import com.hitchy.core.ui.components.SkeletonCircle
+import com.hitchy.core.ui.components.SkeletonLine
+import com.hitchy.core.ui.components.SkeletonTone
 import com.hitchy.core.ui.figmaShadow
 import com.hitchy.core.ui.theme.HitchyTheme
 import com.hitchy.core.util.isoToCairoDateKey
@@ -513,5 +519,45 @@ private fun StepPill(text: String, background: Color, content: Color) {
         contentAlignment = Alignment.Center,
     ) {
         Text(text = text, style = HitchyTheme.typography.captionStrong, color = content)
+    }
+}
+
+/**
+ * Owner Home while the rides and cars load: the top bar and the month card in white on the brand header, then
+ * the four stat cards, in the same places as the real ones.
+ */
+@Composable
+internal fun OwnerHomeSkeleton(modifier: Modifier = Modifier) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        Skeleton(tone = SkeletonTone.OnBrand, verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                SkeletonCircle(size = 48.dp)
+                Column(
+                    modifier = Modifier.weight(1f).padding(start = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    SkeletonLine(width = 72.dp)
+                    SkeletonLine(width = 140.dp, height = 16.dp)
+                }
+                SkeletonCircle(size = BellSize)
+            }
+            SkeletonBlock(modifier = Modifier.fillMaxWidth().height(88.dp), shape = RoundedCornerShape(16.dp))
+        }
+        Skeleton(
+            modifier = Modifier.padding(top = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            repeat(2) {
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    repeat(2) {
+                        SkeletonCard(modifier = Modifier.weight(1f)) {
+                            SkeletonBlock(modifier = Modifier.size(40.dp), shape = RoundedCornerShape(12.dp))
+                            SkeletonLine(width = 56.dp, height = 20.dp)
+                            SkeletonLine(width = 96.dp)
+                        }
+                    }
+                }
+            }
+        }
     }
 }

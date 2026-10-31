@@ -24,6 +24,7 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -56,12 +57,31 @@ class OwnerViewModelsTest {
         val ride = FakeRidesRepository.sampleRide(id = "ride-1")
         ridesRepo.myRidesFlow.value = listOf(ride)
 
-        val vm = OwnerHomeViewModel(profileRepo, ridesRepo, inboxRepo)
+        val vm = OwnerHomeViewModel(profileRepo, ridesRepo, inboxRepo, FakeHostRepository())
         advanceUntilIdle()
 
         assertEquals("Ahmed", vm.state.value.firstName)
         assertEquals(1, vm.state.value.upcomingRides.size)
         assertEquals("ride-1", vm.state.value.upcomingRides.first().id)
+    }
+
+    @Test
+    fun ownerHomeWaitsForRidesAndCarsBeforeChoosingTheNewOwnerLayout() = runTest(testDispatcher) {
+        val ridesRepo = FakeRidesRepository()
+        val vm = OwnerHomeViewModel(FakeProfileRepository(), ridesRepo, FakeInboxRepository(), FakeHostRepository())
+
+        // Nothing has answered yet: no layout is chosen, so a returning owner never sees the setup checklist.
+        assertFalse(vm.state.value.isReady)
+        assertFalse(vm.state.value.isNewOwner)
+
+        advanceUntilIdle()
+        assertTrue(vm.state.value.isReady)
+        assertTrue(vm.state.value.isNewOwner)
+        assertNotNull(vm.state.value.vehicleName)
+
+        ridesRepo.myRidesFlow.value = listOf(FakeRidesRepository.sampleRide(id = "ride-1"))
+        advanceUntilIdle()
+        assertFalse(vm.state.value.isNewOwner)
     }
 
     @Test

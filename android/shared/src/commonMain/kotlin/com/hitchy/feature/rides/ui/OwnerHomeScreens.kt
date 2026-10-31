@@ -42,7 +42,6 @@ import com.hitchy.core.ui.figmaLinearGradient
 import com.hitchy.core.ui.figmaTop
 import com.hitchy.core.ui.theme.HitchyTheme
 import com.hitchy.core.util.dateKey
-import com.hitchy.feature.host.domain.HostRepository
 import com.hitchy.feature.rides.presentation.OwnerHomeAction
 import com.hitchy.feature.rides.presentation.OwnerHomeState
 import com.hitchy.feature.rides.presentation.OwnerHomeStats
@@ -120,10 +119,8 @@ fun OwnerHomeContent(
     modifier: Modifier = Modifier,
     viewModel: OwnerHomeViewModel = koinViewModel(),
     clock: Clock = koinInject(),
-    hostRepository: HostRepository = koinInject(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val vehicles by hostRepository.observeVehicles().collectAsStateWithLifecycle(initialValue = emptyList())
     WhiteStatusBarIcons()
     val now = clock.now()
     val monthKey = dateKey(now).take(MONTH_END)
@@ -135,7 +132,7 @@ fun OwnerHomeContent(
         state.upcomingRides.firstOrNull { it.status == RideStatus.STARTED }?.let { onOpenHostTrip(it.id) }
             ?: onOpenRidesTab()
     }
-    val isNewOwner = state.upcomingRides.isEmpty()
+    val isNewOwner = state.isNewOwner
 
     Box(
         modifier = modifier
@@ -144,6 +141,11 @@ fun OwnerHomeContent(
             .verticalScroll(rememberScrollState()),
     ) {
         HeaderBackground()
+        if (!state.isReady) {
+            // The rides and cars have not answered yet: the skeleton, never the new-owner setup screen.
+            OwnerHomeSkeleton(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = figmaTop(56.dp)))
+            return@Box
+        }
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -162,7 +164,7 @@ fun OwnerHomeContent(
                 state.freeUntil?.let { PlanCard(freeUntilIso = it, now = now) }
                 if (isNewOwner) {
                     SetupChecklist(
-                        vehicleName = vehicles.firstOrNull()?.let { "${it.make} ${it.model}" },
+                        vehicleName = state.vehicleName,
                         hasWorkplace = state.hasWorkplace,
                         onOpenPostRide = onOpenPostRide,
                     )

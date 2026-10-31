@@ -8,6 +8,7 @@ import com.hitchy.core.model.RideStatus
 import com.hitchy.core.model.Role
 import com.hitchy.core.model.Tier
 import com.hitchy.core.ui.MviViewModel
+import com.hitchy.feature.host.domain.HostRepository
 import com.hitchy.feature.inbox.domain.InboxRepository
 import com.hitchy.feature.profile.domain.ProfileRepository
 import com.hitchy.feature.rides.domain.Ride
@@ -38,9 +39,21 @@ data class OwnerHomeState(
     val pendingRequestsCountByRide: Map<String, Int> = emptyMap(),
     /** Seats held by requests that wait for the owner's answer, per open ride. */
     val pendingSeatsByRide: Map<String, Int> = emptyMap(),
+    /** "Make Model" of the owner's first car, for the new-owner checklist. */
+    val vehicleName: String? = null,
+    /** True once the owner's rides have answered at least once. */
+    val ridesLoaded: Boolean = false,
+    /** True once the owner's cars have answered at least once. */
+    val vehiclesLoaded: Boolean = false,
     val isLoading: Boolean = false,
     val error: AppError? = null,
-)
+) {
+    /** Owner Home picks its layout only after the data answers, so a returning owner never sees the setup screen. */
+    val isReady: Boolean get() = ridesLoaded && vehiclesLoaded
+
+    /** A new owner has no ride yet: Home shows the welcome and the setup checklist. */
+    val isNewOwner: Boolean get() = isReady && upcomingRides.isEmpty()
+}
 
 sealed interface OwnerHomeAction {
     data object Refresh : OwnerHomeAction
@@ -56,6 +69,7 @@ class OwnerHomeViewModel(
     private val profileRepository: ProfileRepository,
     ridesRepository: RidesRepository,
     inboxRepository: InboxRepository,
+    hostRepository: HostRepository,
 ) : MviViewModel<OwnerHomeState, OwnerHomeAction, OwnerHomeEvent>(OwnerHomeState()) {
 
     init {
@@ -86,7 +100,14 @@ class OwnerHomeViewModel(
 
         ridesRepository.observeMyRides()
             .onEach { rides ->
-                setState { copy(upcomingRides = rides) }
+                setState { copy(upcomingRides = rides, ridesLoaded = true) }
+            }
+            .launchIn(viewModelScope)
+
+        hostRepository.observeVehicles()
+            .onEach { vehicles ->
+                val first = vehicles.firstOrNull()
+                setState { copy(vehicleName = first?.let { "${it.make} ${it.model}" }, vehiclesLoaded = true) }
             }
             .launchIn(viewModelScope)
 
