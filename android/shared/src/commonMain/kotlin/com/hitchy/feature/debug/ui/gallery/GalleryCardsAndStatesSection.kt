@@ -44,6 +44,10 @@ import com.hitchy.core.ui.components.RideStatusVariant
 import com.hitchy.core.ui.components.RoleCard
 import com.hitchy.core.ui.components.RouteTimeline
 import com.hitchy.core.ui.components.SeatIndicator
+import com.hitchy.core.ui.components.Skeleton
+import com.hitchy.core.ui.components.SkeletonDetails
+import com.hitchy.core.ui.components.SkeletonListRow
+import com.hitchy.core.ui.components.SkeletonRideCard
 import com.hitchy.core.ui.components.TripStep
 import com.hitchy.core.ui.components.TripStepper
 import com.hitchy.core.ui.theme.LocalHitchyColors
@@ -273,6 +277,17 @@ fun GalleryCardsAndStatesSection(modifier: Modifier = Modifier) {
                     message = "Could not load ride details. Please check your connection.",
                     onRetry = {},
                 )
+
+                Text(
+                    text = "Skeleton (shimmer)",
+                    style = typography.bodyStrong,
+                    color = colors.textSecondary,
+                )
+                Skeleton(verticalArrangement = Arrangement.spacedBy(spacing.space12)) {
+                    SkeletonRideCard()
+                    SkeletonListRow()
+                }
+                SkeletonDetails()
             }
         }
 
