@@ -113,6 +113,25 @@ fun StatusChip(
     }
 }
 
+/** Figma's ride status pill (cards and the trip panel): 34dp, pad 6/10, fully rounded, Bold 14/22, no dot. */
+@Composable
+fun StatusPill(
+    status: RideStatusVariant,
+    modifier: Modifier = Modifier,
+) {
+    val colors = LocalHitchyColors.current
+    val visuals = resolveStatusColors(status, colors)
+    Text(
+        text = resolveStatusLabel(status),
+        style = LocalHitchyTypography.current.bodyBold,
+        color = visuals.textColor,
+        modifier = modifier
+            .clip(RoundedCornerShape(100.dp))
+            .background(visuals.bg)
+            .padding(horizontal = 10.dp, vertical = 6.dp),
+    )
+}
+
 @Preview
 @Composable
 fun StatusChipLtrPreview() {

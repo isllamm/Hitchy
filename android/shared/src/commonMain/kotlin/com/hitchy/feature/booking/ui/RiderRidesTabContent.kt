@@ -15,9 +15,9 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -29,6 +29,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,16 +42,17 @@ import com.hitchy.core.model.AppLanguage
 import com.hitchy.core.model.BookingStatus
 import com.hitchy.core.model.RideStatus
 import com.hitchy.core.platform.LanguageSwitcher
+import com.hitchy.core.ui.cairoTime12
 import com.hitchy.core.ui.components.BackButton
 import com.hitchy.core.ui.components.BackButtonStyle
 import com.hitchy.core.ui.components.EmptyState
 import com.hitchy.core.ui.components.RideStatusVariant
-import com.hitchy.core.ui.components.StatusChip
+import com.hitchy.core.ui.components.StatusPill
+import com.hitchy.core.ui.figmaTop
 import com.hitchy.core.ui.icon.HitchyIcons
 import com.hitchy.core.ui.theme.HitchyTheme
 import com.hitchy.core.util.dateKey
 import com.hitchy.core.util.isoToCairoDateKey
-import com.hitchy.core.util.isoToCairoTime
 import com.hitchy.feature.booking.presentation.RidesTabViewModel
 import com.hitchy.feature.booking.presentation.UnifiedRideItem
 import com.hitchy.feature.booking.presentation.opensOwnerTrip
@@ -65,6 +69,9 @@ import hitchy.shared.generated.resources.rider_home_months
 import hitchy.shared.generated.resources.rider_home_weekdays
 import hitchy.shared.generated.resources.rides_design_vehicle
 import hitchy.shared.generated.resources.rides_design_when
+import hitchy.shared.generated.resources.rides_filter_cancelled
+import hitchy.shared.generated.resources.rides_filter_completed
+import hitchy.shared.generated.resources.rides_filter_upcoming
 import hitchy.shared.generated.resources.rides_t14_seats_booked
 import hitchy.shared.generated.resources.rides_tab_empty_body
 import hitchy.shared.generated.resources.rides_tab_empty_title
@@ -80,8 +87,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 
-private val CardRadius = 20.dp
-private val TileSize = 40.dp
+private val CardRadius = 16.dp
 private const val DATE_MONTH_START = 5
 private const val DATE_MONTH_END = 7
 private const val DATE_DAY_START = 8
@@ -124,11 +130,15 @@ fun RiderRidesTabContent(
     val todayKey = dateKey(now)
     val tomorrowKey = dateKey(now + 1.days)
 
-    Surface(modifier = modifier.fillMaxSize(), color = colors.white) {
-        Column(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
-            RidesHeader(onBack = onBack)
+    var tab by remember { mutableStateOf(RidesFilter.Upcoming) }
+    val shown = state.items.filter { it.filter() == tab }
 
-            if (state.items.isEmpty() && !state.isLoading) {
+    Surface(modifier = modifier.fillMaxSize(), color = colors.white) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            RidesHeader(onBack = onBack)
+            RidesTabs(selected = tab, onSelect = { tab = it })
+
+            if (shown.isEmpty() && !state.isLoading) {
                 EmptyState(
                     title = stringResource(Res.string.rides_tab_empty_title),
                     message = stringResource(Res.string.rides_tab_empty_body),
@@ -139,11 +149,11 @@ fun RiderRidesTabContent(
             }
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 16.dp),
+                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 items(
-                    items = state.items,
+                    items = shown,
                     key = { item ->
                         when (item) {
                             is UnifiedRideItem.AsRider -> "rider_${item.rideId}"
@@ -169,13 +179,17 @@ fun RiderRidesTabContent(
 private fun RidesHeader(onBack: (() -> Unit)?) {
     val colors = HitchyTheme.colors
     val typography = HitchyTheme.typography
+    // Figma frame 390:1366: a 48dp title row 49dp from the top.
     Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = figmaTop(TITLE_TOP), start = 16.dp, end = 16.dp, bottom = 16.dp)
+            .height(48.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         if (onBack != null) {
-            BackButton(onClick = onBack, style = BackButtonStyle.OutlinedCircle)
+            BackButton(onClick = onBack, style = BackButtonStyle.OutlinedCircle, modifier = Modifier.size(44.dp))
         }
         Text(
             text = stringResource(Res.string.rides_tab_title),
@@ -196,7 +210,7 @@ private fun UnifiedRideItem.toCardData(
     is UnifiedRideItem.AsRider -> RideCardData(
         status = booking.status.toVariant(),
         dateKey = isoToCairoDateKey(booking.departAt),
-        time = isoToCairoTime(booking.pickupAt),
+        time = cairoTime12(booking.pickupAt),
         pickupName = booking.pickupPointName.resolve(language),
         dropOffName = null,
         title = stringResource(Res.string.rides_tab_role_rider_badge, booking.seats),
@@ -215,7 +229,7 @@ private fun UnifiedRideItem.toCardData(
     is UnifiedRideItem.AsOwner -> RideCardData(
         status = ride.status.toVariant(),
         dateKey = isoToCairoDateKey(ride.departAt),
-        time = isoToCairoTime(ride.departAt),
+        time = cairoTime12(ride.departAt),
         pickupName = ride.fromPointName.resolve(language),
         dropOffName = ride.toPointName.resolve(language),
         title = stringResource(
@@ -264,7 +278,7 @@ private fun RideDesignCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            StatusChip(status = data.status)
+            StatusPill(status = data.status)
             Text(
                 text = whenLabel(data.dateKey, data.time, todayKey, tomorrowKey),
                 style = HitchyTheme.typography.caption,
@@ -272,8 +286,11 @@ private fun RideDesignCard(
             )
         }
         RideRoute(pickupName = data.pickupName, dropOffName = data.dropOffName)
-        HorizontalDivider(color = colors.border, thickness = 1.dp)
-        RideFooter(data = data)
+        // Figma: the footer is 24dp below the route, on a 1dp rule with 12dp above its content.
+        Column(modifier = Modifier.padding(top = 8.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            HorizontalDivider(color = colors.border, thickness = 1.dp)
+            RideFooter(data = data)
+        }
     }
 }
 
@@ -283,37 +300,25 @@ private fun RideRoute(
     dropOffName: String?,
 ) {
     val colors = HitchyTheme.colors
-    Row(
-        modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
-        Column(
-            modifier = Modifier.fillMaxHeight().width(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Box(
-                modifier = Modifier
-                    .padding(top = 6.dp)
-                    .size(12.dp)
-                    .clip(CircleShape)
-                    .background(colors.deepPurple),
-            )
+    Row(horizontalArrangement = Arrangement.spacedBy(27.dp), verticalAlignment = Alignment.CenterVertically) {
+        Box(modifier = Modifier.size(width = 10.5.dp, height = if (dropOffName != null) 74.dp else 10.dp)) {
             if (dropOffName != null) {
                 Box(
                     modifier = Modifier
-                        .weight(1f)
-                        .width(2.dp)
+                        .offset(x = 4.dp, y = 5.dp)
+                        .size(width = 2.dp, height = 58.dp)
                         .background(colors.lavender),
                 )
                 Icon(
-                    painter = painterResource(HitchyIcons.Pin),
+                    painter = painterResource(HitchyIcons.PinSmall),
                     contentDescription = null,
                     tint = colors.pin,
-                    modifier = Modifier.size(16.dp),
+                    modifier = Modifier.offset(y = 60.dp).size(width = 10.5.dp, height = 14.dp),
                 )
             }
+            Box(modifier = Modifier.size(10.dp).clip(CircleShape).background(colors.deepPurple))
         }
-        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             RouteStop(name = pickupName, label = stringResource(Res.string.location_pickup_label))
             if (dropOffName != null) {
                 RouteStop(name = dropOffName, label = stringResource(Res.string.location_dropoff_label))
@@ -330,8 +335,8 @@ private fun RouteStop(
     val colors = HitchyTheme.colors
     val typography = HitchyTheme.typography
     Column {
-        Text(text = name, style = typography.bodyStrong, color = colors.navy, maxLines = 1)
-        Text(text = label, style = typography.caption, color = colors.textSecondary)
+        Text(text = name, style = typography.bodyLargeStrong, color = colors.navy, maxLines = 1)
+        Text(text = label, style = typography.body, color = colors.textSecondary)
     }
 }
 
@@ -346,9 +351,9 @@ private fun RideFooter(data: RideCardData) {
     ) {
         IconTile(icon = data.tileIcon, tileColor = colors.lavender, iconColor = colors.purple)
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = data.title, style = typography.bodyStrong, color = colors.navy, maxLines = 1)
+            Text(text = data.title, style = typography.title, color = colors.navy, maxLines = 1)
             if (data.subtitle != null) {
-                Text(text = data.subtitle, style = typography.caption, color = colors.textSecondary, maxLines = 1)
+                Text(text = data.subtitle, style = typography.body, color = colors.textSecondary, maxLines = 1)
             }
         }
         Text(
@@ -357,7 +362,7 @@ private fun RideFooter(data: RideCardData) {
             } else {
                 stringResource(Res.string.format_egp, data.priceEgp.toString())
             },
-            style = typography.bodyStrong,
+            style = typography.bodyBold,
             color = colors.navy,
         )
     }
@@ -370,7 +375,7 @@ private fun IconTile(
     iconColor: Color,
 ) {
     Box(
-        modifier = Modifier.size(TileSize).clip(RoundedCornerShape(12.dp)).background(tileColor),
+        modifier = Modifier.size(44.dp).clip(CircleShape).background(tileColor),
         contentAlignment = Alignment.Center,
     ) {
         Icon(
@@ -430,4 +435,68 @@ private fun RideStatus.toVariant(): RideStatusVariant = when (this) {
     RideStatus.FINISHED -> RideStatusVariant.Completed
     RideStatus.CANCELLED -> RideStatusVariant.Cancelled
     RideStatus.EXPIRED -> RideStatusVariant.Expired
+}
+
+private val TITLE_TOP = 49.dp
+
+/** Figma's three tabs on My rides. */
+private enum class RidesFilter { Upcoming, Completed, Cancelled }
+
+private fun UnifiedRideItem.filter(): RidesFilter {
+    val variant = when (this) {
+        is UnifiedRideItem.AsRider -> booking.status.toVariant()
+        is UnifiedRideItem.AsOwner -> ride.status.toVariant()
+    }
+    return when (variant) {
+        RideStatusVariant.Completed -> RidesFilter.Completed
+
+        RideStatusVariant.Cancelled, RideStatusVariant.Declined, RideStatusVariant.Expired, RideStatusVariant.NoShow ->
+            RidesFilter.Cancelled
+
+        else -> RidesFilter.Upcoming
+    }
+}
+
+/**
+ * Figma's `Ride Tabs` (17:125): three equal 48dp tabs; the open one is Bold purple on a 3dp bar,
+ * the others sit on a 1dp rule.
+ */
+@Composable
+private fun RidesTabs(
+    selected: RidesFilter,
+    onSelect: (RidesFilter) -> Unit,
+) {
+    val colors = HitchyTheme.colors
+    val typography = HitchyTheme.typography
+    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
+        RidesFilter.entries.forEach { tab ->
+            val active = tab == selected
+            Column(
+                modifier = Modifier.weight(1f).height(48.dp).clickable { onSelect(tab) },
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Box(modifier = Modifier.height(44.dp), contentAlignment = Alignment.Center) {
+                    Text(
+                        text = stringResource(
+                            when (tab) {
+                                RidesFilter.Upcoming -> Res.string.rides_filter_upcoming
+                                RidesFilter.Completed -> Res.string.rides_filter_completed
+                                RidesFilter.Cancelled -> Res.string.rides_filter_cancelled
+                            },
+                        ),
+                        style = if (active) typography.bodyBold else typography.body,
+                        color = if (active) colors.purple else colors.textSecondary,
+                    )
+                }
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(if (active) 3.dp else 1.dp)
+                        .clip(RoundedCornerShape(2.dp))
+                        .background(if (active) colors.purple else colors.border),
+                )
+            }
+        }
+    }
 }

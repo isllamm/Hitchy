@@ -50,6 +50,7 @@ import com.hitchy.feature.booking.presentation.RiderHomeEvent
 import com.hitchy.feature.booking.presentation.RiderHomeState
 import com.hitchy.feature.booking.presentation.RiderHomeViewModel
 import com.hitchy.feature.booking.presentation.RiderSearchValidationError
+import com.hitchy.feature.profile.domain.ProfileRepository
 import com.hitchy.feature.profile.ui.ProfileTabContent
 import com.hitchy.feature.rides.ui.OwnerHomeContent
 import hitchy.shared.generated.resources.Res
@@ -90,9 +91,13 @@ fun HomeScreen(
     onOpenSettings: () -> Unit,
     onOpenHostApplication: () -> Unit,
     modifier: Modifier = Modifier,
+    profileRepository: ProfileRepository = koinInject(),
 ) {
     val colors = HitchyTheme.colors
     var selectedTab by remember { mutableStateOf(BottomNavItem.Home) }
+    val me by profileRepository.observeMe().collectAsStateWithLifecycle(initialValue = null)
+    // Figma's Profile tab shows the user's initials, "FT".
+    val initials = me?.let { "${it.firstName.take(1)}${it.lastName.take(1)}".uppercase() }
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -140,6 +145,7 @@ fun HomeScreen(
                     BottomNavItem.Profile -> {
                         ProfileTabContent(
                             onOpenMyRides = { selectedTab = BottomNavItem.Rides },
+                            onOpenNotifications = onOpenNotifications,
                             onOpenSettings = onOpenSettings,
                             onOpenHostApplication = onOpenHostApplication,
                         )
@@ -150,6 +156,7 @@ fun HomeScreen(
             BottomNav(
                 selectedItem = selectedTab,
                 onItemSelected = { selectedTab = it },
+                userInitials = initials,
             )
         }
     }

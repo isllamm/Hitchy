@@ -35,6 +35,7 @@ import com.hitchy.core.model.AppLanguage
 import com.hitchy.core.model.RideStatus
 import com.hitchy.core.platform.LanguageSwitcher
 import com.hitchy.core.ui.ErrorText
+import com.hitchy.core.ui.cairoTime12
 import com.hitchy.core.ui.components.Avatar
 import com.hitchy.core.ui.components.BackButton
 import com.hitchy.core.ui.components.BackButtonStyle
@@ -46,7 +47,6 @@ import com.hitchy.core.ui.components.StatusChip
 import com.hitchy.core.ui.icon.HitchyIcons
 import com.hitchy.core.ui.theme.HitchyTheme
 import com.hitchy.core.util.isoToCairoDateKey
-import com.hitchy.core.util.isoToCairoTime
 import com.hitchy.feature.rides.domain.Booking
 import com.hitchy.feature.rides.domain.Ride
 import com.hitchy.feature.rides.presentation.HostRideDetailsAction
@@ -231,7 +231,7 @@ private fun RouteCard(ride: Ride, language: AppLanguage) {
             ) {
                 RideStatusChip(status = ride.status)
                 Text(
-                    text = "${isoToCairoDateKey(ride.departAt)} · ${isoToCairoTime(ride.departAt)}",
+                    text = "${isoToCairoDateKey(ride.departAt)} · ${cairoTime12(ride.departAt)}",
                     style = typography.caption,
                     color = colors.textSecondary,
                 )
@@ -394,7 +394,7 @@ private fun RiderRow(booking: Booking, name: String, language: AppLanguage) {
             Text(
                 text = stringResource(
                     Res.string.owner_design_pickup_line,
-                    isoToCairoTime(booking.pickupAt),
+                    cairoTime12(booking.pickupAt),
                     booking.pickupPointName.resolve(language),
                 ),
                 style = typography.caption,

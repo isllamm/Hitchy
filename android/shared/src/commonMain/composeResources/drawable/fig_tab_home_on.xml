@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Figma node I390:1334;277:998 (Bold / Essentional, UI / Home Angle 2), exported from its vector geometry. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="evenOdd"
+        android:pathData="M 2.335,7.875 C 1.795,9.002 1.985,10.321 2.364,12.958 L 2.643,14.895 C 3.13,18.283 3.374,19.976 4.549,20.988 C 5.724,22 7.447,22 10.894,22 L 13.106,22 C 16.553,22 18.276,22 19.451,20.988 C 20.626,19.976 20.87,18.283 21.357,14.895 L 21.636,12.958 C 22.015,10.321 22.205,9.002 21.665,7.875 C 21.124,6.748 19.974,6.062 17.673,4.692 L 16.288,3.867 C 14.199,2.622 13.154,2 12,2 C 10.846,2 9.801,2.622 7.712,3.867 L 6.327,4.692 C 4.026,6.062 2.876,6.748 2.335,7.875Z M 12,18.75 C 11.586,18.75 11.25,18.414 11.25,18 L 11.25,15 C 11.25,14.586 11.586,14.25 12,14.25 C 12.414,14.25 12.75,14.586 12.75,15 L 12.75,18 C 12.75,18.414 12.414,18.75 12,18.75Z" />
+</vector>

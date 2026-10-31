@@ -27,6 +27,7 @@ private const val LAST_SLOT_MINUTES = 23 * MINUTES_PER_HOUR + 45
 data class RiderHomeState(
     val firstName: String = "",
     val hasUnreadNotifications: Boolean = false,
+    val unreadCount: Int = 0,
     val fromPoint: Point? = null,
     val toPoint: Point? = null,
     val todayDateKey: String = "",
@@ -88,7 +89,10 @@ class RiderHomeViewModel(
             .launchIn(viewModelScope)
 
         inboxRepository.observe()
-            .onEach { items -> setState { copy(hasUnreadNotifications = items.any { it.isUnread }) } }
+            .onEach { items ->
+                val unread = items.count { it.isUnread }
+                setState { copy(hasUnreadNotifications = unread > 0, unreadCount = unread) }
+            }
             .launchIn(viewModelScope)
 
         pointSelectionHolder.selections

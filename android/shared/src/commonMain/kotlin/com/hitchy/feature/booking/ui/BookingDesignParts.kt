@@ -12,9 +12,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.hitchy.core.ui.components.BackButton
 import com.hitchy.core.ui.components.BackButtonStyle
+import com.hitchy.core.ui.figmaTop
 import com.hitchy.core.ui.icon.HitchyIcons
 import com.hitchy.core.ui.theme.HitchyTheme
 import hitchy.shared.generated.resources.Res
@@ -46,7 +47,8 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringArrayResource
 import org.jetbrains.compose.resources.stringResource
 
-internal val BookingCardRadius = 20.dp
+// Figma's cards on the rider screens are r=16.
+internal val BookingCardRadius = 16.dp
 
 private const val BOOKING_DATE_MONTH_START = 5
 private const val BOOKING_DATE_MONTH_END = 7
@@ -69,7 +71,7 @@ internal fun BookingCardSurface(
     )
 }
 
-/** Back button on the left, centred title, an empty slot on the right to keep the title centred. */
+/** Figma's screen header: 44dp back button, an 18/26 centred title and a 44dp spacer, 60dp from the top. */
 @Composable
 internal fun BookingHeaderBar(
     title: String,
@@ -81,24 +83,26 @@ internal fun BookingHeaderBar(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .statusBarsPadding()
-            .padding(horizontal = 8.dp, vertical = 8.dp),
+            .padding(top = figmaTop(HEADER_TOP), start = 16.dp, end = 16.dp, bottom = 16.dp)
+            .height(44.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        BackButton(onClick = onBack, style = BackButtonStyle.OutlinedCircle)
+        BackButton(onClick = onBack, style = BackButtonStyle.OutlinedCircle, modifier = Modifier.size(44.dp))
         Text(
             text = title,
-            style = typography.h3,
+            style = typography.title,
             color = colors.navy,
             textAlign = TextAlign.Center,
             maxLines = 1,
             modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
         )
-        Box(modifier = Modifier.size(48.dp))
+        Box(modifier = Modifier.size(44.dp))
     }
 }
 
-/** Pickup and drop-off card: markers and a line on the left, two names with small labels on the right. */
+private val HEADER_TOP = 60.dp
+
+/** Figma's `Trip summary` (449:4164): pad 12/14, r=16, markers 27dp left of the names, a 12/18 meta line. */
 @Composable
 internal fun BookingTripCard(
     fromName: String,
@@ -112,12 +116,12 @@ internal fun BookingTripCard(
     val colors = HitchyTheme.colors
     BookingCardSurface(modifier = modifier) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             Row(
-                modifier = Modifier.height(IntrinsicSize.Min),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(27.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 BookingMarkerColumn()
                 Column(
@@ -136,17 +140,20 @@ internal fun BookingTripCard(
 @Composable
 private fun BookingMarkerColumn() {
     val colors = HitchyTheme.colors
-    Column(
-        modifier = Modifier.fillMaxHeight().padding(vertical = 6.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Box(modifier = Modifier.size(14.dp).clip(CircleShape).background(colors.deepPurple))
-        Box(modifier = Modifier.width(2.dp).weight(1f).background(colors.lavender))
+    // Figma: a 10dp dot, a 2x58 line from 5dp down, and the 10.5x14 pin at 60dp, in a 10x74 column.
+    Box(modifier = Modifier.size(width = 10.5.dp, height = 74.dp)) {
+        Box(
+            modifier = Modifier
+                .offset(x = 4.dp, y = 5.dp)
+                .size(width = 2.dp, height = 58.dp)
+                .background(colors.lavender),
+        )
+        Box(modifier = Modifier.size(10.dp).clip(CircleShape).background(colors.deepPurple))
         Icon(
-            painter = painterResource(HitchyIcons.Pin),
+            painter = painterResource(HitchyIcons.PinSmall),
             contentDescription = null,
             tint = colors.pin,
-            modifier = Modifier.size(20.dp),
+            modifier = Modifier.offset(y = 60.dp).size(width = 10.5.dp, height = 14.dp),
         )
     }
 }
@@ -159,7 +166,7 @@ private fun BookingPointText(
     val colors = HitchyTheme.colors
     val typography = HitchyTheme.typography
     Column {
-        Text(text = name, style = typography.bodyLarge, color = colors.navy, maxLines = 1)
+        Text(text = name, style = typography.bodyLargeStrong, color = colors.navy, maxLines = 1)
         Text(text = label, style = typography.body, color = colors.textSecondary, maxLines = 1)
     }
 }
@@ -176,8 +183,19 @@ internal fun bookingMetaText(
     } else {
         stringResource(Res.string.rider_home_passengers_many, seats)
     }
-    return stringResource(Res.string.bk_trip_meta, bookingDateLabel(dateKey), time, passengers)
+    return stringResource(Res.string.bk_trip_meta, bookingDateLabel(dateKey), bookingTime12(time), passengers)
 }
+
+/** "7:30 AM" from an "HH:mm" time, as Figma writes times; anything else is shown as given. */
+@Composable
+internal fun bookingTime12(time: String): String {
+    val parts = time.split(":")
+    val hours = parts.getOrNull(0)?.toIntOrNull() ?: return time
+    val minutes = parts.getOrNull(1)?.toIntOrNull() ?: return time
+    return formatTime12(hours * MINUTES_PER_HOUR_BOOKING + minutes)
+}
+
+private const val MINUTES_PER_HOUR_BOOKING = 60
 
 /** "Wed, Oct 28" from a "YYYY-MM-DD" key (Cairo date). Day and month names come from string resources. */
 @Composable

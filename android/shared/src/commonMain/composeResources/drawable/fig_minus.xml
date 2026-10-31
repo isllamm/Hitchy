@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Figma node 390:1320 (icon/minus), exported from its vector geometry. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="18dp"
+    android:height="18dp"
+    android:viewportWidth="18"
+    android:viewportHeight="18">
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M 3.75,8 C 3.198,8 2.75,8.448 2.75,9 C 2.75,9.552 3.198,10 3.75,10 L 3.75,9 L 3.75,8Z M 14.25,10 C 14.802,10 15.25,9.552 15.25,9 C 15.25,8.448 14.802,8 14.25,8 L 14.25,9 L 14.25,10Z M 3.75,9 L 3.75,10 L 14.25,10 L 14.25,9 L 14.25,8 L 3.75,8 L 3.75,9Z" />
+</vector>

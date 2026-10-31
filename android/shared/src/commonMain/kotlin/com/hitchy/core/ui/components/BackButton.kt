@@ -60,7 +60,7 @@ fun BackButton(
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
-                    painter = painterResource(HitchyIcons.Back),
+                    painter = painterResource(HitchyIcons.BackArrow),
                     contentDescription = stringResource(Res.string.action_back),
                     tint = colors.navy,
                     modifier = Modifier.size(20.dp),

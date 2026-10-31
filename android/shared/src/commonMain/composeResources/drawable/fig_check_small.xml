@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Figma node I446:3169;17:214 (icon), exported from its vector geometry. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="16dp"
+    android:height="16dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M 4.217,7.783 C 3.729,7.295 2.938,7.295 2.449,7.783 C 1.961,8.271 1.961,9.062 2.449,9.551 L 3.333,8.667 L 4.217,7.783Z M 6,11.333 L 5.116,12.217 C 5.604,12.705 6.396,12.705 6.884,12.217 L 6,11.333Z M 13.551,5.551 C 14.039,5.062 14.039,4.271 13.551,3.783 C 13.062,3.295 12.271,3.295 11.783,3.783 L 12.667,4.667 L 13.551,5.551Z M 3.333,8.667 L 2.449,9.551 L 5.116,12.217 L 6,11.333 L 6.884,10.449 L 4.217,7.783 L 3.333,8.667Z M 6,11.333 L 6.884,12.217 L 13.551,5.551 L 12.667,4.667 L 11.783,3.783 L 5.116,10.449 L 6,11.333Z" />
+</vector>

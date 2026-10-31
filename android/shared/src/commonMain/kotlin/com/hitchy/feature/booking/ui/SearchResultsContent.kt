@@ -16,7 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -35,8 +35,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hitchy.core.model.AppLanguage
+import com.hitchy.core.ui.cairoTime12
 import com.hitchy.core.ui.components.Avatar
 import com.hitchy.core.ui.components.AvatarSize
 import com.hitchy.core.ui.components.BackButton
@@ -46,11 +48,12 @@ import com.hitchy.core.ui.components.BadgeVariant
 import com.hitchy.core.ui.components.HitchyButton
 import com.hitchy.core.ui.components.HitchyButtonVariant
 import com.hitchy.core.ui.components.SeatIndicator
+import com.hitchy.core.ui.figmaBottom
+import com.hitchy.core.ui.figmaTop
 import com.hitchy.core.ui.icon.HitchyIcons
 import com.hitchy.core.ui.map.HitchyMap
 import com.hitchy.core.ui.map.MapPin
 import com.hitchy.core.ui.theme.HitchyTheme
-import com.hitchy.core.util.isoToCairoTime
 import com.hitchy.feature.booking.domain.RideCard
 import com.hitchy.feature.booking.domain.RideHost
 import com.hitchy.feature.booking.domain.SearchInput
@@ -59,6 +62,9 @@ import com.hitchy.feature.places.domain.Point
 import hitchy.shared.generated.resources.Res
 import hitchy.shared.generated.resources.bk_arrival
 import hitchy.shared.generated.resources.bk_best_match
+import hitchy.shared.generated.resources.bk_cancel_search
+import hitchy.shared.generated.resources.bk_card_dropoff
+import hitchy.shared.generated.resources.bk_card_pickup
 import hitchy.shared.generated.resources.bk_edit_route
 import hitchy.shared.generated.resources.bk_egp_amount
 import hitchy.shared.generated.resources.bk_empty_body
@@ -80,10 +86,13 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
-private val FindingMapHeight = 330.dp
-private val FindingSheetTop = 280.dp
-private val FindingSheetRadius = 28.dp
-private val ResultCardRadius = 24.dp
+// Figma frame 449:4034 "Search · Finding rides".
+private val FindingMapHeight = 422.9.dp
+private val FindingSheetTop = 344.dp
+private val FindingSheetRadius = 24.dp
+private val FindingBackTop = 56.dp
+private val SkeletonShape = RoundedCornerShape(16.dp)
+private val ResultCardRadius = 16.dp
 
 /** Names and the pickup point used by the three search screens, resolved from the zones and points lists. */
 internal data class SearchSummary(
@@ -140,7 +149,7 @@ internal fun SearchFindingContent(
         BackButton(
             onClick = onBack,
             style = BackButtonStyle.OutlinedCircle,
-            modifier = Modifier.statusBarsPadding().padding(start = 8.dp, top = 8.dp),
+            modifier = Modifier.padding(start = 16.dp, top = figmaTop(FindingBackTop)).size(44.dp),
         )
         Column(
             modifier = Modifier
@@ -149,13 +158,16 @@ internal fun SearchFindingContent(
                 .clip(RoundedCornerShape(topStart = FindingSheetRadius, topEnd = FindingSheetRadius))
                 .background(colors.white)
                 .verticalScroll(rememberScrollState())
-                .padding(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+                .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = figmaBottom(48.dp)),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             FindingSheetHeader()
             SearchSummaryCard(summary)
             SkeletonRow()
             SkeletonRow()
+            HitchyButton(onClick = onBack, variant = HitchyButtonVariant.Text, modifier = Modifier.fillMaxWidth()) {
+                Text(text = stringResource(Res.string.bk_cancel_search))
+            }
         }
     }
 }
@@ -166,33 +178,43 @@ private fun FindingSheetHeader() {
     val typography = HitchyTheme.typography
     Box(
         modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentWidth()
             .size(width = 40.dp, height = 4.dp)
-            .clip(CircleShape)
+            .clip(RoundedCornerShape(2.dp))
             .background(colors.border),
     )
+    // Three 8dp purple dots at 100%, 55% and 25%.
     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-        Box(modifier = Modifier.size(10.dp).clip(CircleShape).background(colors.purple))
-        Box(modifier = Modifier.size(10.dp).clip(CircleShape).background(colors.violet))
-        Box(modifier = Modifier.size(10.dp).clip(CircleShape).background(colors.lavender))
+        listOf(1f, 0.55f, 0.25f).forEach { alpha ->
+            Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(colors.purple.copy(alpha = alpha)))
+        }
     }
-    Text(text = stringResource(Res.string.bk_finding_title), style = typography.h1, color = colors.navy)
-    Text(text = stringResource(Res.string.bk_finding_body), style = typography.body, color = colors.textSecondary)
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Text(text = stringResource(Res.string.bk_finding_title), style = typography.heroTitle(), color = colors.navy)
+        Text(text = stringResource(Res.string.bk_finding_body), style = typography.body, color = colors.textSecondary)
+    }
 }
 
 @Composable
 private fun SkeletonRow() {
     val colors = HitchyTheme.colors
-    BookingCardSurface {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            Box(modifier = Modifier.size(44.dp).clip(CircleShape).background(colors.disabledSurface))
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                SkeletonBar(width = 160.dp)
-                SkeletonBar(width = 220.dp)
-            }
+    // Figma: 74dp, pad 14, r=16, a 44dp circle and two 10dp bars (160 and 230 wide), all #F3F4F6.
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(74.dp)
+            .clip(SkeletonShape)
+            .background(colors.white)
+            .border(1.dp, colors.border, SkeletonShape)
+            .padding(14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Box(modifier = Modifier.size(44.dp).clip(CircleShape).background(colors.disabledSurface))
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            SkeletonBar(width = 160.dp)
+            SkeletonBar(width = 230.dp)
         }
     }
 }
@@ -202,7 +224,7 @@ private fun SkeletonBar(width: Dp) {
     Box(
         modifier = Modifier
             .size(width = width, height = 10.dp)
-            .clip(CircleShape)
+            .clip(RoundedCornerShape(5.dp))
             .background(HitchyTheme.colors.disabledSurface),
     )
 }
@@ -259,6 +281,11 @@ private fun SearchCountRow(count: Int) {
     }
 }
 
+/**
+ * Figma's Ride Offer Card (component 397:518): white, r=16, pad 16, 12dp gaps. The owner row, a lilac
+ * trip box with the times and the pickup and drop-off lines, the seats, the total, and View ride.
+ * The v1.0 fee rows are not shown: in v1.2 the seat price is the whole price.
+ */
 @Composable
 private fun SearchResultCard(
     card: RideCard,
@@ -267,16 +294,25 @@ private fun SearchResultCard(
 ) {
     val colors = HitchyTheme.colors
     val typography = HitchyTheme.typography
-    BookingCardSurface(background = colors.lilac, borderColor = colors.lavender, radius = ResultCardRadius) {
+    BookingCardSurface(radius = ResultCardRadius) {
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             if (card.bestMatch) BestMatchPill()
-            ResultTimesRow(card)
-            ResultRouteLines(card, language)
-            HorizontalDivider(color = colors.border, thickness = 1.dp)
             ResultHostRow(card.host)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(colors.lilac)
+                    .padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                ResultTimesRow(card)
+                ResultRouteLines(card, language)
+            }
+            SeatIndicator(availableSeats = card.seatsLeft)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -284,7 +320,7 @@ private fun SearchResultCard(
             ) {
                 Text(
                     text = stringResource(Res.string.bk_total_per_seat),
-                    style = typography.bodyStrong,
+                    style = typography.bodyBold,
                     color = colors.textSecondary,
                 )
                 Text(
@@ -325,35 +361,25 @@ private fun BestMatchPill() {
     }
 }
 
+/** Figma: "7:30 AM → 8:20 AM arrival", 18/26 Bold times, a purple 14/22 arrow, a 12/18 label. */
 @Composable
 private fun ResultTimesRow(card: RideCard) {
     val colors = HitchyTheme.colors
     val typography = HitchyTheme.typography
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        Text(text = isoToCairoTime(card.pickup.at), style = typography.h3, color = colors.navy)
-        Icon(
-            painter = painterResource(HitchyIcons.ArrowForward),
-            contentDescription = null,
-            tint = colors.purple,
-            modifier = Modifier.size(12.dp),
-        )
-        Text(text = isoToCairoTime(card.arriveAt), style = typography.h3, color = colors.navy)
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(text = cairoTime12(card.pickup.at), style = typography.title, color = colors.navy)
+        Text(text = "→", style = typography.body, color = colors.purple)
+        Text(text = cairoTime12(card.arriveAt), style = typography.title, color = colors.navy)
         Text(
             text = stringResource(Res.string.bk_arrival),
             style = typography.caption,
             color = colors.textSecondary,
             maxLines = 1,
         )
-        Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
-            SeatIndicator(availableSeats = card.seatsLeft)
-        }
     }
 }
 
+/** Figma's two Bold 12/18 lines: "Pickup: … · 250 m away" and "Drop-off: …". */
 @Composable
 private fun ResultRouteLines(
     card: RideCard,
@@ -361,48 +387,25 @@ private fun ResultRouteLines(
 ) {
     val colors = HitchyTheme.colors
     val typography = HitchyTheme.typography
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        ResultLine {
-            Box(
-                modifier = Modifier
-                    .size(14.dp)
-                    .border(2.dp, colors.purple, CircleShape),
-            )
-            Text(
-                text = stringResource(
-                    Res.string.bk_pickup_walk,
-                    "\u2068${card.pickup.name.resolve(language)}\u2069",
-                    card.pickup.walkM,
-                ),
-                style = typography.body,
-                color = colors.navy,
-                maxLines = 1,
-            )
-        }
-        ResultLine {
-            Icon(
-                painter = painterResource(HitchyIcons.Pin),
-                contentDescription = null,
-                tint = colors.pin,
-                modifier = Modifier.size(14.dp),
-            )
-            Text(
-                text = card.toPointName.resolve(language),
-                style = typography.body,
-                color = colors.navy,
-                maxLines = 1,
-            )
-        }
-    }
+    Text(
+        text = stringResource(
+            Res.string.bk_card_pickup,
+            "\u2068${card.pickup.name.resolve(language)}\u2069",
+            card.pickup.walkM,
+        ),
+        style = typography.captionStrong,
+        color = colors.navy,
+        maxLines = 1,
+    )
+    Text(
+        text = stringResource(Res.string.bk_card_dropoff, card.toPointName.resolve(language)),
+        style = typography.captionStrong,
+        color = colors.navy,
+        maxLines = 1,
+    )
 }
 
-@Composable
-private fun ResultLine(content: @Composable () -> Unit) {
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        content()
-    }
-}
-
+/** Figma's `Host row`: a 44dp lavender avatar, the name in Bold 14/22, "★ 4.9 · 128 rides" and the badge. */
 @Composable
 private fun ResultHostRow(host: RideHost) {
     val colors = HitchyTheme.colors
@@ -412,20 +415,20 @@ private fun ResultHostRow(host: RideHost) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Avatar(initials = host.firstName.take(2), size = AvatarSize.LG)
+        Box(
+            modifier = Modifier.size(44.dp).clip(CircleShape).background(colors.lavender),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(text = host.firstName.take(2).uppercase(), style = typography.bodyBold, color = colors.purple)
+        }
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = host.firstName, style = typography.bodyStrong, color = colors.navy, maxLines = 1)
+            Text(text = host.firstName, style = typography.bodyBold, color = colors.navy, maxLines = 1)
             host.rating?.let { rating ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
-                    Icon(
-                        painter = painterResource(HitchyIcons.Star),
-                        contentDescription = null,
-                        tint = colors.warning,
-                        modifier = Modifier.size(14.dp),
-                    )
+                    Text(text = "★", style = typography.captionStrong, color = colors.warning)
                     Text(
                         text = stringResource(Res.string.bk_rating_line, rating.toString().take(3), host.trips),
                         style = typography.caption,
@@ -449,18 +452,21 @@ internal fun SearchEmptyContent(
     modifier: Modifier = Modifier,
 ) {
     val colors = HitchyTheme.colors
+    // Figma frame 449:4158: header, trip summary, the message 16dp below, and three buttons 46dp above the bottom.
     Column(modifier = modifier.fillMaxSize().background(colors.white)) {
         BookingHeaderBar(title = stringResource(Res.string.search_results_title), onBack = onBack)
         Column(
             modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(32.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             SearchSummaryCard(summary)
             SearchEmptyMessage(summary)
         }
         Column(
-            modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = figmaBottom(46.dp)),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             HitchyButton(onClick = onBack, modifier = Modifier.fillMaxWidth()) {
                 Text(text = stringResource(Res.string.search_results_change_time))
@@ -488,7 +494,7 @@ private fun SearchEmptyMessage(summary: SearchSummary) {
     val colors = HitchyTheme.colors
     val typography = HitchyTheme.typography
     Column(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+        modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
@@ -497,16 +503,15 @@ private fun SearchEmptyMessage(summary: SearchSummary) {
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                painter = painterResource(HitchyIcons.Car),
+                painter = painterResource(HitchyIcons.NoRides),
                 contentDescription = null,
                 tint = colors.purple,
-                modifier = Modifier.size(32.dp),
+                modifier = Modifier.size(44.dp),
             )
         }
-        Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = stringResource(Res.string.search_results_empty_title),
-            style = typography.h1,
+            style = typography.heroTitle(),
             color = colors.navy,
             textAlign = TextAlign.Center,
         )
@@ -515,7 +520,7 @@ private fun SearchEmptyMessage(summary: SearchSummary) {
                 Res.string.bk_empty_body,
                 summary.fromPointName,
                 summary.toZoneName,
-                summary.input.time,
+                bookingTime12(summary.input.time),
                 bookingDateLabel(summary.input.date),
             ),
             style = typography.body,
@@ -524,3 +529,6 @@ private fun SearchEmptyMessage(summary: SearchSummary) {
         )
     }
 }
+
+/** Figma's Cairo 800 24/30 with -0.1 letter spacing: the Finding and No rides titles. */
+internal fun com.hitchy.core.ui.theme.HitchyTypography.heroTitle() = amount.copy(letterSpacing = (-0.1).sp)

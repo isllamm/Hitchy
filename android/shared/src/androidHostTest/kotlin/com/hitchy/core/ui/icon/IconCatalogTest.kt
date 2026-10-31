@@ -96,7 +96,44 @@ class IconCatalogTest {
     @Test
     fun testFigmaDrawingsExist() {
         val drawableDir = findDrawableDir()
-        for (name in listOf("fig_driver", "fig_rider", "fig_arrow_forward")) {
+        for (name in listOf("fig_driver", "fig_rider", "fig_arrow_forward") + listOf(
+            "fig_chevron_right",
+            "fig_pin_small",
+            "fig_calendar_small",
+            "fig_clock_small",
+            "fig_passenger_small",
+            "fig_search_small",
+            "fig_minus",
+            "fig_plus",
+            "fig_bell",
+            "fig_tab_home_on",
+            "fig_tab_home_off",
+            "fig_tab_rides_on",
+            "fig_tab_rides_off",
+            "fig_tab_shop_on",
+            "fig_tab_shop_off",
+            "fig_toast_error",
+            "fig_close_small",
+            "fig_close",
+            "fig_check_small",
+            "fig_chevron_left_month",
+            "fig_info_small",
+            "fig_pickup",
+            "fig_destination",
+            "fig_swap",
+            "fig_clear",
+            "fig_map",
+            "fig_place",
+            "fig_back",
+            "fig_chevron_right_20",
+            "fig_no_rides",
+            "fig_car_28",
+            "fig_info_16",
+            "fig_cancelled",
+            "fig_back_22",
+            "fig_person_22", "fig_home_22", "fig_destination_22",
+            "fig_menu_rides", "fig_menu_bell", "fig_menu_settings", "fig_chevron_18",
+        )) {
             val file = File(drawableDir, "$name.xml")
             assertTrue(file.exists(), "Missing Figma drawing: ${file.absolutePath}")
             assertTrue(file.readText().contains("<vector"), "$name.xml must be an Android vector drawable")

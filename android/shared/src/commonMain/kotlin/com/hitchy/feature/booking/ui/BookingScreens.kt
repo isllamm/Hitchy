@@ -24,6 +24,7 @@ import com.hitchy.core.model.AppLanguage
 import com.hitchy.core.model.BookingStatus
 import com.hitchy.core.model.RideStatus
 import com.hitchy.core.platform.LanguageSwitcher
+import com.hitchy.core.ui.cairoTime12
 import com.hitchy.core.ui.components.BannerVariant
 import com.hitchy.core.ui.components.EmptyState
 import com.hitchy.core.ui.components.HitchyBanner
@@ -36,7 +37,6 @@ import com.hitchy.core.ui.icon.HitchyIcons
 import com.hitchy.core.ui.message
 import com.hitchy.core.ui.theme.HitchyTheme
 import com.hitchy.core.util.isoToCairoDateKey
-import com.hitchy.core.util.isoToCairoTime
 import com.hitchy.feature.booking.domain.SearchInput
 import com.hitchy.feature.booking.presentation.RiderRideDetailsAction
 import com.hitchy.feature.booking.presentation.RiderRideDetailsState
@@ -289,7 +289,7 @@ fun RidesTabContent(
                             val booking = item.booking
                             RideCard(
                                 departureText = isoToCairoDateKey(booking.departAt),
-                                pickupTime = isoToCairoTime(booking.pickupAt),
+                                pickupTime = cairoTime12(booking.pickupAt),
                                 pickupLocation = booking.pickupPointName.resolve(language),
                                 dropOffTime = "",
                                 dropOffLocation = "",
@@ -314,7 +314,7 @@ fun RidesTabContent(
                             val booked = (ride.seatsTotal - ride.seatsLeft).coerceAtLeast(0)
                             RideCard(
                                 departureText = ride.dateKey,
-                                pickupTime = isoToCairoTime(ride.departAt),
+                                pickupTime = cairoTime12(ride.departAt),
                                 pickupLocation = ride.fromPointName.resolve(language),
                                 dropOffTime = "",
                                 dropOffLocation = ride.toPointName.resolve(language),
