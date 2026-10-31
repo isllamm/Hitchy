@@ -282,7 +282,8 @@ private fun NotificationDesignRow(
                         style = typography.bodyBold.copy(lineHeight = 20.sp),
                         color = colors.navy,
                         modifier = Modifier.weight(1f),
-                        maxLines = 1,
+                        // The backend's messages can be one long title with no body, so allow a second line.
+                        maxLines = 2,
                     )
                     if (unread) {
                         Row(
