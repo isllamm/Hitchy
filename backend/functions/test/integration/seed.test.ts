@@ -57,16 +57,17 @@ describe("validateProjectTarget", () => {
     );
   });
 
-  it("knows the real dev project and refuses it while real values are TODO-HUMAN", () => {
+  it("knows the real dev project and accepts it with the Instapay address still TODO-HUMAN", () => {
     expect(DEV_PROJECT_ID).toBe("hitchy-bb4f9");
     const savedFirestore = process.env["FIRESTORE_EMULATOR_HOST"];
     const savedAuth = process.env["FIREBASE_AUTH_EMULATOR_HOST"];
     delete process.env["FIRESTORE_EMULATOR_HOST"];
     delete process.env["FIREBASE_AUTH_EMULATOR_HOST"];
     try {
-      expect(() => validateProjectTarget("hitchy-bb4f9")).toThrow(
-        /Refusing to seed dev project while real values/,
-      );
+      expect(validateProjectTarget("hitchy-bb4f9")).toEqual({
+        isDev: true,
+        targetProject: "hitchy-bb4f9",
+      });
     } finally {
       if (savedFirestore !== undefined) process.env["FIRESTORE_EMULATOR_HOST"] = savedFirestore;
       if (savedAuth !== undefined) process.env["FIREBASE_AUTH_EMULATOR_HOST"] = savedAuth;
@@ -93,16 +94,14 @@ describe("validateProjectTarget", () => {
     );
   });
 
-  it("refuses dev project when real data has TODO-HUMAN values", () => {
+  it("accepts the dev alias when no emulator variables are set", () => {
     const savedFirestore = process.env["FIRESTORE_EMULATOR_HOST"];
     const savedAuth = process.env["FIREBASE_AUTH_EMULATOR_HOST"];
     delete process.env["FIRESTORE_EMULATOR_HOST"];
     delete process.env["FIREBASE_AUTH_EMULATOR_HOST"];
 
     try {
-      expect(() => validateProjectTarget("dev")).toThrow(
-        /Refusing to seed dev project while real values/,
-      );
+      expect(validateProjectTarget("dev")).toEqual({ isDev: true, targetProject: "hitchy-bb4f9" });
     } finally {
       process.env["FIRESTORE_EMULATOR_HOST"] = savedFirestore;
       process.env["FIREBASE_AUTH_EMULATOR_HOST"] = savedAuth;

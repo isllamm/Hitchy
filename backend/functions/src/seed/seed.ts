@@ -131,12 +131,8 @@ export function validateProjectTarget(project: string | undefined): {
       );
     }
 
-    const packages = readJsonFile("config/packages.json") as PackagesConfig;
-    if (packages.instapayAddress === "TODO-HUMAN") {
-      throw new Error(
-        "Refusing to seed dev project while real values (e.g. config/packages.instapayAddress) are TODO-HUMAN.",
-      );
-    }
+    // config/packages.instapayAddress may still be TODO-HUMAN here: the demo does not sell packages
+    // (owners are in their free month), and the seed never writes to prod (ADR 0003 row 161).
 
     const zones = readJsonFile("zones.json") as ZoneWithPoints[];
     const hasFakePoints = hasPlaceholderPoints(zones);
