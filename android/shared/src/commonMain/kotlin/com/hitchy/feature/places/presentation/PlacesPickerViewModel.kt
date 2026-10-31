@@ -15,6 +15,8 @@ data class PlacesPickerState(
     val query: String = "",
     val zones: List<Zone> = emptyList(),
     val points: List<Point> = emptyList(),
+    /** True once the pickup points have answered at least once. */
+    val pointsLoaded: Boolean = false,
     val selectedPoint: Point? = null,
     /** The pickup and destination keys when [field] is one of a pair ("from"/"to"), else null. */
     val pair: Pair<String, String>? = null,
@@ -70,6 +72,7 @@ class PlacesPickerViewModel(
                 setState {
                     copy(
                         points = list,
+                        pointsLoaded = true,
                         selectedPoint = selectedPoint ?: selectionHolder.get(field) ?: list.firstOrNull(),
                     )
                 }

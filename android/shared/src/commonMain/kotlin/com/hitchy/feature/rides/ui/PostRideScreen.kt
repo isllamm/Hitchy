@@ -94,6 +94,18 @@ fun PostRideScreen(
     }
     StepBackHandler(enabled = step == STEP_REVIEW) { step = STEP_ROUTE }
 
+    // One scroll position for all three steps: a step opened while the last one was scrolled down started part
+    // way down, so the top of "Your commute is live" was off screen. Each step now opens at its top.
+    // Coming back from the route picker keeps the place, since the step is the same.
+    val scrollState = rememberScrollState()
+    var scrolledStep by rememberSaveable { mutableIntStateOf(step) }
+    LaunchedEffect(step) {
+        if (step != scrolledStep) {
+            scrollState.scrollTo(0)
+            scrolledStep = step
+        }
+    }
+
     val openRides = { onOpenMyRides?.invoke() ?: liveRideId?.let(onNavigateToRideDetails) ?: onBack() }
     StepBackHandler(enabled = step == STEP_LIVE) { openRides() }
 
@@ -107,7 +119,7 @@ fun PostRideScreen(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
                 .padding(start = 16.dp, end = 16.dp, top = if (step == STEP_LIVE) 32.dp else 8.dp, bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
