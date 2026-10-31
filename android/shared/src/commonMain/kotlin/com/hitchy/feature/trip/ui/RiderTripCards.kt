@@ -2,6 +2,7 @@
 
 package com.hitchy.feature.trip.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -32,8 +33,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hitchy.core.ui.icon.HitchyIcons
 import com.hitchy.core.ui.theme.HitchyTheme
+import com.hitchy.feature.profile.domain.PublicProfile
 import com.hitchy.feature.rides.domain.RideVehicle
 import hitchy.shared.generated.resources.Res
+import hitchy.shared.generated.resources.bk_rating_line
+import hitchy.shared.generated.resources.fig_trip_star
+import hitchy.shared.generated.resources.fig_trip_verified
 import hitchy.shared.generated.resources.format_egp
 import hitchy.shared.generated.resources.rider_home_passengers_many
 import hitchy.shared.generated.resources.rider_home_passengers_one
@@ -107,76 +112,110 @@ private fun PlaceText(
 }
 
 /**
- * Figma's `RideDetails` card: pad 14/16, the vehicle row (28dp car, a 10/18 label, a Bold name and the
- * colour and plate), then a top-ruled row with the seats on the left and the amount on the right.
+ * Figma's `Driver Information` card (demo 676:9863): r16, a #E5E7EB stroke, padding 16/8; a 48dp avatar, the
+ * owner's name (600 14/22) with the green verified mark, the star and "4.9 · 128 rides", and the car with its
+ * plate. Figma's message and call buttons are not in the demo.
  */
 @Composable
-internal fun TripVehicleSeatCard(
-    vehicle: RideVehicle,
-    seats: Int,
-    total: Int,
-) {
+internal fun TripHostCard(host: PublicProfile?, vehicle: RideVehicle) {
     val colors = HitchyTheme.colors
     val typography = HitchyTheme.typography
-    Column(
-        modifier = Modifier.tripCard(colors.border).padding(horizontal = 16.dp, vertical = 14.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+    Row(
+        modifier = Modifier.tripCard(colors.border).padding(horizontal = 8.dp, vertical = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Icon(
-                painter = painterResource(HitchyIcons.Car28),
-                contentDescription = null,
-                tint = colors.purple,
-                modifier = Modifier.size(28.dp),
+        Box(
+            modifier = Modifier.size(48.dp).clip(CircleShape).background(colors.lavender),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = host?.firstName?.take(2)?.uppercase().orEmpty(),
+                style = typography.bodyBold,
+                color = colors.purple,
             )
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(
-                    text = stringResource(Res.string.trip_design_owner_car_label),
-                    style = typography.caption.copy(fontSize = 10.sp),
-                    color = colors.textSecondary,
-                )
-                Text(
-                    text = stringResource(Res.string.trip_design_vehicle_line, vehicle.make, vehicle.model),
-                    style = typography.bodyBold,
-                    color = colors.navy,
-                )
-                Text(
-                    text = stringResource(Res.string.trip_design_vehicle_detail, vehicle.color, vehicle.plate),
-                    style = typography.caption,
-                    color = colors.textSecondary,
-                )
-            }
         }
-        Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(colors.border))
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(
-                    text = stringResource(Res.string.trip_design_your_seat),
-                    style = typography.caption,
-                    color = colors.textSecondary,
-                )
-                Text(
-                    text = if (seats == 1) {
-                        stringResource(Res.string.rider_home_passengers_one)
-                    } else {
-                        stringResource(Res.string.rider_home_passengers_many, seats)
-                    },
-                    style = typography.captionStrong,
-                    color = colors.navy,
-                )
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(text = host?.firstName.orEmpty(), style = typography.bodyStrong, color = colors.navy, maxLines = 1)
+                if (host?.verified == true) {
+                    Image(
+                        painter = painterResource(Res.drawable.fig_trip_verified),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
             }
-            Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(
-                    text = stringResource(Res.string.trip_design_total),
-                    style = typography.caption,
-                    color = colors.textSecondary,
-                )
-                Text(
-                    text = stringResource(Res.string.format_egp, total.toString()),
-                    style = typography.captionStrong,
-                    color = colors.navy,
-                )
+            val rating = host?.hostRatingAvg
+            if (host != null && rating != null) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    Image(
+                        painter = painterResource(Res.drawable.fig_trip_star),
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                    )
+                    Text(
+                        text = stringResource(Res.string.bk_rating_line, rating.toString().take(3), host.hostTrips),
+                        style = typography.caption,
+                        color = colors.textSecondary,
+                    )
+                }
             }
+            Text(
+                text = stringResource(
+                    Res.string.trip_design_vehicle_detail,
+                    stringResource(Res.string.trip_design_vehicle_line, vehicle.make, vehicle.model),
+                    stringResource(Res.string.trip_design_vehicle_detail, vehicle.color, vehicle.plate),
+                ),
+                style = typography.caption,
+                color = colors.textSecondary,
+            )
+        }
+    }
+}
+
+/**
+ * Figma's `RideDetails` card (demo 676:9884): padding 14/16, "Your seat" over the passengers (Bold 12/18) on
+ * the start side and the amount on the end side.
+ */
+@Composable
+internal fun TripSeatCard(seats: Int, total: Int) {
+    val colors = HitchyTheme.colors
+    val typography = HitchyTheme.typography
+    Row(
+        modifier = Modifier.tripCard(colors.border).padding(horizontal = 16.dp, vertical = 14.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(
+                text = stringResource(Res.string.trip_design_your_seat),
+                style = typography.caption,
+                color = colors.textSecondary,
+            )
+            Text(
+                text = if (seats == 1) {
+                    stringResource(Res.string.rider_home_passengers_one)
+                } else {
+                    stringResource(Res.string.rider_home_passengers_many, seats)
+                },
+                style = typography.captionStrong,
+                color = colors.navy,
+            )
+        }
+        Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(
+                text = stringResource(Res.string.trip_design_total),
+                style = typography.caption,
+                color = colors.textSecondary,
+            )
+            Text(
+                text = stringResource(Res.string.format_egp, total.toString()),
+                style = typography.captionStrong,
+                color = colors.navy,
+            )
         }
     }
 }

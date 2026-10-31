@@ -529,15 +529,26 @@ private fun StepperButton(
         modifier = Modifier
             .size(38.dp)
             .clip(CircleShape)
-            .background(if (filled) colors.purple else colors.white)
-            .then(if (filled) Modifier else Modifier.border(1.dp, colors.border, CircleShape))
+            // Figma's Stepper (902:13090): the minus turns flat #F3F4F6 when it can't go lower.
+            .background(
+                when {
+                    filled -> colors.purple
+                    enabled -> colors.white
+                    else -> colors.disabledSurface
+                },
+            )
+            .then(if (filled || !enabled) Modifier else Modifier.border(1.dp, colors.border, CircleShape))
             .clickable(enabled = enabled, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
         Icon(
             painter = painterResource(icon),
             contentDescription = null,
-            tint = if (filled) colors.white else colors.navy,
+            tint = when {
+                filled -> colors.white
+                enabled -> colors.navy
+                else -> colors.textDisabled
+            },
             modifier = Modifier.size(18.dp),
         )
     }
