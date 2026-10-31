@@ -507,4 +507,49 @@
         <item>نوفمبر</item>
         <item>ديسمبر</item>
     </string-array>
+    <string name="offer_title_route">انشر مشوارك</string>
+    <string name="offer_title_review">راجع وانشر</string>
+    <string name="offer_step_route">الخطوة 1 من 2 · المسار والموعد</string>
+    <string name="offer_step_review">الخطوة 2 من 2 · السعر والمراجعة</string>
+    <string name="offer_from">من</string>
+    <string name="offer_to">إلى</string>
+    <string name="offer_from_placeholder">هتبدأ منين؟</string>
+    <string name="offer_to_placeholder">رايح فين؟</string>
+    <string name="offer_stop_placeholder">اختار نقطة توقف</string>
+    <string name="offer_leave_at">هتتحرك الساعة</string>
+    <string name="offer_seats_title">الكراسي اللي هتعرضها</string>
+    <string name="offer_seats_max">أقصى عدد %1$d كراسي</string>
+    <string name="offer_continue">متابعة</string>
+    <string name="offer_rider_pays">كل راكب هيدفعلك</string>
+    <string name="offer_fair_price">سعر عادل</string>
+    <string name="offer_currency">ج.م</string>
+    <string name="offer_per_seat">/ كرسي</string>
+    <string name="offer_per_seat_peak">/ كرسي · وقت الذروة</string>
+    <string name="offer_min">الأقل</string>
+    <string name="offer_recommended">المقترح</string>
+    <string name="offer_max">الأعلى</string>
+    <string name="offer_recommended_per_seat">السعر المقترح للكرسي</string>
+    <string name="offer_fuel">البنزين</string>
+    <string name="offer_running_cost">تكلفة التشغيل</string>
+    <string name="offer_trip_cost_split">تكلفة المشوار / %1$d كراسي</string>
+    <string name="offer_trip_cost_value">%1$d ج.م / %2$d</string>
+    <string name="offer_full_car_covers">العربية لو اتملت: هتجمع %1$d ج.م، كل تكلفة مشوارك.</string>
+    <string name="offer_full_car">العربية لو اتملت: هتجمع %1$d ج.م.</string>
+    <string name="offer_your_commute">مشوارك</string>
+    <string name="offer_edit">تعديل</string>
+    <string name="offer_start">البداية</string>
+    <string name="offer_drop_off">النزول</string>
+    <string name="offer_stop">توقف %1$d</string>
+    <string name="offer_seats_open">%1$d كراسي متاحة</string>
+    <string name="offer_women_only_tag">للسيدات فقط</string>
+    <string name="offer_publish">انشر مشواري</string>
+    <string name="offer_live_title">مشوارك اتنشر</string>
+    <string name="offer_live_body">هنبلغك لما راكب يطلب كرسي. وإنت بتوافق على كل طلب.</string>
+    <string name="offer_invite_title">املا كراسيك أسرع</string>
+    <string name="offer_invite_body">ادعي زمايلك اللي بيسوقوا أو بيركبوا نفس الطريق. اللي تعرفهم بينضموا أسرع، وبتركب مع ناس بتثق فيهم.</string>
+    <string name="offer_invite_button">شارك رابط الدعوة</string>
+    <string name="offer_invite_text">اركب معايا على Hitchy. ادخل بالكود بتاعي %1$s.</string>
+    <string name="offer_go_to_rides">روح لرحلاتي</string>
+    <string name="offer_wheel_am">ص</string>
+    <string name="offer_wheel_pm">م</string>
 </resources>

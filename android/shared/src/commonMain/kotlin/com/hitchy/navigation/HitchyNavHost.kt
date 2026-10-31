@@ -45,7 +45,7 @@ import com.hitchy.feature.auth.ui.WelcomeScreen
 import com.hitchy.feature.booking.domain.SearchInput
 import com.hitchy.feature.booking.ui.HomeScreen
 import com.hitchy.feature.booking.ui.RiderRideDetailsScreen
-import com.hitchy.feature.booking.ui.RidesTabContent
+import com.hitchy.feature.booking.ui.RiderRidesTabContent
 import com.hitchy.feature.booking.ui.SearchResultsScreen
 import com.hitchy.feature.debug.ui.DebugScreen
 import com.hitchy.feature.debug.ui.gallery.ComponentGalleryScreen
@@ -185,6 +185,11 @@ fun HitchyNavHost(
                         popUpTo<Home> { inclusive = false }
                     }
                 },
+                onOpenMyRides = {
+                    navController.navigate(MyTrips) {
+                        popUpTo<Home> { inclusive = false }
+                    }
+                },
             )
         }
         composable<MyRides> { PlaceholderScreen("MyRides") }
@@ -224,7 +229,7 @@ fun HitchyNavHost(
             )
         }
         composable<MyTrips> {
-            RidesTabContent(
+            RiderRidesTabContent(
                 onBack = { navController.popBackStack() },
                 onOpenRiderRideDetails = { rideId -> navController.navigate(RiderRideDetails(rideId)) },
                 onOpenRiderTrip = { rideId -> navController.navigate(RiderTrip(rideId)) },

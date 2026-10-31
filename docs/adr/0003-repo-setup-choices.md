@@ -152,6 +152,11 @@ The repo was set up from [docs/BUILD_PLAN.md](../BUILD_PLAN.md) on 2026-10-28. A
 | 132 | My rides gets Figma's Upcoming / Completed / Cancelled tabs. The card keeps #64's content (no owner name or photo on bookings, Islam's decision) in Figma's layout. | 3.8 | The search icon in the frame has no function and is not built. |
 | 133 | The third cancel reason stays "Owner is late" (`host_late`); Figma's "Owner changed the time" has no backend reason. | Appendix D | The label must match what is sent. |
 | 134 | The Outline button's stroke is purple at 1.5dp on white (Figma component 446:2914); it was grey. | Phase 3 components | Every Outline button in the frames is purple. |
+| 135 | Owner Home follows Figma DEMO 726:11671. The earnings card shows the booked seats of this month's finished rides times their seat price. "New requests" counts requested bookings on open rides. "Request a ride" switches to rider mode. "View details" and "Earnings" open the Profile tab (the wallet). | 3.9 | The app has no earnings screen yet; these are the closest real data. |
+| 136 | Figma's four 3D stat pictures on Owner Home are drawn as lavender tiles with the matching icon until they are exported. | Phase 3 tokens | The images need the Figma token, which this Mac does not use. [HUMAN] export them. |
+| 137 | Offer a ride follows D2 and D4 as two steps (D3 is dropped). Figma's weekly repeat, return trip, arrival line and the ride-vibe tags are left out. Today and Tomorrow pills in the Day style sit above the time wheel. Stops, the vehicle (when there are two or more) and women only stay. | 2.2, 3.9 | The demo posts one ride for today or tomorrow; there is no backend for repeats or return trips. |
+| 138 | D5 "Your commute is live" leaves out "No charge until riders fill 10 seats". "Share invite link" shares the owner's referral code. "Go to my rides" opens the Rides list, which now uses the Figma list for both roles. | R2 | Owners buy trip packages in the plan, so the card's promise is not the product's. |
+| 139 | The root opens Home again after a sign-out and a new sign-in in the same session. The place picker hides the keyboard when a point is picked. | — | Both blocked the demo on the emulator. |
 
 ## Consequences
 

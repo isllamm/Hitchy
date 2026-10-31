@@ -507,4 +507,49 @@
         <item>November</item>
         <item>December</item>
     </string-array>
+    <string name="offer_title_route">Post your commute</string>
+    <string name="offer_title_review">Review and publish</string>
+    <string name="offer_step_route">Step 1 of 2 · Route and schedule</string>
+    <string name="offer_step_review">Step 2 of 2 · Price and review</string>
+    <string name="offer_from">From</string>
+    <string name="offer_to">To</string>
+    <string name="offer_from_placeholder">Where are you starting from?</string>
+    <string name="offer_to_placeholder">Where are you driving to?</string>
+    <string name="offer_stop_placeholder">Choose a pickup stop</string>
+    <string name="offer_leave_at">Leave home at</string>
+    <string name="offer_seats_title">Seats you offer</string>
+    <string name="offer_seats_max">Max %1$d seats</string>
+    <string name="offer_continue">Continue</string>
+    <string name="offer_rider_pays">EACH RIDER PAYS YOU</string>
+    <string name="offer_fair_price">Fair price</string>
+    <string name="offer_currency">EGP</string>
+    <string name="offer_per_seat">/ seat</string>
+    <string name="offer_per_seat_peak">/ seat · peak</string>
+    <string name="offer_min">Min</string>
+    <string name="offer_recommended">Recommended</string>
+    <string name="offer_max">Max</string>
+    <string name="offer_recommended_per_seat">Recommended per seat</string>
+    <string name="offer_fuel">Fuel</string>
+    <string name="offer_running_cost">Running cost</string>
+    <string name="offer_trip_cost_split">Trip cost / %1$d seats</string>
+    <string name="offer_trip_cost_value">EGP %1$d / %2$d</string>
+    <string name="offer_full_car_covers">Full car: you collect EGP %1$d, all your trip costs.</string>
+    <string name="offer_full_car">Full car: you collect EGP %1$d.</string>
+    <string name="offer_your_commute">Your commute</string>
+    <string name="offer_edit">Edit</string>
+    <string name="offer_start">Start</string>
+    <string name="offer_drop_off">Drop-off</string>
+    <string name="offer_stop">Stop %1$d</string>
+    <string name="offer_seats_open">%1$d seats open</string>
+    <string name="offer_women_only_tag">Women only</string>
+    <string name="offer_publish">Publish my commute</string>
+    <string name="offer_live_title">Your commute is live</string>
+    <string name="offer_live_body">We will notify you when a rider requests a seat. You approve every request.</string>
+    <string name="offer_invite_title">Fill your seats faster</string>
+    <string name="offer_invite_body">Invite colleagues who drive or ride the same way. People you know join faster, and you ride with people you trust.</string>
+    <string name="offer_invite_button">Share invite link</string>
+    <string name="offer_invite_text">Ride with me on Hitchy. Join with my code %1$s.</string>
+    <string name="offer_go_to_rides">Go to my rides</string>
+    <string name="offer_wheel_am">AM</string>
+    <string name="offer_wheel_pm">PM</string>
 </resources>

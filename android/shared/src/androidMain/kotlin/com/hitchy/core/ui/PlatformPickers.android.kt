@@ -2,6 +2,7 @@ package com.hitchy.core.ui
 
 import android.Manifest
 import android.os.Build
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -78,4 +79,9 @@ actual fun rememberPermissionRequest(onResult: (Boolean) -> Unit): (AppPermissio
             }
         }
     }
+}
+
+@Composable
+actual fun StepBackHandler(enabled: Boolean, onBack: () -> Unit) {
+    BackHandler(enabled = enabled, onBack = onBack)
 }
