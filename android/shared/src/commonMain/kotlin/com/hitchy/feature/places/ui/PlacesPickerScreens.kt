@@ -445,12 +445,16 @@ fun MapPointPickerScreen(
     }
 
     val selected = state.selectedPoint
-    val pointsById = state.points.associateBy { it.id }
+    val pointsByKey = state.points.associateBy { "${it.zoneId}/${it.id}" }
+    val selectedKey = selected?.let { "${it.zoneId}/${it.id}" }
 
     Box(modifier = modifier.fillMaxSize().background(colors.mapLand)) {
         HitchyMap(
-            pins = state.points.map { MapPin(id = it.id, point = it.location, selected = it.id == selected?.id) },
-            onPinClick = { id -> pointsById[id]?.let { viewModel.onAction(PlacesPickerAction.HighlightPoint(it)) } },
+            pins = state.points.map {
+                val key = "${it.zoneId}/${it.id}"
+                MapPin(id = key, point = it.location, selected = key == selectedKey)
+            },
+            onPinClick = { key -> pointsByKey[key]?.let { viewModel.onAction(PlacesPickerAction.HighlightPoint(it)) } },
             modifier = Modifier.fillMaxSize(),
         )
         BackButton(

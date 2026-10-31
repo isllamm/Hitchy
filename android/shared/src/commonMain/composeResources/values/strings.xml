@@ -434,7 +434,7 @@
     <string name="host_trip_boarded_count">%1$d of %2$d on board</string>
     <string name="host_trip_payment_done_title">Payment collected!</string>
     <string name="host_trip_payment_done_total">Total collected: EGP %1$d</string>
-    <string name="host_trip_payment_done_bookings">%1$d riders paid directly to your wallet</string>
+    <string name="host_trip_payment_done_bookings">Paid directly to your wallet by %1$d rider(s)</string>
     <string name="host_trip_wallet_balance">Wallet balance: EGP %1$d</string>
     <string name="picker_route_title">Plan your route</string>
     <string name="picker_from_label">From</string>

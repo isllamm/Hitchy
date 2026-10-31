@@ -370,7 +370,12 @@ private fun ResultTimesRow(card: RideCard) {
         Text(text = cairoTime12(card.pickup.at), style = typography.title, color = colors.navy)
         Text(text = "→", style = typography.body, color = colors.purple)
         Text(text = cairoTime12(card.arriveAt), style = typography.title, color = colors.navy)
-        Text(text = stringResource(Res.string.bk_arrival), style = typography.caption, color = colors.textSecondary, maxLines = 1)
+        Text(
+            text = stringResource(Res.string.bk_arrival),
+            style = typography.caption,
+            color = colors.textSecondary,
+            maxLines = 1,
+        )
     }
 }
 
@@ -383,7 +388,11 @@ private fun ResultRouteLines(
     val colors = HitchyTheme.colors
     val typography = HitchyTheme.typography
     Text(
-        text = stringResource(Res.string.bk_card_pickup, card.pickup.name.resolve(language), card.pickup.walkM),
+        text = stringResource(
+            Res.string.bk_card_pickup,
+            "\u2068${card.pickup.name.resolve(language)}\u2069",
+            card.pickup.walkM,
+        ),
         style = typography.captionStrong,
         color = colors.navy,
         maxLines = 1,
@@ -415,7 +424,10 @@ private fun ResultHostRow(host: RideHost) {
         Column(modifier = Modifier.weight(1f)) {
             Text(text = host.firstName, style = typography.bodyBold, color = colors.navy, maxLines = 1)
             host.rating?.let { rating ->
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
                     Text(text = "★", style = typography.captionStrong, color = colors.warning)
                     Text(
                         text = stringResource(Res.string.bk_rating_line, rating.toString().take(3), host.trips),
