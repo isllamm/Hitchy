@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -104,10 +105,15 @@ fun RoutePickerScreen(
         viewModel.onAction(PlacesPickerAction.Init(field))
     }
 
+    val keyboard = LocalSoftwareKeyboardController.current
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
             when (event) {
-                PlacesPickerEvent.PointConfirmed -> onPointSelected()
+                PlacesPickerEvent.PointConfirmed -> {
+                    // The search field's keyboard would stay open over the screen underneath.
+                    keyboard?.hide()
+                    onPointSelected()
+                }
             }
         }
     }

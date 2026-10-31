@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Figma node 813:13760 (icon/chevron), exported from its vector geometry. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="14dp"
+    android:height="14dp"
+    android:viewportWidth="14"
+    android:viewportHeight="14">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M 4.631,9.881 C 4.29,10.223 4.29,10.777 4.631,11.119 C 4.973,11.46 5.527,11.46 5.869,11.119 L 5.25,10.5 L 4.631,9.881Z M 8.75,7 L 9.369,7.619 C 9.71,7.277 9.71,6.723 9.369,6.381 L 8.75,7Z M 5.869,2.881 C 5.527,2.54 4.973,2.54 4.631,2.881 C 4.29,3.223 4.29,3.777 4.631,4.119 L 5.25,3.5 L 5.869,2.881Z M 5.25,10.5 L 5.869,11.119 L 9.369,7.619 L 8.75,7 L 8.131,6.381 L 4.631,9.881 L 5.25,10.5Z M 8.75,7 L 9.369,6.381 L 5.869,2.881 L 5.25,3.5 L 4.631,4.119 L 8.131,7.619 L 8.75,7Z" />
+</vector>

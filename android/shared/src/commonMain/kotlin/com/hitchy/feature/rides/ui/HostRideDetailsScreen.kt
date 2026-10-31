@@ -1,4 +1,4 @@
-@file:Suppress("MagicNumber", "TooManyFunctions")
+@file:Suppress("TooManyFunctions")
 
 package com.hitchy.feature.rides.ui
 
@@ -7,18 +7,17 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -26,62 +25,91 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hitchy.core.model.AppLanguage
+import com.hitchy.core.model.CancelRideReason
 import com.hitchy.core.model.RideStatus
 import com.hitchy.core.platform.LanguageSwitcher
 import com.hitchy.core.ui.ErrorText
 import com.hitchy.core.ui.cairoTime12
-import com.hitchy.core.ui.components.Avatar
-import com.hitchy.core.ui.components.BackButton
-import com.hitchy.core.ui.components.BackButtonStyle
 import com.hitchy.core.ui.components.HitchyBanner
 import com.hitchy.core.ui.components.HitchyButton
+import com.hitchy.core.ui.components.HitchyButtonVariant
 import com.hitchy.core.ui.components.OwnerRequestCard
 import com.hitchy.core.ui.components.RideStatusVariant
-import com.hitchy.core.ui.components.StatusChip
 import com.hitchy.core.ui.icon.HitchyIcons
 import com.hitchy.core.ui.theme.HitchyTheme
+import com.hitchy.core.util.dateKey
 import com.hitchy.core.util.isoToCairoDateKey
+import com.hitchy.feature.booking.ui.RideCardData
+import com.hitchy.feature.booking.ui.RideDesignCard
 import com.hitchy.feature.rides.domain.Booking
-import com.hitchy.feature.rides.domain.Ride
 import com.hitchy.feature.rides.presentation.HostRideDetailsAction
 import com.hitchy.feature.rides.presentation.HostRideDetailsEvent
 import com.hitchy.feature.rides.presentation.HostRideDetailsState
 import com.hitchy.feature.rides.presentation.HostRideDetailsViewModel
+import com.hitchy.feature.trip.ui.CancelReasonRow
+import com.hitchy.feature.trip.ui.FigmaSheet
 import hitchy.shared.generated.resources.Res
+import hitchy.shared.generated.resources.host_ride_details_cancel
 import hitchy.shared.generated.resources.host_ride_details_no_booked
 import hitchy.shared.generated.resources.host_ride_details_open_trip
 import hitchy.shared.generated.resources.host_ride_details_requests_section
 import hitchy.shared.generated.resources.host_ride_details_start_trip
 import hitchy.shared.generated.resources.host_ride_details_title
+import hitchy.shared.generated.resources.offer_fair_price
+import hitchy.shared.generated.resources.owner_cancel_car_problem
+import hitchy.shared.generated.resources.owner_cancel_sick
+import hitchy.shared.generated.resources.owner_cancel_title
 import hitchy.shared.generated.resources.owner_design_egp
 import hitchy.shared.generated.resources.owner_design_expected
 import hitchy.shared.generated.resources.owner_design_expected_range
 import hitchy.shared.generated.resources.owner_design_pickup_line
-import hitchy.shared.generated.resources.owner_design_requests_waiting
 import hitchy.shared.generated.resources.owner_design_riders_title
-import hitchy.shared.generated.resources.owner_design_route_dropoff
 import hitchy.shared.generated.resources.owner_design_route_start
 import hitchy.shared.generated.resources.owner_design_seat_price
-import hitchy.shared.generated.resources.owner_design_seats_open
 import hitchy.shared.generated.resources.owner_design_status_posted
 import hitchy.shared.generated.resources.owner_home_seats_booked
-import hitchy.shared.generated.resources.owner_home_upcoming_title
+import hitchy.shared.generated.resources.owner_keep_ride
+import hitchy.shared.generated.resources.owner_one_request_waiting
+import hitchy.shared.generated.resources.owner_one_seat_open
+import hitchy.shared.generated.resources.owner_requests_waiting
+import hitchy.shared.generated.resources.owner_review_one_request
+import hitchy.shared.generated.resources.owner_review_requests
+import hitchy.shared.generated.resources.owner_seats_open_count
+import hitchy.shared.generated.resources.rider_trip_cancel_reason_other
+import hitchy.shared.generated.resources.rider_trip_cancel_reason_plans_changed
+import hitchy.shared.generated.resources.rides_design_vehicle
+import hitchy.shared.generated.resources.rides_t14_seats_booked
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
 
-private val CardRadius = 20.dp
+private val CardShape = RoundedCornerShape(16.dp)
 private const val PENDING_NAME_LENGTH = 6
 private const val BOOKED_NAME_LENGTH = 8
 
-/** Owner ride details built to the demo design: route card, riders card, price card and the start button. */
+/** The list position of the requests title: after the alert (when shown) and the ride card. */
+private const val REQUESTS_ITEM_OFFSET = 1
+
+/**
+ * Owner ride details, Figma DEMO R02 (726:11883 and 726:11968): the shared Ride Card, the requests,
+ * the Riders card, the price card, and the footer ("Review N requests" or "Start trip", then Cancel).
+ * Figma's message and call buttons, ratings and "ID verified" chips are not in the demo.
+ */
 @Composable
 fun HostRideDetailsScreen(
     rideId: String,
@@ -89,17 +117,17 @@ fun HostRideDetailsScreen(
     onOpenTrip: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HostRideDetailsViewModel = koinViewModel(),
+    languageSwitcher: LanguageSwitcher = koinInject(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val languageSwitcher: LanguageSwitcher = koinInject()
     val language = languageSwitcher.getCurrentLanguage()
-    val colors = HitchyTheme.colors
-    val spacing = HitchyTheme.spacing
+    val listState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
+    var showCancel by remember { mutableStateOf(false) }
 
     LaunchedEffect(rideId) {
         viewModel.onAction(HostRideDetailsAction.Init(rideId))
     }
-
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
             when (event) {
@@ -109,22 +137,38 @@ fun HostRideDetailsScreen(
         }
     }
 
-    Column(modifier = modifier.fillMaxSize().background(colors.background)) {
-        DetailsHeader(onBack = onBack)
+    Column(modifier = modifier.fillMaxSize().background(HitchyTheme.colors.white)) {
+        OfferTopBar(title = stringResource(Res.string.host_ride_details_title), onBack = onBack, horizontal = 16.dp)
         LazyColumn(
-            modifier = Modifier.weight(1f).fillMaxWidth().padding(horizontal = spacing.space16),
-            verticalArrangement = Arrangement.spacedBy(spacing.space16),
+            state = listState,
+            modifier = Modifier.weight(1f).fillMaxWidth(),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             detailsItems(
                 state = state,
                 language = language,
                 onDismissAlert = { viewModel.onAction(HostRideDetailsAction.DismissAlert) },
-                onRespond = { uid, accept ->
-                    viewModel.onAction(HostRideDetailsAction.RespondRequest(uid, accept))
-                },
+                onRespond = { uid, accept -> viewModel.onAction(HostRideDetailsAction.RespondRequest(uid, accept)) },
             )
         }
-        DetailsFooter(state = state, onOpenTrip = onOpenTrip)
+        DetailsFooter(
+            state = state,
+            onReviewRequests = {
+                val offset = if (state.messageAlert != null) REQUESTS_ITEM_OFFSET + 1 else REQUESTS_ITEM_OFFSET
+                scope.launch { listState.animateScrollToItem(offset) }
+            },
+            onOpenTrip = onOpenTrip,
+            onCancel = { showCancel = true },
+        )
+    }
+
+    if (showCancel) {
+        OwnerCancelSheet(
+            isCancelling = state.isCancelling,
+            onConfirm = { viewModel.onAction(HostRideDetailsAction.CancelRide(it)) },
+            onDismiss = { showCancel = false },
+        )
     }
 }
 
@@ -138,12 +182,17 @@ private fun LazyListScope.detailsItems(
     if (alert != null) {
         item { HitchyBanner(text = stringResource(alert), onDismiss = onDismissAlert) }
     }
-    val ride = state.ride
-    if (ride != null) {
-        item { RouteCard(ride = ride, language = language) }
+    if (state.ride != null) {
+        item { OwnerRideCard(state = state, language = language) }
     }
     if (state.pendingBookings.isNotEmpty()) {
-        item { RequestsTitle(count = state.pendingBookings.size) }
+        item {
+            Text(
+                text = stringResource(Res.string.host_ride_details_requests_section, state.pendingBookings.size),
+                style = HitchyTheme.typography.bodyBold,
+                color = HitchyTheme.colors.textSecondary,
+            )
+        }
         items(state.pendingBookings, key = { it.riderUid }) { booking ->
             val shortName = riderName(state, booking.riderUid, PENDING_NAME_LENGTH)
             OwnerRequestCard(
@@ -158,8 +207,8 @@ private fun LazyListScope.detailsItems(
             )
         }
     }
-    item { RidersSection(state = state, language = language) }
-    if (ride != null) {
+    if (state.ride != null) {
+        item { RidersSection(state = state, language = language) }
         item { PriceCard(state = state) }
     }
     val error = state.error
@@ -174,168 +223,78 @@ private fun riderName(state: HostRideDetailsState, uid: String, fallbackLength: 
     return uid.take(fallbackLength).replaceFirstChar { it.uppercase() }
 }
 
+/** Figma's `Ride Card` (component 367:2121), the same card as the Rides list, with "Posted" and the requests. */
 @Composable
-private fun DetailsHeader(onBack: () -> Unit) {
-    val colors = HitchyTheme.colors
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .statusBarsPadding()
-            .padding(horizontal = 8.dp, vertical = 8.dp),
-    ) {
-        BackButton(
-            onClick = onBack,
-            style = BackButtonStyle.OutlinedCircle,
-            modifier = Modifier.align(Alignment.CenterStart),
-        )
-        Text(
-            text = stringResource(Res.string.owner_home_upcoming_title),
-            style = HitchyTheme.typography.h3,
-            color = colors.navy,
-            modifier = Modifier.align(Alignment.Center),
-        )
-    }
-}
-
-@Composable
-private fun CardColumn(
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
+private fun OwnerRideCard(
+    state: HostRideDetailsState,
+    language: AppLanguage,
+    clock: Clock = koinInject(),
 ) {
-    val colors = HitchyTheme.colors
-    val shape = RoundedCornerShape(CardRadius)
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(shape)
-            .background(colors.white)
-            .border(1.dp, colors.border, shape),
-    ) {
-        content()
-    }
-}
-
-@Composable
-private fun RouteCard(ride: Ride, language: AppLanguage) {
-    val colors = HitchyTheme.colors
-    val typography = HitchyTheme.typography
-    CardColumn {
-        Column(
-            modifier = Modifier.padding(HitchyTheme.spacing.space16),
-            verticalArrangement = Arrangement.spacedBy(HitchyTheme.spacing.space16),
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                RideStatusChip(status = ride.status)
-                Text(
-                    text = "${isoToCairoDateKey(ride.departAt)} · ${cairoTime12(ride.departAt)}",
-                    style = typography.caption,
-                    color = colors.textSecondary,
+    val ride = state.ride ?: return
+    val now = clock.now()
+    val waiting = state.pendingBookings.size
+    val booked = state.confirmedBookings.sumOf { it.seats }
+    val posted = ride.status == RideStatus.OPEN || ride.status == RideStatus.FULL
+    RideDesignCard(
+        data = RideCardData(
+            status = if (posted) RideStatusVariant.InProgress else ride.status.toVariant(),
+            statusLabel = if (posted) stringResource(Res.string.owner_design_status_posted) else null,
+            dateKey = isoToCairoDateKey(ride.departAt),
+            time = cairoTime12(ride.departAt),
+            pickupName = ride.fromPointName.resolve(language),
+            dropOffName = ride.toPointName.resolve(language),
+            title = stringResource(Res.string.rides_t14_seats_booked, booked, ride.seatsTotal),
+            subtitle = if (waiting > 0) {
+                requestsWaiting(waiting)
+            } else {
+                stringResource(
+                    Res.string.rides_design_vehicle,
+                    ride.vehicle.make,
+                    ride.vehicle.model,
+                    ride.vehicle.color,
                 )
-            }
-            RoutePoints(
-                fromName = ride.fromPointName.resolve(language),
-                toName = ride.toPointName.resolve(language),
-            )
-        }
-    }
-}
-
-@Composable
-private fun RideStatusChip(status: RideStatus) {
-    when (status) {
-        RideStatus.OPEN,
-        RideStatus.FULL,
-        -> StatusChip(
-            status = RideStatusVariant.InProgress,
-            customLabel = stringResource(Res.string.owner_design_status_posted),
-        )
-
-        RideStatus.STARTED -> StatusChip(status = RideStatusVariant.InProgress)
-
-        RideStatus.FINISHED -> StatusChip(status = RideStatusVariant.Completed)
-
-        RideStatus.CANCELLED -> StatusChip(status = RideStatusVariant.Cancelled)
-
-        RideStatus.EXPIRED -> StatusChip(status = RideStatusVariant.Expired)
-    }
-}
-
-@Composable
-private fun RoutePoints(fromName: String, toName: String) {
-    val colors = HitchyTheme.colors
-    val typography = HitchyTheme.typography
-    Column {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            Box(modifier = Modifier.width(24.dp), contentAlignment = Alignment.Center) {
-                Box(modifier = Modifier.size(16.dp).clip(CircleShape).background(colors.deepPurple))
-            }
-            Column {
-                Text(text = fromName, style = typography.bodyLargeStrong, color = colors.navy)
-                Text(
-                    text = stringResource(Res.string.owner_design_route_start),
-                    style = typography.body,
-                    color = colors.textSecondary,
-                )
-            }
-        }
-        Box(modifier = Modifier.width(24.dp).height(20.dp), contentAlignment = Alignment.Center) {
-            Box(modifier = Modifier.width(2.dp).height(20.dp).background(colors.lavender))
-        }
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            Box(modifier = Modifier.width(24.dp), contentAlignment = Alignment.Center) {
-                Icon(
-                    painter = painterResource(HitchyIcons.Pin),
-                    contentDescription = null,
-                    tint = colors.pin,
-                    modifier = Modifier.size(24.dp),
-                )
-            }
-            Column {
-                Text(text = toName, style = typography.bodyLargeStrong, color = colors.navy)
-                Text(
-                    text = stringResource(Res.string.owner_design_route_dropoff),
-                    style = typography.body,
-                    color = colors.textSecondary,
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun RequestsTitle(count: Int) {
-    Text(
-        text = stringResource(Res.string.host_ride_details_requests_section, count),
-        style = HitchyTheme.typography.title,
-        color = HitchyTheme.colors.textPrimary,
+            },
+            tileIcon = HitchyIcons.Car,
+            priceEgp = ride.pricePerSeat,
+            onClick = null,
+            perSeat = true,
+            startLabel = stringResource(Res.string.owner_design_route_start),
+        ),
+        todayKey = dateKey(now),
+        tomorrowKey = dateKey(now + 1.days),
     )
 }
 
+private fun RideStatus.toVariant(): RideStatusVariant = when (this) {
+    RideStatus.OPEN, RideStatus.FULL -> RideStatusVariant.Confirmed
+    RideStatus.STARTED -> RideStatusVariant.InProgress
+    RideStatus.FINISHED -> RideStatusVariant.Completed
+    RideStatus.CANCELLED -> RideStatusVariant.Cancelled
+    RideStatus.EXPIRED -> RideStatusVariant.Expired
+}
+
+/**
+ * Figma's Riders block: "Riders" (Bold 14/24 gray) and "1 of 3 booked" (600 purple), then a card
+ * (r16, #E5E7EB stroke, padding 12/16) with one row per booked rider and the open seats row.
+ */
 @Composable
 private fun RidersSection(state: HostRideDetailsState, language: AppLanguage) {
     val colors = HitchyTheme.colors
     val typography = HitchyTheme.typography
     val ride = state.ride
-    Column(verticalArrangement = Arrangement.spacedBy(HitchyTheme.spacing.space12)) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = stringResource(Res.string.owner_design_riders_title),
-                style = typography.bodyStrong,
+                style = typography.bodyBold,
                 color = colors.textSecondary,
+                modifier = Modifier.weight(1f),
             )
             if (ride != null) {
                 Text(
                     text = stringResource(
                         Res.string.owner_home_seats_booked,
-                        (ride.seatsTotal - ride.seatsLeft).coerceAtLeast(0),
+                        state.confirmedBookings.sumOf { it.seats },
                         ride.seatsTotal,
                     ),
                     style = typography.bodyStrong,
@@ -343,78 +302,89 @@ private fun RidersSection(state: HostRideDetailsState, language: AppLanguage) {
                 )
             }
         }
-        CardColumn {
-            if (state.confirmedBookings.isEmpty()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(CardShape)
+                .border(1.dp, colors.border, CardShape)
+                .padding(start = 16.dp, end = 16.dp, top = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            if (state.confirmedBookings.isEmpty() && ride == null) {
                 Text(
                     text = stringResource(Res.string.host_ride_details_no_booked),
                     style = typography.body,
                     color = colors.textSecondary,
-                    modifier = Modifier.padding(HitchyTheme.spacing.space16),
+                    modifier = Modifier.padding(bottom = 12.dp),
                 )
             }
+            // Figma counts the seats not booked yet as open, held ones included.
+            val bookedSeats = state.confirmedBookings.sumOf { it.seats }
+            val open = ride?.let { (it.seatsTotal - bookedSeats).coerceAtLeast(0) } ?: 0
+            val rows = state.confirmedBookings.size + if (open > 0) 1 else 0
             state.confirmedBookings.forEachIndexed { index, booking ->
-                if (index > 0) CardDivider()
                 RiderRow(
                     booking = booking,
                     name = riderName(state, booking.riderUid, BOOKED_NAME_LENGTH),
                     language = language,
+                    divider = index < rows - 1,
                 )
             }
-            if (ride != null && ride.seatsLeft > 0) {
-                if (state.confirmedBookings.isNotEmpty()) CardDivider()
-                SeatsOpenRow(seatsLeft = ride.seatsLeft, waiting = state.pendingBookings.size)
+            if (open > 0) SeatsOpenRow(seatsOpen = open, waiting = state.pendingBookings.size)
+        }
+    }
+}
+
+/** Figma's rider row: a 48dp lavender avatar with Bold 14/24 initials, the 600 14/22 name, the purple pickup line. */
+@Composable
+private fun RiderRow(booking: Booking, name: String, language: AppLanguage, divider: Boolean) {
+    val colors = HitchyTheme.colors
+    val typography = HitchyTheme.typography
+    Column {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Box(
+                modifier = Modifier.size(48.dp).clip(CircleShape).background(colors.lavender),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(text = name.take(2).uppercase(), style = typography.bodyBold, color = colors.purple)
+            }
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(text = name, style = typography.bodyStrong, color = colors.navy)
+                Text(
+                    text = stringResource(
+                        Res.string.owner_design_pickup_line,
+                        cairoTime12(booking.pickupAt),
+                        booking.pickupPointName.resolve(language),
+                    ),
+                    style = typography.caption,
+                    color = colors.purple,
+                )
             }
         }
+        if (divider) Box(Modifier.fillMaxWidth().height(1.dp).background(colors.border))
     }
 }
 
+/** Figma's open seats row: a 48dp lavender circle with a purple ring and the add-person icon. */
 @Composable
-private fun CardDivider() {
-    Box(
-        modifier = Modifier
-            .padding(horizontal = HitchyTheme.spacing.space16)
-            .fillMaxWidth()
-            .height(1.dp)
-            .background(HitchyTheme.colors.border),
-    )
-}
-
-@Composable
-private fun RiderRow(booking: Booking, name: String, language: AppLanguage) {
+private fun SeatsOpenRow(seatsOpen: Int, waiting: Int) {
     val colors = HitchyTheme.colors
     val typography = HitchyTheme.typography
     Row(
-        modifier = Modifier.fillMaxWidth().padding(HitchyTheme.spacing.space16),
+        modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(HitchyTheme.spacing.space12),
-    ) {
-        Avatar(initials = name.take(2).uppercase())
-        Column(modifier = Modifier.weight(1f)) {
-            Text(text = name, style = typography.bodyStrong, color = colors.navy)
-            Text(
-                text = stringResource(
-                    Res.string.owner_design_pickup_line,
-                    cairoTime12(booking.pickupAt),
-                    booking.pickupPointName.resolve(language),
-                ),
-                style = typography.caption,
-                color = colors.purple,
-            )
-        }
-    }
-}
-
-@Composable
-private fun SeatsOpenRow(seatsLeft: Int, waiting: Int) {
-    val colors = HitchyTheme.colors
-    val typography = HitchyTheme.typography
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(HitchyTheme.spacing.space16),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(HitchyTheme.spacing.space12),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Box(
-            modifier = Modifier.size(48.dp).clip(CircleShape).background(colors.lavender),
+            modifier = Modifier
+                .size(48.dp)
+                .clip(CircleShape)
+                .background(colors.lavender)
+                .border(1.dp, colors.purple, CircleShape),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
@@ -424,15 +394,19 @@ private fun SeatsOpenRow(seatsLeft: Int, waiting: Int) {
                 modifier = Modifier.size(24.dp),
             )
         }
-        Column(modifier = Modifier.weight(1f)) {
+        Column {
             Text(
-                text = stringResource(Res.string.owner_design_seats_open, seatsLeft),
+                text = if (seatsOpen == 1) {
+                    stringResource(Res.string.owner_one_seat_open)
+                } else {
+                    stringResource(Res.string.owner_seats_open_count, seatsOpen)
+                },
                 style = typography.bodyStrong,
                 color = colors.navy,
             )
             if (waiting > 0) {
                 Text(
-                    text = stringResource(Res.string.owner_design_requests_waiting, waiting),
+                    text = requestsWaiting(waiting),
                     style = typography.caption,
                     color = colors.textSecondary,
                 )
@@ -441,58 +415,172 @@ private fun SeatsOpenRow(seatsLeft: Int, waiting: Int) {
     }
 }
 
+/**
+ * Figma's `RideDetails` price card: padding 12/16, r16. "Seat price" and "Expected" (12/18 gray) on the
+ * start side; "EGP 56 · Fair price" and "EGP 56 · up to EGP 168" (Bold 12/18) on the end side.
+ */
 @Composable
 private fun PriceCard(state: HostRideDetailsState) {
     val ride = state.ride ?: return
-    CardColumn {
-        Column(
-            modifier = Modifier.padding(HitchyTheme.spacing.space16),
-            verticalArrangement = Arrangement.spacedBy(HitchyTheme.spacing.space8),
-        ) {
-            PriceLine(
-                label = stringResource(Res.string.owner_design_seat_price),
-                value = stringResource(Res.string.owner_design_egp, ride.pricePerSeat),
+    val colors = HitchyTheme.colors
+    val typography = HitchyTheme.typography
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(CardShape)
+            .border(1.dp, colors.border, CardShape)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(
+                stringResource(Res.string.owner_design_seat_price),
+                style = typography.caption,
+                color = colors.textSecondary,
             )
-            PriceLine(
-                label = stringResource(Res.string.owner_design_expected),
-                value = stringResource(
+            Text(
+                stringResource(Res.string.owner_design_expected),
+                style = typography.caption,
+                color = colors.textSecondary,
+            )
+        }
+        Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(
+                    text = stringResource(Res.string.owner_design_egp, ride.pricePerSeat) + " ·",
+                    style = typography.captionStrong,
+                    color = colors.navy,
+                )
+                Text(
+                    text = stringResource(Res.string.offer_fair_price),
+                    style = typography.captionStrong,
+                    color = colors.successText,
+                )
+            }
+            Text(
+                text = stringResource(
                     Res.string.owner_design_expected_range,
                     state.expectedMinEarnings,
                     state.expectedMaxEarnings,
                 ),
+                style = typography.captionStrong,
+                color = colors.navy,
+                textAlign = TextAlign.End,
             )
         }
     }
 }
 
+/**
+ * Figma's `Booking Actions`: the main button ("Review N requests" while requests wait, else "Start trip")
+ * and the red "Cancel" button while the ride is posted.
+ */
 @Composable
-private fun PriceLine(label: String, value: String) {
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(text = label, style = HitchyTheme.typography.body, color = HitchyTheme.colors.textSecondary)
-        Text(text = value, style = HitchyTheme.typography.bodyStrong, color = HitchyTheme.colors.navy)
-    }
-}
-
-@Composable
-private fun DetailsFooter(state: HostRideDetailsState, onOpenTrip: (String) -> Unit) {
-    val spacing = HitchyTheme.spacing
+private fun DetailsFooter(
+    state: HostRideDetailsState,
+    onReviewRequests: () -> Unit,
+    onOpenTrip: (String) -> Unit,
+    onCancel: () -> Unit,
+) {
     if (!state.isTripInProgress && !state.canStartTrip) return
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .navigationBarsPadding()
-            .padding(horizontal = spacing.space16, vertical = spacing.space16),
-    ) {
-        HitchyButton(onClick = { onOpenTrip(state.rideId) }, modifier = Modifier.fillMaxWidth()) {
+    val waiting = state.pendingBookings.size
+    OfferFooter {
+        when {
+            state.isTripInProgress -> FooterButton(stringResource(Res.string.host_ride_details_open_trip)) {
+                onOpenTrip(state.rideId)
+            }
+
+            waiting > 0 -> FooterButton(
+                if (waiting == 1) {
+                    stringResource(Res.string.owner_review_one_request)
+                } else {
+                    stringResource(Res.string.owner_review_requests, waiting)
+                },
+                onReviewRequests,
+            )
+
+            else -> FooterButton(stringResource(Res.string.host_ride_details_start_trip)) { onOpenTrip(state.rideId) }
+        }
+        if (state.canStartTrip) {
+            HitchyButton(
+                onClick = onCancel,
+                variant = HitchyButtonVariant.Destructive,
+                enabled = !state.isCancelling,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(text = stringResource(Res.string.host_ride_details_cancel))
+            }
+        }
+    }
+}
+
+@Composable
+private fun FooterButton(text: String, onClick: () -> Unit) {
+    HitchyButton(onClick = onClick, modifier = Modifier.fillMaxWidth()) { Text(text = text) }
+}
+
+/** The owner's cancel sheet in the rider's Figma cancel style (390:1968), with the ride's own reasons. */
+@Composable
+private fun OwnerCancelSheet(
+    isCancelling: Boolean,
+    onConfirm: (CancelRideReason) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val colors = HitchyTheme.colors
+    val typography = HitchyTheme.typography
+    var selected by remember { mutableStateOf(CancelRideReason.PLANS_CHANGED) }
+    val reasons = listOf(
+        CancelRideReason.PLANS_CHANGED to stringResource(Res.string.rider_trip_cancel_reason_plans_changed),
+        CancelRideReason.SICK to stringResource(Res.string.owner_cancel_sick),
+        CancelRideReason.CAR_PROBLEM to stringResource(Res.string.owner_cancel_car_problem),
+        CancelRideReason.OTHER to stringResource(Res.string.rider_trip_cancel_reason_other),
+    )
+    FigmaSheet(onDismiss = onDismiss) {
+        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Text(
-                text = stringResource(
-                    if (state.isTripInProgress) {
-                        Res.string.host_ride_details_open_trip
-                    } else {
-                        Res.string.host_ride_details_start_trip
-                    },
-                ),
+                text = stringResource(Res.string.owner_cancel_title),
+                style = typography.h1,
+                color = colors.navy,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Column {
+                reasons.forEach { (reason, label) ->
+                    CancelReasonRow(
+                        label = label,
+                        selected = selected == reason,
+                        enabled = !isCancelling,
+                        onClick = { selected = reason },
+                    )
+                }
+            }
+            HitchyButton(
+                onClick = { onConfirm(selected) },
+                variant = HitchyButtonVariant.Destructive,
+                enabled = !isCancelling,
+                loading = isCancelling,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(text = stringResource(Res.string.host_ride_details_cancel))
+            }
+            Text(
+                text = stringResource(Res.string.owner_keep_ride),
+                style = typography.bodyBold,
+                color = if (isCancelling) colors.textDisabled else colors.purple,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(8.dp))
+                    .then(if (isCancelling) Modifier else Modifier.clickableShape(RoundedCornerShape(8.dp), onDismiss))
+                    .padding(vertical = 8.dp),
             )
         }
     }
+}
+
+@Composable
+private fun requestsWaiting(count: Int): String = if (count == 1) {
+    stringResource(Res.string.owner_one_request_waiting)
+} else {
+    stringResource(Res.string.owner_requests_waiting, count)
 }

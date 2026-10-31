@@ -22,8 +22,8 @@
     <string name="owner_design_waiting_for">Waiting for %1$s</string>
     <string name="owner_design_all_on_board">Everyone is on board</string>
     <string name="owner_design_arrived_at">You arrived at %1$s</string>
-    <string name="owner_design_riders_count">Riders: %1$d</string>
-    <string name="owner_design_on_board_count">On board: %1$d</string>
+    <string name="owner_design_riders_count">%1$d riders</string>
+    <string name="owner_design_on_board_count">%1$d on board</string>
     <string name="owner_design_chip_waiting">Waiting</string>
     <string name="owner_design_chip_next">Next</string>
     <string name="owner_design_chip_here_now">Here now</string>

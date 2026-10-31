@@ -55,8 +55,22 @@ data class HostTripState(
     val totalBookedSeats: Int
         get() = bookings.sumOf { it.seats }
 
+    /** The ride's pickups in driving order: the start point ("start"), then each stop. */
+    val pickupIds: List<String>
+        get() = listOf(START_PICKUP) + ride?.stops.orEmpty().map { it.id }
+
+    /** The pickup the owner is driving to or waiting at; [currentStopIndex] counts the start as 0. */
+    val currentPickupId: String
+        get() = pickupIds.getOrElse(currentStopIndex) { START_PICKUP }
+
+    /** The first pickup from [from] that still has a rider to board, or null when everyone is on board. */
+    fun nextPickupIndex(from: Int): Int? = (from until pickupIds.size).firstOrNull { i ->
+        bookings.any { it.pickupId == pickupIds[i] && it.boardedAt == null }
+    }
+
     companion object {
         const val FREE_WAIT_SECONDS = 300
+        const val START_PICKUP = "start"
         const val TIMER_DELAY_MS = 1000L
     }
 }
@@ -134,8 +148,7 @@ class HostTripViewModel(
 
                         RideStatus.EXPIRED -> HostTripPhase.LEAVING
                     }
-                    val stopName = r.stops.firstOrNull()?.pointName?.let { it.en.ifBlank { it.ar } }
-                        ?: r.fromPointName.let { it.en.ifBlank { it.ar } }
+                    val stopName = r.fromPointName.let { it.en.ifBlank { it.ar } }
                     setState {
                         copy(
                             ride = r,
@@ -143,6 +156,7 @@ class HostTripViewModel(
                             currentStopName = currentStopName.ifBlank { stopName },
                         )
                     }
+                    skipEmptyPickup()
                 }
             }
             .launchIn(viewModelScope)
@@ -150,10 +164,14 @@ class HostTripViewModel(
         ridesRepository.observeBookings(rideId)
             .onEach { allBookings ->
                 loadRiderNames(allBookings.map { it.riderUid })
+                // Boarded riders stay on the list: the panel counts them as on board.
                 val active = allBookings.filter {
-                    it.status == BookingStatus.BOOKED || it.status == BookingStatus.COMPLETED
+                    it.status == BookingStatus.BOOKED ||
+                        it.status == BookingStatus.BOARDED ||
+                        it.status == BookingStatus.COMPLETED
                 }
                 setState { copy(bookings = active) }
+                skipEmptyPickup()
             }
             .launchIn(viewModelScope)
 
@@ -179,15 +197,18 @@ class HostTripViewModel(
         viewModelScope.launch {
             when (val res = tripRepository.start(rideId)) {
                 is AppResult.Ok -> {
-                    val r = state.value.ride
-                    val stopName = r?.stops?.firstOrNull()?.pointName?.let { it.en.ifBlank { it.ar } }
-                        ?: r?.fromPointName?.let { it.en.ifBlank { it.ar } }.orEmpty()
+                    val first = state.value.nextPickupIndex(0)
                     setState {
-                        copy(
-                            isLoading = false,
-                            phase = HostTripPhase.DRIVING_TO_STOP,
-                            currentStopName = stopName,
-                        )
+                        if (first == null) {
+                            copy(isLoading = false, phase = HostTripPhase.EN_ROUTE)
+                        } else {
+                            copy(
+                                isLoading = false,
+                                phase = HostTripPhase.DRIVING_TO_STOP,
+                                currentStopIndex = first,
+                                currentStopName = pickupName(first),
+                            )
+                        }
                     }
                 }
 
@@ -198,12 +219,7 @@ class HostTripViewModel(
 
     private fun arriveAtStop() {
         val rideId = state.value.rideId
-        val r = state.value.ride
-        val pickupId = if (state.value.currentStopIndex < (r?.stops?.size ?: 0)) {
-            r?.stops?.get(state.value.currentStopIndex)?.id ?: "start"
-        } else {
-            "start"
-        }
+        val pickupId = state.value.currentPickupId
 
         setState { copy(isLoading = true, error = null) }
         viewModelScope.launch {
@@ -291,17 +307,13 @@ class HostTripViewModel(
 
     private fun nextStopOrFinish() {
         timerJob?.cancel()
-        val currentIdx = state.value.currentStopIndex
-        val r = state.value.ride
-        val stopsCount = r?.stops?.size ?: 0
-
-        if (currentIdx + 1 < stopsCount) {
-            val nextIdx = currentIdx + 1
-            val nextStopName = r?.stops?.get(nextIdx)?.pointName?.let { it.en.ifBlank { it.ar } }.orEmpty()
+        // Pickups after this one that still have a rider to board; the rest are skipped.
+        val nextIdx = state.value.nextPickupIndex(state.value.currentStopIndex + 1)
+        if (nextIdx != null) {
             setState {
                 copy(
                     currentStopIndex = nextIdx,
-                    currentStopName = nextStopName,
+                    currentStopName = pickupName(nextIdx),
                     phase = HostTripPhase.DRIVING_TO_STOP,
                 )
             }
@@ -309,6 +321,28 @@ class HostTripViewModel(
             // All stops visited, on the way to destination
             setState { copy(phase = HostTripPhase.EN_ROUTE) }
         }
+    }
+
+    /**
+     * While driving to a pickup whose riders are all on board (the screen was reopened mid-trip), move on to
+     * the next pickup with someone to board, or to the destination.
+     */
+    private fun skipEmptyPickup() {
+        val st = state.value
+        // Both the ride (its stops) and the bookings must be in before the pickups can be judged.
+        if (st.phase != HostTripPhase.DRIVING_TO_STOP || st.ride == null || st.bookings.isEmpty()) return
+        when (val next = st.nextPickupIndex(st.currentStopIndex)) {
+            null -> setState { copy(phase = HostTripPhase.EN_ROUTE) }
+            st.currentStopIndex -> Unit
+            else -> setState { copy(currentStopIndex = next, currentStopName = pickupName(next)) }
+        }
+    }
+
+    /** The English name (else Arabic) of pickup [index]: 0 is the start point, then the stops. */
+    private fun pickupName(index: Int): String {
+        val r = state.value.ride ?: return ""
+        val name = if (index == 0) r.fromPointName else r.stops.getOrNull(index - 1)?.pointName
+        return name?.let { it.en.ifBlank { it.ar } }.orEmpty()
     }
 
     private fun finishTrip() {

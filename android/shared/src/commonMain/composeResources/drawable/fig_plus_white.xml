@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Converted from the iOS design icons (DesignSpecs). Tinted where it is drawn. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="18dp"
+    android:height="18dp"
+    android:viewportWidth="18"
+    android:viewportHeight="18">
+    <group android:translateX="3.75" android:translateY="3.75">
+        <path android:fillColor="#FF000000" android:pathData="M0 4.25C-0.552285 4.25 -1 4.69772 -1 5.25C-1 5.80228 -0.552285 6.25 0 6.25L0 5.25L0 4.25ZM10.5 6.25C11.0523 6.25 11.5 5.80228 11.5 5.25C11.5 4.69772 11.0523 4.25 10.5 4.25L10.5 5.25L10.5 6.25ZM6.25 0C6.25 -0.552285 5.80228 -1 5.25 -1C4.69772 -1 4.25 -0.552285 4.25 0L5.25 0L6.25 0ZM4.25 10.5C4.25 11.0523 4.69772 11.5 5.25 11.5C5.80228 11.5 6.25 11.0523 6.25 10.5L5.25 10.5L4.25 10.5ZM0 5.25L0 6.25L10.5 6.25L10.5 5.25L10.5 4.25L0 4.25L0 5.25ZM5.25 0L4.25 0L4.25 10.5L5.25 10.5L6.25 10.5L6.25 0L5.25 0Z" />
+    </group>
+</vector>

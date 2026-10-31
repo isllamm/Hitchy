@@ -228,7 +228,7 @@
     <string name="welcome_owner_subtitle">I have a car</string>
     <string name="welcome_continue">Continue</string>
     <string name="welcome_how_it_works">How Hitchy works</string>
-    <string name="phone_entry_title">What’s your number?</string>
+    <string name="phone_entry_title">Welcome Back!</string>
     <string name="phone_entry_privacy_note">Your number stays private until you accept a ride.</string>
     <string name="otp_verify_subtitle">Enter the code sent to %1$s</string>
     <string name="otp_resend_in">Resend code in %1$s</string>
@@ -359,7 +359,7 @@
     <string name="rides_tab_role_rider_badge">Rider · %1$d seats</string>
     <string name="rides_tab_role_owner_badge">Owner · %1$d/%2$d booked</string>
     <string name="inbox_title">Notifications</string>
-    <string name="inbox_mark_all_read">Mark all read</string>
+    <string name="inbox_mark_all_read">Mark all as read</string>
     <string name="inbox_empty_title">You're all caught up</string>
     <string name="inbox_empty_body">Updates about your bookings and trips will show up here.</string>
     <string name="profile_tab_title">My Profile</string>
@@ -475,7 +475,149 @@
     <string name="inbox_tab_account">Account</string>
     <string name="inbox_new">New</string>
     <string name="inbox_just_now">Just now</string>
-    <string name="inbox_minutes_ago">%1$d min ago</string>
-    <string name="inbox_hours_ago">%1$d hr ago</string>
+    <string name="inbox_minutes_ago">%1$dm</string>
+    <string name="inbox_hours_ago">%1$dh</string>
     <string name="bk_verified_short">Verified</string>
+    <string name="owner_home_welcome">Welcome back,</string>
+    <string name="owner_home_month_earnings">%1$s earnings</string>
+    <string name="owner_home_currency">EGP</string>
+    <string name="owner_home_view_details">View details</string>
+    <string name="owner_home_month_seats">Fuel contributions from %1$d seats this month</string>
+    <string name="owner_home_stat_points">Points rewards</string>
+    <string name="owner_home_stat_requests">New requests</string>
+    <string name="owner_home_stat_rides">Your rides</string>
+    <string name="owner_home_stat_seats">Booked seats</string>
+    <string name="owner_home_quick_actions">Quick actions</string>
+    <string name="owner_home_action_add">Add a ride</string>
+    <string name="owner_home_action_requests">Requests</string>
+    <string name="owner_home_action_request_ride">Request a ride</string>
+    <string name="owner_home_action_earnings">Earnings</string>
+    <string name="nav_add_ride">Add ride</string>
+    <string-array name="owner_home_months_full">
+        <item>January</item>
+        <item>February</item>
+        <item>March</item>
+        <item>April</item>
+        <item>May</item>
+        <item>June</item>
+        <item>July</item>
+        <item>August</item>
+        <item>September</item>
+        <item>October</item>
+        <item>November</item>
+        <item>December</item>
+    </string-array>
+    <string name="offer_title_route">Post your commute</string>
+    <string name="offer_title_review">Review and publish</string>
+    <string name="offer_step_route">Step 1 of 2 · Route and schedule</string>
+    <string name="offer_step_review">Step 2 of 2 · Price and review</string>
+    <string name="offer_from">From</string>
+    <string name="offer_to">To</string>
+    <string name="offer_from_placeholder">Where are you starting from?</string>
+    <string name="offer_to_placeholder">Where are you driving to?</string>
+    <string name="offer_stop_placeholder">Choose a pickup stop</string>
+    <string name="offer_leave_at">Leave home at</string>
+    <string name="offer_seats_title">Seats you offer</string>
+    <string name="offer_seats_max">Max %1$d seats</string>
+    <string name="offer_continue">Continue</string>
+    <string name="offer_rider_pays">EACH RIDER PAYS YOU</string>
+    <string name="offer_fair_price">Fair price</string>
+    <string name="offer_currency">EGP</string>
+    <string name="offer_per_seat">/ seat</string>
+    <string name="offer_per_seat_peak">/ seat · peak</string>
+    <string name="offer_min">Min</string>
+    <string name="offer_recommended">Recommended</string>
+    <string name="offer_max">Max</string>
+    <string name="offer_recommended_per_seat">Recommended per seat</string>
+    <string name="offer_fuel">Fuel</string>
+    <string name="offer_running_cost">Running cost</string>
+    <string name="offer_trip_cost_split">Trip cost / %1$d seats</string>
+    <string name="offer_trip_cost_value">EGP %1$d / %2$d</string>
+    <string name="offer_full_car_covers">Full car: you collect EGP %1$d, all your trip costs.</string>
+    <string name="offer_full_car">Full car: you collect EGP %1$d.</string>
+    <string name="offer_your_commute">Your commute</string>
+    <string name="offer_edit">Edit</string>
+    <string name="offer_start">Start</string>
+    <string name="offer_drop_off">Drop-off</string>
+    <string name="offer_stop">Stop %1$d</string>
+    <string name="offer_seats_open">%1$d seats open</string>
+    <string name="offer_women_only_tag">Women only</string>
+    <string name="offer_publish">Publish my commute</string>
+    <string name="offer_live_title">Your commute is live</string>
+    <string name="offer_live_body">We will notify you when a rider requests a seat. You approve every request.</string>
+    <string name="offer_invite_title">Fill your seats faster</string>
+    <string name="offer_invite_body">Invite colleagues who drive or ride the same way. People you know join faster, and you ride with people you trust.</string>
+    <string name="offer_invite_button">Share invite link</string>
+    <string name="offer_invite_text">Ride with me on Hitchy. Join with my code %1$s.</string>
+    <string name="offer_go_to_rides">Go to my rides</string>
+    <string name="offer_wheel_am">AM</string>
+    <string name="offer_wheel_pm">PM</string>
+    <string name="owner_review_requests">Review %1$d requests</string>
+    <string name="owner_cancel_title">Cancel this ride?</string>
+    <string name="owner_cancel_sick">I'm sick</string>
+    <string name="owner_cancel_car_problem">Car problem</string>
+    <string name="owner_keep_ride">Keep my ride</string>
+    <string name="owner_seats_open_count">%1$d seats open</string>
+    <string name="owner_requests_waiting">%1$d requests waiting</string>
+    <string name="owner_review_one_request">Review 1 request</string>
+    <string name="owner_one_request_waiting">1 request waiting</string>
+    <string name="owner_one_seat_open">1 seat open</string>
+    <string name="owner_one_rider">1 rider</string>
+    <string name="profile_identity_verified">Identity verified</string>
+    <string name="profile_edit">Edit Profile</string>
+    <string name="profile_stat_rides">Rides</string>
+    <string name="profile_stat_mode">Mode</string>
+    <string name="profile_info_home_area">Home area</string>
+    <string name="profile_info_commute">Commute destination</string>
+    <string name="profile_not_set">Not set</string>
+    <string name="profile_travel_safely">Travel safely</string>
+    <string name="profile_travel_safely_sub">Review our safety guidance</string>
+    <string name="profile_menu_my_rides">My Rides</string>
+    <string name="profile_menu_saved_places">Saved Places</string>
+    <string name="profile_menu_help">Help &amp; Support</string>
+    <string name="profile_wallet_amount">%1$d EGP</string>
+    <string name="profile_logout">Logout</string>
+    <string name="profile_section_info">My Information</string>
+    <string name="profile_personal_info">Personal Information</string>
+    <string name="profile_language">Language</string>
+    <string name="profile_section_support">Support</string>
+    <string name="profile_about">About Hitchy</string>
+    <string name="profile_terms">Terms &amp; Privacy Policy</string>
+    <string name="profile_rating_rides">%1$s · %2$d rides</string>
+    <string name="owner_home_seat_payments">%1$s · seat payments</string>
+    <string name="owner_home_view_earnings">View earnings</string>
+    <string name="owner_home_fuel_covered">%1$s of your fuel covered · %2$d seats on %3$d trips</string>
+    <string name="owner_home_free_month">Free month</string>
+    <string name="owner_home_days_left">%1$d days left</string>
+    <string name="owner_home_free_until">Trips are free until %1$s</string>
+    <string name="owner_home_pts">Pts</string>
+    <string name="owner_home_points_tier">Points · %1$s</string>
+    <string name="owner_home_reply_by">reply by %1$s</string>
+    <string name="owner_home_next_ride">%1$s %2$s</string>
+    <string name="owner_home_welcome_name">Welcome, %1$s</string>
+    <string name="owner_home_setup_body">Three quick steps and your car is ready to share.</string>
+    <string name="owner_setup_car">Your car</string>
+    <string name="owner_setup_car_sub">%1$s · added at sign-up</string>
+    <string name="owner_setup_done">Done</string>
+    <string name="owner_setup_next">Next</string>
+    <string name="owner_setup_workplace">Your workplace</string>
+    <string name="owner_setup_workplace_sub">Optional · colleagues see you first</string>
+    <string name="owner_setup_commute">Your daily commute</string>
+    <string name="owner_setup_commute_sub">Route, days and time</string>
+    <string name="owner_setup_package">Price and package</string>
+    <string name="owner_setup_package_sub">Month 1 is free</string>
+    <string name="shop_title_word">Shop</string>
+    <string name="shop_subtitle">Something exciting is on the way.</string>
+    <string name="shop_coming_soon">Coming Soon</string>
+    <string name="shop_coming_body">We’re preparing something special to make every journey even better.</string>
+    <string name="signup_title">Create Your Account</string>
+    <string name="signup_subtitle">Join Hitchy and make your daily commute easier</string>
+    <string name="signup_name_label">Full name as on your ID</string>
+    <string name="signup_name_placeholder">Your full name</string>
+    <string name="signup_have_account">Already have an account? %1$s</string>
+    <string name="signup_login_link">Log In</string>
+    <string name="inbox_today">TODAY</string>
+    <string name="inbox_earlier">EARLIER</string>
+    <string name="bk_card_walk">%1$s · %2$d m walk</string>
+    <string name="rides_tab_role_rider_one">Rider · 1 seat</string>
 </resources>

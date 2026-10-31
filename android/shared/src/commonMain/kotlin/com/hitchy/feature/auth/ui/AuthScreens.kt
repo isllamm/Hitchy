@@ -27,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +45,7 @@ import com.hitchy.core.ui.components.AppRoleType
 import com.hitchy.core.ui.components.BackButton
 import com.hitchy.core.ui.components.BackButtonStyle
 import com.hitchy.core.ui.components.HitchyButton
+import com.hitchy.core.ui.components.IdentityField
 import com.hitchy.core.ui.components.OtpField
 import com.hitchy.core.ui.components.PhoneField
 import com.hitchy.core.ui.components.RoleCard
@@ -53,6 +55,7 @@ import com.hitchy.core.ui.icon.HitchyIcons
 import com.hitchy.core.ui.message
 import com.hitchy.core.ui.theme.HitchyTheme
 import com.hitchy.core.ui.withLinks
+import com.hitchy.feature.auth.domain.SignUpNameHolder
 import com.hitchy.feature.auth.presentation.OtpVerifyAction
 import com.hitchy.feature.auth.presentation.OtpVerifyEvent
 import com.hitchy.feature.auth.presentation.OtpVerifyViewModel
@@ -64,6 +67,7 @@ import hitchy.shared.generated.resources.img_brand_logo
 import hitchy.shared.generated.resources.img_onboarding_1
 import hitchy.shared.generated.resources.img_onboarding_2
 import hitchy.shared.generated.resources.img_onboarding_3
+import hitchy.shared.generated.resources.img_signin_logo
 import hitchy.shared.generated.resources.onboarding_body_1
 import hitchy.shared.generated.resources.onboarding_body_2
 import hitchy.shared.generated.resources.onboarding_body_3
@@ -91,6 +95,12 @@ import hitchy.shared.generated.resources.phone_entry_subtitle
 import hitchy.shared.generated.resources.phone_entry_terms
 import hitchy.shared.generated.resources.phone_entry_terms_link
 import hitchy.shared.generated.resources.phone_entry_title
+import hitchy.shared.generated.resources.signup_have_account
+import hitchy.shared.generated.resources.signup_login_link
+import hitchy.shared.generated.resources.signup_name_label
+import hitchy.shared.generated.resources.signup_name_placeholder
+import hitchy.shared.generated.resources.signup_subtitle
+import hitchy.shared.generated.resources.signup_title
 import hitchy.shared.generated.resources.splash_logo_description
 import hitchy.shared.generated.resources.welcome_continue
 import hitchy.shared.generated.resources.welcome_safety_note
@@ -98,6 +108,7 @@ import hitchy.shared.generated.resources.welcome_subtitle
 import hitchy.shared.generated.resources.welcome_title
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
@@ -358,8 +369,14 @@ fun PhoneEntryScreen(
     onNavigateToOtp: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PhoneEntryViewModel = koinViewModel(),
+    signUpNameHolder: SignUpNameHolder = koinInject(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    // Figma 828:15720 Sign in and 828:15816 Sign up share this screen; the link under the notice switches.
+    var signUp by rememberSaveable { mutableStateOf(false) }
+    var fullName by rememberSaveable { mutableStateOf(signUpNameHolder.fullName) }
+    val subtitleRes = if (signUp) Res.string.signup_subtitle else Res.string.phone_entry_subtitle
+    val linkRes = if (signUp) Res.string.signup_login_link else Res.string.phone_entry_create_account_link
     val colors = HitchyTheme.colors
     val typography = HitchyTheme.typography
     val spacing = HitchyTheme.spacing
@@ -402,32 +419,59 @@ fun PhoneEntryScreen(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalArrangement = Arrangement.spacedBy(spacing.space32),
                             ) {
-                                Column(verticalArrangement = Arrangement.spacedBy(spacing.space24)) {
+                                Column {
                                     BackButton(
-                                        onClick = onBack,
+                                        onClick = { if (signUp) signUp = false else onBack() },
                                         style = BackButtonStyle.OutlinedCircle,
                                         modifier = Modifier.size(44.dp),
                                     )
-                                    Column(verticalArrangement = Arrangement.spacedBy(spacing.space8)) {
+                                    // Figma: the 170x68 logo 13dp under the back button, the heading 17dp under it.
+                                    Image(
+                                        painter = painterResource(Res.drawable.img_signin_logo),
+                                        contentDescription = null,
+                                        modifier = Modifier.padding(top = 13.dp).size(width = 170.dp, height = 68.dp),
+                                    )
+                                    Column(
+                                        modifier = Modifier.padding(top = 17.dp),
+                                        verticalArrangement = Arrangement.spacedBy(spacing.space8),
+                                    ) {
                                         Text(
-                                            text = stringResource(Res.string.phone_entry_title),
+                                            text = stringResource(
+                                                if (signUp) Res.string.signup_title else Res.string.phone_entry_title,
+                                            ),
                                             style = typography.h1,
                                             color = colors.navy,
                                         )
                                         Text(
-                                            text = stringResource(Res.string.phone_entry_subtitle),
+                                            text = stringResource(
+                                                subtitleRes,
+                                            ),
                                             style = typography.body,
                                             color = colors.textSecondary,
                                         )
                                     }
                                 }
 
-                                PhoneField(
-                                    value = state.phoneInput,
-                                    onValueChange = { viewModel.onAction(PhoneEntryAction.UpdatePhone(it)) },
-                                    // The field's own error line carries Figma's copy for a bad number.
-                                    isError = state.error != null,
-                                )
+                                Column(verticalArrangement = Arrangement.spacedBy(spacing.space16)) {
+                                    if (signUp) {
+                                        IdentityField(
+                                            value = fullName,
+                                            onValueChange = {
+                                                fullName = it
+                                                signUpNameHolder.fullName = it
+                                            },
+                                            label = stringResource(Res.string.signup_name_label),
+                                            placeholder = stringResource(Res.string.signup_name_placeholder),
+                                        )
+                                    }
+
+                                    PhoneField(
+                                        value = state.phoneInput,
+                                        onValueChange = { viewModel.onAction(PhoneEntryAction.UpdatePhone(it)) },
+                                        // The field's own error line carries Figma's copy for a bad number.
+                                        isError = state.error != null,
+                                    )
+                                }
                             }
 
                             HitchyButton(
@@ -445,13 +489,20 @@ fun PhoneEntryScreen(
 
                     Text(
                         text = withLinks(
-                            template = stringResource(Res.string.phone_entry_create_account),
-                            links = listOf(stringResource(Res.string.phone_entry_create_account_link)),
-                            linkStyle = SpanStyle(fontWeight = FontWeight.Bold, color = colors.purple),
+                            template = stringResource(
+                                if (signUp) Res.string.signup_have_account else Res.string.phone_entry_create_account,
+                            ),
+                            links = listOf(
+                                stringResource(
+                                    linkRes,
+                                ),
+                            ),
+                            linkStyle = SpanStyle(fontWeight = FontWeight.Bold, color = colors.violet),
                         ),
                         style = typography.body,
                         color = colors.navy,
                         textAlign = TextAlign.Center,
+                        modifier = Modifier.clip(RoundedCornerShape(8.dp)).clickable { signUp = !signUp },
                     )
                 }
             }

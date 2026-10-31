@@ -228,7 +228,7 @@
     <string name="welcome_owner_subtitle">عندي عربية</string>
     <string name="welcome_continue">متابعة</string>
     <string name="welcome_how_it_works">إزاي هيتشي بيشتغل</string>
-    <string name="phone_entry_title">إيه رقمك؟</string>
+    <string name="phone_entry_title">أهلاً بعودتك!</string>
     <string name="phone_entry_privacy_note">رقمك يفضل خاص لحد ما تقبل مشوار.</string>
     <string name="otp_verify_subtitle">اكتب الكود المرسل إلى %1$s</string>
     <string name="otp_resend_in">إعادة إرسال الكود بعد %1$s</string>
@@ -359,7 +359,7 @@
     <string name="rides_tab_role_rider_badge">راكب · %1$d كراسي</string>
     <string name="rides_tab_role_owner_badge">صاحب عربية · %1$d/%2$d محجوز</string>
     <string name="inbox_title">الإشعارات</string>
-    <string name="inbox_mark_all_read">تحديد الكل كمقروء</string>
+    <string name="inbox_mark_all_read">اعتبر الكل مقروء</string>
     <string name="inbox_empty_title">لا توجد إشعارات جديدة</string>
     <string name="inbox_empty_body">تحديثات حجوزاتك ورحلاتك هتظهر هنا.</string>
     <string name="profile_tab_title">حسابي</string>
@@ -475,7 +475,149 @@
     <string name="inbox_tab_account">الحساب</string>
     <string name="inbox_new">جديد</string>
     <string name="inbox_just_now">دلوقتي</string>
-    <string name="inbox_minutes_ago">من %1$d دقيقة</string>
-    <string name="inbox_hours_ago">من %1$d ساعة</string>
+    <string name="inbox_minutes_ago">%1$d د</string>
+    <string name="inbox_hours_ago">%1$d س</string>
     <string name="bk_verified_short">موثّق</string>
+    <string name="owner_home_welcome">أهلاً بعودتك،</string>
+    <string name="owner_home_month_earnings">أرباح %1$s</string>
+    <string name="owner_home_currency">ج.م</string>
+    <string name="owner_home_view_details">عرض التفاصيل</string>
+    <string name="owner_home_month_seats">مساهمات وقود من %1$d كرسي هذا الشهر</string>
+    <string name="owner_home_stat_points">نقاط المكافآت</string>
+    <string name="owner_home_stat_requests">طلبات جديدة</string>
+    <string name="owner_home_stat_rides">رحلاتك</string>
+    <string name="owner_home_stat_seats">الكراسي المحجوزة</string>
+    <string name="owner_home_quick_actions">إجراءات سريعة</string>
+    <string name="owner_home_action_add">أضف رحلة</string>
+    <string name="owner_home_action_requests">الطلبات</string>
+    <string name="owner_home_action_request_ride">اطلب رحلة</string>
+    <string name="owner_home_action_earnings">الأرباح</string>
+    <string name="nav_add_ride">أضف رحلة</string>
+    <string-array name="owner_home_months_full">
+        <item>يناير</item>
+        <item>فبراير</item>
+        <item>مارس</item>
+        <item>أبريل</item>
+        <item>مايو</item>
+        <item>يونيو</item>
+        <item>يوليو</item>
+        <item>أغسطس</item>
+        <item>سبتمبر</item>
+        <item>أكتوبر</item>
+        <item>نوفمبر</item>
+        <item>ديسمبر</item>
+    </string-array>
+    <string name="offer_title_route">انشر مشوارك</string>
+    <string name="offer_title_review">راجع وانشر</string>
+    <string name="offer_step_route">الخطوة 1 من 2 · المسار والموعد</string>
+    <string name="offer_step_review">الخطوة 2 من 2 · السعر والمراجعة</string>
+    <string name="offer_from">من</string>
+    <string name="offer_to">إلى</string>
+    <string name="offer_from_placeholder">هتبدأ منين؟</string>
+    <string name="offer_to_placeholder">رايح فين؟</string>
+    <string name="offer_stop_placeholder">اختار نقطة توقف</string>
+    <string name="offer_leave_at">هتتحرك الساعة</string>
+    <string name="offer_seats_title">الكراسي اللي هتعرضها</string>
+    <string name="offer_seats_max">أقصى عدد %1$d كراسي</string>
+    <string name="offer_continue">متابعة</string>
+    <string name="offer_rider_pays">كل راكب هيدفعلك</string>
+    <string name="offer_fair_price">سعر عادل</string>
+    <string name="offer_currency">ج.م</string>
+    <string name="offer_per_seat">/ كرسي</string>
+    <string name="offer_per_seat_peak">/ كرسي · وقت الذروة</string>
+    <string name="offer_min">الأقل</string>
+    <string name="offer_recommended">المقترح</string>
+    <string name="offer_max">الأعلى</string>
+    <string name="offer_recommended_per_seat">السعر المقترح للكرسي</string>
+    <string name="offer_fuel">البنزين</string>
+    <string name="offer_running_cost">تكلفة التشغيل</string>
+    <string name="offer_trip_cost_split">تكلفة المشوار / %1$d كراسي</string>
+    <string name="offer_trip_cost_value">%1$d ج.م / %2$d</string>
+    <string name="offer_full_car_covers">العربية لو اتملت: هتجمع %1$d ج.م، كل تكلفة مشوارك.</string>
+    <string name="offer_full_car">العربية لو اتملت: هتجمع %1$d ج.م.</string>
+    <string name="offer_your_commute">مشوارك</string>
+    <string name="offer_edit">تعديل</string>
+    <string name="offer_start">البداية</string>
+    <string name="offer_drop_off">النزول</string>
+    <string name="offer_stop">توقف %1$d</string>
+    <string name="offer_seats_open">%1$d كراسي متاحة</string>
+    <string name="offer_women_only_tag">للسيدات فقط</string>
+    <string name="offer_publish">انشر مشواري</string>
+    <string name="offer_live_title">مشوارك اتنشر</string>
+    <string name="offer_live_body">هنبلغك لما راكب يطلب كرسي. وإنت بتوافق على كل طلب.</string>
+    <string name="offer_invite_title">املا كراسيك أسرع</string>
+    <string name="offer_invite_body">ادعي زمايلك اللي بيسوقوا أو بيركبوا نفس الطريق. اللي تعرفهم بينضموا أسرع، وبتركب مع ناس بتثق فيهم.</string>
+    <string name="offer_invite_button">شارك رابط الدعوة</string>
+    <string name="offer_invite_text">اركب معايا على Hitchy. ادخل بالكود بتاعي %1$s.</string>
+    <string name="offer_go_to_rides">روح لرحلاتي</string>
+    <string name="offer_wheel_am">ص</string>
+    <string name="offer_wheel_pm">م</string>
+    <string name="owner_review_requests">راجع %1$d طلبات</string>
+    <string name="owner_cancel_title">تلغي الرحلة دي؟</string>
+    <string name="owner_cancel_sick">تعبان</string>
+    <string name="owner_cancel_car_problem">مشكلة في العربية</string>
+    <string name="owner_keep_ride">خلّي الرحلة</string>
+    <string name="owner_seats_open_count">%1$d كراسي فاضية</string>
+    <string name="owner_requests_waiting">%1$d طلبات مستنية</string>
+    <string name="owner_review_one_request">راجع الطلب</string>
+    <string name="owner_one_request_waiting">طلب واحد مستني</string>
+    <string name="owner_one_seat_open">كرسي واحد فاضي</string>
+    <string name="owner_one_rider">راكب واحد</string>
+    <string name="profile_identity_verified">الهوية متحققة</string>
+    <string name="profile_edit">تعديل الملف</string>
+    <string name="profile_stat_rides">رحلات</string>
+    <string name="profile_stat_mode">الوضع</string>
+    <string name="profile_info_home_area">منطقة السكن</string>
+    <string name="profile_info_commute">وجهة المشوار</string>
+    <string name="profile_not_set">غير محدد</string>
+    <string name="profile_travel_safely">اركب بأمان</string>
+    <string name="profile_travel_safely_sub">اطّلع على إرشادات الأمان</string>
+    <string name="profile_menu_my_rides">رحلاتي</string>
+    <string name="profile_menu_saved_places">الأماكن المحفوظة</string>
+    <string name="profile_menu_help">المساعدة والدعم</string>
+    <string name="profile_wallet_amount">%1$d ج.م</string>
+    <string name="profile_logout">تسجيل الخروج</string>
+    <string name="profile_section_info">معلوماتي</string>
+    <string name="profile_personal_info">البيانات الشخصية</string>
+    <string name="profile_language">اللغة</string>
+    <string name="profile_section_support">الدعم</string>
+    <string name="profile_about">عن Hitchy</string>
+    <string name="profile_terms">الشروط وسياسة الخصوصية</string>
+    <string name="profile_rating_rides">%1$s · %2$d رحلة</string>
+    <string name="owner_home_seat_payments">%1$s · مدفوعات الكراسي</string>
+    <string name="owner_home_view_earnings">عرض الأرباح</string>
+    <string name="owner_home_fuel_covered">%1$s من بنزينك اتغطى · %2$d كرسي في %3$d مشوار</string>
+    <string name="owner_home_free_month">شهر مجاني</string>
+    <string name="owner_home_days_left">باقي %1$d يوم</string>
+    <string name="owner_home_free_until">المشاوير مجانية لحد %1$s</string>
+    <string name="owner_home_pts">نقطة</string>
+    <string name="owner_home_points_tier">النقاط · %1$s</string>
+    <string name="owner_home_reply_by">رد قبل %1$s</string>
+    <string name="owner_home_next_ride">%1$s %2$s</string>
+    <string name="owner_home_welcome_name">أهلاً، %1$s</string>
+    <string name="owner_home_setup_body">تلات خطوات سريعة وعربيتك تبقى جاهزة للمشاركة.</string>
+    <string name="owner_setup_car">عربيتك</string>
+    <string name="owner_setup_car_sub">%1$s · اتضافت وقت التسجيل</string>
+    <string name="owner_setup_done">تم</string>
+    <string name="owner_setup_next">التالي</string>
+    <string name="owner_setup_workplace">مكان شغلك</string>
+    <string name="owner_setup_workplace_sub">اختياري · زمايلك يشوفوك الأول</string>
+    <string name="owner_setup_commute">مشوارك اليومي</string>
+    <string name="owner_setup_commute_sub">الطريق والأيام والوقت</string>
+    <string name="owner_setup_package">السعر والباقة</string>
+    <string name="owner_setup_package_sub">أول شهر مجاني</string>
+    <string name="shop_title_word">المتجر</string>
+    <string name="shop_subtitle">فيه حاجة حلوة جاية في الطريق.</string>
+    <string name="shop_coming_soon">قريباً</string>
+    <string name="shop_coming_body">بنجهز حاجة مميزة علشان كل مشوار يبقى أحلى.</string>
+    <string name="signup_title">أنشئ حسابك</string>
+    <string name="signup_subtitle">انضم لـ Hitchy وخلّي مشوارك اليومي أسهل</string>
+    <string name="signup_name_label">الاسم كامل زي البطاقة</string>
+    <string name="signup_name_placeholder">اسمك بالكامل</string>
+    <string name="signup_have_account">عندك حساب؟ %1$s</string>
+    <string name="signup_login_link">سجّل دخول</string>
+    <string name="inbox_today">النهارده</string>
+    <string name="inbox_earlier">قبل كده</string>
+    <string name="bk_card_walk">%1$s · %2$d م مشي</string>
+    <string name="rides_tab_role_rider_one">راكب · كرسي واحد</string>
 </resources>
