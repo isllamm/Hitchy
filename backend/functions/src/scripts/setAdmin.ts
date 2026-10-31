@@ -45,7 +45,7 @@ export function validateSetAdminTarget(
     };
   }
 
-  if (normalized === "dev" || normalized === "hitchy-dev") {
+  if (normalized === "dev" || normalized === "hitchy-bb4f9") {
     if (process.env["FIRESTORE_EMULATOR_HOST"] || process.env["FIREBASE_AUTH_EMULATOR_HOST"]) {
       throw new Error(
         "Refusing to run set-admin on dev project with emulator environment variables set.",
@@ -55,7 +55,7 @@ export function validateSetAdminTarget(
       isDev: true,
       isProd: false,
       isEmulator: false,
-      targetProject: "hitchy-dev",
+      targetProject: "hitchy-bb4f9",
     };
   }
 

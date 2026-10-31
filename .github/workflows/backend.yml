@@ -90,7 +90,7 @@ jobs:
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
       # npx uses the firebase-tools version pinned in backend/functions; it finds ../firebase.json.
       - if: steps.secrets.outputs.ok == 'true'
-        run: npx firebase-tools deploy --only functions,firestore,storage --project hitchy-dev --non-interactive
+        run: npx firebase-tools deploy --only functions,firestore,storage --project hitchy-bb4f9 --non-interactive
 
   deploy-prod:
     needs: test

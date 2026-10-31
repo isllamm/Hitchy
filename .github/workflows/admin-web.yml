@@ -110,7 +110,7 @@ jobs:
           workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
       - if: steps.secrets.outputs.ok == 'true'
-        run: npx firebase-tools deploy --only hosting:admin --project hitchy-dev --non-interactive
+        run: npx firebase-tools deploy --only hosting:admin --project hitchy-bb4f9 --non-interactive
         working-directory: backend/functions
 
   deploy-prod:

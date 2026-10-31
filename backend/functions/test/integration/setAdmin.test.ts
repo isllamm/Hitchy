@@ -53,7 +53,7 @@ describe("validateSetAdminTarget", () => {
     expect(() => validateSetAdminTarget("dev")).toThrow(
       /Refusing to run set-admin on dev project with emulator environment variables set/,
     );
-    expect(() => validateSetAdminTarget("hitchy-dev")).toThrow(
+    expect(() => validateSetAdminTarget("hitchy-bb4f9")).toThrow(
       /Refusing to run set-admin on dev project with emulator environment variables set/,
     );
   });
@@ -69,13 +69,13 @@ describe("validateSetAdminTarget", () => {
         isDev: true,
         isProd: false,
         isEmulator: false,
-        targetProject: "hitchy-dev",
+        targetProject: "hitchy-bb4f9",
       });
-      expect(validateSetAdminTarget("hitchy-dev")).toEqual({
+      expect(validateSetAdminTarget("hitchy-bb4f9")).toEqual({
         isDev: true,
         isProd: false,
         isEmulator: false,
-        targetProject: "hitchy-dev",
+        targetProject: "hitchy-bb4f9",
       });
     } finally {
       process.env["FIRESTORE_EMULATOR_HOST"] = savedFirestore;
