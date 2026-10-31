@@ -71,10 +71,12 @@ internal fun riderDisplayName(names: Map<String, String>, uid: String): String {
 }
 
 /** The rider the owner is dealing with now: the one picked in the list, else the first who is not on board. */
-internal fun currentRider(bookings: List<Booking>, selectedUid: String?): Booking? {
+internal fun currentRider(bookings: List<Booking>, selectedUid: String?, pickupId: String? = null): Booking? {
     val picked = bookings.firstOrNull { it.riderUid == selectedUid && it.boardedAt == null }
     if (picked != null) return picked
-    return bookings.firstOrNull { it.boardedAt == null }
+    // The rider waiting at this pickup comes first, then anyone not on board yet.
+    return bookings.firstOrNull { it.boardedAt == null && it.pickupId == pickupId }
+        ?: bookings.firstOrNull { it.boardedAt == null }
 }
 
 internal enum class PillTone { Success, Warning, Info }

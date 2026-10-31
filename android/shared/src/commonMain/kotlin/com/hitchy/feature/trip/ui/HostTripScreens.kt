@@ -107,7 +107,7 @@ fun HostTripScreen(
         viewModel.onAction(HostTripAction.Init(rideId))
     }
 
-    val current = currentRider(state.bookings, selectedUid)
+    val current = currentRider(state.bookings, selectedUid, state.currentPickupId)
     Box(modifier = modifier.fillMaxSize().background(HitchyTheme.colors.background)) {
         HitchyMap(
             pins = tripPins(state.ride),
@@ -298,7 +298,13 @@ private fun headline(
 }
 
 private fun currentStopName(state: HostTripState, language: AppLanguage): String {
-    val stopName = state.ride?.stops?.getOrNull(state.currentStopIndex)?.pointName?.resolve(language)
+    val ride = state.ride
+    val point = if (state.currentStopIndex == 0) {
+        ride?.fromPointName
+    } else {
+        ride?.stops?.getOrNull(state.currentStopIndex - 1)?.pointName
+    }
+    val stopName = point?.resolve(language)
     return stopName?.takeIf { it.isNotBlank() } ?: state.currentStopName
 }
 
