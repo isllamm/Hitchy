@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -41,6 +42,8 @@ import com.hitchy.core.platform.LanguageSwitcher
 import com.hitchy.core.ui.components.BackButton
 import com.hitchy.core.ui.components.BackButtonStyle
 import com.hitchy.core.ui.components.HitchyButton
+import com.hitchy.core.ui.components.Skeleton
+import com.hitchy.core.ui.components.SkeletonListRow
 import com.hitchy.core.ui.figmaBottom
 import com.hitchy.core.ui.figmaShadow
 import com.hitchy.core.ui.figmaTop
@@ -120,7 +123,9 @@ fun RoutePickerScreen(
 
     Surface(modifier = modifier.fillMaxSize(), color = colors.white) {
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+            // The app draws edge to edge, so the window no longer shrinks for the keyboard: without imePadding
+            // the last points sit under the keyboard and the list cannot scroll up to them.
+            modifier = Modifier.fillMaxSize().imePadding(),
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = figmaTop(CONTENT_TOP), bottom = 24.dp),
         ) {
             item {
@@ -178,6 +183,13 @@ fun RoutePickerScreen(
                     modifier = Modifier.padding(top = 16.dp),
                 )
             }
+            if (!state.pointsLoaded) {
+                item {
+                    Skeleton(modifier = Modifier.padding(top = 8.dp)) {
+                        repeat(SKELETON_ROWS) { SkeletonListRow(titleWidth = 180.dp) }
+                    }
+                }
+            }
             // Point ids repeat across zones ("p1" in each), so the key carries the zone too.
             items(state.filteredPoints, key = { "${it.zoneId}/${it.id}" }) { point ->
                 LocationRow(
@@ -192,6 +204,7 @@ fun RoutePickerScreen(
 }
 
 private val CONTENT_TOP = 60.dp
+private const val SKELETON_ROWS = 5
 private val FieldShape = RoundedCornerShape(12.dp)
 private val CardShape = RoundedCornerShape(16.dp)
 
