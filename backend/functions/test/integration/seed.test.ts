@@ -1,5 +1,6 @@
 import { getApps, initializeApp } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
+import { getStorage } from "firebase-admin/storage";
 import { getFirestore } from "firebase-admin/firestore";
 import { beforeAll, describe, expect, it } from "vitest";
 import type {
@@ -86,11 +87,12 @@ describe("runSeed on emulator", () => {
       points: 12,
       routes: 2,
       companies: 2,
-      users: 6,
-      vehicles: 2,
-      kyc: 2,
-      wallets: 6,
-      profiles: 6,
+      users: 12,
+      vehicles: 5,
+      kyc: 5,
+      wallets: 12,
+      profiles: 12,
+      avatars: 11,
     });
 
     // Check config documents
@@ -125,6 +127,17 @@ describe("runSeed on emulator", () => {
     const userData = userSnap.data() as UserDoc;
     expect(userData.host.status).toBe("approved");
     expect(userData.host.verified).toBe(true);
+
+    // The demo owner has a name and an avatar file in Storage that photoPath points at.
+    expect(userData.firstName).toBe("Ahmed");
+    expect(userData.photoPath).toBe("avatars/host-test-uid.jpg");
+    const [avatarExists] = await getStorage(app)
+      .bucket("demo-hitchy.appspot.com")
+      .file("avatars/host-test-uid.jpg")
+      .exists();
+    expect(avatarExists).toBe(true);
+    const adminProfile = await db.doc("profiles/admin-test-uid").get();
+    expect((adminProfile.data() as { photoPath: string | null }).photoPath).toBeNull();
 
     const vehicleSnap = await db.doc("users/host-test-uid/vehicles/vehicle-host-1").get();
     expect(vehicleSnap.exists).toBe(true);

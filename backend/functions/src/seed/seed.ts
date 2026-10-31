@@ -1,7 +1,8 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { getApps, initializeApp, type App } from "firebase-admin/app";
 import { getAuth, type Auth } from "firebase-admin/auth";
 import { getFirestore, Timestamp, type Firestore } from "firebase-admin/firestore";
+import { getStorage } from "firebase-admin/storage";
 import type {
   ImpactConfig,
   LimitsConfig,
@@ -39,6 +40,7 @@ export interface SeedStats {
   kyc: number;
   wallets: number;
   profiles: number;
+  avatars: number;
 }
 
 interface ZoneWithPoints extends ZoneDoc {
@@ -69,6 +71,12 @@ interface TestUserSeed {
     maxSeats: number;
     status: "pending" | "approved" | "rejected";
   };
+}
+
+/** The generated avatar picture of a seed user, or null when the user has none (the admin). */
+function readAvatar(uid: string): Buffer | null {
+  const fileUrl = new URL(`../../../seed/data/avatars/${uid}.jpg`, import.meta.url);
+  return existsSync(fileUrl) ? readFileSync(fileUrl) : null;
 }
 
 function readJsonFile(relativePath: string): unknown {
@@ -127,7 +135,7 @@ function getOrInitAdminApp(projectId: string): App {
   if (existing) {
     return existing;
   }
-  return initializeApp({ projectId }, appName);
+  return initializeApp({ projectId, storageBucket: `${projectId}.appspot.com` }, appName);
 }
 
 export async function runSeed(opts: SeedOptions = {}): Promise<SeedStats> {
@@ -139,6 +147,9 @@ export async function runSeed(opts: SeedOptions = {}): Promise<SeedStats> {
     }
     if (!process.env["FIREBASE_AUTH_EMULATOR_HOST"]) {
       process.env["FIREBASE_AUTH_EMULATOR_HOST"] = "127.0.0.1:9099";
+    }
+    if (!process.env["FIREBASE_STORAGE_EMULATOR_HOST"]) {
+      process.env["FIREBASE_STORAGE_EMULATOR_HOST"] = "127.0.0.1:9199";
     }
   }
 
@@ -157,6 +168,7 @@ export async function runSeed(opts: SeedOptions = {}): Promise<SeedStats> {
     kyc: 0,
     wallets: 0,
     profiles: 0,
+    avatars: 0,
   };
 
   const log = (msg: string) => {
@@ -242,7 +254,27 @@ export async function runSeed(opts: SeedOptions = {}): Promise<SeedStats> {
     const deterministicTime = Timestamp.fromDate(new Date("2026-10-29T00:00:00Z"));
     const freeUntil = Timestamp.fromDate(new Date("2026-11-28T00:00:00Z"));
 
+    const bucket = getStorage(app).bucket();
+
     for (const u of users) {
+      // The avatar goes to Storage first, so the user's photoPath only points at a file that exists.
+      let photoPath: string | null = null;
+      const avatar = readAvatar(u.uid);
+      if (avatar) {
+        try {
+          await bucket.file(`avatars/${u.uid}.jpg`).save(avatar, {
+            contentType: "image/jpeg",
+            resumable: false,
+          });
+          photoPath = `avatars/${u.uid}.jpg`;
+          stats.avatars += 1;
+        } catch (err) {
+          log(
+            `⚠ Avatar of ${u.uid} not uploaded (is the Storage emulator running?): ${String(err)}`,
+          );
+        }
+      }
+
       try {
         await auth.getUser(u.uid);
         await auth.updateUser(u.uid, {
@@ -273,7 +305,7 @@ export async function runSeed(opts: SeedOptions = {}): Promise<SeedStats> {
         companyOther: null,
         workHours: null,
         language: u.language,
-        photoPath: null,
+        photoPath,
         emergencyContact: null,
         savedPlaces: [],
         activeRole: u.activeRole,
@@ -317,7 +349,7 @@ export async function runSeed(opts: SeedOptions = {}): Promise<SeedStats> {
       const profileDoc: ProfileDoc = {
         schemaVersion: 1,
         firstName: u.firstName,
-        photoPath: null,
+        photoPath,
         hostRating: { avg: null, count: 0 },
         hostTrips: 0,
         riderRating: { avg: null, count: 0 },
@@ -408,7 +440,7 @@ export async function runSeed(opts: SeedOptions = {}): Promise<SeedStats> {
       }
     }
     log(
-      `✔ Users seeded (${String(stats.users)}), Profiles (${String(stats.profiles)}), Vehicles (${String(stats.vehicles)}), KYC (${String(stats.kyc)}), Wallets (${String(stats.wallets)})`,
+      `✔ Users seeded (${String(stats.users)}), Avatars (${String(stats.avatars)}), Profiles (${String(stats.profiles)}), Vehicles (${String(stats.vehicles)}), KYC (${String(stats.kyc)}), Wallets (${String(stats.wallets)})`,
     );
   } else {
     log("ℹ Dev target: Users, Profiles, Vehicles, KYC and Wallets are skipped as intended.");
