@@ -91,4 +91,11 @@ class ComponentCatalogTest {
         val actual = ChatBubbleType.entries.map { it.name }.toSet()
         assertEquals(expected, actual)
     }
+
+    @Test
+    fun `skeleton tones cover the white screen and the brand header`() {
+        val expected = setOf("OnLight", "OnBrand")
+        val actual = SkeletonTone.entries.map { it.name }.toSet()
+        assertEquals(expected, actual)
+    }
 }
