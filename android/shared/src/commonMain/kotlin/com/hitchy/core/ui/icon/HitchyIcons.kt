@@ -32,9 +32,11 @@ import hitchy.shared.generated.resources.fig_no_rides
 import hitchy.shared.generated.resources.fig_passenger_small
 import hitchy.shared.generated.resources.fig_person_22
 import hitchy.shared.generated.resources.fig_pickup
+import hitchy.shared.generated.resources.fig_pin_20
 import hitchy.shared.generated.resources.fig_pin_small
 import hitchy.shared.generated.resources.fig_place
 import hitchy.shared.generated.resources.fig_plus
+import hitchy.shared.generated.resources.fig_plus_white
 import hitchy.shared.generated.resources.fig_rider
 import hitchy.shared.generated.resources.fig_search_small
 import hitchy.shared.generated.resources.fig_swap
@@ -45,6 +47,8 @@ import hitchy.shared.generated.resources.fig_tab_rides_on
 import hitchy.shared.generated.resources.fig_tab_shop_off
 import hitchy.shared.generated.resources.fig_tab_shop_on
 import hitchy.shared.generated.resources.fig_toast_error
+import hitchy.shared.generated.resources.fig_users_20
+import hitchy.shared.generated.resources.fig_wallet_20
 import hitchy.shared.generated.resources.ic_add_person
 import hitchy.shared.generated.resources.ic_back
 import hitchy.shared.generated.resources.ic_bell
@@ -207,6 +211,12 @@ object HitchyIcons {
 
     /** Figma's 22dp plain back arrow (Notifications header); mirrors. */
     val Back22: DrawableResource get() = Res.drawable.fig_back_22
+
+    /** Owner Home quick actions (from the iOS design icons): requests, request a ride, earnings, add. */
+    val Users20: DrawableResource get() = Res.drawable.fig_users_20
+    val Pin20: DrawableResource get() = Res.drawable.fig_pin_20
+    val Wallet20: DrawableResource get() = Res.drawable.fig_wallet_20
+    val PlusWhite: DrawableResource get() = Res.drawable.fig_plus_white
 
     val all: Map<String, DrawableResource> get() = mapOf(
         "back" to Back,

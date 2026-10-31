@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -94,7 +95,10 @@ fun HitchyNavHost(
 
     LaunchedEffect(targetRoot) {
         val dest = targetRoot ?: return@LaunchedEffect
-        if (dest != initialDestination || rootState is RootState.SignedOut) {
+        // After a sign-out and a new sign-in, the root is the start destination again but the screen
+        // on top is still the code screen, so compare with what is shown too.
+        val shown = navController.currentBackStackEntry?.destination?.hasRoute(dest::class) ?: true
+        if (dest != initialDestination || rootState is RootState.SignedOut || !shown) {
             navController.navigate(dest) {
                 popUpTo(0) { inclusive = true }
                 launchSingleTop = true

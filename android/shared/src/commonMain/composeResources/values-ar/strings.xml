@@ -478,4 +478,33 @@
     <string name="inbox_minutes_ago">من %1$d دقيقة</string>
     <string name="inbox_hours_ago">من %1$d ساعة</string>
     <string name="bk_verified_short">موثّق</string>
+    <string name="owner_home_welcome">أهلاً بعودتك،</string>
+    <string name="owner_home_month_earnings">أرباح %1$s</string>
+    <string name="owner_home_currency">ج.م</string>
+    <string name="owner_home_view_details">عرض التفاصيل</string>
+    <string name="owner_home_month_seats">مساهمات وقود من %1$d كرسي هذا الشهر</string>
+    <string name="owner_home_stat_points">نقاط المكافآت</string>
+    <string name="owner_home_stat_requests">طلبات جديدة</string>
+    <string name="owner_home_stat_rides">رحلاتك</string>
+    <string name="owner_home_stat_seats">الكراسي المحجوزة</string>
+    <string name="owner_home_quick_actions">إجراءات سريعة</string>
+    <string name="owner_home_action_add">أضف رحلة</string>
+    <string name="owner_home_action_requests">الطلبات</string>
+    <string name="owner_home_action_request_ride">اطلب رحلة</string>
+    <string name="owner_home_action_earnings">الأرباح</string>
+    <string name="nav_add_ride">أضف رحلة</string>
+    <string-array name="owner_home_months_full">
+        <item>يناير</item>
+        <item>فبراير</item>
+        <item>مارس</item>
+        <item>أبريل</item>
+        <item>مايو</item>
+        <item>يونيو</item>
+        <item>يوليو</item>
+        <item>أغسطس</item>
+        <item>سبتمبر</item>
+        <item>أكتوبر</item>
+        <item>نوفمبر</item>
+        <item>ديسمبر</item>
+    </string-array>
 </resources>

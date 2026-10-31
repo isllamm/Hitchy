@@ -111,6 +111,8 @@ fun HomeScreen(
                             OwnerHomeContent(
                                 onOpenNotifications = onOpenNotifications,
                                 onOpenPostRide = onOpenPostRide,
+                                onOpenRidesTab = { selectedTab = BottomNavItem.Rides },
+                                onOpenEarnings = { selectedTab = BottomNavItem.Profile },
                                 onOpenHostRideDetails = onOpenHostRideDetails,
                                 onOpenHostTrip = onOpenHostTrip,
                             )
@@ -157,6 +159,7 @@ fun HomeScreen(
                 selectedItem = selectedTab,
                 onItemSelected = { selectedTab = it },
                 userInitials = initials,
+                onAddRide = if (activeRole == Role.HOST) onOpenPostRide else null,
             )
         }
     }
