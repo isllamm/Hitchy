@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Figma node 726:14667 (Checkmark Icon), exported from its vector geometry. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="75dp"
+    android:height="75dp"
+    android:viewportWidth="75"
+    android:viewportHeight="75">
+    <path
+        android:fillColor="#FFE5E7EB"
+        android:pathData="M 16.685,36.44 C 16.1,35.854 15.15,35.854 14.565,36.44 C 13.979,37.025 13.979,37.975 14.565,38.56 L 15.625,37.5 L 16.685,36.44Z M 28.125,50 L 27.065,51.06 C 27.65,51.646 28.6,51.646 29.185,51.06 L 28.125,50Z M 60.435,19.81 C 61.021,19.225 61.021,18.275 60.435,17.69 C 59.85,17.104 58.9,17.104 58.315,17.69 L 59.375,18.75 L 60.435,19.81Z M 15.625,37.5 L 14.565,38.56 L 27.065,51.06 L 28.125,50 L 29.185,48.94 L 16.685,36.44 L 15.625,37.5Z M 28.125,50 L 29.185,51.06 L 60.435,19.81 L 59.375,18.75 L 58.315,17.69 L 27.065,48.94 L 28.125,50Z" />
+</vector>
