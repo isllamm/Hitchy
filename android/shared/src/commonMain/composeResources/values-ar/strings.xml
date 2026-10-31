@@ -478,6 +478,8 @@
     <string name="inbox_minutes_ago">%1$d د</string>
     <string name="inbox_hours_ago">%1$d س</string>
     <string name="bk_verified_short">موثّق</string>
+    <string name="owner_home_fuel_title">حوّل الكراسي الفاضية لفلوس بنزين</string>
+    <string name="owner_home_fuel_body">شارك مشوارك اليومي مع زمايل متوثقين.</string>
     <string name="owner_home_welcome">أهلاً بعودتك،</string>
     <string name="owner_home_month_earnings">أرباح %1$s</string>
     <string name="owner_home_currency">ج.م</string>
@@ -516,6 +518,7 @@
     <string name="offer_from_placeholder">هتبدأ منين؟</string>
     <string name="offer_to_placeholder">رايح فين؟</string>
     <string name="offer_stop_placeholder">اختار نقطة توقف</string>
+    <string name="offer_custom_date">يوم تاني</string>
     <string name="offer_leave_at">هتتحرك الساعة</string>
     <string name="offer_seats_title">الكراسي اللي هتعرضها</string>
     <string name="offer_seats_max">أقصى عدد %1$d كراسي</string>

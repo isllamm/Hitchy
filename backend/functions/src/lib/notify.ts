@@ -13,6 +13,7 @@ import {
   render,
   type RenderedText,
   type TemplateParams,
+  bodyFor,
   textFor,
 } from "./notifyTemplates.js";
 
@@ -76,7 +77,7 @@ async function sendToDevices(
         data: {
           type,
           title: textFor(rendered, language ?? d.data().language),
-          body: "",
+          body: bodyFor(rendered, language ?? d.data().language),
           deepLink: rendered.deepLink,
           channel: rendered.channel,
         },
@@ -120,7 +121,7 @@ export async function sendToUser(
   const item: NotificationDoc = {
     type,
     title: rendered.title,
-    body: { en: "", ar: "" },
+    body: rendered.body,
     deepLink: rendered.deepLink,
     createdAt: Timestamp.fromMillis(at),
     readAt: null,

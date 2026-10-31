@@ -112,6 +112,7 @@ fun HomeScreen(
                                 onOpenNotifications = onOpenNotifications,
                                 onOpenPostRide = onOpenPostRide,
                                 onOpenRidesTab = { selectedTab = BottomNavItem.Rides },
+                                onOpenProfile = { selectedTab = BottomNavItem.Profile },
                                 onOpenEarnings = { selectedTab = BottomNavItem.Profile },
                                 onOpenHostRideDetails = onOpenHostRideDetails,
                                 onOpenHostTrip = onOpenHostTrip,

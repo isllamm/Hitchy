@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -33,6 +34,7 @@ import com.hitchy.core.model.AppConfig
 import com.hitchy.core.model.AppLanguage
 import com.hitchy.core.model.Env
 import com.hitchy.core.model.Role
+import com.hitchy.core.platform.AppSettings
 import com.hitchy.core.platform.LanguageSwitcher
 import com.hitchy.core.ui.theme.HitchyTheme
 import com.hitchy.feature.auth.presentation.RootState
@@ -68,14 +70,19 @@ import hitchy.shared.generated.resources.placeholder_screen
 import hitchy.shared.generated.resources.settings_language_label
 import hitchy.shared.generated.resources.settings_title
 import hitchy.shared.generated.resources.settings_version
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
-fun RootState.toStartDestination(): Any? = when (this) {
+fun RootState.toStartDestination(onboardingSeen: Boolean = false): Any? = when (this) {
     RootState.Loading -> null
-    RootState.SignedOut -> Onboarding
+
+    // The intro pages show once; after a sign-out the app opens on Welcome.
+    RootState.SignedOut -> if (onboardingSeen) Welcome else Onboarding
+
     RootState.NeedsProfile -> ProfileSetup
+
     is RootState.Ready -> Home
 }
 
@@ -87,9 +94,12 @@ fun HitchyNavHost(
     appConfig: AppConfig = koinInject(),
     rootViewModel: RootViewModel = koinViewModel(),
     hostDraft: HostDraft = koinInject(),
+    appSettings: AppSettings = koinInject(),
 ) {
     val rootState by rootViewModel.state.collectAsStateWithLifecycle()
-    val targetRoot = startDestination ?: rootState.toStartDestination()
+    val onboardingSeen by appSettings.onboardingSeen.collectAsStateWithLifecycle(initialValue = null)
+    val seen = onboardingSeen
+    val targetRoot = startDestination ?: seen?.let { rootState.toStartDestination(it) }
     val initialDestination = remember(targetRoot != null) { targetRoot }
 
     if (initialDestination == null) {
@@ -305,8 +315,10 @@ fun HitchyNavHost(
             }
         }
         composable<Onboarding> {
+            val scope = rememberCoroutineScope()
             OnboardingScreen(
                 onFinish = {
+                    scope.launch { appSettings.setOnboardingSeen() }
                     navController.navigate(Welcome) {
                         popUpTo<Onboarding> { inclusive = true }
                     }

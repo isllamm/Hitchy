@@ -38,6 +38,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -49,6 +50,7 @@ import com.hitchy.core.ui.icon.HitchyIcons
 import com.hitchy.core.ui.map.HitchyMap
 import com.hitchy.core.ui.map.MapPin
 import com.hitchy.core.ui.theme.HitchyTheme
+import com.hitchy.core.ui.tight
 import com.hitchy.feature.booking.presentation.RiderHomeAction
 import com.hitchy.feature.booking.presentation.RiderHomeEvent
 import com.hitchy.feature.booking.presentation.RiderHomeState
@@ -88,6 +90,10 @@ private val SheetTop = 322.6.dp
 private val ToastTop = 100.dp
 private val SheetShape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp)
 private val CardShape = RoundedCornerShape(16.dp)
+
+// One size for every tile and icon in the Plan your ride sheet.
+private val HomeTileSize = 32.dp
+private val HomeIconSize = 16.dp
 
 /**
  * Rider Home, Figma frame 390:1157, with the validation state of 446:3702: a map with the logo
@@ -264,8 +270,9 @@ private fun BellButton(
             ) {
                 Text(
                     text = if (unreadCount > MAX_BADGE) "$MAX_BADGE+" else unreadCount.toString(),
-                    style = typography.caption,
+                    style = typography.caption.tight(),
                     color = colors.white,
+                    textAlign = TextAlign.Center,
                 )
             }
         }
@@ -318,7 +325,7 @@ private fun PlanSheet(
                 onClick = { onOpenRoutePicker(RiderHomeState.FIELD_FROM) },
                 tileColor = colors.lavender,
             ) {
-                Box(modifier = Modifier.size(12.dp).clip(CircleShape).background(colors.royal))
+                Box(modifier = Modifier.size(HomeIconSize - 4.dp).clip(CircleShape).background(colors.royal))
             }
             RouteCard(
                 label = stringResource(Res.string.rider_home_to_label),
@@ -332,7 +339,7 @@ private fun PlanSheet(
                     painter = painterResource(HitchyIcons.PinSmall),
                     contentDescription = null,
                     tint = colors.pin,
-                    modifier = Modifier.size(width = 10.5.dp, height = 14.dp),
+                    modifier = Modifier.size(HomeIconSize),
                 )
             }
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -376,7 +383,7 @@ private fun RouteCard(
     val typography = HitchyTheme.typography
     FormCard(onClick = onClick, isError = isError) {
         Box(
-            modifier = Modifier.size(32.dp).clip(RoundedCornerShape(12.dp)).background(tileColor),
+            modifier = Modifier.size(HomeTileSize).clip(RoundedCornerShape(12.dp)).background(tileColor),
             contentAlignment = Alignment.Center,
         ) { tile() }
         Column(modifier = Modifier.weight(1f).padding(start = 14.dp)) {
@@ -414,10 +421,15 @@ private fun SmallFieldCard(
     val typography = HitchyTheme.typography
     FormCard(onClick = onClick, modifier = modifier, horizontalPadding = 12.dp) {
         Box(
-            modifier = Modifier.size(28.dp).clip(RoundedCornerShape(8.dp)).background(colors.lavender),
+            modifier = Modifier.size(HomeTileSize).clip(RoundedCornerShape(12.dp)).background(colors.lavender),
             contentAlignment = Alignment.Center,
         ) {
-            Icon(painter = painterResource(icon), contentDescription = null, tint = colors.purpleDeep)
+            Icon(
+                painter = painterResource(icon),
+                contentDescription = null,
+                tint = colors.purpleDeep,
+                modifier = Modifier.size(HomeIconSize),
+            )
         }
         Column(modifier = Modifier.weight(1f).padding(start = 10.dp)) {
             Text(text = label, style = typography.body, color = colors.textSecondary, maxLines = 1)
@@ -472,13 +484,14 @@ private fun PassengersCard(
     val typography = HitchyTheme.typography
     FormCard(onClick = null, shadow = false) {
         Box(
-            modifier = Modifier.size(32.dp).clip(RoundedCornerShape(12.dp)).background(colors.lavender),
+            modifier = Modifier.size(HomeTileSize).clip(RoundedCornerShape(12.dp)).background(colors.lavender),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
                 painter = painterResource(HitchyIcons.PassengerSmall),
                 contentDescription = null,
                 tint = colors.purpleDeep,
+                modifier = Modifier.size(HomeIconSize),
             )
         }
         Column(modifier = Modifier.weight(1f).padding(start = 14.dp)) {

@@ -44,6 +44,7 @@ import com.hitchy.core.ui.icon.HitchyIcons
 import com.hitchy.core.ui.map.HitchyMap
 import com.hitchy.core.ui.map.MapPin
 import com.hitchy.core.ui.theme.HitchyTheme
+import com.hitchy.core.ui.tightLine
 import com.hitchy.core.util.isoToCairoDateKey
 import com.hitchy.feature.booking.domain.RideHost
 import com.hitchy.feature.booking.presentation.RiderRideDetailsState
@@ -217,6 +218,7 @@ private fun DetailsHostCard(
                 Text(
                     text = host.firstName,
                     style = typography.bodyBold.copy(lineHeight = 21.sp),
+                    modifier = Modifier.tightLine(typography.bodyBold.fontSize),
                     color = colors.navy,
                     maxLines = 1,
                 )

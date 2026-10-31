@@ -56,6 +56,7 @@ import com.hitchy.core.ui.icon.HitchyIcons
 import com.hitchy.core.ui.map.HitchyMap
 import com.hitchy.core.ui.map.MapPin
 import com.hitchy.core.ui.theme.HitchyTheme
+import com.hitchy.core.ui.tightLine
 import com.hitchy.feature.booking.domain.RideCard
 import com.hitchy.feature.booking.domain.RideHost
 import com.hitchy.feature.booking.domain.SearchInput
@@ -458,7 +459,7 @@ private fun ResultHostRow(host: RideHost) {
             )
         }
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = host.firstName, style = typography.bodyBold, color = colors.navy, maxLines = 1)
+            Text(text = host.firstName, style = typography.bodyBold, color = colors.navy, maxLines = 1, modifier = Modifier.tightLine(typography.bodyBold.fontSize))
             host.rating?.let { rating ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -468,6 +469,7 @@ private fun ResultHostRow(host: RideHost) {
                     Text(
                         text = stringResource(Res.string.bk_rating_line, rating.toString().take(3), host.trips),
                         style = typography.caption,
+                        modifier = Modifier.tightLine(typography.caption.fontSize),
                         color = colors.textSecondary,
                     )
                 }

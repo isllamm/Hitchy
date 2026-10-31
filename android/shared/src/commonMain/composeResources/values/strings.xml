@@ -478,6 +478,8 @@
     <string name="inbox_minutes_ago">%1$dm</string>
     <string name="inbox_hours_ago">%1$dh</string>
     <string name="bk_verified_short">Verified</string>
+    <string name="owner_home_fuel_title">Turn your empty seats into fuel money</string>
+    <string name="owner_home_fuel_body">Share your daily drive with verified colleagues.</string>
     <string name="owner_home_welcome">Welcome back,</string>
     <string name="owner_home_month_earnings">%1$s earnings</string>
     <string name="owner_home_currency">EGP</string>
@@ -516,6 +518,7 @@
     <string name="offer_from_placeholder">Where are you starting from?</string>
     <string name="offer_to_placeholder">Where are you driving to?</string>
     <string name="offer_stop_placeholder">Choose a pickup stop</string>
+    <string name="offer_custom_date">Custom</string>
     <string name="offer_leave_at">Leave home at</string>
     <string name="offer_seats_title">Seats you offer</string>
     <string name="offer_seats_max">Max %1$d seats</string>

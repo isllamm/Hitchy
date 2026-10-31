@@ -9,8 +9,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -26,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,6 +42,7 @@ import com.hitchy.core.ui.components.SkeletonLine
 import com.hitchy.core.ui.components.SkeletonTone
 import com.hitchy.core.ui.figmaShadow
 import com.hitchy.core.ui.theme.HitchyTheme
+import com.hitchy.core.ui.tight
 import com.hitchy.core.util.isoToCairoDateKey
 import com.hitchy.feature.rides.presentation.OwnerHomeState
 import com.hitchy.feature.rides.presentation.OwnerHomeStats
@@ -141,7 +145,12 @@ internal fun HomeBell(unreadCount: Int, onClick: () -> Unit) {
                     .background(colors.pin),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(text = unreadCount.toString(), style = HitchyTheme.typography.body, color = colors.white)
+                Text(
+                    text = unreadCount.toString(),
+                    style = HitchyTheme.typography.body.tight(),
+                    color = colors.white,
+                    textAlign = TextAlign.Center,
+                )
             }
         }
     }
@@ -178,15 +187,15 @@ internal fun OwnerStats(
         }
         stringResource(Res.string.owner_home_next_ride, day, cairoTime12(ride.departAt))
     }
+    // Each row is as tall as its tallest card, so the four cards line up (IntrinsicSize.Min).
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(modifier = Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             StatCard(
                 image = Res.drawable.img_stat_gift,
                 value = state.pointsBalance,
                 unit = stringResource(Res.string.owner_home_pts),
                 sub = stringResource(Res.string.owner_home_points_tier, tier),
                 onClick = null,
-                tall = false,
             )
             StatCard(
                 image = Res.drawable.img_stat_users,
@@ -198,7 +207,7 @@ internal fun OwnerStats(
                 onClick = onOpenRequests,
             )
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(modifier = Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             StatCard(
                 image = Res.drawable.img_stat_calendar,
                 value = stats.bookedSeats,
@@ -224,7 +233,7 @@ internal fun OwnerStats(
 }
 
 /**
- * Figma's stat card: r18, white, two soft shadows, padding 12 (16 at the bottom on the taller ones); a 40dp
+ * Figma's stat card: r18, white, two soft shadows, padding 12, every card in a row the same height; a 40dp
  * 3D picture, the number (Cairo 800 24/30) with its Bold 12/18 unit, and a 12/18 line under them.
  */
 @Suppress("LongParameterList")
@@ -235,7 +244,6 @@ private fun RowScope.StatCard(
     unit: String,
     sub: String?,
     onClick: (() -> Unit)?,
-    tall: Boolean = true,
     subColor: Color = HitchyTheme.colors.textSecondary,
     subSize: Int = 12,
 ) {
@@ -244,19 +252,20 @@ private fun RowScope.StatCard(
     Row(
         modifier = Modifier
             .weight(1f)
-            .heightIn(min = if (tall) 76.dp else 72.dp)
+            .fillMaxHeight()
+            .heightIn(min = 76.dp)
             .figmaShadow(StatShape, colors.scrim.copy(alpha = STAT_SHADOW_SOFT), blur = 4.dp, y = 1.dp)
             .figmaShadow(StatShape, colors.scrim.copy(alpha = STAT_SHADOW), blur = 4.dp, y = 1.dp)
             .clip(StatShape)
             .background(colors.white)
             .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
-            .padding(start = 12.dp, end = 12.dp, top = 12.dp, bottom = if (tall) 16.dp else 12.dp),
+            .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Image(painter = painterResource(image), contentDescription = null, modifier = Modifier.size(40.dp))
-        Column(modifier = Modifier.weight(1f)) {
-            Row(modifier = Modifier.heightIn(min = 30.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
                     text = value.toString(),
                     style = typography.amount.copy(letterSpacing = (-0.1).sp),
@@ -275,7 +284,7 @@ private fun RowScope.StatCard(
             if (sub != null) {
                 Text(
                     text = sub,
-                    style = typography.caption.copy(fontSize = subSize.sp),
+                    style = typography.caption.copy(fontSize = subSize.sp).tight(),
                     color = subColor,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,

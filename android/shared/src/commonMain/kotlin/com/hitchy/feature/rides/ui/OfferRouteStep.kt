@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -14,22 +15,33 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.hitchy.core.model.AppLanguage
 import com.hitchy.core.ui.figmaShadow
 import com.hitchy.core.ui.icon.HitchyIcons
 import com.hitchy.core.ui.theme.HitchyTheme
+import com.hitchy.feature.booking.ui.DateSheet
+import com.hitchy.feature.booking.ui.bookingDateLabel
 import com.hitchy.feature.rides.presentation.PostRideAction
 import com.hitchy.feature.rides.presentation.PostRideState
 import hitchy.shared.generated.resources.Res
+import hitchy.shared.generated.resources.offer_custom_date
 import hitchy.shared.generated.resources.offer_from
 import hitchy.shared.generated.resources.offer_from_placeholder
 import hitchy.shared.generated.resources.offer_leave_at
@@ -201,11 +213,15 @@ private fun LocationRow(
 }
 
 /**
- * Figma's `Departure` card: the clock header "Leave home at" and the time wheel. Figma draws no day;
- * the demo posts for today or tomorrow, so two pills in the Days style sit above the wheel (ADR 0003).
+ * Figma's `Departure` card: the clock header "Leave home at" and the time wheel. Figma draws no day, so Today,
+ * Tomorrow and Custom pills sit above the wheel (ADR 0003); Custom opens the rider's "Select date" sheet.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DepartureCard(state: PostRideState, onAction: (PostRideAction) -> Unit) {
+    var picking by remember { mutableStateOf(false) }
+    var pending by remember { mutableStateOf(state.selectedDateKey) }
+    val custom = state.selectedDateKey != state.todayDateKey && state.selectedDateKey != state.tomorrowDateKey
     Column(
         modifier = Modifier.fillMaxWidth().offerCard().padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -222,10 +238,49 @@ private fun DepartureCard(state: PostRideState, onAction: (PostRideAction) -> Un
                 selected = state.selectedDateKey == state.tomorrowDateKey,
                 onClick = { onAction(PostRideAction.SelectDate(state.tomorrowDateKey)) },
             )
+            DayPill(
+                text = if (custom) {
+                    bookingDateLabel(state.selectedDateKey)
+                } else {
+                    stringResource(Res.string.offer_custom_date)
+                },
+                selected = custom,
+                onClick = {
+                    pending = state.selectedDateKey
+                    picking = true
+                },
+            )
         }
         OfferTimeWheel(minutesOfDay = state.departTimeMinutes) { onAction(PostRideAction.SelectTime(it)) }
     }
+    if (picking && state.todayDateKey.isNotEmpty()) {
+        ModalBottomSheet(
+            onDismissRequest = { picking = false },
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+            shape = RectangleShape,
+            containerColor = Color.Transparent,
+            tonalElevation = 0.dp,
+            scrimColor = HitchyTheme.colors.navy.copy(alpha = SHEET_SCRIM_ALPHA),
+            dragHandle = null,
+            contentWindowInsets = { WindowInsets(0, 0, 0, 0) },
+        ) {
+            DateSheet(
+                todayKey = state.todayDateKey,
+                tomorrowKey = state.tomorrowDateKey,
+                selectedKey = pending,
+                onPick = { pending = it },
+                onConfirm = {
+                    onAction(PostRideAction.SelectDate(pending))
+                    picking = false
+                },
+                onClose = { picking = false },
+                showDayChips = false,
+            )
+        }
+    }
 }
+
+private const val SHEET_SCRIM_ALPHA = 0.45f
 
 /** Figma's `Day` circle as a 40dp pill: purple with white Bold 12/18 when on, #F8F9FC with a stroke when off. */
 @Composable

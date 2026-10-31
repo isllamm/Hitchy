@@ -33,15 +33,17 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hitchy.core.model.AppLanguage
 import com.hitchy.core.model.GeoPoint
 import com.hitchy.core.platform.LanguageSwitcher
-import com.hitchy.core.ui.ErrorText
+import com.hitchy.core.ui.ExpandableMapSheet
 import com.hitchy.core.ui.cairoTime12
 import com.hitchy.core.ui.components.BackButton
 import com.hitchy.core.ui.components.BackButtonStyle
+import com.hitchy.core.ui.components.FloatingBanner
 import com.hitchy.core.ui.components.HitchyButton
 import com.hitchy.core.ui.components.HitchyButtonVariant
 import com.hitchy.core.ui.components.SkeletonDetails
 import com.hitchy.core.ui.map.HitchyMap
 import com.hitchy.core.ui.map.MapPin
+import com.hitchy.core.ui.message
 import com.hitchy.core.ui.theme.HitchyTheme
 import com.hitchy.core.util.dateKey
 import com.hitchy.feature.rides.domain.Booking
@@ -120,15 +122,23 @@ fun HostTripScreen(
             style = BackButtonStyle.OutlinedCircle,
             modifier = Modifier.align(Alignment.TopStart).statusBarsPadding().padding(start = 8.dp, top = 8.dp),
         )
-        TripSheet(
-            state = state,
-            language = language,
-            current = current,
-            onSelectRider = { selectedUid = it },
-            onAction = viewModel::onAction,
-            onDone = onBack,
-            modifier = Modifier.fillMaxSize().padding(top = SheetTopOffset),
-        )
+        ExpandableMapSheet(collapsedTop = SheetTopOffset) {
+            TripSheet(
+                state = state,
+                language = language,
+                current = current,
+                onSelectRider = { selectedUid = it },
+                onAction = viewModel::onAction,
+                onDone = onBack,
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
+        state.error?.let { error ->
+            FloatingBanner(
+                text = stringResource(error.message()),
+                onDismiss = { viewModel.onAction(HostTripAction.DismissError) },
+            )
+        }
     }
 }
 
@@ -182,10 +192,6 @@ private fun TripSheet(
                 SheetHeader(state = state, language = language, current = current)
                 OwnerTripProgress(currentIndex = progressIndex(state.phase))
                 SheetBody(state = state, language = language, current = current, onSelectRider = onSelectRider)
-            }
-            val error = state.error
-            if (error != null) {
-                ErrorText(error = error, style = HitchyTheme.typography.caption, color = colors.error)
             }
         }
         ActionBar(state = state, current = current, onAction = onAction, onDone = onDone)
