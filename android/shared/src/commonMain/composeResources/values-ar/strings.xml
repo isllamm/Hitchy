@@ -562,4 +562,5 @@
     <string name="owner_review_one_request">راجع الطلب</string>
     <string name="owner_one_request_waiting">طلب واحد مستني</string>
     <string name="owner_one_seat_open">كرسي واحد فاضي</string>
+    <string name="owner_one_rider">راكب واحد</string>
 </resources>

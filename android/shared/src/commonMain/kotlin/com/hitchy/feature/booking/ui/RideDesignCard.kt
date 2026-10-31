@@ -142,7 +142,7 @@ internal fun RideDesignCard(
         // Figma: the footer is 24dp below the route, on a 1dp rule with 12dp above its content.
         Column(modifier = Modifier.padding(top = 8.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             HorizontalDivider(color = colors.border, thickness = 1.dp)
-            RideFooter(data = data)
+            RideSummaryRow(data.tileIcon, data.title, data.subtitle, data.priceEgp, data.perSeat)
         }
     }
 }
@@ -195,7 +195,13 @@ private fun RouteStop(
 }
 
 @Composable
-private fun RideFooter(data: RideCardData) {
+internal fun RideSummaryRow(
+    tileIcon: DrawableResource,
+    title: String,
+    subtitle: String?,
+    priceEgp: Int,
+    perSeat: Boolean,
+) {
     val colors = HitchyTheme.colors
     val typography = HitchyTheme.typography
     Row(
@@ -203,18 +209,18 @@ private fun RideFooter(data: RideCardData) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        IconTile(icon = data.tileIcon, tileColor = colors.lavender, iconColor = colors.purple)
+        IconTile(icon = tileIcon, tileColor = colors.lavender, iconColor = colors.purple)
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = data.title, style = typography.title, color = colors.navy, maxLines = 1)
-            if (data.subtitle != null) {
-                Text(text = data.subtitle, style = typography.body, color = colors.textSecondary, maxLines = 1)
+            Text(text = title, style = typography.title, color = colors.navy, maxLines = 1)
+            if (subtitle != null) {
+                Text(text = subtitle, style = typography.body, color = colors.textSecondary, maxLines = 1)
             }
         }
         Text(
-            text = if (data.perSeat) {
-                stringResource(Res.string.price_per_seat_large, data.priceEgp)
+            text = if (perSeat) {
+                stringResource(Res.string.price_per_seat_large, priceEgp)
             } else {
-                stringResource(Res.string.format_egp, data.priceEgp.toString())
+                stringResource(Res.string.format_egp, priceEgp.toString())
             },
             style = typography.bodyStrong,
             color = colors.navy,

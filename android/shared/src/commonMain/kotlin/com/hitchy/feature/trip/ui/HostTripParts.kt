@@ -28,6 +28,7 @@ import com.hitchy.core.ui.cairoTime12
 import com.hitchy.core.ui.components.Avatar
 import com.hitchy.core.ui.icon.HitchyIcons
 import com.hitchy.core.ui.theme.HitchyTheme
+import com.hitchy.feature.booking.ui.RideSummaryRow
 import com.hitchy.feature.rides.domain.Booking
 import com.hitchy.feature.trip.presentation.HostTripPhase
 import com.hitchy.feature.trip.presentation.HostTripState
@@ -51,10 +52,12 @@ import hitchy.shared.generated.resources.owner_design_step_on_the_way
 import hitchy.shared.generated.resources.owner_design_step_pickups
 import hitchy.shared.generated.resources.owner_design_timer_label
 import hitchy.shared.generated.resources.owner_design_timer_value
+import hitchy.shared.generated.resources.rides_design_vehicle
+import hitchy.shared.generated.resources.rides_t14_seats_booked
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
-private val CardRadius = 20.dp
+private val CardRadius = 16.dp
 private const val SECONDS_PER_MINUTE = 60
 private const val NAME_FALLBACK_LENGTH = 8
 private const val TRACK_ALPHA = 0.2f
@@ -92,9 +95,30 @@ internal fun OwnerPill(
         modifier = modifier
             .clip(RoundedCornerShape(50))
             .background(background)
-            .padding(horizontal = 14.dp, vertical = 6.dp),
+            .padding(horizontal = 10.dp, vertical = 6.dp),
     ) {
-        Text(text = text, style = HitchyTheme.typography.bodyStrong, color = content, maxLines = 1)
+        Text(text = text, style = HitchyTheme.typography.captionStrong, color = content, maxLines = 1)
+    }
+}
+
+/** Figma's header chip ("3 riders", "1 on board"): 28dp, padding 12, Regular 12/18. */
+@Composable
+internal fun CountChip(text: String, tone: PillTone) {
+    val colors = HitchyTheme.colors
+    val (background, content) = when (tone) {
+        PillTone.Success -> colors.successBg to colors.success
+        PillTone.Warning -> colors.warningBg to colors.warningText
+        PillTone.Info -> colors.lavender to colors.purple
+    }
+    Box(
+        modifier = Modifier
+            .height(28.dp)
+            .clip(RoundedCornerShape(50))
+            .background(background)
+            .padding(horizontal = 12.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(text = text, style = HitchyTheme.typography.caption, color = content, maxLines = 1)
     }
 }
 
@@ -160,7 +184,7 @@ private fun ProgressDot(
     current: Boolean,
 ) {
     val colors = HitchyTheme.colors
-    Box(modifier = Modifier.size(28.dp), contentAlignment = Alignment.Center) {
+    Box(modifier = Modifier.size(24.dp), contentAlignment = Alignment.Center) {
         when {
             done -> Box(
                 modifier = Modifier.size(24.dp).clip(CircleShape).background(colors.purple),
@@ -175,7 +199,7 @@ private fun ProgressDot(
             }
 
             current -> Box(
-                modifier = Modifier.size(28.dp).clip(CircleShape).background(colors.lavender),
+                modifier = Modifier.size(24.dp).clip(CircleShape).background(colors.lavender),
                 contentAlignment = Alignment.Center,
             ) {
                 Box(modifier = Modifier.size(12.dp).clip(CircleShape).background(colors.purple))
@@ -183,7 +207,7 @@ private fun ProgressDot(
 
             else -> Box(
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(20.dp)
                     .clip(CircleShape)
                     .background(colors.white)
                     .border(2.dp, colors.border, CircleShape),
@@ -208,18 +232,11 @@ internal fun RiderStatusCard(
             .fillMaxWidth()
             .clip(shape)
             .background(colors.white)
-            .border(1.dp, colors.border, shape),
+            .border(1.dp, colors.border, shape)
+            .padding(start = 16.dp, end = 16.dp, top = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        state.bookings.forEachIndexed { index, booking ->
-            if (index > 0) {
-                Box(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .fillMaxWidth()
-                        .height(1.dp)
-                        .background(colors.border),
-                )
-            }
+        state.bookings.forEach { booking ->
             RiderStatusRow(
                 booking = booking,
                 name = riderDisplayName(state.riderNames, booking.riderUid),
@@ -228,6 +245,28 @@ internal fun RiderStatusCard(
                 language = language,
                 onClick = { onSelect(booking.riderUid) },
             )
+            Box(Modifier.fillMaxWidth().height(1.dp).background(colors.border))
+        }
+        state.ride?.let { ride ->
+            // Figma's card ends with the ride's summary row, as on the Ride Card.
+            Box(Modifier.padding(top = 4.dp, bottom = 12.dp)) {
+                RideSummaryRow(
+                    tileIcon = HitchyIcons.Car,
+                    title = stringResource(
+                        Res.string.rides_t14_seats_booked,
+                        state.bookings.sumOf { it.seats },
+                        ride.seatsTotal,
+                    ),
+                    subtitle = stringResource(
+                        Res.string.rides_design_vehicle,
+                        ride.vehicle.make,
+                        ride.vehicle.model,
+                        ride.vehicle.color,
+                    ),
+                    priceEgp = ride.pricePerSeat,
+                    perSeat = true,
+                )
+            }
         }
     }
 }
@@ -248,9 +287,9 @@ private fun RiderStatusRow(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(enabled = canSelect, onClick = onClick)
-            .padding(16.dp),
+            .padding(bottom = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Avatar(initials = name.take(2).uppercase())
         Column(modifier = Modifier.weight(1f)) {

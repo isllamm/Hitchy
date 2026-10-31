@@ -562,4 +562,5 @@
     <string name="owner_review_one_request">Review 1 request</string>
     <string name="owner_one_request_waiting">1 request waiting</string>
     <string name="owner_one_seat_open">1 seat open</string>
+    <string name="owner_one_rider">1 rider</string>
 </resources>

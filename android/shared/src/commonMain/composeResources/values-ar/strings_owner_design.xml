@@ -22,8 +22,8 @@
     <string name="owner_design_waiting_for">مستني %1$s</string>
     <string name="owner_design_all_on_board">كل الركاب في العربية</string>
     <string name="owner_design_arrived_at">وصلت %1$s</string>
-    <string name="owner_design_riders_count">الركاب: %1$d</string>
-    <string name="owner_design_on_board_count">في العربية: %1$d</string>
+    <string name="owner_design_riders_count">%1$d ركاب</string>
+    <string name="owner_design_on_board_count">%1$d في العربية</string>
     <string name="owner_design_chip_waiting">مستني</string>
     <string name="owner_design_chip_next">الجاي</string>
     <string name="owner_design_chip_here_now">دلوقتي</string>

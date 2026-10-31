@@ -42,6 +42,7 @@ import com.hitchy.core.ui.components.HitchyButtonVariant
 import com.hitchy.core.ui.map.HitchyMap
 import com.hitchy.core.ui.map.MapPin
 import com.hitchy.core.ui.theme.HitchyTheme
+import com.hitchy.core.util.dateKey
 import com.hitchy.feature.rides.domain.Booking
 import com.hitchy.feature.rides.domain.Ride
 import com.hitchy.feature.trip.presentation.HostTripAction
@@ -71,14 +72,19 @@ import hitchy.shared.generated.resources.owner_design_step_completed
 import hitchy.shared.generated.resources.owner_design_step_on_the_way
 import hitchy.shared.generated.resources.owner_design_step_pickups
 import hitchy.shared.generated.resources.owner_design_waiting_for
+import hitchy.shared.generated.resources.owner_one_rider
+import hitchy.shared.generated.resources.rider_home_date_today
+import hitchy.shared.generated.resources.rider_home_date_tomorrow
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
 
 private val MapHeight = 330.dp
 private val SheetTopOffset = 280.dp
-private val SheetRadius = 28.dp
+private val SheetRadius = 24.dp
 private const val ALL_STEPS_DONE = 4
 
 /**
@@ -165,8 +171,8 @@ private fun TripSheet(
             modifier = Modifier
                 .weight(1f)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp),
+                .padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
             SheetHeader(state = state, language = language, current = current)
             OwnerTripProgress(currentIndex = progressIndex(state.phase))
@@ -225,19 +231,33 @@ private fun SheetHeader(
     ) {
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(
-                text = stringResource(eyebrowRes(state.phase)),
-                style = HitchyTheme.typography.bodyStrong,
+                text = eyebrow(state),
+                style = HitchyTheme.typography.captionStrong,
                 color = colors.purple,
             )
             Text(
                 text = headline(state, language, current),
-                style = HitchyTheme.typography.h1,
+                style = HitchyTheme.typography.amount,
                 color = colors.navy,
                 maxLines = 2,
             )
         }
         CountPill(state = state)
     }
+}
+
+/** Figma's eyebrow: the day ("Today") before leaving, then the step. */
+@Composable
+private fun eyebrow(state: HostTripState, clock: Clock = koinInject()): String {
+    if (state.phase == HostTripPhase.LEAVING) {
+        val day = state.ride?.dateKey
+        val now = clock.now()
+        when (day) {
+            dateKey(now) -> return stringResource(Res.string.rider_home_date_today)
+            dateKey(now + 1.days) -> return stringResource(Res.string.rider_home_date_tomorrow)
+        }
+    }
+    return stringResource(eyebrowRes(state.phase))
 }
 
 private fun eyebrowRes(phase: HostTripPhase): StringResource = when (phase) {
@@ -287,11 +307,18 @@ private fun CountPill(state: HostTripState) {
     val total = state.bookings.size
     when {
         state.phase == HostTripPhase.LEAVING ->
-            OwnerPill(stringResource(Res.string.owner_design_riders_count, total), PillTone.Warning)
+            CountChip(
+                if (total == 1) {
+                    stringResource(Res.string.owner_one_rider)
+                } else {
+                    stringResource(Res.string.owner_design_riders_count, total)
+                },
+                PillTone.Warning,
+            )
 
         else -> {
             val everyone = total > 0 && state.boardedCount == total
-            OwnerPill(
+            CountChip(
                 text = stringResource(Res.string.owner_design_on_board_count, state.boardedCount),
                 tone = if (everyone) PillTone.Success else PillTone.Warning,
             )
@@ -310,7 +337,7 @@ private fun ActionBar(
         modifier = Modifier
             .fillMaxWidth()
             .navigationBarsPadding()
-            .padding(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 16.dp),
+            .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         when (state.phase) {
