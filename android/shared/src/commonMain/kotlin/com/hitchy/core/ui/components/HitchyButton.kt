@@ -71,7 +71,7 @@ fun HitchyButton(
         )
 
         HitchyButtonVariant.Outline -> ButtonDefaults.buttonColors(
-            containerColor = Color.Transparent,
+            containerColor = colors.white,
             contentColor = colors.purple,
             disabledContainerColor = Color.Transparent,
             disabledContentColor = colors.textDisabled,
@@ -93,7 +93,8 @@ fun HitchyButton(
     }
 
     val borderStroke = if (variant == HitchyButtonVariant.Outline && enabled && !loading) {
-        BorderStroke(1.5.dp, colors.border)
+        // Figma's Outline button (component 446:2914): white with a 1.5dp purple stroke.
+        BorderStroke(1.5.dp, colors.purple)
     } else {
         null
     }

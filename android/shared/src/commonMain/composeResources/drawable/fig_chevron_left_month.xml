@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Figma node 446:3171 (Frame), exported from its vector geometry. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="22dp"
+    android:height="22dp" android:autoMirrored="true"
+    android:viewportWidth="22"
+    android:viewportHeight="22">
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M 13.043,17.207 C 13.433,17.598 14.067,17.598 14.457,17.207 C 14.848,16.817 14.848,16.183 14.457,15.793 L 13.75,16.5 L 13.043,17.207Z M 8.25,11 L 7.543,10.293 C 7.152,10.683 7.152,11.317 7.543,11.707 L 8.25,11Z M 14.457,6.207 C 14.848,5.817 14.848,5.183 14.457,4.793 C 14.067,4.402 13.433,4.402 13.043,4.793 L 13.75,5.5 L 14.457,6.207Z M 13.75,16.5 L 14.457,15.793 L 8.957,10.293 L 8.25,11 L 7.543,11.707 L 13.043,17.207 L 13.75,16.5Z M 8.25,11 L 8.957,11.707 L 14.457,6.207 L 13.75,5.5 L 13.043,4.793 L 7.543,10.293 L 8.25,11Z" />
+</vector>

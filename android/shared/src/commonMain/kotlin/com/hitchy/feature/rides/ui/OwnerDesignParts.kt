@@ -30,12 +30,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.hitchy.core.model.AppLanguage
 import com.hitchy.core.model.RideStatus
+import com.hitchy.core.ui.cairoTime12
 import com.hitchy.core.ui.components.RideStatusVariant
 import com.hitchy.core.ui.components.StatusChip
 import com.hitchy.core.ui.icon.HitchyIcons
 import com.hitchy.core.ui.theme.HitchyTheme
 import com.hitchy.core.util.isoToCairoDateKey
-import com.hitchy.core.util.isoToCairoTime
 import com.hitchy.feature.rides.domain.Ride
 import hitchy.shared.generated.resources.Res
 import hitchy.shared.generated.resources.format_egp
@@ -221,7 +221,7 @@ internal fun OwnerRideCard(
 ) {
     val colors = HitchyTheme.colors
     val shape = RoundedCornerShape(CardRadius)
-    val whenText = whenLabel(isoToCairoDateKey(ride.departAt), isoToCairoTime(ride.departAt), todayKey, tomorrowKey)
+    val whenText = whenLabel(isoToCairoDateKey(ride.departAt), cairoTime12(ride.departAt), todayKey, tomorrowKey)
     Column(
         modifier = Modifier
             .fillMaxWidth()

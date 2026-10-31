@@ -24,10 +24,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.hitchy.core.model.AppLanguage
+import com.hitchy.core.ui.cairoTime12
 import com.hitchy.core.ui.components.Avatar
 import com.hitchy.core.ui.icon.HitchyIcons
 import com.hitchy.core.ui.theme.HitchyTheme
-import com.hitchy.core.util.isoToCairoTime
 import com.hitchy.feature.rides.domain.Booking
 import com.hitchy.feature.trip.presentation.HostTripPhase
 import com.hitchy.feature.trip.presentation.HostTripState
@@ -256,7 +256,7 @@ private fun RiderStatusRow(
         Column(modifier = Modifier.weight(1f)) {
             Text(text = name, style = typography.bodyStrong, color = colors.navy, maxLines = 1)
             Text(
-                text = "${booking.pickupPointName.resolve(language)} · ${isoToCairoTime(booking.pickupAt)}",
+                text = "${booking.pickupPointName.resolve(language)} · ${cairoTime12(booking.pickupAt)}",
                 style = typography.caption,
                 color = colors.textSecondary,
                 maxLines = 1,

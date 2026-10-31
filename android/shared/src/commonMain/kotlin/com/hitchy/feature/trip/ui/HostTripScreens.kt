@@ -34,6 +34,7 @@ import com.hitchy.core.model.AppLanguage
 import com.hitchy.core.model.GeoPoint
 import com.hitchy.core.platform.LanguageSwitcher
 import com.hitchy.core.ui.ErrorText
+import com.hitchy.core.ui.cairoTime12
 import com.hitchy.core.ui.components.BackButton
 import com.hitchy.core.ui.components.BackButtonStyle
 import com.hitchy.core.ui.components.HitchyButton
@@ -41,7 +42,6 @@ import com.hitchy.core.ui.components.HitchyButtonVariant
 import com.hitchy.core.ui.map.HitchyMap
 import com.hitchy.core.ui.map.MapPin
 import com.hitchy.core.ui.theme.HitchyTheme
-import com.hitchy.core.util.isoToCairoTime
 import com.hitchy.feature.rides.domain.Booking
 import com.hitchy.feature.rides.domain.Ride
 import com.hitchy.feature.trip.presentation.HostTripAction
@@ -258,7 +258,7 @@ private fun headline(
     val destination = state.ride?.toPointName?.resolve(language).orEmpty()
     return when (state.phase) {
         HostTripPhase.LEAVING ->
-            stringResource(Res.string.owner_design_leave_at, isoToCairoTime(state.ride?.departAt))
+            stringResource(Res.string.owner_design_leave_at, cairoTime12(state.ride?.departAt))
 
         HostTripPhase.DRIVING_TO_STOP ->
             stringResource(Res.string.owner_design_heading_to, currentStopName(state, language))

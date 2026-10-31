@@ -22,6 +22,9 @@ data class OtpVerifyState(
     val error: AppError? = null,
 ) {
     val canResend: Boolean get() = resendSecondsLeft <= 0 && !isVerifying
+
+    /** The code timed out (Figma's Code Expired screen). */
+    val isCodeExpired: Boolean get() = (error as? AppError.Reason)?.code == OTP_EXPIRED_CODE
 }
 
 sealed interface OtpVerifyAction {
@@ -121,3 +124,5 @@ class OtpVerifyViewModel(
         const val MS_PER_SECOND = 1_000L
     }
 }
+
+private const val OTP_EXPIRED_CODE = "OTP_EXPIRED"

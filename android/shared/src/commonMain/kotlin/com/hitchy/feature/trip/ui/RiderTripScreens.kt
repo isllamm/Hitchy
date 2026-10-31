@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -19,6 +19,7 @@ import com.hitchy.core.model.GeoPoint
 import com.hitchy.core.platform.LanguageSwitcher
 import com.hitchy.core.ui.components.BackButton
 import com.hitchy.core.ui.components.BackButtonStyle
+import com.hitchy.core.ui.figmaTop
 import com.hitchy.core.ui.map.HitchyMap
 import com.hitchy.core.ui.map.MapPin
 import com.hitchy.core.ui.theme.HitchyTheme
@@ -28,8 +29,9 @@ import com.hitchy.feature.trip.presentation.RiderTripViewModel
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
-private val MapHeight = 330.dp
+// Figma 390:1532: the map fills the screen and the back button sits 50dp down; the panel is r=24.
 private val SheetTopOffset = 280.dp
+private val BackTop = 50.dp
 
 /**
  * Rider trip screen built to the design: a full-width map with the back button on top, and a rounded sheet
@@ -53,16 +55,16 @@ fun RiderTripScreen(
         viewModel.onAction(RiderTripAction.Init(rideId))
     }
 
-    Box(modifier = modifier.fillMaxSize().background(colors.background)) {
+    Box(modifier = modifier.fillMaxSize().background(colors.mapLand)) {
         HitchyMap(
             pins = tripMapPins(state),
             route = tripMapRoute(state),
-            modifier = Modifier.fillMaxWidth().height(MapHeight),
+            modifier = Modifier.fillMaxSize(),
         )
         BackButton(
             onClick = onBack,
             style = BackButtonStyle.OutlinedCircle,
-            modifier = Modifier.statusBarsPadding().padding(start = 12.dp, top = 8.dp),
+            modifier = Modifier.padding(start = 16.dp, top = figmaTop(BackTop)).size(44.dp),
         )
         TripSheet(
             state = state,

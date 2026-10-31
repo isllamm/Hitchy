@@ -3,6 +3,8 @@
 package com.hitchy.feature.booking.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -18,10 +21,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.hitchy.core.model.AppLanguage
 import com.hitchy.core.model.GeoPoint
+import com.hitchy.core.ui.cairoTime12
 import com.hitchy.core.ui.components.Avatar
 import com.hitchy.core.ui.components.AvatarSize
 import com.hitchy.core.ui.components.Badge
@@ -35,7 +40,6 @@ import com.hitchy.core.ui.map.HitchyMap
 import com.hitchy.core.ui.map.MapPin
 import com.hitchy.core.ui.theme.HitchyTheme
 import com.hitchy.core.util.isoToCairoDateKey
-import com.hitchy.core.util.isoToCairoTime
 import com.hitchy.feature.booking.domain.RideHost
 import com.hitchy.feature.booking.presentation.RiderRideDetailsState
 import com.hitchy.feature.rides.domain.Ride
@@ -51,6 +55,7 @@ import hitchy.shared.generated.resources.bk_rating_line
 import hitchy.shared.generated.resources.bk_total
 import hitchy.shared.generated.resources.bk_vehicle_line_hidden
 import hitchy.shared.generated.resources.bk_verified_owner
+import hitchy.shared.generated.resources.bk_verified_short
 import hitchy.shared.generated.resources.bk_your_owner
 import hitchy.shared.generated.resources.ride_details_late_fee_rule
 import hitchy.shared.generated.resources.ride_details_price_per_seat
@@ -75,9 +80,9 @@ internal fun RideDetailsSections(
     val booking = state.booking
     val pickupName = booking?.pickupPointName?.resolve(language)
         ?: card?.pickup?.name?.resolve(language).orEmpty()
-    val pickupTime = booking?.let { isoToCairoTime(it.pickupAt) } ?: isoToCairoTime(card?.pickup?.at)
+    val pickupTime = booking?.let { cairoTime12(it.pickupAt) } ?: cairoTime12(card?.pickup?.at)
     val dropName = ride?.toPointName?.resolve(language) ?: card?.toPointName?.resolve(language).orEmpty()
-    val dropTime = isoToCairoTime(card?.arriveAt)
+    val dropTime = cairoTime12(card?.arriveAt)
     val dateKey = ride?.dateKey ?: isoToCairoDateKey(card?.departAt)
     val walkM = if (booking == null) card?.pickup?.walkM else null
 
@@ -146,6 +151,7 @@ private fun DetailsMap(points: List<GeoPoint>) {
     )
 }
 
+/** Figma's driver card (390:1492): a 48dp lavender avatar, a Bold name with a "Verified" chip, the rating. */
 @Composable
 private fun DetailsHostCard(
     host: RideHost,
@@ -155,27 +161,38 @@ private fun DetailsHostCard(
     val colors = HitchyTheme.colors
     val typography = HitchyTheme.typography
     BookingCardSurface {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text(
                 text = stringResource(Res.string.bk_your_owner).uppercase(),
                 style = typography.captionStrong,
-                color = colors.navy,
+                color = colors.textSecondary,
             )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                Avatar(initials = host.firstName.take(2), size = AvatarSize.LG)
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(text = host.firstName, style = typography.bodyStrong, color = colors.navy, maxLines = 1)
-                    DetailsRating(host)
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Box(
+                    modifier = Modifier.size(48.dp).clip(CircleShape).background(colors.lavender),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(text = host.firstName.take(2).uppercase(), style = typography.bodyBold, color = colors.purple)
                 }
-                if (host.verified) {
-                    Badge(variant = BadgeVariant.Verified, label = stringResource(Res.string.bk_verified_owner))
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Text(text = host.firstName, style = typography.bodyBold, color = colors.navy, maxLines = 1)
+                        if (host.verified) {
+                            Text(
+                                text = stringResource(Res.string.bk_verified_short),
+                                style = typography.caption,
+                                color = colors.successText,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(999.dp))
+                                    .background(colors.successBg)
+                                    .padding(horizontal = 6.dp),
+                            )
+                        }
+                    }
+                    DetailsRating(host)
                 }
             }
             if (ride != null && plateHidden) {
@@ -198,13 +215,8 @@ private fun DetailsHostCard(
 private fun DetailsRating(host: RideHost) {
     val colors = HitchyTheme.colors
     val rating = host.rating ?: return
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-        Icon(
-            painter = painterResource(HitchyIcons.Star),
-            contentDescription = null,
-            tint = colors.warning,
-            modifier = Modifier.size(14.dp),
-        )
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text(text = "★", style = HitchyTheme.typography.captionStrong, color = colors.warning)
         Text(
             text = stringResource(Res.string.bk_rating_line, rating.toString().take(3), host.trips),
             style = HitchyTheme.typography.caption,
@@ -213,6 +225,7 @@ private fun DetailsRating(host: RideHost) {
     }
 }
 
+/** Figma's trip box: lilac, r=12, pad 12, 18/26 Bold times around a purple arrow. */
 @Composable
 private fun DetailsTimeBanner(
     pickupTime: String,
@@ -223,20 +236,15 @@ private fun DetailsTimeBanner(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(BookingCardRadius))
+            .clip(RoundedCornerShape(12.dp))
             .background(colors.lilac)
-            .padding(horizontal = 16.dp, vertical = 16.dp),
+            .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Text(text = pickupTime, style = typography.h3, color = colors.navy)
-        Icon(
-            painter = painterResource(HitchyIcons.ArrowForward),
-            contentDescription = null,
-            tint = colors.purple,
-            modifier = Modifier.size(12.dp),
-        )
-        Text(text = dropTime, style = typography.h3, color = colors.navy)
+        Text(text = pickupTime, style = typography.title, color = colors.navy)
+        Text(text = "→", style = typography.body, color = colors.purple)
+        Text(text = dropTime, style = typography.title, color = colors.navy)
         Text(text = stringResource(Res.string.bk_arrival), style = typography.caption, color = colors.textSecondary)
     }
 }
@@ -252,10 +260,7 @@ private fun DetailsSeatsCard(
     val colors = HitchyTheme.colors
     val typography = HitchyTheme.typography
     BookingCardSurface {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -263,7 +268,7 @@ private fun DetailsSeatsCard(
             ) {
                 Text(
                     text = stringResource(Res.string.bk_available_seats),
-                    style = typography.bodyStrong,
+                    style = typography.bodyBold,
                     color = colors.navy,
                 )
                 SeatIndicator(availableSeats = seatsLeft)
@@ -273,6 +278,7 @@ private fun DetailsSeatsCard(
     }
 }
 
+/** Home's Passengers row (Figma 390:1307): a 32dp tile, 14/22 texts, the 38dp white and purple stepper. */
 @Composable
 private fun DetailsPassengersRow(
     seats: Int,
@@ -282,44 +288,85 @@ private fun DetailsPassengersRow(
 ) {
     val colors = HitchyTheme.colors
     val typography = HitchyTheme.typography
-    BookingCardSurface {
-        Row(
-            modifier = Modifier.padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+    val shape = RoundedCornerShape(16.dp)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .border(1.dp, colors.hairline, shape)
+            .padding(horizontal = 14.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
+            modifier = Modifier.size(32.dp).clip(RoundedCornerShape(12.dp)).background(colors.lavender),
+            contentAlignment = Alignment.Center,
         ) {
-            Box(
-                modifier = Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)).background(colors.lavender),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    painter = painterResource(HitchyIcons.Person),
-                    contentDescription = null,
-                    tint = colors.purple,
-                    modifier = Modifier.size(20.dp),
-                )
+            Icon(
+                painter = painterResource(HitchyIcons.PassengerSmall),
+                contentDescription = null,
+                tint = colors.purpleDeep,
+            )
+        }
+        Column(modifier = Modifier.weight(1f).padding(start = 14.dp)) {
+            Text(
+                text = stringResource(Res.string.rider_home_passengers_label),
+                style = typography.body,
+                color = colors.textSecondary,
+            )
+            Text(
+                text = if (seats == 1) {
+                    stringResource(Res.string.rider_home_passengers_one)
+                } else {
+                    stringResource(Res.string.rider_home_passengers_many, seats)
+                },
+                style = typography.bodyStrong,
+                color = colors.navy,
+            )
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+            StepCircle(HitchyIcons.Minus, filled = false, enabled = enabled && seats > 1) { onSeatsChange(seats - 1) }
+            Box(modifier = Modifier.size(32.dp), contentAlignment = Alignment.Center) {
+                Text(text = seats.toString(), style = typography.title, color = colors.navy)
             }
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = stringResource(Res.string.rider_home_passengers_label),
-                    style = typography.caption,
-                    color = colors.textSecondary,
-                )
-                Text(
-                    text = if (seats == 1) {
-                        stringResource(Res.string.rider_home_passengers_one)
-                    } else {
-                        stringResource(Res.string.rider_home_passengers_many, seats)
-                    },
-                    style = typography.bodyStrong,
-                    color = colors.navy,
-                )
-            }
-            PassengersStepper(count = seats, maxCount = maxSeats, onCountChange = onSeatsChange, enabled = enabled)
+            StepCircle(
+                HitchyIcons.Plus,
+                filled = true,
+                enabled = enabled && seats < maxSeats,
+            ) { onSeatsChange(seats + 1) }
         }
     }
 }
 
+@Composable
+private fun StepCircle(
+    icon: org.jetbrains.compose.resources.DrawableResource,
+    filled: Boolean,
+    enabled: Boolean,
+    onClick: () -> Unit,
+) {
+    val colors = HitchyTheme.colors
+    Box(
+        modifier = Modifier
+            .size(38.dp)
+            .clip(CircleShape)
+            .background(if (filled) colors.purple else colors.white)
+            .then(if (filled) Modifier else Modifier.border(1.dp, colors.border, CircleShape))
+            .alpha(if (enabled) 1f else DISABLED_ALPHA)
+            .clickable(enabled = enabled, onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            painter = painterResource(icon),
+            contentDescription = null,
+            tint = if (filled) colors.white else colors.navy,
+            modifier = Modifier.size(18.dp),
+        )
+    }
+}
+
+private const val DISABLED_ALPHA = 0.4f
+
+/** Figma's price breakdown: 12/18 rows, a Bold "Total" with the 18/26 amount, and the blue info note. */
 @Composable
 private fun DetailsPriceCard(
     pricePerSeat: Int,
@@ -328,35 +375,57 @@ private fun DetailsPriceCard(
     val colors = HitchyTheme.colors
     val typography = HitchyTheme.typography
     BookingCardSurface {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            Text(text = stringResource(Res.string.bk_price_title), style = typography.bodyLarge, color = colors.navy)
-            DetailsPriceLine(
-                label = stringResource(Res.string.ride_details_price_per_seat),
-                amount = pricePerSeat,
-            )
-            HorizontalDivider(color = colors.border, thickness = 1.dp)
-            DetailsPriceLine(label = stringResource(Res.string.bk_total), amount = total)
-            HitchyBanner(text = stringResource(Res.string.ride_details_wallet_note), variant = BannerVariant.Info)
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text(
+                    text = stringResource(Res.string.ride_details_price_per_seat),
+                    style = typography.caption,
+                    color = colors.textSecondary,
+                )
+                Text(
+                    text = stringResource(Res.string.bk_egp_amount, pricePerSeat),
+                    style = typography.captionStrong,
+                    color = colors.navy,
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = stringResource(Res.string.bk_total),
+                    style = typography.bodyBold,
+                    color = colors.textSecondary,
+                )
+                Text(
+                    text = stringResource(Res.string.bk_egp_amount, total),
+                    style = typography.title,
+                    color = colors.navy,
+                )
+            }
+            Row(
+                modifier = Modifier
+                    .padding(top = 4.dp)
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(colors.infoBg)
+                    .padding(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    painter = painterResource(HitchyIcons.Info16),
+                    contentDescription = null,
+                    tint = colors.deepPurple,
+                    modifier = Modifier.size(16.dp),
+                )
+                Text(
+                    text = stringResource(Res.string.ride_details_wallet_note),
+                    style = typography.caption,
+                    color = colors.infoText,
+                )
+            }
         }
-    }
-}
-
-@Composable
-private fun DetailsPriceLine(
-    label: String,
-    amount: Int,
-) {
-    val colors = HitchyTheme.colors
-    val typography = HitchyTheme.typography
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(text = label, style = typography.bodyLarge, color = colors.navy)
-        Text(text = stringResource(Res.string.bk_egp_amount, amount), style = typography.title, color = colors.navy)
     }
 }

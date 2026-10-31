@@ -73,8 +73,13 @@ import hitchy.shared.generated.resources.onboarding_title_1
 import hitchy.shared.generated.resources.onboarding_title_2
 import hitchy.shared.generated.resources.onboarding_title_3
 import hitchy.shared.generated.resources.otp_change_number
+import hitchy.shared.generated.resources.otp_expired_alert_body
+import hitchy.shared.generated.resources.otp_expired_alert_title
+import hitchy.shared.generated.resources.otp_expired_body
+import hitchy.shared.generated.resources.otp_expired_title
 import hitchy.shared.generated.resources.otp_resend_in
 import hitchy.shared.generated.resources.otp_resend_now
+import hitchy.shared.generated.resources.otp_send_new_code
 import hitchy.shared.generated.resources.otp_title
 import hitchy.shared.generated.resources.otp_verify_button
 import hitchy.shared.generated.resources.otp_verify_subtitle
@@ -492,6 +497,8 @@ fun OtpVerifyScreen(
     val error = state.error
     // Figma paints the boxes red for a wrong code only; a failed send keeps them plain.
     val wrongCode = error != null && state.code.length == OTP_LENGTH
+    // Figma frame 384:4313 "Code Expired Screen": the same screen with its own title, red boxes and an alert.
+    val expired = state.isCodeExpired
 
     LaunchedEffect(phoneE164) {
         viewModel.onAction(OtpVerifyAction.Init(phoneE164))
@@ -534,12 +541,18 @@ fun OtpVerifyScreen(
                         )
                         Column(verticalArrangement = Arrangement.spacedBy(spacing.space8)) {
                             Text(
-                                text = stringResource(Res.string.otp_title),
+                                text = stringResource(
+                                    if (expired) Res.string.otp_expired_title else Res.string.otp_title,
+                                ),
                                 style = typography.h1,
                                 color = colors.navy,
                             )
                             Text(
-                                text = stringResource(Res.string.otp_verify_subtitle, formatEgyptPhone(phoneE164)),
+                                text = if (expired) {
+                                    stringResource(Res.string.otp_expired_body)
+                                } else {
+                                    stringResource(Res.string.otp_verify_subtitle, formatEgyptPhone(phoneE164))
+                                },
                                 style = typography.body,
                                 color = colors.textSecondary,
                             )
@@ -556,11 +569,11 @@ fun OtpVerifyScreen(
                         OtpField(
                             otpValue = state.code,
                             onOtpChange = { viewModel.onAction(OtpVerifyAction.UpdateCode(it)) },
-                            isError = wrongCode,
+                            isError = wrongCode || expired,
                             enabled = !state.isVerifying,
                         )
 
-                        if (error != null) {
+                        if (error != null && !expired) {
                             Text(
                                 text = stringResource(error.message()),
                                 style = typography.body,
@@ -569,31 +582,44 @@ fun OtpVerifyScreen(
                             )
                         }
 
-                        Text(
-                            text = if (state.resendSecondsLeft > 0) {
-                                stringResource(
-                                    Res.string.otp_resend_in,
-                                    formatCountdown(state.resendSecondsLeft),
-                                )
-                            } else {
-                                stringResource(Res.string.otp_resend_now)
-                            },
-                            style = typography.caption,
-                            color = colors.textSecondary,
-                            modifier = Modifier.clickable(enabled = state.canResend) {
-                                viewModel.onAction(OtpVerifyAction.Resend)
-                            },
-                        )
+                        if (!expired) {
+                            Text(
+                                text = if (state.resendSecondsLeft > 0) {
+                                    stringResource(
+                                        Res.string.otp_resend_in,
+                                        formatCountdown(state.resendSecondsLeft),
+                                    )
+                                } else {
+                                    stringResource(Res.string.otp_resend_now)
+                                },
+                                style = typography.caption,
+                                color = colors.textSecondary,
+                                modifier = Modifier.clickable(enabled = state.canResend) {
+                                    viewModel.onAction(OtpVerifyAction.Resend)
+                                },
+                            )
+                        }
                     }
                 }
 
-                HitchyButton(
-                    onClick = { viewModel.onAction(OtpVerifyAction.Submit) },
-                    enabled = state.code.length == OTP_LENGTH && !state.isVerifying,
-                    loading = state.isVerifying,
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Text(text = stringResource(Res.string.otp_verify_button))
+                if (expired) {
+                    ExpiredAlert(modifier = Modifier.padding(vertical = 8.dp))
+                    HitchyButton(
+                        onClick = { viewModel.onAction(OtpVerifyAction.Resend) },
+                        enabled = state.canResend,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(text = stringResource(Res.string.otp_send_new_code))
+                    }
+                } else {
+                    HitchyButton(
+                        onClick = { viewModel.onAction(OtpVerifyAction.Submit) },
+                        enabled = state.code.length == OTP_LENGTH && !state.isVerifying,
+                        loading = state.isVerifying,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(text = stringResource(Res.string.otp_verify_button))
+                    }
                 }
             }
 
@@ -602,6 +628,41 @@ fun OtpVerifyScreen(
                 style = typography.title,
                 color = colors.purple,
                 modifier = Modifier.clickable(enabled = !state.isVerifying, onClick = onBack),
+            )
+        }
+    }
+}
+
+/** Figma's 361x70 r=16 #FEE2E2 alert on the Code Expired screen: an 18dp mark and two lines. */
+@Composable
+private fun ExpiredAlert(modifier: Modifier = Modifier) {
+    val colors = HitchyTheme.colors
+    val typography = HitchyTheme.typography
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(colors.errorBg)
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            painter = painterResource(HitchyIcons.CloseSmall),
+            contentDescription = null,
+            tint = colors.errorText,
+            modifier = Modifier.size(18.dp),
+        )
+        Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+            Text(
+                text = stringResource(Res.string.otp_expired_alert_title),
+                style = typography.captionStrong,
+                color = colors.errorText,
+            )
+            Text(
+                text = stringResource(Res.string.otp_expired_alert_body),
+                style = typography.caption,
+                color = colors.errorText,
             )
         }
     }
