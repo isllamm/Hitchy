@@ -110,7 +110,7 @@ fun OwnerHomeContent(
     val state by viewModel.state.collectAsStateWithLifecycle()
     WhiteStatusBarIcons()
     val monthKey = dateKey(clock.now()).take(MONTH_END)
-    val stats = ownerHomeStats(state.upcomingRides, monthKey)
+    val stats = ownerHomeStats(state.upcomingRides, monthKey, state.pendingSeatsByRide)
     val months = stringArrayResource(Res.array.owner_home_months_full)
     val monthName = months.getOrElse(monthKey.substring(MONTH_START).toInt() - 1) { "" }
     val requestsRideId = state.pendingRequestsCountByRide.entries.firstOrNull { it.value > 0 }?.key

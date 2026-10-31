@@ -552,4 +552,14 @@
     <string name="offer_go_to_rides">Go to my rides</string>
     <string name="offer_wheel_am">AM</string>
     <string name="offer_wheel_pm">PM</string>
+    <string name="owner_review_requests">Review %1$d requests</string>
+    <string name="owner_cancel_title">Cancel this ride?</string>
+    <string name="owner_cancel_sick">I'm sick</string>
+    <string name="owner_cancel_car_problem">Car problem</string>
+    <string name="owner_keep_ride">Keep my ride</string>
+    <string name="owner_seats_open_count">%1$d seats open</string>
+    <string name="owner_requests_waiting">%1$d requests waiting</string>
+    <string name="owner_review_one_request">Review 1 request</string>
+    <string name="owner_one_request_waiting">1 request waiting</string>
+    <string name="owner_one_seat_open">1 seat open</string>
 </resources>

@@ -100,7 +100,7 @@ fun PostRideScreen(
     Column(modifier = modifier.fillMaxSize().background(HitchyTheme.colors.white)) {
         when (step) {
             STEP_ROUTE -> OfferTopBar(stringResource(Res.string.offer_title_route), onBack)
-            STEP_REVIEW -> OfferTopBar(stringResource(Res.string.offer_title_review)) { step = STEP_ROUTE }
+            STEP_REVIEW -> OfferTopBar(stringResource(Res.string.offer_title_review), onBack = { step = STEP_ROUTE })
             else -> Column(Modifier.statusBarsPadding()) {}
         }
         Column(

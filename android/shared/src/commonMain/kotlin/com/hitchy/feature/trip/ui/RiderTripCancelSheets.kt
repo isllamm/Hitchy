@@ -61,7 +61,7 @@ private const val SCRIM_ALPHA = 0.42f
 /** The two sheets' frame: r=24, pad 8/16/42/16, 24dp gaps, a 40x4 handle, over a 42% navy scrim. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun FigmaSheet(
+internal fun FigmaSheet(
     onDismiss: () -> Unit,
     content: @Composable () -> Unit,
 ) {
@@ -173,7 +173,7 @@ internal fun CancelBookingSheet(
 
 /** Figma's 48dp reason row: a 22dp radio (2dp stroke; the chosen one purple with a 10dp dot) and a 14/22 label. */
 @Composable
-private fun CancelReasonRow(
+internal fun CancelReasonRow(
     label: String,
     selected: Boolean,
     enabled: Boolean,

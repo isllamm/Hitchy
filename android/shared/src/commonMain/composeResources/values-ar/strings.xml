@@ -552,4 +552,14 @@
     <string name="offer_go_to_rides">روح لرحلاتي</string>
     <string name="offer_wheel_am">ص</string>
     <string name="offer_wheel_pm">م</string>
+    <string name="owner_review_requests">راجع %1$d طلبات</string>
+    <string name="owner_cancel_title">تلغي الرحلة دي؟</string>
+    <string name="owner_cancel_sick">تعبان</string>
+    <string name="owner_cancel_car_problem">مشكلة في العربية</string>
+    <string name="owner_keep_ride">خلّي الرحلة</string>
+    <string name="owner_seats_open_count">%1$d كراسي فاضية</string>
+    <string name="owner_requests_waiting">%1$d طلبات مستنية</string>
+    <string name="owner_review_one_request">راجع الطلب</string>
+    <string name="owner_one_request_waiting">طلب واحد مستني</string>
+    <string name="owner_one_seat_open">كرسي واحد فاضي</string>
 </resources>

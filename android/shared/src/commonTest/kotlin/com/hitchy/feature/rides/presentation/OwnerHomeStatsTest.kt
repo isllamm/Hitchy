@@ -49,6 +49,16 @@ class OwnerHomeStatsTest {
     }
 
     @Test
+    fun heldRequestSeatsAreNotBooked() {
+        val ride = FakeRidesRepository.sampleRide(id = "b", status = RideStatus.OPEN, seatsTotal = 3, seatsLeft = 0)
+        val rides = listOf(ride)
+
+        val stats = ownerHomeStats(rides, monthKey = "2026-10", pendingSeatsByRide = mapOf("b" to 2))
+
+        assertEquals(1, stats.bookedSeats)
+    }
+
+    @Test
     fun groupDigitsWritesThousandsLikeFigma() {
         assertEquals("0", groupDigits(0))
         assertEquals("999", groupDigits(999))
@@ -76,5 +86,6 @@ class OwnerHomeStatsTest {
 
         assertEquals(200, vm.state.value.pointsBalance)
         assertEquals(mapOf("ride-1" to 2), vm.state.value.pendingRequestsCountByRide)
+        assertEquals(mapOf("ride-1" to 2), vm.state.value.pendingSeatsByRide)
     }
 }

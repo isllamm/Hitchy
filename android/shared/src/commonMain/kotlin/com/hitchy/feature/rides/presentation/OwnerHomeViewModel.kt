@@ -28,6 +28,8 @@ data class OwnerHomeState(
     val isSwitchingRole: Boolean = false,
     val upcomingRides: List<Ride> = emptyList(),
     val pendingRequestsCountByRide: Map<String, Int> = emptyMap(),
+    /** Seats held by requests that wait for the owner's answer, per open ride. */
+    val pendingSeatsByRide: Map<String, Int> = emptyMap(),
     val isLoading: Boolean = false,
     val error: AppError? = null,
 )
@@ -82,16 +84,21 @@ class OwnerHomeViewModel(
             .flatMapLatest { rides ->
                 val open = rides.filter { it.status == RideStatus.OPEN || it.status == RideStatus.FULL }
                 if (open.isEmpty()) {
-                    flowOf(emptyMap())
+                    flowOf(emptyList())
                 } else {
                     combine(open.map { ride -> ridesRepository.observeBookings(ride.id) }) { lists ->
-                        open.indices.associate { i ->
-                            open[i].id to lists[i].count { it.status == BookingStatus.REQUESTED }
-                        }
+                        open.indices.map { i -> open[i].id to lists[i].filter { it.status == BookingStatus.REQUESTED } }
                     }
                 }
             }
-            .onEach { counts -> setState { copy(pendingRequestsCountByRide = counts) } }
+            .onEach { pending ->
+                setState {
+                    copy(
+                        pendingRequestsCountByRide = pending.associate { (id, list) -> id to list.size },
+                        pendingSeatsByRide = pending.associate { (id, list) -> id to list.sumOf { it.seats } },
+                    )
+                }
+            }
             .launchIn(viewModelScope)
     }
 

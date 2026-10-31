@@ -63,11 +63,11 @@ internal fun Modifier.offerCard(): Modifier {
 
 /** Figma's `Top App Bar` (60dp, padding 20): the outlined back button, an 18/26 title, a 44dp spacer. */
 @Composable
-internal fun OfferTopBar(title: String, onBack: (() -> Unit)?) {
+internal fun OfferTopBar(title: String, onBack: (() -> Unit)?, horizontal: Dp = 20.dp) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = figmaTop(60.dp) - 8.dp, start = 20.dp, end = 20.dp)
+            .padding(top = figmaTop(60.dp) - 8.dp, start = horizontal, end = horizontal)
             .height(60.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

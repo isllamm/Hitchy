@@ -118,11 +118,12 @@ fun StatusChip(
 fun StatusPill(
     status: RideStatusVariant,
     modifier: Modifier = Modifier,
+    label: String? = null,
 ) {
     val colors = LocalHitchyColors.current
     val visuals = resolveStatusColors(status, colors)
     Text(
-        text = resolveStatusLabel(status),
+        text = label ?: resolveStatusLabel(status),
         style = LocalHitchyTypography.current.bodyBold,
         color = visuals.textColor,
         modifier = modifier

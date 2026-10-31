@@ -14,9 +14,13 @@ data class OwnerHomeStats(
 /**
  * Builds the Owner Home numbers from the owner's rides. [monthKey] is the Cairo month, "YYYY-MM".
  * Earnings count the booked seats of the rides finished this month at their seat price; the active
- * rides are the open, full and started ones, with their booked seats.
+ * rides are the open, full and started ones, with their booked seats (held request seats left out).
  */
-fun ownerHomeStats(rides: List<Ride>, monthKey: String): OwnerHomeStats {
+fun ownerHomeStats(
+    rides: List<Ride>,
+    monthKey: String,
+    pendingSeatsByRide: Map<String, Int> = emptyMap(),
+): OwnerHomeStats {
     val finished = rides.filter { it.status == RideStatus.FINISHED && it.dateKey.startsWith(monthKey) }
     val active = rides.filter {
         it.status == RideStatus.OPEN || it.status == RideStatus.FULL || it.status == RideStatus.STARTED
@@ -25,7 +29,8 @@ fun ownerHomeStats(rides: List<Ride>, monthKey: String): OwnerHomeStats {
         monthEarningsEgp = finished.sumOf { it.bookedSeats() * it.pricePerSeat },
         monthSeats = finished.sumOf { it.bookedSeats() },
         activeRides = active.size,
-        bookedSeats = active.sumOf { it.bookedSeats() },
+        // A request holds its seats until the owner answers; those are not booked yet.
+        bookedSeats = active.sumOf { (it.bookedSeats() - (pendingSeatsByRide[it.id] ?: 0)).coerceAtLeast(0) },
     )
 }
 
