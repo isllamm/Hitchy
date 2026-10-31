@@ -250,7 +250,7 @@ private fun RowScope.StatCard(
     ) {
         Image(painter = painterResource(image), contentDescription = null, modifier = Modifier.size(40.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Row(modifier = Modifier.height(30.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            Row(modifier = Modifier.heightIn(min = 30.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
                     text = value.toString(),
                     style = typography.amount.copy(letterSpacing = (-0.1).sp),
@@ -468,7 +468,7 @@ private fun ChecklistRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(40.dp)
+            .heightIn(min = 40.dp)
             .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),

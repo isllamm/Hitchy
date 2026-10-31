@@ -260,6 +260,7 @@ fun OnboardingScreen(
 @Composable
 fun WelcomeScreen(
     onContinueToPhone: () -> Unit,
+    onRoleChosen: (Role) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val colors = HitchyTheme.colors
@@ -350,7 +351,10 @@ fun WelcomeScreen(
             Spacer(modifier = Modifier.height(WELCOME_BUTTON_GAP))
 
             HitchyButton(
-                onClick = onContinueToPhone,
+                onClick = {
+                    onRoleChosen(selectedRole)
+                    onContinueToPhone()
+                },
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(text = stringResource(Res.string.welcome_continue))
