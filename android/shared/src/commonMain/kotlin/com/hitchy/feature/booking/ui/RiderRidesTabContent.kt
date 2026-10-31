@@ -80,6 +80,7 @@ import hitchy.shared.generated.resources.rides_tab_empty_body
 import hitchy.shared.generated.resources.rides_tab_empty_title
 import hitchy.shared.generated.resources.rides_tab_role_owner_badge
 import hitchy.shared.generated.resources.rides_tab_role_rider_badge
+import hitchy.shared.generated.resources.rides_tab_role_rider_one
 import hitchy.shared.generated.resources.rides_tab_title
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
@@ -207,7 +208,11 @@ private fun UnifiedRideItem.toCardData(
         time = cairoTime12(booking.pickupAt),
         pickupName = booking.pickupPointName.resolve(language),
         dropOffName = null,
-        title = stringResource(Res.string.rides_tab_role_rider_badge, booking.seats),
+        title = if (booking.seats == 1) {
+            stringResource(Res.string.rides_tab_role_rider_one)
+        } else {
+            stringResource(Res.string.rides_tab_role_rider_badge, booking.seats)
+        },
         subtitle = null,
         tileIcon = HitchyIcons.Person,
         priceEgp = booking.total,

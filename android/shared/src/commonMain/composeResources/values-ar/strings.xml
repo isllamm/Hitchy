@@ -619,4 +619,5 @@
     <string name="inbox_today">النهارده</string>
     <string name="inbox_earlier">قبل كده</string>
     <string name="bk_card_walk">%1$s · %2$d م مشي</string>
+    <string name="rides_tab_role_rider_one">راكب · كرسي واحد</string>
 </resources>
