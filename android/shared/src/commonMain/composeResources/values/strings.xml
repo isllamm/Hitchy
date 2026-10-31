@@ -359,7 +359,7 @@
     <string name="rides_tab_role_rider_badge">Rider · %1$d seats</string>
     <string name="rides_tab_role_owner_badge">Owner · %1$d/%2$d booked</string>
     <string name="inbox_title">Notifications</string>
-    <string name="inbox_mark_all_read">Mark all read</string>
+    <string name="inbox_mark_all_read">Mark all as read</string>
     <string name="inbox_empty_title">You're all caught up</string>
     <string name="inbox_empty_body">Updates about your bookings and trips will show up here.</string>
     <string name="profile_tab_title">My Profile</string>
@@ -475,8 +475,8 @@
     <string name="inbox_tab_account">Account</string>
     <string name="inbox_new">New</string>
     <string name="inbox_just_now">Just now</string>
-    <string name="inbox_minutes_ago">%1$d min ago</string>
-    <string name="inbox_hours_ago">%1$d hr ago</string>
+    <string name="inbox_minutes_ago">%1$dm</string>
+    <string name="inbox_hours_ago">%1$dh</string>
     <string name="bk_verified_short">Verified</string>
     <string name="owner_home_welcome">Welcome back,</string>
     <string name="owner_home_month_earnings">%1$s earnings</string>
@@ -616,4 +616,6 @@
     <string name="signup_name_placeholder">Your full name</string>
     <string name="signup_have_account">Already have an account? %1$s</string>
     <string name="signup_login_link">Log In</string>
+    <string name="inbox_today">TODAY</string>
+    <string name="inbox_earlier">EARLIER</string>
 </resources>

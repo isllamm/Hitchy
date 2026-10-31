@@ -359,7 +359,7 @@
     <string name="rides_tab_role_rider_badge">راكب · %1$d كراسي</string>
     <string name="rides_tab_role_owner_badge">صاحب عربية · %1$d/%2$d محجوز</string>
     <string name="inbox_title">الإشعارات</string>
-    <string name="inbox_mark_all_read">تحديد الكل كمقروء</string>
+    <string name="inbox_mark_all_read">اعتبر الكل مقروء</string>
     <string name="inbox_empty_title">لا توجد إشعارات جديدة</string>
     <string name="inbox_empty_body">تحديثات حجوزاتك ورحلاتك هتظهر هنا.</string>
     <string name="profile_tab_title">حسابي</string>
@@ -475,8 +475,8 @@
     <string name="inbox_tab_account">الحساب</string>
     <string name="inbox_new">جديد</string>
     <string name="inbox_just_now">دلوقتي</string>
-    <string name="inbox_minutes_ago">من %1$d دقيقة</string>
-    <string name="inbox_hours_ago">من %1$d ساعة</string>
+    <string name="inbox_minutes_ago">%1$d د</string>
+    <string name="inbox_hours_ago">%1$d س</string>
     <string name="bk_verified_short">موثّق</string>
     <string name="owner_home_welcome">أهلاً بعودتك،</string>
     <string name="owner_home_month_earnings">أرباح %1$s</string>
@@ -616,4 +616,6 @@
     <string name="signup_name_placeholder">اسمك بالكامل</string>
     <string name="signup_have_account">عندك حساب؟ %1$s</string>
     <string name="signup_login_link">سجّل دخول</string>
+    <string name="inbox_today">النهارده</string>
+    <string name="inbox_earlier">قبل كده</string>
 </resources>
