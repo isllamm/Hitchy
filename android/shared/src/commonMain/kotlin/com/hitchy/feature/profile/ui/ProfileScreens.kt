@@ -2,18 +2,16 @@ package com.hitchy.feature.profile.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.Alignment
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
@@ -21,7 +19,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hitchy.core.model.AppLanguage
 import com.hitchy.core.model.Gender
@@ -43,13 +43,6 @@ import com.hitchy.feature.profile.presentation.ProfileTabAction
 import com.hitchy.feature.profile.presentation.ProfileTabEvent
 import com.hitchy.feature.profile.presentation.ProfileTabViewModel
 import hitchy.shared.generated.resources.Res
-import hitchy.shared.generated.resources.profile_tab_title
-import hitchy.shared.generated.resources.profile_mode_passenger
-import hitchy.shared.generated.resources.profile_mode_label
-import hitchy.shared.generated.resources.profile_mode_driver
-import hitchy.shared.generated.resources.profile_menu_notifications
-import hitchy.shared.generated.resources.profile_info_phone
-import hitchy.shared.generated.resources.profile_info_company
 import hitchy.shared.generated.resources.profile_company_label
 import hitchy.shared.generated.resources.profile_company_none
 import hitchy.shared.generated.resources.profile_company_other
@@ -62,14 +55,21 @@ import hitchy.shared.generated.resources.profile_gender_female
 import hitchy.shared.generated.resources.profile_gender_label
 import hitchy.shared.generated.resources.profile_gender_locked_note
 import hitchy.shared.generated.resources.profile_gender_male
+import hitchy.shared.generated.resources.profile_info_company
+import hitchy.shared.generated.resources.profile_info_phone
 import hitchy.shared.generated.resources.profile_last_name_label
 import hitchy.shared.generated.resources.profile_last_name_placeholder
+import hitchy.shared.generated.resources.profile_menu_notifications
+import hitchy.shared.generated.resources.profile_mode_driver
+import hitchy.shared.generated.resources.profile_mode_label
+import hitchy.shared.generated.resources.profile_mode_passenger
 import hitchy.shared.generated.resources.profile_save_continue
 import hitchy.shared.generated.resources.profile_setup_subtitle
 import hitchy.shared.generated.resources.profile_setup_title
 import hitchy.shared.generated.resources.profile_sign_out
 import hitchy.shared.generated.resources.profile_switch_to_owner
 import hitchy.shared.generated.resources.profile_switch_to_rider
+import hitchy.shared.generated.resources.profile_tab_title
 import hitchy.shared.generated.resources.rides_tab_title
 import hitchy.shared.generated.resources.settings_title
 import org.jetbrains.compose.resources.stringResource
@@ -312,10 +312,18 @@ fun ProfileTabContent(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Column {
-                        Text(text = stringResource(Res.string.profile_mode_label), style = typography.caption, color = colors.textSecondary)
+                        Text(
+                            text = stringResource(Res.string.profile_mode_label),
+                            style = typography.caption,
+                            color = colors.textSecondary,
+                        )
                         Text(
                             text = stringResource(
-                                if (currentRole == Role.RIDER) Res.string.profile_mode_passenger else Res.string.profile_mode_driver,
+                                if (currentRole == Role.RIDER) {
+                                    Res.string.profile_mode_passenger
+                                } else {
+                                    Res.string.profile_mode_driver
+                                },
                             ),
                             style = typography.button,
                             color = colors.navy,
@@ -337,9 +345,24 @@ fun ProfileTabContent(
 
             FigmaSection {
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                    MenuRow(HitchyIcons.MenuRides, stringResource(Res.string.rides_tab_title), onOpenMyRides, divider = true)
-                    MenuRow(HitchyIcons.MenuBell, stringResource(Res.string.profile_menu_notifications), onOpenNotifications, divider = true)
-                    MenuRow(HitchyIcons.MenuSettings, stringResource(Res.string.settings_title), onOpenSettings, divider = true)
+                    MenuRow(
+                        HitchyIcons.MenuRides,
+                        stringResource(Res.string.rides_tab_title),
+                        onOpenMyRides,
+                        divider = true,
+                    )
+                    MenuRow(
+                        HitchyIcons.MenuBell,
+                        stringResource(Res.string.profile_menu_notifications),
+                        onOpenNotifications,
+                        divider = true,
+                    )
+                    MenuRow(
+                        HitchyIcons.MenuSettings,
+                        stringResource(Res.string.settings_title),
+                        onOpenSettings,
+                        divider = true,
+                    )
                     MenuRow(
                         icon = HitchyIcons.Back,
                         label = stringResource(Res.string.profile_sign_out),
@@ -359,7 +382,11 @@ fun ProfileTabContent(
 private fun formatPhone(e164: String): String {
     val national = e164.removePrefix("+20")
     if (national.length != EGYPT_DIGITS || national == e164) return e164
-    return "+20 ${national.take(2)} ${national.substring(2, 6)} ${national.substring(6)}"
+    val area = national.take(AREA_DIGITS)
+    val middle = national.substring(AREA_DIGITS, MIDDLE_END)
+    return "+20 $area $middle ${national.substring(MIDDLE_END)}"
 }
 
 private const val EGYPT_DIGITS = 10
+private const val AREA_DIGITS = 2
+private const val MIDDLE_END = 6

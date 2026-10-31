@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.hitchy.core.ui.figmaShadow
 import com.hitchy.core.ui.icon.HitchyIcons
@@ -105,7 +106,12 @@ internal fun InfoRow(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(painter = painterResource(icon), contentDescription = null, tint = colors.purple, modifier = Modifier.size(22.dp))
+            Icon(
+                painter = painterResource(icon),
+                contentDescription = null,
+                tint = colors.purple,
+                modifier = Modifier.size(22.dp),
+            )
             Column {
                 Text(text = label, style = typography.caption, color = colors.textSecondary)
                 Text(text = value, style = typography.bodyStrong, color = colors.navy)
@@ -138,7 +144,12 @@ internal fun MenuRow(
                 modifier = Modifier.size(34.dp).clip(RoundedCornerShape(10.dp)).background(tileColor),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(painter = painterResource(icon), contentDescription = null, tint = iconColor, modifier = Modifier.size(20.dp))
+                Icon(
+                    painter = painterResource(icon),
+                    contentDescription = null,
+                    tint = iconColor,
+                    modifier = Modifier.size(20.dp),
+                )
             }
             Text(
                 text = label,
@@ -179,7 +190,12 @@ internal fun ModeSwitch(
                 modifier = Modifier
                     .then(
                         if (active) {
-                            Modifier.figmaShadow(segment, colors.navy.copy(alpha = SEGMENT_SHADOW), blur = 4.dp, y = 1.dp)
+                            Modifier.figmaShadow(
+                                segment,
+                                colors.navy.copy(alpha = SEGMENT_SHADOW),
+                                blur = 4.dp,
+                                y = 1.dp,
+                            )
                         } else {
                             Modifier
                         },
@@ -192,7 +208,8 @@ internal fun ModeSwitch(
             ) {
                 Text(
                     text = label,
-                    style = HitchyTheme.typography.captionStrong.copy(fontWeight = HitchyTheme.typography.bodyStrong.fontWeight),
+                    // Figma: SemiBold 12/18.
+                    style = HitchyTheme.typography.caption.copy(fontWeight = FontWeight.SemiBold),
                     color = if (active) colors.purple else colors.textSecondary,
                 )
             }

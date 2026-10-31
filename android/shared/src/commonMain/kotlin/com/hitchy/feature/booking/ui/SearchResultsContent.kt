@@ -62,9 +62,9 @@ import com.hitchy.feature.places.domain.Point
 import hitchy.shared.generated.resources.Res
 import hitchy.shared.generated.resources.bk_arrival
 import hitchy.shared.generated.resources.bk_best_match
+import hitchy.shared.generated.resources.bk_cancel_search
 import hitchy.shared.generated.resources.bk_card_dropoff
 import hitchy.shared.generated.resources.bk_card_pickup
-import hitchy.shared.generated.resources.bk_cancel_search
 import hitchy.shared.generated.resources.bk_edit_route
 import hitchy.shared.generated.resources.bk_egp_amount
 import hitchy.shared.generated.resources.bk_empty_body

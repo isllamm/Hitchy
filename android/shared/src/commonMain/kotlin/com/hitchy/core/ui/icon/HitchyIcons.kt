@@ -3,11 +3,13 @@ package com.hitchy.core.ui.icon
 import hitchy.shared.generated.resources.Res
 import hitchy.shared.generated.resources.fig_arrow_forward
 import hitchy.shared.generated.resources.fig_back
+import hitchy.shared.generated.resources.fig_back_22
 import hitchy.shared.generated.resources.fig_bell
 import hitchy.shared.generated.resources.fig_calendar_small
 import hitchy.shared.generated.resources.fig_cancelled
 import hitchy.shared.generated.resources.fig_car_28
 import hitchy.shared.generated.resources.fig_check_small
+import hitchy.shared.generated.resources.fig_chevron_18
 import hitchy.shared.generated.resources.fig_chevron_left_month
 import hitchy.shared.generated.resources.fig_chevron_right
 import hitchy.shared.generated.resources.fig_chevron_right_20
@@ -16,13 +18,19 @@ import hitchy.shared.generated.resources.fig_clock_small
 import hitchy.shared.generated.resources.fig_close
 import hitchy.shared.generated.resources.fig_close_small
 import hitchy.shared.generated.resources.fig_destination
+import hitchy.shared.generated.resources.fig_destination_22
 import hitchy.shared.generated.resources.fig_driver
+import hitchy.shared.generated.resources.fig_home_22
 import hitchy.shared.generated.resources.fig_info_16
 import hitchy.shared.generated.resources.fig_info_small
 import hitchy.shared.generated.resources.fig_map
+import hitchy.shared.generated.resources.fig_menu_bell
+import hitchy.shared.generated.resources.fig_menu_rides
+import hitchy.shared.generated.resources.fig_menu_settings
 import hitchy.shared.generated.resources.fig_minus
 import hitchy.shared.generated.resources.fig_no_rides
 import hitchy.shared.generated.resources.fig_passenger_small
+import hitchy.shared.generated.resources.fig_person_22
 import hitchy.shared.generated.resources.fig_pickup
 import hitchy.shared.generated.resources.fig_pin_small
 import hitchy.shared.generated.resources.fig_place
@@ -70,14 +78,6 @@ import hitchy.shared.generated.resources.ic_success
 import hitchy.shared.generated.resources.ic_swap
 import hitchy.shared.generated.resources.ic_upload
 import hitchy.shared.generated.resources.ic_warning
-import hitchy.shared.generated.resources.fig_chevron_18
-import hitchy.shared.generated.resources.fig_destination_22
-import hitchy.shared.generated.resources.fig_home_22
-import hitchy.shared.generated.resources.fig_menu_bell
-import hitchy.shared.generated.resources.fig_menu_rides
-import hitchy.shared.generated.resources.fig_menu_settings
-import hitchy.shared.generated.resources.fig_person_22
-import hitchy.shared.generated.resources.fig_back_22
 import org.jetbrains.compose.resources.DrawableResource
 
 /**

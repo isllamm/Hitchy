@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -26,17 +27,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import com.hitchy.core.util.isoToEpochMs
-import androidx.compose.ui.unit.sp
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.foundation.layout.height
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hitchy.core.model.AppLanguage
 import com.hitchy.core.platform.LanguageSwitcher
@@ -49,22 +48,23 @@ import com.hitchy.core.ui.theme.HitchyColors
 import com.hitchy.core.ui.theme.HitchyTheme
 import com.hitchy.core.util.dateKey
 import com.hitchy.core.util.isoToCairoDateKey
+import com.hitchy.core.util.isoToEpochMs
 import com.hitchy.feature.inbox.domain.InboxItem
 import com.hitchy.feature.inbox.presentation.InboxAction
 import com.hitchy.feature.inbox.presentation.InboxEvent
 import com.hitchy.feature.inbox.presentation.InboxViewModel
 import hitchy.shared.generated.resources.Res
 import hitchy.shared.generated.resources.action_back
-import hitchy.shared.generated.resources.inbox_hours_ago
-import hitchy.shared.generated.resources.inbox_minutes_ago
-import hitchy.shared.generated.resources.inbox_just_now
-import hitchy.shared.generated.resources.inbox_new
-import hitchy.shared.generated.resources.inbox_tab_account
-import hitchy.shared.generated.resources.inbox_tab_rides
-import hitchy.shared.generated.resources.inbox_tab_all
 import hitchy.shared.generated.resources.inbox_empty_body
 import hitchy.shared.generated.resources.inbox_empty_title
+import hitchy.shared.generated.resources.inbox_hours_ago
+import hitchy.shared.generated.resources.inbox_just_now
 import hitchy.shared.generated.resources.inbox_mark_all_read
+import hitchy.shared.generated.resources.inbox_minutes_ago
+import hitchy.shared.generated.resources.inbox_new
+import hitchy.shared.generated.resources.inbox_tab_account
+import hitchy.shared.generated.resources.inbox_tab_all
+import hitchy.shared.generated.resources.inbox_tab_rides
 import hitchy.shared.generated.resources.inbox_title
 import hitchy.shared.generated.resources.notif_design_earlier
 import hitchy.shared.generated.resources.notif_design_short_date
@@ -86,10 +86,6 @@ private const val DATE_DAY_START = 8
 /** Tile look for one notification type: background, icon and icon color. */
 private data class TileLook(val icon: DrawableResource, val background: Color, val tint: Color)
 
-/**
- * Notifications built to the design: a round back button with the title, then a Today and an Earlier group.
- * Unread items sit on a lilac block with a purple dot; each type gets its own icon tile.
- */
 /**
  * Figma frame 398:6013 "Notifications": a 60dp header (back, title, Mark all read), the tab list and
  * full-width rows. The Messages tab is left out: there is no chat in the demo.
@@ -154,6 +150,7 @@ private enum class InboxTab { All, Rides, Account }
 private fun InboxItem.tab(): InboxTab = when {
     type.startsWith("booking") || type.startsWith("ride") || type.startsWith("payment") ||
         type.startsWith("request") || type.startsWith("rate") || type == "low_balance" -> InboxTab.Rides
+
     else -> InboxTab.Account
 }
 
@@ -257,14 +254,22 @@ private fun NotificationDesignRow(
 
     Column(modifier = Modifier.fillMaxWidth().background(if (unread) colors.lilac else colors.white)) {
         Row(
-            modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).padding(horizontal = 20.dp, vertical = 16.dp),
+            modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).padding(
+                horizontal = 20.dp,
+                vertical = 16.dp,
+            ),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Box(
                 modifier = Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)).background(look.background),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(painter = painterResource(look.icon), contentDescription = null, tint = look.tint, modifier = Modifier.size(20.dp))
+                Icon(
+                    painter = painterResource(look.icon),
+                    contentDescription = null,
+                    tint = look.tint,
+                    modifier = Modifier.size(20.dp),
+                )
             }
             Column(modifier = Modifier.weight(1f)) {
                 Row(
@@ -280,7 +285,10 @@ private fun NotificationDesignRow(
                         maxLines = 1,
                     )
                     if (unread) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
                             Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(colors.purple))
                             Text(
                                 text = stringResource(Res.string.inbox_new),
@@ -323,8 +331,11 @@ private fun relativeTime(
     val minutes = ((nowMs - isoToEpochMs(createdAt)) / MS_PER_MINUTE).coerceAtLeast(0)
     return when {
         minutes < 1 -> stringResource(Res.string.inbox_just_now)
+
         minutes < MINUTES_PER_HOUR -> stringResource(Res.string.inbox_minutes_ago, minutes.toInt())
+
         minutes < MINUTES_PER_DAY -> stringResource(Res.string.inbox_hours_ago, (minutes / MINUTES_PER_HOUR).toInt())
+
         else -> {
             val key = isoToCairoDateKey(createdAt)
             val months = stringArrayResource(Res.array.rider_home_months)

@@ -3,9 +3,8 @@
 package com.hitchy.feature.booking.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.ui.draw.alpha
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.hitchy.core.model.AppLanguage
@@ -53,9 +53,9 @@ import hitchy.shared.generated.resources.bk_pickup_location_walk
 import hitchy.shared.generated.resources.bk_price_title
 import hitchy.shared.generated.resources.bk_rating_line
 import hitchy.shared.generated.resources.bk_total
-import hitchy.shared.generated.resources.bk_verified_short
 import hitchy.shared.generated.resources.bk_vehicle_line_hidden
 import hitchy.shared.generated.resources.bk_verified_owner
+import hitchy.shared.generated.resources.bk_verified_short
 import hitchy.shared.generated.resources.bk_your_owner
 import hitchy.shared.generated.resources.ride_details_late_fee_rule
 import hitchy.shared.generated.resources.ride_details_price_per_seat
@@ -175,7 +175,10 @@ private fun DetailsHostCard(
                     Text(text = host.firstName.take(2).uppercase(), style = typography.bodyBold, color = colors.purple)
                 }
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
                         Text(text = host.firstName, style = typography.bodyBold, color = colors.navy, maxLines = 1)
                         if (host.verified) {
                             Text(
@@ -263,7 +266,11 @@ private fun DetailsSeatsCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(text = stringResource(Res.string.bk_available_seats), style = typography.bodyBold, color = colors.navy)
+                Text(
+                    text = stringResource(Res.string.bk_available_seats),
+                    style = typography.bodyBold,
+                    color = colors.navy,
+                )
                 SeatIndicator(availableSeats = seatsLeft)
             }
             DetailsPassengersRow(seats = seats, maxSeats = maxSeats, enabled = enabled, onSeatsChange = onSeatsChange)
@@ -294,10 +301,18 @@ private fun DetailsPassengersRow(
             modifier = Modifier.size(32.dp).clip(RoundedCornerShape(12.dp)).background(colors.lavender),
             contentAlignment = Alignment.Center,
         ) {
-            Icon(painter = painterResource(HitchyIcons.PassengerSmall), contentDescription = null, tint = colors.purpleDeep)
+            Icon(
+                painter = painterResource(HitchyIcons.PassengerSmall),
+                contentDescription = null,
+                tint = colors.purpleDeep,
+            )
         }
         Column(modifier = Modifier.weight(1f).padding(start = 14.dp)) {
-            Text(text = stringResource(Res.string.rider_home_passengers_label), style = typography.body, color = colors.textSecondary)
+            Text(
+                text = stringResource(Res.string.rider_home_passengers_label),
+                style = typography.body,
+                color = colors.textSecondary,
+            )
             Text(
                 text = if (seats == 1) {
                     stringResource(Res.string.rider_home_passengers_one)
@@ -313,7 +328,11 @@ private fun DetailsPassengersRow(
             Box(modifier = Modifier.size(32.dp), contentAlignment = Alignment.Center) {
                 Text(text = seats.toString(), style = typography.title, color = colors.navy)
             }
-            StepCircle(HitchyIcons.Plus, filled = true, enabled = enabled && seats < maxSeats) { onSeatsChange(seats + 1) }
+            StepCircle(
+                HitchyIcons.Plus,
+                filled = true,
+                enabled = enabled && seats < maxSeats,
+            ) { onSeatsChange(seats + 1) }
         }
     }
 }
@@ -358,16 +377,32 @@ private fun DetailsPriceCard(
     BookingCardSurface {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(text = stringResource(Res.string.ride_details_price_per_seat), style = typography.caption, color = colors.textSecondary)
-                Text(text = stringResource(Res.string.bk_egp_amount, pricePerSeat), style = typography.captionStrong, color = colors.navy)
+                Text(
+                    text = stringResource(Res.string.ride_details_price_per_seat),
+                    style = typography.caption,
+                    color = colors.textSecondary,
+                )
+                Text(
+                    text = stringResource(Res.string.bk_egp_amount, pricePerSeat),
+                    style = typography.captionStrong,
+                    color = colors.navy,
+                )
             }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(text = stringResource(Res.string.bk_total), style = typography.bodyBold, color = colors.textSecondary)
-                Text(text = stringResource(Res.string.bk_egp_amount, total), style = typography.title, color = colors.navy)
+                Text(
+                    text = stringResource(Res.string.bk_total),
+                    style = typography.bodyBold,
+                    color = colors.textSecondary,
+                )
+                Text(
+                    text = stringResource(Res.string.bk_egp_amount, total),
+                    style = typography.title,
+                    color = colors.navy,
+                )
             }
             Row(
                 modifier = Modifier
@@ -385,7 +420,11 @@ private fun DetailsPriceCard(
                     tint = colors.deepPurple,
                     modifier = Modifier.size(16.dp),
                 )
-                Text(text = stringResource(Res.string.ride_details_wallet_note), style = typography.caption, color = colors.infoText)
+                Text(
+                    text = stringResource(Res.string.ride_details_wallet_note),
+                    style = typography.caption,
+                    color = colors.infoText,
+                )
             }
         }
     }

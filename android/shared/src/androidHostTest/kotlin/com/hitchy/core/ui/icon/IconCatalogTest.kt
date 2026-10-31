@@ -130,8 +130,9 @@ class IconCatalogTest {
             "fig_car_28",
             "fig_info_16",
             "fig_cancelled",
-                "fig_back_22",
-                "fig_person_22", "fig_home_22", "fig_destination_22", "fig_menu_rides", "fig_menu_bell", "fig_menu_settings", "fig_chevron_18",
+            "fig_back_22",
+            "fig_person_22", "fig_home_22", "fig_destination_22",
+            "fig_menu_rides", "fig_menu_bell", "fig_menu_settings", "fig_chevron_18",
         )) {
             val file = File(drawableDir, "$name.xml")
             assertTrue(file.exists(), "Missing Figma drawing: ${file.absolutePath}")
