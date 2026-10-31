@@ -131,7 +131,10 @@ class RootViewModelTest {
         return RootViewModel(
             authRepository = FakeAuthRepository(initialState = AuthState.SignedIn("host-test-1")),
             profileRepository = FakeProfileRepository(
-                initialUser = FakeProfileRepository.sampleUser(activeRole = Role.HOST, hostStatus = HostStatus.APPROVED),
+                initialUser = FakeProfileRepository.sampleUser(
+                    activeRole = Role.HOST,
+                    hostStatus = HostStatus.APPROVED,
+                ),
             ),
             ridesRepository = ridesRepo,
             hostRepository = FakeHostRepository(),
