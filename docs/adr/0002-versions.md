@@ -58,6 +58,7 @@ These are the newest stable releases on 2026-10-28, checked against each other's
 | Location | play-services-location | 21.4.0 | |
 | Maps | com.google.android.gms:play-services-maps | 20.1.0 | Accepted 2026-10-30; P3-A11 builds with it (resolved from Google Maven). Used without a map ID (plan 5.10). |
 | Maps | com.google.maps.android:maps-compose | 9.0.1 | Accepted 2026-10-30; built with Kotlin 2.4.20, used with Kotlin 2.4.21. P3-A11 builds with it. |
+| Images | io.coil-kt.coil3:coil-compose, coil-network-okhttp | 3.6.3 | Accepted 2026-10-31 (released 2026-09-18). BUILD_PLAN 4.4 lists Coil 3. Shows profile pictures from Storage. |
 | Android | androidx.appcompat | 1.8.0 | Not in 4.4: `MainActivity` is an `AppCompatActivity` (P2-A09). |
 | Android | androidx.activity:activity-compose | 1.13.0 | Not in 4.4: `setContent` in `MainActivity`. |
 | Tests | koin-test | 4.2.2 (from Koin BOM) | Not in 4.4: JVM verification test (module.verify()) in app/src/test. |
