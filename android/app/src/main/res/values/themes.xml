@@ -2,5 +2,7 @@
 <resources>
     <style name="Theme.Hitchy" parent="Theme.AppCompat.DayNight.NoActionBar">
         <!-- Main AppCompat theme hosting Compose UI -->
+        <!-- Dark status bar icons: the app draws edge to edge on white screens. -->
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 </resources>

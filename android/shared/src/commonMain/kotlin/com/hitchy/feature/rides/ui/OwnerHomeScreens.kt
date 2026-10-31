@@ -35,6 +35,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hitchy.core.model.RideStatus
+import com.hitchy.core.ui.WhiteStatusBarIcons
 import com.hitchy.core.ui.figmaShadow
 import com.hitchy.core.ui.figmaTop
 import com.hitchy.core.ui.icon.HitchyIcons
@@ -107,6 +108,7 @@ fun OwnerHomeContent(
     clock: Clock = koinInject(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    WhiteStatusBarIcons()
     val monthKey = dateKey(clock.now()).take(MONTH_END)
     val stats = ownerHomeStats(state.upcomingRides, monthKey)
     val months = stringArrayResource(Res.array.owner_home_months_full)
