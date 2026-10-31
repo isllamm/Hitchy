@@ -23,6 +23,7 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 30 # a hung test must fail in minutes, not after the 6 hour default
     defaults:
       run:
         working-directory: android
