@@ -575,4 +575,13 @@
     <string name="profile_menu_my_rides">رحلاتي</string>
     <string name="profile_menu_saved_places">الأماكن المحفوظة</string>
     <string name="profile_menu_help">المساعدة والدعم</string>
+    <string name="profile_wallet_amount">%1$d ج.م</string>
+    <string name="profile_logout">تسجيل الخروج</string>
+    <string name="profile_section_info">معلوماتي</string>
+    <string name="profile_personal_info">البيانات الشخصية</string>
+    <string name="profile_language">اللغة</string>
+    <string name="profile_section_support">الدعم</string>
+    <string name="profile_about">عن Hitchy</string>
+    <string name="profile_terms">الشروط وسياسة الخصوصية</string>
+    <string name="profile_rating_rides">%1$s · %2$d رحلة</string>
 </resources>

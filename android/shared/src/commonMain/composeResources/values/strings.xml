@@ -575,4 +575,13 @@
     <string name="profile_menu_my_rides">My Rides</string>
     <string name="profile_menu_saved_places">Saved Places</string>
     <string name="profile_menu_help">Help &amp; Support</string>
+    <string name="profile_wallet_amount">%1$d EGP</string>
+    <string name="profile_logout">Logout</string>
+    <string name="profile_section_info">My Information</string>
+    <string name="profile_personal_info">Personal Information</string>
+    <string name="profile_language">Language</string>
+    <string name="profile_section_support">Support</string>
+    <string name="profile_about">About Hitchy</string>
+    <string name="profile_terms">Terms &amp; Privacy Policy</string>
+    <string name="profile_rating_rides">%1$s · %2$d rides</string>
 </resources>

@@ -88,7 +88,6 @@ fun HomeScreen(
     onOpenHostRideDetails: (String) -> Unit,
     onOpenHostTrip: (String) -> Unit,
     onOpenPostRide: () -> Unit,
-    onOpenSettings: () -> Unit,
     onOpenHostApplication: () -> Unit,
     modifier: Modifier = Modifier,
     profileRepository: ProfileRepository = koinInject(),
@@ -148,7 +147,6 @@ fun HomeScreen(
                         ProfileTabContent(
                             onOpenMyRides = { selectedTab = BottomNavItem.Rides },
                             onOpenNotifications = onOpenNotifications,
-                            onOpenSettings = onOpenSettings,
                             onOpenHostApplication = onOpenHostApplication,
                         )
                     }

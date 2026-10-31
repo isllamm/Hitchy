@@ -46,6 +46,12 @@ val MapLand = Color(0xFFEDF3ED)
 /** Disabled chevrons and faint dividers. */
 val Gray300 = Color(0xFFD1D5DB)
 
+/** The profile (More) frame: section titles, the header's corner circle, the wallet tile and Logout. */
+val Slate900 = Color(0xFF0F172A)
+val Steel = Color(0xFF23334A)
+val TileGray = Color(0xFFD2D6DB)
+val AlertRed = Color(0xFFFF3B30)
+
 /** The ink of shadows that Figma tints. */
 val ShadowInk = Color(0xFF111827)
 val Background = Color(0xFFF8F9FC)

@@ -164,7 +164,6 @@ fun HitchyNavHost(
                 onOpenHostRideDetails = { rideId -> navController.navigate(HostRideDetails(rideId)) },
                 onOpenHostTrip = { rideId -> navController.navigate(HostTrip(rideId)) },
                 onOpenPostRide = { navController.navigate(PostRide) },
-                onOpenSettings = { navController.navigate(Settings) },
                 onOpenHostApplication = { navController.navigate(HostApplication) },
             )
         }
