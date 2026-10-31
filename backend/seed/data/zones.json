@@ -118,7 +118,7 @@
         },
         "lat": 30.073,
         "lng": 31.013,
-        "active": true
+        "active": false
       }
     ]
   },
@@ -139,7 +139,7 @@
         },
         "lat": 29.961,
         "lng": 31.041,
-        "active": true
+        "active": false
       },
       {
         "id": "p2",
@@ -149,7 +149,7 @@
         },
         "lat": 29.962,
         "lng": 31.042,
-        "active": true
+        "active": false
       },
       {
         "id": "p3",
@@ -159,7 +159,7 @@
         },
         "lat": 29.963,
         "lng": 31.043,
-        "active": true
+        "active": false
       }
     ]
   }
