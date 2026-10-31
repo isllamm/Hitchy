@@ -3555,7 +3555,7 @@ List files changed, test results, and any [HUMAN] or [DECISION] items.
 | `SUSPENDED` | permission-denied | Your account is paused. Contact support. | حسابك موقوف مؤقتاً، كلّم الدعم. |
 | `NOT_FOUND` | not-found | We couldn't find this. | مش لاقيين الحاجة دي. |
 | `FEATURE_DISABLED` | failed-precondition | This isn't available yet. | الميزة دي لسه مش متاحة. |
-| `INTERNAL` | internal | Something went wrong. Try again. | حصلت مشكلة، جرّب تاني. |
+| `INTERNAL` | internal | We couldn’t finish this right now. Try again in a minute. | مقدرناش نكمّل الطلب دلوقتي. جرّب تاني بعد دقيقة. |
 | `PHONE_REQUIRED` | failed-precondition | Sign in with your phone number first. | سجّل برقم موبايلك الأول. |
 | `GENDER_LOCKED` | failed-precondition | Gender can't be changed. Contact support. | النوع مينفعش يتغير، كلّم الدعم. |
 | `HOST_NOT_APPROVED` | failed-precondition | Your owner account isn't approved yet. | حسابك كصاحب عربية لسه متوافقش عليه. |

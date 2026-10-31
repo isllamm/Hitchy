@@ -30,6 +30,7 @@ import com.hitchy.core.model.SavedPlaceLabel
 import com.hitchy.core.platform.LanguageSwitcher
 import com.hitchy.core.ui.WhiteStatusBarIcons
 import com.hitchy.core.ui.components.BannerVariant
+import com.hitchy.core.ui.components.FloatingBanner
 import com.hitchy.core.ui.components.HitchyBanner
 import com.hitchy.core.ui.components.HitchyButton
 import com.hitchy.core.ui.components.HitchyTextField
@@ -279,94 +280,99 @@ fun ProfileTabContent(
     val language = languageSwitcher.getCurrentLanguage()
     WhiteStatusBarIcons()
 
-    Column(modifier = modifier.fillMaxSize().background(colors.white)) {
-        if (profile != null) {
-            val stats = if (currentRole == Role.HOST) {
-                profile.host.ratingAvg to profile.host.tripsCompleted
-            } else {
-                profile.rider.ratingAvg to profile.rider.tripsCompleted
-            }
-            MoreHeader(
-                initials = "${profile.firstName.take(1)}${profile.lastName.take(1)}".uppercase(),
-                photoPath = profile.photoPath,
-                name = "${profile.firstName} ${profile.lastName}",
-                verified = profile.host.verified,
-                ratingLine = stringResource(
-                    Res.string.profile_rating_rides,
-                    stats.first?.toString() ?: "—",
-                    stats.second,
-                ),
-                // No edit screen yet.
-                onEditProfile = null,
-            )
-        }
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(start = 16.dp, end = 16.dp, top = 32.dp, bottom = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp),
-        ) {
-            val error = state.error
-            if (error != null) {
-                HitchyBanner(
-                    text = stringResource(error.message()),
-                    variant = BannerVariant.Error,
-                    onDismiss = { viewModel.onAction(ProfileTabAction.DismissError) },
-                )
-            }
-            MoreWalletCard(balanceEgp = state.walletBalanceEgp)
-            MoreSection(title = stringResource(Res.string.profile_section_info)) {
-                // Personal Information and Saved Places have no screen yet.
-                MoreRow(Res.drawable.fig_more_person, stringResource(Res.string.profile_personal_info), onClick = null)
-                MoreRow(Res.drawable.fig_more_car, stringResource(Res.string.profile_menu_my_rides), onOpenMyRides)
-                MoreRow(
-                    Res.drawable.fig_more_location,
-                    stringResource(Res.string.profile_menu_saved_places),
-                    onClick = null,
-                )
-                // Not in the frame: the demo switches between rider and owner here.
-                MoreRow(
-                    icon = Res.drawable.fig_more_car,
-                    label = stringResource(
-                        if (currentRole == Role.RIDER) {
-                            Res.string.profile_switch_to_owner
-                        } else {
-                            Res.string.profile_switch_to_rider
-                        },
-                    ),
-                    onClick = if (state.isSwitchingRole) {
+    Box(modifier = modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize().background(colors.white)) {
+            if (profile != null) {
+                val stats = if (currentRole == Role.HOST) {
+                    profile.host.ratingAvg to profile.host.tripsCompleted
+                } else {
+                    profile.rider.ratingAvg to profile.rider.tripsCompleted
+                }
+                MoreHeader(
+                    initials = "${profile.firstName.take(1)}${profile.lastName.take(1)}".uppercase(),
+                    photoPath = profile.photoPath,
+                    name = "${profile.firstName} ${profile.lastName}",
+                    verified = profile.host.verified,
+                    // No rating and no rides yet: the line stays hidden.
+                    ratingLine = if (stats.first == null && stats.second == 0) {
                         null
                     } else {
-                        {
-                            val next = if (currentRole == Role.RIDER) Role.HOST else Role.RIDER
-                            viewModel.onAction(ProfileTabAction.SwitchRole(next))
-                        }
+                        stringResource(Res.string.profile_rating_rides, stats.first?.toString() ?: "—", stats.second)
                     },
+                    // No edit screen yet.
+                    onEditProfile = null,
                 )
             }
-            MoreSection(title = stringResource(Res.string.settings_title)) {
-                // There is no notification setting yet: the switch shows on, the row opens the inbox.
-                MoreRow(
-                    icon = Res.drawable.fig_more_bell,
-                    label = stringResource(Res.string.profile_menu_notifications),
-                    onClick = onOpenNotifications,
-                    trailing = { MoreSwitch(checked = true) },
-                )
-                MoreRow(
-                    icon = Res.drawable.fig_more_language,
-                    label = stringResource(Res.string.profile_language),
-                    onClick = null,
-                    trailing = { LanguageToggle(current = language) { languageSwitcher.setLanguage(it) } },
-                )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(start = 16.dp, end = 16.dp, top = 32.dp, bottom = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp),
+            ) {
+                MoreWalletCard(balanceEgp = state.walletBalanceEgp)
+                MoreSection(title = stringResource(Res.string.profile_section_info)) {
+                    // Personal Information and Saved Places have no screen yet.
+                    MoreRow(
+                        Res.drawable.fig_more_person,
+                        stringResource(Res.string.profile_personal_info),
+                        onClick = null,
+                    )
+                    MoreRow(Res.drawable.fig_more_car, stringResource(Res.string.profile_menu_my_rides), onOpenMyRides)
+                    MoreRow(
+                        Res.drawable.fig_more_location,
+                        stringResource(Res.string.profile_menu_saved_places),
+                        onClick = null,
+                    )
+                    // Not in the frame: the demo switches between rider and owner here.
+                    MoreRow(
+                        icon = Res.drawable.fig_more_car,
+                        label = stringResource(
+                            if (currentRole == Role.RIDER) {
+                                Res.string.profile_switch_to_owner
+                            } else {
+                                Res.string.profile_switch_to_rider
+                            },
+                        ),
+                        onClick = if (state.isSwitchingRole) {
+                            null
+                        } else {
+                            {
+                                val next = if (currentRole == Role.RIDER) Role.HOST else Role.RIDER
+                                viewModel.onAction(ProfileTabAction.SwitchRole(next))
+                            }
+                        },
+                    )
+                }
+                MoreSection(title = stringResource(Res.string.settings_title)) {
+                    // There is no notification setting yet: the switch shows on, the row opens the inbox.
+                    MoreRow(
+                        icon = Res.drawable.fig_more_bell,
+                        label = stringResource(Res.string.profile_menu_notifications),
+                        onClick = onOpenNotifications,
+                        trailing = { MoreSwitch(checked = true) },
+                    )
+                    MoreRow(
+                        icon = Res.drawable.fig_more_language,
+                        label = stringResource(Res.string.profile_language),
+                        onClick = null,
+                        trailing = { LanguageToggle(current = language) { languageSwitcher.setLanguage(it) } },
+                    )
+                }
+                MoreSection(title = stringResource(Res.string.profile_section_support)) {
+                    // About, Help and Terms have no screen yet.
+                    MoreRow(Res.drawable.fig_more_about, stringResource(Res.string.profile_about), onClick = null)
+                    MoreRow(Res.drawable.fig_more_help, stringResource(Res.string.profile_menu_help), onClick = null)
+                    MoreRow(Res.drawable.fig_more_terms, stringResource(Res.string.profile_terms), onClick = null)
+                }
+                LogoutRow(onClick = { viewModel.onAction(ProfileTabAction.SignOut) })
             }
-            MoreSection(title = stringResource(Res.string.profile_section_support)) {
-                // About, Help and Terms have no screen yet.
-                MoreRow(Res.drawable.fig_more_about, stringResource(Res.string.profile_about), onClick = null)
-                MoreRow(Res.drawable.fig_more_help, stringResource(Res.string.profile_menu_help), onClick = null)
-                MoreRow(Res.drawable.fig_more_terms, stringResource(Res.string.profile_terms), onClick = null)
-            }
-            LogoutRow(onClick = { viewModel.onAction(ProfileTabAction.SignOut) })
+        }
+        state.error?.let { error ->
+            FloatingBanner(
+                text = stringResource(error.message()),
+                onDismiss = { viewModel.onAction(ProfileTabAction.DismissError) },
+            )
         }
     }
 }
