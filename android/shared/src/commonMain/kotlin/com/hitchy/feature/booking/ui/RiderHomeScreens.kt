@@ -53,6 +53,7 @@ import com.hitchy.feature.booking.presentation.RiderSearchValidationError
 import com.hitchy.feature.profile.domain.ProfileRepository
 import com.hitchy.feature.profile.ui.ProfileTabContent
 import com.hitchy.feature.rides.ui.OwnerHomeContent
+import com.hitchy.feature.shop.ui.ShopTabContent
 import hitchy.shared.generated.resources.Res
 import hitchy.shared.generated.resources.app_name
 import hitchy.shared.generated.resources.nav_home
@@ -134,14 +135,7 @@ fun HomeScreen(
                         )
                     }
 
-                    BottomNavItem.Shop -> {
-                        EmptyState(
-                            title = stringResource(Res.string.nav_shop),
-                            message = stringResource(Res.string.shop_coming_soon_body),
-                            icon = HitchyIcons.Star,
-                            modifier = Modifier.fillMaxSize(),
-                        )
-                    }
+                    BottomNavItem.Shop -> ShopTabContent()
 
                     BottomNavItem.Profile -> {
                         ProfileTabContent(

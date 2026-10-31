@@ -606,4 +606,8 @@
     <string name="owner_setup_commute_sub">الطريق والأيام والوقت</string>
     <string name="owner_setup_package">السعر والباقة</string>
     <string name="owner_setup_package_sub">أول شهر مجاني</string>
+    <string name="shop_title_word">المتجر</string>
+    <string name="shop_subtitle">فيه حاجة حلوة جاية في الطريق.</string>
+    <string name="shop_coming_soon">قريباً</string>
+    <string name="shop_coming_body">بنجهز حاجة مميزة علشان كل مشوار يبقى أحلى.</string>
 </resources>

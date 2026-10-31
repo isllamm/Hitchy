@@ -606,4 +606,8 @@
     <string name="owner_setup_commute_sub">Route, days and time</string>
     <string name="owner_setup_package">Price and package</string>
     <string name="owner_setup_package_sub">Month 1 is free</string>
+    <string name="shop_title_word">Shop</string>
+    <string name="shop_subtitle">Something exciting is on the way.</string>
+    <string name="shop_coming_soon">Coming Soon</string>
+    <string name="shop_coming_body">We’re preparing something special to make every journey even better.</string>
 </resources>
