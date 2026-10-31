@@ -34,6 +34,23 @@ export function hasPlaceholderPoints(zones: ZoneWithPoints[]): boolean {
   );
 }
 
+/**
+ * A demo phone number can already belong to an Auth user with another uid: signing in with a test
+ * number before the seed runs creates one. Auth allows each number once, so that user is removed
+ * and the seed creates the demo user with its fixed uid. Returns true when a user was removed.
+ */
+export async function releasePhoneNumber(auth: Auth, uid: string, phone: string): Promise<boolean> {
+  try {
+    const holder = await auth.getUserByPhoneNumber(phone);
+    if (holder.uid === uid) return false;
+    await auth.deleteUser(holder.uid);
+    return true;
+  } catch (err) {
+    if ((err as { code?: string }).code === "auth/user-not-found") return false;
+    throw err;
+  }
+}
+
 export interface SeedOptions {
   project?: string;
   silent?: boolean;
@@ -287,6 +304,10 @@ export async function runSeed(opts: SeedOptions = {}): Promise<SeedStats> {
       } catch (err) {
         log(`⚠ Avatar of ${u.uid} not uploaded (is the Storage emulator running?): ${String(err)}`);
       }
+    }
+
+    if (await releasePhoneNumber(auth, u.uid, u.phone)) {
+      log(`ℹ Removed a user created by sign-in that held the phone number of ${u.uid}.`);
     }
 
     try {

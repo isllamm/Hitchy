@@ -13,6 +13,7 @@ import type {
 import {
   DEV_PROJECT_ID,
   hasPlaceholderPoints,
+  releasePhoneNumber,
   runSeed,
   validateProjectTarget,
   type ZoneWithPoints,
@@ -106,6 +107,39 @@ describe("validateProjectTarget", () => {
       process.env["FIRESTORE_EMULATOR_HOST"] = savedFirestore;
       process.env["FIREBASE_AUTH_EMULATOR_HOST"] = savedAuth;
     }
+  });
+});
+
+describe("releasePhoneNumber", () => {
+  const PHONE = "+201000000099"; // a made-up number that no seed user has
+
+  async function clean() {
+    const auth = getAuth(getApps().find((a) => a.name === "test-admin"));
+    for (const uid of ["clash-random-uid", "clash-seed-uid"]) {
+      await auth.deleteUser(uid).catch(() => undefined);
+    }
+    return auth;
+  }
+
+  it("removes a user with another uid that holds the number", async () => {
+    const auth = await clean();
+    await auth.createUser({ uid: "clash-random-uid", phoneNumber: PHONE });
+    expect(await releasePhoneNumber(auth, "clash-seed-uid", PHONE)).toBe(true);
+    await expect(auth.getUserByPhoneNumber(PHONE)).rejects.toMatchObject({
+      code: "auth/user-not-found",
+    });
+    // The seed can now create the demo user with its fixed uid.
+    await auth.createUser({ uid: "clash-seed-uid", phoneNumber: PHONE });
+    await clean();
+  });
+
+  it("keeps the user that already has the seed uid, and does nothing when the number is free", async () => {
+    const auth = await clean();
+    expect(await releasePhoneNumber(auth, "clash-seed-uid", PHONE)).toBe(false);
+    await auth.createUser({ uid: "clash-seed-uid", phoneNumber: PHONE });
+    expect(await releasePhoneNumber(auth, "clash-seed-uid", PHONE)).toBe(false);
+    expect((await auth.getUser("clash-seed-uid")).uid).toBe("clash-seed-uid");
+    await clean();
   });
 });
 
