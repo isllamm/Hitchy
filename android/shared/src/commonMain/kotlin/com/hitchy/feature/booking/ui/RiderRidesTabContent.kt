@@ -2,6 +2,7 @@
 
 package com.hitchy.feature.booking.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -58,6 +59,7 @@ import com.hitchy.feature.booking.presentation.UnifiedRideItem
 import com.hitchy.feature.booking.presentation.opensOwnerTrip
 import com.hitchy.feature.booking.presentation.opensRiderTrip
 import hitchy.shared.generated.resources.Res
+import hitchy.shared.generated.resources.fig_rides_search
 import hitchy.shared.generated.resources.format_egp
 import hitchy.shared.generated.resources.location_dropoff_label
 import hitchy.shared.generated.resources.location_pickup_label
@@ -111,13 +113,12 @@ fun RiderRidesTabContent(
     val todayKey = dateKey(now)
     val tomorrowKey = dateKey(now + 1.days)
 
-    var tab by remember { mutableStateOf(RidesFilter.Upcoming) }
-    val shown = state.items.filter { it.filter() == tab }
+    // The demo's My Rides (676:9758) has no tabs: upcoming rides first, then completed, then cancelled.
+    val shown = state.items.sortedBy { it.filter().ordinal }
 
     Surface(modifier = modifier.fillMaxSize(), color = colors.white) {
         Column(modifier = Modifier.fillMaxSize()) {
             RidesHeader(onBack = onBack)
-            RidesTabs(selected = tab, onSelect = { tab = it })
 
             if (shown.isEmpty() && !state.isLoading) {
                 EmptyState(
@@ -130,7 +131,7 @@ fun RiderRidesTabContent(
             }
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 16.dp),
+                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 items(
@@ -176,7 +177,19 @@ private fun RidesHeader(onBack: (() -> Unit)?) {
             text = stringResource(Res.string.rides_tab_title),
             style = typography.h1,
             color = colors.navy,
+            modifier = Modifier.weight(1f),
         )
+        // Figma's 48dp white search circle; there is no ride search yet, so it does nothing.
+        Box(
+            modifier = Modifier.size(48.dp).clip(CircleShape).background(colors.white),
+            contentAlignment = Alignment.Center,
+        ) {
+            Image(
+                painter = painterResource(Res.drawable.fig_rides_search),
+                contentDescription = null,
+                modifier = Modifier.size(22.dp),
+            )
+        }
     }
 }
 
@@ -274,49 +287,5 @@ private fun UnifiedRideItem.filter(): RidesFilter {
             RidesFilter.Cancelled
 
         else -> RidesFilter.Upcoming
-    }
-}
-
-/**
- * Figma's `Ride Tabs` (17:125): three equal 48dp tabs; the open one is Bold purple on a 3dp bar,
- * the others sit on a 1dp rule.
- */
-@Composable
-private fun RidesTabs(
-    selected: RidesFilter,
-    onSelect: (RidesFilter) -> Unit,
-) {
-    val colors = HitchyTheme.colors
-    val typography = HitchyTheme.typography
-    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
-        RidesFilter.entries.forEach { tab ->
-            val active = tab == selected
-            Column(
-                modifier = Modifier.weight(1f).height(48.dp).clickable { onSelect(tab) },
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Box(modifier = Modifier.height(44.dp), contentAlignment = Alignment.Center) {
-                    Text(
-                        text = stringResource(
-                            when (tab) {
-                                RidesFilter.Upcoming -> Res.string.rides_filter_upcoming
-                                RidesFilter.Completed -> Res.string.rides_filter_completed
-                                RidesFilter.Cancelled -> Res.string.rides_filter_cancelled
-                            },
-                        ),
-                        style = if (active) typography.bodyBold else typography.body,
-                        color = if (active) colors.purple else colors.textSecondary,
-                    )
-                }
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(if (active) 3.dp else 1.dp)
-                        .clip(RoundedCornerShape(2.dp))
-                        .background(if (active) colors.purple else colors.border),
-                )
-            }
-        }
     }
 }

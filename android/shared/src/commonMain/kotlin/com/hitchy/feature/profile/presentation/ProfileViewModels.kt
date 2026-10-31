@@ -8,6 +8,7 @@ import com.hitchy.core.model.Role
 import com.hitchy.core.platform.LanguageSwitcher
 import com.hitchy.core.ui.MviViewModel
 import com.hitchy.feature.auth.domain.AuthRepository
+import com.hitchy.feature.auth.domain.SignUpNameHolder
 import com.hitchy.feature.profile.domain.Company
 import com.hitchy.feature.profile.domain.CompleteProfileInput
 import com.hitchy.feature.profile.domain.ProfileRepository
@@ -54,9 +55,14 @@ sealed interface ProfileSetupEvent {
 class ProfileSetupViewModel(
     private val profileRepository: ProfileRepository,
     private val languageSwitcher: LanguageSwitcher,
+    signUpNameHolder: SignUpNameHolder? = null,
 ) : MviViewModel<ProfileSetupState, ProfileSetupAction, ProfileSetupEvent>(ProfileSetupState()) {
 
     init {
+        // The Sign up screen asks for the full name first; start from it.
+        signUpNameHolder?.split()?.let { (first, last) ->
+            if (first.isNotBlank()) setState { copy(firstName = first, lastName = last) }
+        }
         profileRepository.observeCompanies()
             .onEach { list -> setState { copy(companies = list.filter { it.active }) } }
             .launchIn(viewModelScope)

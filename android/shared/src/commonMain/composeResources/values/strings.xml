@@ -228,7 +228,7 @@
     <string name="welcome_owner_subtitle">I have a car</string>
     <string name="welcome_continue">Continue</string>
     <string name="welcome_how_it_works">How Hitchy works</string>
-    <string name="phone_entry_title">What’s your number?</string>
+    <string name="phone_entry_title">Welcome Back!</string>
     <string name="phone_entry_privacy_note">Your number stays private until you accept a ride.</string>
     <string name="otp_verify_subtitle">Enter the code sent to %1$s</string>
     <string name="otp_resend_in">Resend code in %1$s</string>
@@ -610,4 +610,10 @@
     <string name="shop_subtitle">Something exciting is on the way.</string>
     <string name="shop_coming_soon">Coming Soon</string>
     <string name="shop_coming_body">We’re preparing something special to make every journey even better.</string>
+    <string name="signup_title">Create Your Account</string>
+    <string name="signup_subtitle">Join Hitchy and make your daily commute easier</string>
+    <string name="signup_name_label">Full name as on your ID</string>
+    <string name="signup_name_placeholder">Your full name</string>
+    <string name="signup_have_account">Already have an account? %1$s</string>
+    <string name="signup_login_link">Log In</string>
 </resources>

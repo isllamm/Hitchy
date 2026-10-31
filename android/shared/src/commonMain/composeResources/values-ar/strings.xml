@@ -228,7 +228,7 @@
     <string name="welcome_owner_subtitle">عندي عربية</string>
     <string name="welcome_continue">متابعة</string>
     <string name="welcome_how_it_works">إزاي هيتشي بيشتغل</string>
-    <string name="phone_entry_title">إيه رقمك؟</string>
+    <string name="phone_entry_title">أهلاً بعودتك!</string>
     <string name="phone_entry_privacy_note">رقمك يفضل خاص لحد ما تقبل مشوار.</string>
     <string name="otp_verify_subtitle">اكتب الكود المرسل إلى %1$s</string>
     <string name="otp_resend_in">إعادة إرسال الكود بعد %1$s</string>
@@ -610,4 +610,10 @@
     <string name="shop_subtitle">فيه حاجة حلوة جاية في الطريق.</string>
     <string name="shop_coming_soon">قريباً</string>
     <string name="shop_coming_body">بنجهز حاجة مميزة علشان كل مشوار يبقى أحلى.</string>
+    <string name="signup_title">أنشئ حسابك</string>
+    <string name="signup_subtitle">انضم لـ Hitchy وخلّي مشوارك اليومي أسهل</string>
+    <string name="signup_name_label">الاسم كامل زي البطاقة</string>
+    <string name="signup_name_placeholder">اسمك بالكامل</string>
+    <string name="signup_have_account">عندك حساب؟ %1$s</string>
+    <string name="signup_login_link">سجّل دخول</string>
 </resources>
