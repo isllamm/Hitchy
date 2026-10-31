@@ -38,6 +38,7 @@ data class HitchyColors(
     val steel: Color = Steel,
     val tileGray: Color = TileGray,
     val alertRed: Color = AlertRed,
+    val periwinkle: Color = Periwinkle,
     val background: Color = Background,
     val border: Color = Border,
     val disabledSurface: Color = DisabledSurface,

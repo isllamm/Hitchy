@@ -2,6 +2,7 @@
 
 package com.hitchy.feature.booking.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -23,7 +24,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.hitchy.core.model.AppLanguage
 import com.hitchy.core.model.GeoPoint
 import com.hitchy.core.ui.cairoTime12
@@ -35,6 +38,7 @@ import com.hitchy.core.ui.components.BannerVariant
 import com.hitchy.core.ui.components.HitchyBanner
 import com.hitchy.core.ui.components.PassengersStepper
 import com.hitchy.core.ui.components.SeatIndicator
+import com.hitchy.core.ui.figmaShadow
 import com.hitchy.core.ui.icon.HitchyIcons
 import com.hitchy.core.ui.map.HitchyMap
 import com.hitchy.core.ui.map.MapPin
@@ -57,6 +61,7 @@ import hitchy.shared.generated.resources.bk_vehicle_line_hidden
 import hitchy.shared.generated.resources.bk_verified_owner
 import hitchy.shared.generated.resources.bk_verified_short
 import hitchy.shared.generated.resources.bk_your_owner
+import hitchy.shared.generated.resources.fig_result_verified
 import hitchy.shared.generated.resources.ride_details_late_fee_rule
 import hitchy.shared.generated.resources.ride_details_price_per_seat
 import hitchy.shared.generated.resources.ride_details_wallet_note
@@ -151,7 +156,11 @@ private fun DetailsMap(points: List<GeoPoint>) {
     )
 }
 
-/** Figma's driver card (390:1492): a 48dp lavender avatar, a Bold name with a "Verified" chip, the rating. */
+/**
+ * The demo's host card (676:10678): r16, a 1.1dp lilac stroke and two 4% shadows, padding 15. "YOUR HOST" in
+ * Bold 11/16 (0.5 spacing), then a 48dp lavender avatar with a white ring and a #BCCDFF halo (800 13/20
+ * initials), the name (Bold 14/21), the rating, the car line (10/15), and the green verified pill on the end side.
+ */
 @Composable
 private fun DetailsHostCard(
     host: RideHost,
@@ -160,56 +169,97 @@ private fun DetailsHostCard(
 ) {
     val colors = HitchyTheme.colors
     val typography = HitchyTheme.typography
-    BookingCardSurface {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(
-                text = stringResource(Res.string.bk_your_owner).uppercase(),
-                style = typography.captionStrong,
-                color = colors.textSecondary,
-            )
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Box(
-                    modifier = Modifier.size(48.dp).clip(CircleShape).background(colors.lavender),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(text = host.firstName.take(2).uppercase(), style = typography.bodyBold, color = colors.purple)
-                }
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        Text(text = host.firstName, style = typography.bodyBold, color = colors.navy, maxLines = 1)
-                        if (host.verified) {
-                            Text(
-                                text = stringResource(Res.string.bk_verified_short),
-                                style = typography.caption,
-                                color = colors.successText,
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(999.dp))
-                                    .background(colors.successBg)
-                                    .padding(horizontal = 6.dp),
-                            )
-                        }
-                    }
-                    DetailsRating(host)
+    val shape = RoundedCornerShape(16.dp)
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .figmaShadow(shape, colors.shadowInk.copy(alpha = HOST_SHADOW), blur = 16.dp, y = 4.dp)
+            .figmaShadow(shape, colors.shadowInk.copy(alpha = HOST_SHADOW), blur = 2.dp, y = 1.dp)
+            .clip(shape)
+            .background(colors.white)
+            .border(1.1.dp, colors.lilac, shape)
+            .padding(15.dp),
+        verticalArrangement = Arrangement.spacedBy(13.dp),
+    ) {
+        Text(
+            text = stringResource(Res.string.bk_your_owner).uppercase(),
+            style = typography.captionStrong.copy(fontSize = 11.sp, lineHeight = 16.sp, letterSpacing = 0.5.sp),
+            color = colors.navy,
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Box(
+                modifier = Modifier
+                    .padding(top = 6.dp)
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(colors.periwinkle)
+                    .padding(1.dp)
+                    .clip(CircleShape)
+                    .background(colors.white)
+                    .padding(1.dp)
+                    .clip(CircleShape)
+                    .background(colors.lavender),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = host.firstName.take(2).uppercase(),
+                    style = typography.caption.copy(
+                        fontSize = 13.sp,
+                        lineHeight = 20.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                    ),
+                    color = colors.purple,
+                )
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = host.firstName,
+                    style = typography.bodyBold.copy(lineHeight = 21.sp),
+                    color = colors.navy,
+                    maxLines = 1,
+                )
+                DetailsRating(host)
+                if (ride != null && plateHidden) {
+                    Text(
+                        text = stringResource(
+                            Res.string.bk_vehicle_line_hidden,
+                            ride.vehicle.color,
+                            ride.vehicle.make,
+                            ride.vehicle.model,
+                        ),
+                        style = typography.caption.copy(fontSize = 10.sp, lineHeight = 15.sp),
+                        color = colors.navy,
+                        modifier = Modifier.padding(top = 2.dp),
+                    )
                 }
             }
-            if (ride != null && plateHidden) {
-                Text(
-                    text = stringResource(
-                        Res.string.bk_vehicle_line_hidden,
-                        ride.vehicle.color,
-                        ride.vehicle.make,
-                        ride.vehicle.model,
-                    ),
-                    style = typography.caption,
-                    color = colors.textSecondary,
-                )
+            if (host.verified) {
+                Row(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(colors.successBg)
+                        .padding(start = 8.dp, end = 10.dp, top = 4.dp, bottom = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    Image(
+                        painter = painterResource(Res.drawable.fig_result_verified),
+                        contentDescription = null,
+                        modifier = Modifier.size(14.dp),
+                    )
+                    Text(
+                        text = stringResource(Res.string.bk_verified_owner),
+                        style = typography.captionStrong,
+                        color = colors.successText,
+                    )
+                }
             }
         }
     }
 }
+
+/** The host card's shadow strength (#171B22 at 4%). */
+private const val HOST_SHADOW = 0.04f
 
 @Composable
 private fun DetailsRating(host: RideHost) {

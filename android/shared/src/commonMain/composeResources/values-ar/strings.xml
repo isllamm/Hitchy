@@ -618,4 +618,5 @@
     <string name="signup_login_link">سجّل دخول</string>
     <string name="inbox_today">النهارده</string>
     <string name="inbox_earlier">قبل كده</string>
+    <string name="bk_card_walk">%1$s · %2$d م مشي</string>
 </resources>

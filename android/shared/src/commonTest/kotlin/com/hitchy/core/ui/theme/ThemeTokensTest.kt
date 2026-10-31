@@ -42,6 +42,7 @@ class ThemeTokensTest {
         assertEquals(Color(0xFF23334A), colors.steel)
         assertEquals(Color(0xFFD2D6DB), colors.tileGray)
         assertEquals(Color(0xFFFF3B30), colors.alertRed)
+        assertEquals(Color(0xFFBCCDFF), colors.periwinkle)
         assertEquals(Color(0xFFF8F9FC), colors.background)
         assertEquals(Color(0xFFE5E7EB), colors.border)
         assertEquals(Color(0xFFF3F4F6), colors.disabledSurface)

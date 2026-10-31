@@ -52,6 +52,9 @@ val Steel = Color(0xFF23334A)
 val TileGray = Color(0xFFD2D6DB)
 val AlertRed = Color(0xFFFF3B30)
 
+/** The halo round the owner's avatar on Ride details. */
+val Periwinkle = Color(0xFFBCCDFF)
+
 /** The ink of shadows that Figma tints. */
 val ShadowInk = Color(0xFF111827)
 val Background = Color(0xFFF8F9FC)
