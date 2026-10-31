@@ -39,14 +39,15 @@ import com.hitchy.core.model.AppLanguage
 import com.hitchy.core.model.CancelRideReason
 import com.hitchy.core.model.RideStatus
 import com.hitchy.core.platform.LanguageSwitcher
-import com.hitchy.core.ui.ErrorText
 import com.hitchy.core.ui.cairoTime12
-import com.hitchy.core.ui.components.HitchyBanner
+import com.hitchy.core.ui.components.BannerVariant
+import com.hitchy.core.ui.components.FloatingBanner
 import com.hitchy.core.ui.components.HitchyButton
 import com.hitchy.core.ui.components.HitchyButtonVariant
 import com.hitchy.core.ui.components.OwnerRequestCard
 import com.hitchy.core.ui.components.RideStatusVariant
 import com.hitchy.core.ui.icon.HitchyIcons
+import com.hitchy.core.ui.message
 import com.hitchy.core.ui.theme.HitchyTheme
 import com.hitchy.core.util.dateKey
 import com.hitchy.core.util.isoToCairoDateKey
@@ -137,30 +138,45 @@ fun HostRideDetailsScreen(
         }
     }
 
-    Column(modifier = modifier.fillMaxSize().background(HitchyTheme.colors.white)) {
-        OfferTopBar(title = stringResource(Res.string.host_ride_details_title), onBack = onBack, horizontal = 16.dp)
-        LazyColumn(
-            state = listState,
-            modifier = Modifier.weight(1f).fillMaxWidth(),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            detailsItems(
+    Box(modifier = modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize().background(HitchyTheme.colors.white)) {
+            OfferTopBar(title = stringResource(Res.string.host_ride_details_title), onBack = onBack, horizontal = 16.dp)
+            LazyColumn(
+                state = listState,
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                detailsItems(
+                    state = state,
+                    language = language,
+                    onRespond = { uid, accept ->
+                        viewModel.onAction(HostRideDetailsAction.RespondRequest(uid, accept))
+                    },
+                )
+            }
+            DetailsFooter(
                 state = state,
-                language = language,
-                onDismissAlert = { viewModel.onAction(HostRideDetailsAction.DismissAlert) },
-                onRespond = { uid, accept -> viewModel.onAction(HostRideDetailsAction.RespondRequest(uid, accept)) },
+                onReviewRequests = {
+                    scope.launch { listState.animateScrollToItem(REQUESTS_ITEM_OFFSET) }
+                },
+                onOpenTrip = onOpenTrip,
+                onCancel = { showCancel = true },
             )
         }
-        DetailsFooter(
-            state = state,
-            onReviewRequests = {
-                val offset = if (state.messageAlert != null) REQUESTS_ITEM_OFFSET + 1 else REQUESTS_ITEM_OFFSET
-                scope.launch { listState.animateScrollToItem(offset) }
-            },
-            onOpenTrip = onOpenTrip,
-            onCancel = { showCancel = true },
-        )
+        state.messageAlert?.let { alert ->
+            FloatingBanner(
+                text = stringResource(alert),
+                variant = BannerVariant.Success,
+                onDismiss = { viewModel.onAction(HostRideDetailsAction.DismissAlert) },
+            )
+        }
+        state.error?.let { error ->
+            FloatingBanner(
+                text = stringResource(error.message()),
+                onDismiss = { viewModel.onAction(HostRideDetailsAction.DismissAlert) },
+            )
+        }
     }
 
     if (showCancel) {
@@ -175,13 +191,8 @@ fun HostRideDetailsScreen(
 private fun LazyListScope.detailsItems(
     state: HostRideDetailsState,
     language: AppLanguage,
-    onDismissAlert: () -> Unit,
     onRespond: (String, Boolean) -> Unit,
 ) {
-    val alert = state.messageAlert
-    if (alert != null) {
-        item { HitchyBanner(text = stringResource(alert), onDismiss = onDismissAlert) }
-    }
     if (state.ride != null) {
         item { OwnerRideCard(state = state, language = language) }
     }
@@ -210,10 +221,6 @@ private fun LazyListScope.detailsItems(
     if (state.ride != null) {
         item { RidersSection(state = state, language = language) }
         item { PriceCard(state = state) }
-    }
-    val error = state.error
-    if (error != null) {
-        item { ErrorText(error = error, style = HitchyTheme.typography.caption, color = HitchyTheme.colors.error) }
     }
 }
 

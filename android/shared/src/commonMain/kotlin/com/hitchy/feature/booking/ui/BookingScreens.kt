@@ -2,6 +2,7 @@ package com.hitchy.feature.booking.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,6 +28,7 @@ import com.hitchy.core.platform.LanguageSwitcher
 import com.hitchy.core.ui.cairoTime12
 import com.hitchy.core.ui.components.BannerVariant
 import com.hitchy.core.ui.components.EmptyState
+import com.hitchy.core.ui.components.FloatingBanner
 import com.hitchy.core.ui.components.HitchyBanner
 import com.hitchy.core.ui.components.HitchyButton
 import com.hitchy.core.ui.components.HitchyButtonVariant
@@ -146,33 +148,34 @@ fun RiderRideDetailsScreen(
     LaunchedEffect(rideId) { viewModel.onAction(RiderRideDetailsAction.Init(rideId)) }
 
     Surface(modifier = modifier.fillMaxSize(), color = HitchyTheme.colors.white) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            BookingHeaderBar(title = stringResource(Res.string.ride_details_title), onBack = onBack)
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
-                state.error?.let { error ->
-                    HitchyBanner(
-                        text = stringResource(error.message()),
-                        variant = BannerVariant.Error,
-                        onDismiss = { viewModel.onAction(RiderRideDetailsAction.DismissError) },
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                BookingHeaderBar(title = stringResource(Res.string.ride_details_title), onBack = onBack)
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
+                    RideDetailsSections(
+                        state = state,
+                        language = language,
+                        onSeatsChange = { viewModel.onAction(RiderRideDetailsAction.UpdateSeats(it)) },
                     )
                 }
-                RideDetailsSections(
+                RideDetailsFooter(
                     state = state,
-                    language = language,
-                    onSeatsChange = { viewModel.onAction(RiderRideDetailsAction.UpdateSeats(it)) },
+                    onRequest = { viewModel.onAction(RiderRideDetailsAction.RequestRide) },
+                    onOpenTrip = { onOpenTrip(rideId) },
                 )
             }
-            RideDetailsFooter(
-                state = state,
-                onRequest = { viewModel.onAction(RiderRideDetailsAction.RequestRide) },
-                onOpenTrip = { onOpenTrip(rideId) },
-            )
+            state.error?.let { error ->
+                FloatingBanner(
+                    text = stringResource(error.message()),
+                    onDismiss = { viewModel.onAction(RiderRideDetailsAction.DismissError) },
+                )
+            }
         }
     }
 }

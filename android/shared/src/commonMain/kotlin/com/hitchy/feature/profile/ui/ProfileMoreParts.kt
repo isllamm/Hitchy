@@ -86,7 +86,7 @@ internal fun MoreHeader(
     initials: String,
     name: String,
     verified: Boolean,
-    ratingLine: String,
+    ratingLine: String?,
     onEditProfile: (() -> Unit)?,
 ) {
     val colors = HitchyTheme.colors
@@ -152,16 +152,18 @@ internal fun MoreHeader(
                         )
                     }
                 }
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                ) {
-                    Image(
-                        painter = painterResource(Res.drawable.fig_more_star),
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
-                    )
-                    Text(text = ratingLine, style = typography.caption, color = colors.border)
+                if (ratingLine != null) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        Image(
+                            painter = painterResource(Res.drawable.fig_more_star),
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                        )
+                        Text(text = ratingLine, style = typography.caption, color = colors.border)
+                    }
                 }
             }
             Row(

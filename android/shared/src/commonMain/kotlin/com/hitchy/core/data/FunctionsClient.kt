@@ -71,6 +71,8 @@ fun mapFunctionsError(
     if (upperCode in setOf("UNAUTHENTICATED", "NOT_SIGNED_IN")) {
         return AppError.NotSignedIn
     }
+    // A Firebase code with no business reason still gets a clear message (Appendix D reasons).
+    codeReasons[upperCode]?.let { return AppError.Reason(code = it) }
 
     // 3. Check for network root cause or message
     if (isNetworkCause(cause) || isNetworkMessage(message)) {
@@ -80,6 +82,18 @@ fun mapFunctionsError(
     // 4. Fallback to Unknown
     return AppError.Unknown(message)
 }
+
+/**
+ * Firebase callable codes that arrive without `details.reason`. A business NOT_FOUND always has a reason, so a
+ * bare NOT_FOUND or UNIMPLEMENTED means the function is not deployed yet.
+ */
+private val codeReasons = mapOf(
+    "NOT_FOUND" to "FEATURE_DISABLED",
+    "UNIMPLEMENTED" to "FEATURE_DISABLED",
+    "PERMISSION_DENIED" to "PERMISSION_DENIED",
+    "INVALID_ARGUMENT" to "INVALID_INPUT",
+    "RESOURCE_EXHAUSTED" to "TOO_MANY_ATTEMPTS",
+)
 
 /**
  * Extracts error details and code from throwable and maps to [AppError].

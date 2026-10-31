@@ -54,6 +54,19 @@ class FunctionsClientTest {
     }
 
     @Test
+    fun bareFirebaseCodesGetAClearReason() {
+        assertEquals(AppError.Reason("FEATURE_DISABLED"), mapFunctionsError(code = "NOT_FOUND"))
+        assertEquals(AppError.Reason("FEATURE_DISABLED"), mapFunctionsError(code = "UNIMPLEMENTED"))
+        assertEquals(AppError.Reason("INVALID_INPUT"), mapFunctionsError(code = "INVALID_ARGUMENT"))
+        assertEquals(AppError.Reason("PERMISSION_DENIED"), mapFunctionsError(code = "PERMISSION_DENIED"))
+        // A business reason still wins over the code.
+        assertEquals(
+            AppError.Reason("RIDE_FULL"),
+            mapFunctionsError(code = "FAILED_PRECONDITION", details = mapOf("reason" to "RIDE_FULL")),
+        )
+    }
+
+    @Test
     fun mapFunctionsErrorMapsNetworkErrors() {
         // By code
         assertEquals(AppError.Network, mapFunctionsError(code = "UNAVAILABLE"))
