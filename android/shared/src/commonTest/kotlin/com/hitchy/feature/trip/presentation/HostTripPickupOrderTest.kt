@@ -69,8 +69,12 @@ class HostTripPickupOrderTest {
         runCurrent()
         vm.onAction(HostTripAction.MarkBoarded("r1"))
         runCurrent()
-        ridesRepo.bookingsByRideId.value = mapOf("ride-1" to listOf(atStart.copy(boardedAt = "x"), atSecondStop))
+        val boarded = atStart.copy(status = BookingStatus.BOARDED, boardedAt = "2026-10-30T08:01:00Z")
+        ridesRepo.bookingsByRideId.value = mapOf("ride-1" to listOf(boarded, atSecondStop))
         runCurrent()
+        // A boarded rider stays on the list and counts as on board.
+        assertEquals(2, vm.state.value.bookings.size)
+        assertEquals(1, vm.state.value.boardedCount)
 
         // s1 has nobody to board, so the owner goes straight to s2.
         vm.onAction(HostTripAction.NextStopOrFinish)

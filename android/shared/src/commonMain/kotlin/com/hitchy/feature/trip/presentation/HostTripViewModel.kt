@@ -156,6 +156,7 @@ class HostTripViewModel(
                             currentStopName = currentStopName.ifBlank { stopName },
                         )
                     }
+                    skipEmptyPickup()
                 }
             }
             .launchIn(viewModelScope)
@@ -163,10 +164,14 @@ class HostTripViewModel(
         ridesRepository.observeBookings(rideId)
             .onEach { allBookings ->
                 loadRiderNames(allBookings.map { it.riderUid })
+                // Boarded riders stay on the list: the panel counts them as on board.
                 val active = allBookings.filter {
-                    it.status == BookingStatus.BOOKED || it.status == BookingStatus.COMPLETED
+                    it.status == BookingStatus.BOOKED ||
+                        it.status == BookingStatus.BOARDED ||
+                        it.status == BookingStatus.COMPLETED
                 }
                 setState { copy(bookings = active) }
+                skipEmptyPickup()
             }
             .launchIn(viewModelScope)
 
@@ -315,6 +320,21 @@ class HostTripViewModel(
         } else {
             // All stops visited, on the way to destination
             setState { copy(phase = HostTripPhase.EN_ROUTE) }
+        }
+    }
+
+    /**
+     * While driving to a pickup whose riders are all on board (the screen was reopened mid-trip), move on to
+     * the next pickup with someone to board, or to the destination.
+     */
+    private fun skipEmptyPickup() {
+        val st = state.value
+        // Both the ride (its stops) and the bookings must be in before the pickups can be judged.
+        if (st.phase != HostTripPhase.DRIVING_TO_STOP || st.ride == null || st.bookings.isEmpty()) return
+        when (val next = st.nextPickupIndex(st.currentStopIndex)) {
+            null -> setState { copy(phase = HostTripPhase.EN_ROUTE) }
+            st.currentStopIndex -> Unit
+            else -> setState { copy(currentStopIndex = next, currentStopName = pickupName(next)) }
         }
     }
 

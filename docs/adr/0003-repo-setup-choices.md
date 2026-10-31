@@ -161,6 +161,7 @@ The repo was set up from [docs/BUILD_PLAN.md](../BUILD_PLAN.md) on 2026-10-28. A
 | 141 | Booked seats count confirmed bookings only. A request holds its seats until the owner answers, so held seats show as open on ride details and are left out of Home's "Booked seats". | 2.1 | Figma R02 shows "1 of 3 seats booked" and "2 seats open" with 2 requests waiting. |
 | 142 | The owner trip panel follows R05: r24 sheet with 16dp sides and 24dp gaps, "Today" as the eyebrow before leaving, the title in Cairo 800 24/30, the "3 riders" / "1 on board" chip, smaller step dots, Bold 12/18 status pills, and the ride's summary row at the end of the riders card. Figma's Share trip, Report and Emergency buttons are not in the demo. | 3.9 | Safety and sharing come in later phases (demo-flow.md). |
 | 143 | On trip day the owner drives the pickups in order: the start point ("start") first, then each stop. A pickup with no rider left to board is skipped. Before, a ride with stops skipped the start, so riders there got no "I'm here" or free wait. | 2.2 #4, 8.16 | Bug found on the emulator; `arriveAtStop` accepts "start". |
+| 144 | The owner trip keeps boarded riders on its list (they counted as gone, so "0 on board" stayed), waits at a pickup only for that pickup's riders, and on reopening mid-trip moves on past pickups whose riders are all on board. | 8.16 | Bugs found walking R05 on the emulator. |
 
 ## Consequences
 
