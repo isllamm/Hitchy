@@ -2204,7 +2204,7 @@ The criminal record can be uploaded at any time, so an approved host can ask for
 | P0-H01 | GitHub repo | Private repo `hitchy`. Protect `main`: pull request, 1 approval, required checks, no force push, squash merge only. Turn on secret scanning and push protection. Create Environments `dev` and `prod` (prod needs Islam's approval). |
 | P0-H02 | Firebase projects | `hitchy-dev` and `hitchy-prod`, both on Blaze (`hitchy-dev` moved from Spark on 2026-10-29). Budget alerts at 1, 10, 25 and 50 USD to Islam's email, on each project. Both projects should cost 0 USD (note below the table), so the 1 USD alert shows the first charge. |
 | P0-H03 | Region `[DECISION-01]` | Create Firestore (Native mode) in the chosen region, in both projects. Create the default Storage bucket in `us-central1`, in both projects: only `us-central1`, `us-east1` and `us-west1` have Cloud Storage's always-free tier, and other regions bill from the first byte. Neither location can change later. |
-| P0-H04 | Phone sign-in | Turn on the Phone provider. In `hitchy-dev`, add test numbers `+201000000001` … `+201000000009` with code `123456`. In both projects, leave the SMS region policy with no region allowed, so no real text message is sent: each one costs money (about 0.01 to 0.06 USD), and test numbers do not need one. Check once that a test number still signs in. At launch, set `hitchy-prod` to allow Egypt only; `hitchy-dev` stays blocked. |
+| P0-H04 | Phone sign-in | Turn on the Phone provider. In the dev project, add test numbers (Firebase allows 10): `+201000000001` to `+201000000004` and `+201000000006` to `+201000000011`, all with code `111111` (Islam, 2026-10-31, for the demo; never in `hitchy-prod`). In both projects, leave the SMS region policy with no region allowed, so no real text message is sent: each one costs money (about 0.01 to 0.06 USD), and test numbers do not need one. Check once that a test number still signs in. At launch, set `hitchy-prod` to allow Egypt only; `hitchy-dev` stays blocked. |
 | P0-H05 | Android apps `[DECISION-02]` | `com.hitchy.app.dev` in `hitchy-dev`, `com.hitchy.app` in `hitchy-prod`. Add SHA-1 and SHA-256 of the debug and release keys. Save each `google-services.json` base64-encoded as GitHub secrets `GOOGLE_SERVICES_DEV` and `GOOGLE_SERVICES_PROD`. |
 | P0-H06 | Release key | Create the release keystore. GitHub secrets: `ANDROID_KEYSTORE_B64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`. Keep a backup in a password manager. |
 | P0-H07 | App Check | Register Play Integrity (Android) and App Attest (iOS) in both projects. Enforcement stays off until Phase 14. |
@@ -2930,7 +2930,7 @@ interface ProfileRepository {
 #### P4-A06 · Tests
 - ViewModel tests for PhoneEntry, OtpVerify (with a fake `PhoneAuth`: code sent, resend timer, each error) and ProfileSetup (validation, submit, error mapping).
 
-**E2E check:** emulators + seed → sign in with `+201000000007` / `123456` → profile → rider home → switch to host → "Become an owner".
+**E2E check:** emulators + seed → sign in with `+201000000007` (emulator: the code is printed in the emulator terminal; dev project: `111111`) → profile → rider home → switch to host → "Become an owner".
 
 ---
 
@@ -3496,7 +3496,7 @@ List files changed, test results, and any [HUMAN] or [DECISION] items.
 
 ## Appendix C — End-to-end test script
 
-**Setup:** emulators running with seed data (`npm run emulators`, `npm run seed`) and two Android emulators on `devDebug` with `-Phitchy.emulator=true`; or `hitchy-dev` with the test numbers. Phone A = host, phone B = rider. Code for every test number: `123456`.
+**Setup:** emulators running with seed data (`npm run emulators`, `npm run seed`) and two Android emulators on `devDebug` with `-Phitchy.emulator=true`; or `hitchy-dev` with the test numbers. Phone A = host, phone B = rider. Code for every test number on the dev project: `111111`; on the emulators it is random, read it in the emulator terminal.
 
 | Seed user | Phone |
 | --- | --- |
