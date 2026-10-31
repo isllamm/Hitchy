@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -222,7 +223,7 @@ private fun HeaderBackground() {
 private fun OwnerTopBar(state: OwnerHomeState, onOpenNotifications: () -> Unit) {
     val colors = HitchyTheme.colors
     val typography = HitchyTheme.typography
-    Row(modifier = Modifier.fillMaxWidth().height(52.dp), verticalAlignment = Alignment.CenterVertically) {
+    Row(modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp), verticalAlignment = Alignment.CenterVertically) {
         OwnerAvatar(state)
         Column(modifier = Modifier.weight(1f).padding(start = 12.dp)) {
             Text(text = stringResource(Res.string.owner_home_welcome), style = typography.body, color = colors.white)
@@ -323,7 +324,7 @@ private fun EarningsCard(monthKey: String, stats: OwnerHomeStats, onOpenEarnings
                 )
             }
         }
-        Row(modifier = Modifier.height(40.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        Row(modifier = Modifier.heightIn(min = 40.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             Text(
                 text = groupDigits(stats.monthEarningsEgp),
                 style = typography.display,

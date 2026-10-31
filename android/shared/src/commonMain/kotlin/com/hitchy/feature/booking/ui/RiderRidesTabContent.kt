@@ -242,7 +242,7 @@ private fun UnifiedRideItem.toCardData(
             ride.vehicle.model,
             ride.vehicle.color,
         ),
-        tileIcon = HitchyIcons.Car,
+        tileIcon = HitchyIcons.Person,
         priceEgp = ride.pricePerSeat,
         perSeat = true,
         startLabel = stringResource(Res.string.owner_design_route_start),

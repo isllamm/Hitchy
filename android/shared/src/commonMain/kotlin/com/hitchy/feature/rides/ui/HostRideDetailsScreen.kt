@@ -254,7 +254,7 @@ private fun OwnerRideCard(
                     ride.vehicle.color,
                 )
             },
-            tileIcon = HitchyIcons.Car,
+            tileIcon = HitchyIcons.Person,
             priceEgp = ride.pricePerSeat,
             onClick = null,
             perSeat = true,
