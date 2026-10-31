@@ -34,6 +34,7 @@ import com.hitchy.core.ui.components.HitchyButton
 import com.hitchy.core.ui.components.HitchyButtonVariant
 import com.hitchy.core.ui.components.RideCard
 import com.hitchy.core.ui.components.RideStatusVariant
+import com.hitchy.core.ui.components.SkeletonDetails
 import com.hitchy.core.ui.components.TopBar
 import com.hitchy.core.ui.icon.HitchyIcons
 import com.hitchy.core.ui.message
@@ -158,11 +159,16 @@ fun RiderRideDetailsScreen(
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
-                    RideDetailsSections(
-                        state = state,
-                        language = language,
-                        onSeatsChange = { viewModel.onAction(RiderRideDetailsAction.UpdateSeats(it)) },
-                    )
+                    if (state.ride == null && state.rideCard == null && state.error == null) {
+                        // Opened from the Rides list or a notification: nothing to show until the ride answers.
+                        SkeletonDetails()
+                    } else {
+                        RideDetailsSections(
+                            state = state,
+                            language = language,
+                            onSeatsChange = { viewModel.onAction(RiderRideDetailsAction.UpdateSeats(it)) },
+                        )
+                    }
                 }
                 RideDetailsFooter(
                     state = state,

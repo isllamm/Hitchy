@@ -46,6 +46,9 @@ import com.hitchy.core.ui.cairoTime12
 import com.hitchy.core.ui.components.BackButton
 import com.hitchy.core.ui.components.BackButtonStyle
 import com.hitchy.core.ui.components.EmptyState
+import com.hitchy.core.ui.components.Skeleton
+import com.hitchy.core.ui.components.SkeletonLine
+import com.hitchy.core.ui.components.SkeletonListRow
 import com.hitchy.core.ui.figmaTop
 import com.hitchy.core.ui.icon.HitchyIcons
 import com.hitchy.core.ui.theme.HitchyColors
@@ -135,6 +138,13 @@ fun NotificationsScreen(
     Surface(modifier = modifier.fillMaxSize(), color = colors.white) {
         Column(modifier = Modifier.fillMaxSize().padding(top = figmaTop(60.dp))) {
             NotificationsHeader(onBack = onBack)
+            if (state.items.isEmpty() && state.isLoading) {
+                Skeleton(modifier = Modifier.fillMaxSize().padding(start = 16.dp, end = 16.dp, top = 12.dp)) {
+                    SkeletonLine(width = 64.dp, modifier = Modifier.padding(bottom = 4.dp))
+                    repeat(SKELETON_ROWS) { SkeletonListRow(leading = 44.dp, titleWidth = 220.dp) }
+                }
+                return@Column
+            }
             if (state.items.isEmpty() && !state.isLoading) {
                 EmptyState(
                     title = stringResource(Res.string.inbox_empty_title),
@@ -330,3 +340,5 @@ private fun tileLook(
 
     else -> TileLook(Res.drawable.fig_notif_request, colors.lavender)
 }
+
+private const val SKELETON_ROWS = 6

@@ -32,6 +32,7 @@ import com.hitchy.core.ui.components.BannerVariant
 import com.hitchy.core.ui.components.HitchyBanner
 import com.hitchy.core.ui.components.HitchyButton
 import com.hitchy.core.ui.components.RideStatusVariant
+import com.hitchy.core.ui.components.SkeletonDetails
 import com.hitchy.core.ui.components.StatusPill
 import com.hitchy.core.ui.components.TripStep
 import com.hitchy.core.ui.components.TripStepper
@@ -97,6 +98,10 @@ internal fun TripSheet(
                 variant = BannerVariant.Error,
                 onDismiss = { onAction(RiderTripAction.DismissError) },
             )
+        }
+        if ((ride == null || booking == null) && error == null) {
+            // The ride and the booking have not both answered yet.
+            SkeletonDetails(showMap = false)
         }
         if (booking != null) {
             TripStatusRow(state = state, booking = booking)

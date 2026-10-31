@@ -39,6 +39,7 @@ import com.hitchy.core.ui.components.BackButton
 import com.hitchy.core.ui.components.BackButtonStyle
 import com.hitchy.core.ui.components.HitchyButton
 import com.hitchy.core.ui.components.HitchyButtonVariant
+import com.hitchy.core.ui.components.SkeletonDetails
 import com.hitchy.core.ui.map.HitchyMap
 import com.hitchy.core.ui.map.MapPin
 import com.hitchy.core.ui.theme.HitchyTheme
@@ -174,9 +175,14 @@ private fun TripSheet(
                 .padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 12.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
-            SheetHeader(state = state, language = language, current = current)
-            OwnerTripProgress(currentIndex = progressIndex(state.phase))
-            SheetBody(state = state, language = language, current = current, onSelectRider = onSelectRider)
+            if (state.ride == null && state.error == null) {
+                // The ride has not answered yet.
+                SkeletonDetails(showMap = false)
+            } else {
+                SheetHeader(state = state, language = language, current = current)
+                OwnerTripProgress(currentIndex = progressIndex(state.phase))
+                SheetBody(state = state, language = language, current = current, onSelectRider = onSelectRider)
+            }
             val error = state.error
             if (error != null) {
                 ErrorText(error = error, style = HitchyTheme.typography.caption, color = colors.error)

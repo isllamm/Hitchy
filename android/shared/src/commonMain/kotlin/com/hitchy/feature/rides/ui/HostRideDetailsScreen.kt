@@ -47,6 +47,7 @@ import com.hitchy.core.ui.components.HitchyButton
 import com.hitchy.core.ui.components.HitchyButtonVariant
 import com.hitchy.core.ui.components.OwnerRequestCard
 import com.hitchy.core.ui.components.RideStatusVariant
+import com.hitchy.core.ui.components.SkeletonDetails
 import com.hitchy.core.ui.icon.HitchyIcons
 import com.hitchy.core.ui.message
 import com.hitchy.core.ui.theme.HitchyTheme
@@ -194,6 +195,11 @@ private fun LazyListScope.detailsItems(
     language: AppLanguage,
     onRespond: (String, Boolean) -> Unit,
 ) {
+    if (state.ride == null && state.error == null) {
+        // The ride has not answered yet.
+        item { SkeletonDetails(showMap = false) }
+        return
+    }
     if (state.ride != null) {
         item { OwnerRideCard(state = state, language = language) }
     }
