@@ -37,6 +37,7 @@ data class HostTripState(
     val ride: Ride? = null,
     val bookings: List<Booking> = emptyList(),
     val riderNames: Map<String, String> = emptyMap(),
+    val riderPhotos: Map<String, String?> = emptyMap(),
     val phase: HostTripPhase = HostTripPhase.LEAVING,
     val currentStopIndex: Int = 0,
     val currentStopName: String = "",
@@ -185,7 +186,14 @@ class HostTripViewModel(
             if (!namesRequested.add(uid)) continue
             profileRepository.observePublicProfile(uid)
                 .onEach { profile ->
-                    if (profile != null) setState { copy(riderNames = riderNames + (uid to profile.firstName)) }
+                    if (profile != null) {
+                        setState {
+                            copy(
+                                riderNames = riderNames + (uid to profile.firstName),
+                                riderPhotos = riderPhotos + (uid to profile.photoPath),
+                            )
+                        }
+                    }
                 }
                 .launchIn(viewModelScope)
         }

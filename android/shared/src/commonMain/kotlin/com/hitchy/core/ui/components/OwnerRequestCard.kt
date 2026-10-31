@@ -36,6 +36,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 fun OwnerRequestCard(
     riderName: String,
     riderInitials: String,
+    riderPhotoPath: String? = null,
     riderRating: Double,
     seatsRequested: Int,
     deadlineRemaining: String,
@@ -97,7 +98,7 @@ fun OwnerRequestCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(spacing.space12),
             ) {
-                Avatar(initials = riderInitials, size = AvatarSize.MD)
+                Avatar(initials = riderInitials, size = AvatarSize.MD, photoPath = riderPhotoPath)
 
                 Column(modifier = Modifier.weight(1f)) {
                     Text(

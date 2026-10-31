@@ -41,6 +41,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hitchy.core.model.AppLanguage
 import com.hitchy.core.ui.cairoTime12
 import com.hitchy.core.ui.components.Avatar
+import com.hitchy.core.ui.components.AvatarImage
 import com.hitchy.core.ui.components.AvatarSize
 import com.hitchy.core.ui.components.BackButton
 import com.hitchy.core.ui.components.BackButtonStyle
@@ -449,7 +450,12 @@ private fun ResultHostRow(host: RideHost) {
             modifier = Modifier.size(44.dp).clip(CircleShape).background(colors.lavender),
             contentAlignment = Alignment.Center,
         ) {
-            Text(text = host.firstName.take(2).uppercase(), style = typography.bodyBold, color = colors.purple)
+            AvatarImage(
+                photoPath = host.photoPath,
+                initials = host.firstName.take(2).uppercase(),
+                textStyle = typography.bodyBold,
+                textColor = colors.purple,
+            )
         }
         Column(modifier = Modifier.weight(1f)) {
             Text(text = host.firstName, style = typography.bodyBold, color = colors.navy, maxLines = 1)

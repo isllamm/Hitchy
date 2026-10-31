@@ -1,85 +1,121 @@
 [
   {
     "id": "fifth_settlement",
-    "name": { "ar": "التجمع الخامس", "en": "Fifth Settlement" },
+    "name": {
+      "ar": "التجمع الخامس",
+      "en": "Fifth Settlement"
+    },
     "active": true,
     "order": 1,
     "points": [
       {
         "id": "p1",
-        "name": { "ar": "نقطة تجريبية 1", "en": "Test point 1" },
-        "lat": 30.001,
-        "lng": 31.401,
+        "name": {
+          "ar": "كايرو فستيفال سيتي مول",
+          "en": "Cairo Festival City Mall"
+        },
+        "lat": 30.028135,
+        "lng": 31.40767,
         "active": true
       },
       {
         "id": "p2",
-        "name": { "ar": "نقطة تجريبية 2", "en": "Test point 2" },
-        "lat": 30.002,
-        "lng": 31.402,
+        "name": {
+          "ar": "بوينت 90 مول",
+          "en": "Point 90 Mall"
+        },
+        "lat": 30.020257,
+        "lng": 31.494718,
         "active": true
       },
       {
         "id": "p3",
-        "name": { "ar": "نقطة تجريبية 3", "en": "Test point 3" },
-        "lat": 30.003,
-        "lng": 31.403,
+        "name": {
+          "ar": "داون تاون مول (القطامية)",
+          "en": "Downtown Mall (Katameya)"
+        },
+        "lat": 30.017339,
+        "lng": 31.412463,
         "active": true
       }
     ]
   },
   {
     "id": "rehab",
-    "name": { "ar": "الرحاب", "en": "Rehab" },
+    "name": {
+      "ar": "الرحاب",
+      "en": "Rehab"
+    },
     "active": true,
     "order": 2,
     "points": [
       {
         "id": "p1",
-        "name": { "ar": "نقطة تجريبية 1", "en": "Test point 1" },
-        "lat": 30.051,
-        "lng": 31.481,
+        "name": {
+          "ar": "جيت واي مول الرحاب",
+          "en": "Gateway Mall, Al Rehab"
+        },
+        "lat": 30.064121,
+        "lng": 31.479791,
         "active": true
       },
       {
         "id": "p2",
-        "name": { "ar": "نقطة تجريبية 2", "en": "Test point 2" },
-        "lat": 30.052,
-        "lng": 31.482,
+        "name": {
+          "ar": "الرحاب مول 1",
+          "en": "Al Rehab Mall 1"
+        },
+        "lat": 30.058971,
+        "lng": 31.49582,
         "active": true
       },
       {
         "id": "p3",
-        "name": { "ar": "نقطة تجريبية 3", "en": "Test point 3" },
-        "lat": 30.053,
-        "lng": 31.483,
+        "name": {
+          "ar": "أفينيو مول الرحاب",
+          "en": "Avenue Mall, Al Rehab"
+        },
+        "lat": 30.058325,
+        "lng": 31.509522,
         "active": true
       }
     ]
   },
   {
     "id": "smart_village",
-    "name": { "ar": "القرية الذكية", "en": "Smart Village" },
+    "name": {
+      "ar": "القرية الذكية",
+      "en": "Smart Village"
+    },
     "active": true,
     "order": 3,
     "points": [
       {
         "id": "p1",
-        "name": { "ar": "نقطة تجريبية 1", "en": "Test point 1" },
-        "lat": 30.071,
-        "lng": 31.011,
+        "name": {
+          "ar": "القرية الذكية",
+          "en": "Smart Village"
+        },
+        "lat": 30.071941,
+        "lng": 31.018528,
         "active": true
       },
       {
         "id": "p2",
-        "name": { "ar": "نقطة تجريبية 2", "en": "Test point 2" },
-        "lat": 30.072,
-        "lng": 31.012,
+        "name": {
+          "ar": "القرية الذكية (الطريق الصحراوي)",
+          "en": "Smart Village (Desert Road)"
+        },
+        "lat": 30.064127,
+        "lng": 31.023653,
         "active": true
       },
       {
         "id": "p3",
-        "name": { "ar": "نقطة تجريبية 3", "en": "Test point 3" },
+        "name": {
+          "ar": "نقطة تجريبية 3",
+          "en": "Test point 3"
+        },
         "lat": 30.073,
         "lng": 31.013,
         "active": true
@@ -88,27 +124,39 @@
   },
   {
     "id": "zewail_city",
-    "name": { "ar": "مدينة زويل", "en": "Zewail City" },
+    "name": {
+      "ar": "مدينة زويل",
+      "en": "Zewail City"
+    },
     "active": true,
     "order": 4,
     "points": [
       {
         "id": "p1",
-        "name": { "ar": "نقطة تجريبية 1", "en": "Test point 1" },
+        "name": {
+          "ar": "نقطة تجريبية 1",
+          "en": "Test point 1"
+        },
         "lat": 29.961,
         "lng": 31.041,
         "active": true
       },
       {
         "id": "p2",
-        "name": { "ar": "نقطة تجريبية 2", "en": "Test point 2" },
+        "name": {
+          "ar": "نقطة تجريبية 2",
+          "en": "Test point 2"
+        },
         "lat": 29.962,
         "lng": 31.042,
         "active": true
       },
       {
         "id": "p3",
-        "name": { "ar": "نقطة تجريبية 3", "en": "Test point 3" },
+        "name": {
+          "ar": "نقطة تجريبية 3",
+          "en": "Test point 3"
+        },
         "lat": 29.963,
         "lng": 31.043,
         "active": true

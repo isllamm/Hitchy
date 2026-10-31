@@ -35,6 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hitchy.core.model.AppLanguage
+import com.hitchy.core.ui.components.AvatarImage
 import com.hitchy.core.ui.figmaLinearGradient
 import com.hitchy.core.ui.figmaShadow
 import com.hitchy.core.ui.figmaTop
@@ -84,6 +85,7 @@ private val STATUS_BAR = 52.dp
 @Composable
 internal fun MoreHeader(
     initials: String,
+    photoPath: String?,
     name: String,
     verified: Boolean,
     ratingLine: String,
@@ -128,7 +130,12 @@ internal fun MoreHeader(
                 modifier = Modifier.size(56.dp).clip(CircleShape).background(colors.white),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(text = initials, style = typography.h3, color = colors.purple)
+                AvatarImage(
+                    photoPath = photoPath,
+                    initials = initials,
+                    textStyle = typography.h3,
+                    textColor = colors.purple,
+                )
             }
             Column(
                 modifier = Modifier.weight(1f).padding(start = 8.dp),

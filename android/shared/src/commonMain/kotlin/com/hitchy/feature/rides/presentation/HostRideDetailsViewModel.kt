@@ -26,6 +26,7 @@ data class HostRideDetailsState(
     val pendingBookings: List<Booking> = emptyList(),
     val confirmedBookings: List<Booking> = emptyList(),
     val riderNames: Map<String, String> = emptyMap(),
+    val riderPhotos: Map<String, String?> = emptyMap(),
     val isResponding: Boolean = false,
     val isCancelling: Boolean = false,
     val messageAlert: StringResource? = null,
@@ -106,7 +107,14 @@ class HostRideDetailsViewModel(
             if (!namesRequested.add(uid)) continue
             profileRepository.observePublicProfile(uid)
                 .onEach { profile ->
-                    if (profile != null) setState { copy(riderNames = riderNames + (uid to profile.firstName)) }
+                    if (profile != null) {
+                        setState {
+                            copy(
+                                riderNames = riderNames + (uid to profile.firstName),
+                                riderPhotos = riderPhotos + (uid to profile.photoPath),
+                            )
+                        }
+                    }
                 }
                 .launchIn(viewModelScope)
         }

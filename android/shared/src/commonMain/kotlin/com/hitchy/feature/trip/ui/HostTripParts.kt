@@ -242,6 +242,7 @@ internal fun RiderStatusCard(
             RiderStatusRow(
                 booking = booking,
                 name = riderDisplayName(state.riderNames, booking.riderUid),
+                photoPath = state.riderPhotos[booking.riderUid],
                 phase = state.phase,
                 isCurrent = booking.riderUid == currentUid,
                 language = language,
@@ -277,6 +278,7 @@ internal fun RiderStatusCard(
 private fun RiderStatusRow(
     booking: Booking,
     name: String,
+    photoPath: String?,
     phase: HostTripPhase,
     isCurrent: Boolean,
     language: AppLanguage,
@@ -293,7 +295,7 @@ private fun RiderStatusRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Avatar(initials = name.take(2).uppercase())
+        Avatar(initials = name.take(2).uppercase(), photoPath = photoPath)
         Column(modifier = Modifier.weight(1f)) {
             Text(text = name, style = typography.bodyStrong, color = colors.navy, maxLines = 1)
             Text(

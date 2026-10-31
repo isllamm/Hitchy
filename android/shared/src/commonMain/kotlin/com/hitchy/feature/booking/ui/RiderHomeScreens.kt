@@ -151,6 +151,7 @@ fun HomeScreen(
                 selectedItem = selectedTab,
                 onItemSelected = { selectedTab = it },
                 userInitials = initials,
+                userPhotoPath = me?.photoPath,
                 onAddRide = if (activeRole == Role.HOST) onOpenPostRide else null,
             )
         }

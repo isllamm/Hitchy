@@ -23,6 +23,7 @@ import kotlinx.coroutines.launch
 data class OwnerHomeState(
     val firstName: String = "",
     val lastName: String = "",
+    val photoPath: String? = null,
     val pointsBalance: Int = 0,
     val hostTier: Tier = Tier.BRONZE,
     /** The end of the owner's free month (ISO), or null. */
@@ -65,6 +66,7 @@ class OwnerHomeViewModel(
                         copy(
                             firstName = me.firstName,
                             lastName = me.lastName,
+                            photoPath = me.photoPath,
                             pointsBalance = me.pointsBalance,
                             hostTier = me.host.tier,
                             freeUntil = me.host.freeUntil,
