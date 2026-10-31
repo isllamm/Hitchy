@@ -140,6 +140,7 @@ The repo was set up from [docs/BUILD_PLAN.md](../BUILD_PLAN.md) on 2026-10-28. A
 | 120 | The map is always light (`ComposeMapColorScheme.LIGHT`). Before, it followed the phone's dark mode and the navy logo on top could not be read. | Found on a real phone. |
 | 121 | `AndroidLanguageSwitcher.getCurrentLanguage()` reads the system locale the strings use, not the app-locale setting. The app asks for Arabic (DECISION-04) but the screens come up in English on an English phone, so names from the data (points, zones) showed Arabic under English text. DECISION-04 is not changed. | Found on a real phone. |
 | 122 | The owner's request card has a `showReviewBadge` flag (default on, off on the real screen), so the "Needs design review" badge stays only in the gallery. Role cards use a minimum height so their second line is not cut. The pickup name in the results walk line is wrapped in direction marks so Arabic names keep the order. Stray backslashes in two strings and the `%1$02d` wait timer format (not supported by Compose resources) are fixed. | Found on a real phone. |
+| 123 | The Android CI `check` job has `timeout-minutes: 30`. Before, a hung test kept it running for the 6 hour default. The owner trip test steps with `runCurrent()` at a stop, because the free-wait timer never lets the test scheduler go idle. | Main's Android CI was cancelled after 6 hours on every push since #59. |
 
 ## Consequences
 
